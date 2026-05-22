@@ -7,6 +7,8 @@ import type { UserDocument } from "@/lib/types";
 export type DashboardStats = {
   totalDocuments: number;
   documentsUploadedThisMonth: number;
+  analyzedDocuments: number;
+  processingDocuments: number;
   latestDocument: UserDocument | null;
   totalStorageUsed: number;
 };
@@ -56,6 +58,12 @@ export const getDashboardStats = cache(async (): Promise<DashboardStats> => {
     totalDocuments: documents.length,
     documentsUploadedThisMonth: documents.filter((document) =>
       isUploadedThisMonth(document, monthStart, nextMonthStart)
+    ).length,
+    analyzedDocuments: documents.filter(
+      (document) => document.status === "analyzed"
+    ).length,
+    processingDocuments: documents.filter(
+      (document) => document.status === "processing"
     ).length,
     latestDocument: documents[0] ?? null,
     totalStorageUsed: await getStorageUsage(),

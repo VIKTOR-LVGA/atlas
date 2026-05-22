@@ -12,7 +12,13 @@ export type PolicyHealthStatus = "ok" | "attention" | "critical";
 
 export type AlertSeverity = "high" | "medium" | "low" | "info";
 
-export type DocumentStatus = "uploaded" | "analyzing" | "completed" | "error";
+export type DocumentStatus = "uploaded" | "processing" | "analyzed" | "failed";
+
+type DemoDocumentStatus =
+  | DocumentStatus
+  | "analyzing"
+  | "completed"
+  | "error";
 
 export type RecommendationPriority = "high" | "medium" | "low";
 
@@ -63,7 +69,7 @@ export interface Document {
   type: string;
   category: string;
   uploadedAt: string;
-  status: DocumentStatus;
+  status: DemoDocumentStatus;
   policyId?: string;
   size: string;
 }
@@ -74,7 +80,7 @@ export interface UserDocument {
   filePath: string;
   fileSize: number | null;
   mimeType: string | null;
-  status: string;
+  status: DocumentStatus;
   createdAt: string;
   updatedAt: string;
 }
@@ -84,6 +90,8 @@ export type PolicyPremiumFrequency =
   | "quarterly"
   | "semiannual"
   | "annual";
+
+export type PolicySource = "manual" | "ai_draft";
 
 export interface UserPolicyDocument {
   id: string;
@@ -102,6 +110,8 @@ export interface UserPolicy {
   deductible: number | null;
   renewalDate: string | null;
   notes: string | null;
+  source: PolicySource;
+  requiresReview: boolean;
   status: string;
   createdAt: string;
   updatedAt: string;
@@ -116,6 +126,11 @@ export interface PolicyInput {
   deductible: number | null;
   renewalDate: string | null;
   notes: string | null;
+}
+
+export interface PolicyCreationMetadata {
+  source?: PolicySource;
+  requiresReview?: boolean;
 }
 
 export interface Benchmark {

@@ -2,7 +2,7 @@ import "server-only";
 
 import { randomUUID } from "node:crypto";
 import { cache } from "react";
-import type { UserDocument } from "@/lib/types";
+import type { DocumentStatus, UserDocument } from "@/lib/types";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 const POLICY_DOCUMENTS_BUCKET = "policy-documents";
@@ -24,6 +24,28 @@ export class DocumentManagementError extends Error {
   }
 }
 
+const documentStatuses = [
+  "uploaded",
+  "processing",
+  "analyzed",
+  "failed",
+] as const;
+
+function toDocumentStatus(status: string): DocumentStatus {
+  if (documentStatuses.includes(status as DocumentStatus)) {
+    return status as DocumentStatus;
+  }
+
+  switch (status) {
+    case "analyzing":
+      return "processing";
+    case "completed":
+      return "analyzed";
+    default:
+      return status === "error" ? "failed" : "uploaded";
+  }
+}
+
 function toUserDocument(document: {
   id: string;
   file_name: string;
@@ -41,7 +63,7 @@ function toUserDocument(document: {
     fileSize:
       document.file_size === null ? null : Number.parseInt(String(document.file_size), 10),
     mimeType: document.mime_type,
-    status: document.status,
+    status: toDocumentStatus(document.status),
     createdAt: document.created_at,
     updatedAt: document.updated_at,
   };
@@ -202,6 +224,34 @@ export async function createSignedDocumentUrl(document: UserDocument) {
   }
 
   return data.signedUrl;
+}
+
+export async function updateCurrentUserDocumentStatus(
+  id: string,
+  status: DocumentStatus
+) {
+  const supabase = await getSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new DocumentManagementError("Accedi di nuovo per aggiornare il documento.");
+  }
+
+  const { data, error } = await supabase
+    .from("documents")
+    .update({ status })
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .select("id, file_name, file_path, file_size, mime_type, status, created_at, updated_at")
+    .maybeSingle();
+
+  if (error) {
+    throw new DocumentManagementError("Stato documento non aggiornato.");
+  }
+
+  return data ? toUserDocument(data) : null;
 }
 
 export async function deleteCurrentUserDocument(id: string) {

@@ -12,6 +12,7 @@ import {
   MoreVertical,
 } from "lucide-react";
 import { DocumentDeleteForm } from "@/components/documents/DocumentDeleteForm";
+import { DocumentAnalysisForm } from "@/components/documents/DocumentAnalysisForm";
 import { DocumentStatusBadge } from "@/components/documents/DocumentStatusBadge";
 import type { UserDocument } from "@/lib/types";
 import { cn, formatDate, formatFileSize } from "@/lib/utils";
@@ -98,6 +99,11 @@ function MobileActionMenu({ document }: { document: UserDocument }) {
           <Download className="h-3.5 w-3.5" />
           Scarica PDF
         </a>
+        <DocumentAnalysisForm
+          documentId={document.id}
+          documentStatus={document.status}
+          variant="menu"
+        />
         <DocumentDeleteForm documentId={document.id} variant="menu" />
       </div>
     </details>
@@ -204,6 +210,11 @@ export function DocumentList({ documents }: { documents: UserDocument[] }) {
                     >
                       <DocumentButtonLink document={document} kind="detail" />
                       <DocumentButtonLink document={document} kind="download" />
+                      <DocumentAnalysisForm
+                        documentId={document.id}
+                        documentStatus={document.status}
+                        variant="icon"
+                      />
                       <DocumentDeleteForm documentId={document.id} variant="icon" />
                     </div>
                   </td>
@@ -256,6 +267,11 @@ export function DocumentList({ documents }: { documents: UserDocument[] }) {
                 <div className="flex items-center gap-1.5">
                   <DocumentButtonLink document={document} kind="detail" />
                   <DocumentButtonLink document={document} kind="download" />
+                  <DocumentAnalysisForm
+                    documentId={document.id}
+                    documentStatus={document.status}
+                    variant="icon"
+                  />
                   <DocumentDeleteForm documentId={document.id} variant="icon" />
                 </div>
                 <MobileActionMenu document={document} />

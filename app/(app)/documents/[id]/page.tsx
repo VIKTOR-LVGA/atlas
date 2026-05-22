@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Download, PlusCircle } from "lucide-react";
 import { DocumentDeleteForm } from "@/components/documents/DocumentDeleteForm";
+import { DocumentAnalysisForm } from "@/components/documents/DocumentAnalysisForm";
 import { DocumentStatusBadge } from "@/components/documents/DocumentStatusBadge";
 import { IconDocuments } from "@/components/icons";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -80,6 +81,10 @@ export default async function DocumentDetailPage({ params }: PageProps) {
 
         <SectionCard title="Azioni" padding="md">
           <div className="space-y-3">
+            <DocumentAnalysisForm
+              documentId={document.id}
+              documentStatus={document.status}
+            />
             <Link
               href={`/policies/new?documentId=${document.id}`}
               className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-[13px] font-medium text-white hover:bg-blue-700"

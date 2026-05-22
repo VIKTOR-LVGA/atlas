@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { FileText, PencilLine } from "lucide-react";
+import { FileText, PencilLine, Sparkles } from "lucide-react";
 import { PolicyDeleteForm } from "@/components/policies/PolicyDeleteForm";
 import { IconPolicies } from "@/components/icons";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -23,6 +23,13 @@ const premiumFrequencyLabels: Record<PolicyPremiumFrequency, string> = {
   annual: "Annuale",
 };
 
+const mockConfidenceIndicators = [
+  { label: "Compagnia", value: 94 },
+  { label: "Tipo polizza", value: 91 },
+  { label: "Premio", value: 86 },
+  { label: "Franchigia", value: 82 },
+] as const;
+
 export default async function PolicyDetailPage({ params }: PageProps) {
   const { id } = await params;
   const policy = await getCurrentUserPolicyById(id);
@@ -41,12 +48,73 @@ export default async function PolicyDetailPage({ params }: PageProps) {
         title={policy.provider}
         description={policy.policyType}
         action={
-          <StatusBadge
-            variant={policy.status === "active" ? "active" : "neutral"}
-            label={policy.status === "active" ? "Attiva" : policy.status}
-          />
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {policy.requiresReview && (
+              <StatusBadge variant="attention" label="Da rivedere" />
+            )}
+            <StatusBadge
+              variant={policy.status === "active" ? "active" : "neutral"}
+              label={policy.status === "active" ? "Attiva" : policy.status}
+            />
+          </div>
         }
       />
+
+      {policy.source === "ai_draft" && (
+        <SectionCard
+          title="Bozza estratta da Atlas"
+          description="Estrazione simulata dal PDF: nessun OCR o modello esterno in questa fase."
+          action={
+            <StatusBadge
+              variant={policy.requiresReview ? "attention" : "ok"}
+              label={policy.requiresReview ? "Revisione richiesta" : "Revisionata"}
+            />
+          }
+        >
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px]">
+            <div className="rounded-xl border border-indigo-100 bg-indigo-50/60 p-4">
+              <div className="flex items-start gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-indigo-600 shadow-sm">
+                  <Sparkles className="h-4 w-4" />
+                </span>
+                <div>
+                  <p className="text-[13px] font-semibold text-slate-900">
+                    Draft precompilato
+                  </p>
+                  <p className="mt-1 text-[12px] leading-relaxed text-slate-600">
+                    Provider, tipo polizza e importi sono suggerimenti mock. Apri
+                    la modifica per confermare i campi prima di usarli come dato
+                    assicurativo affidabile.
+                  </p>
+                  <Link
+                    href={`/policies/${policy.id}/edit`}
+                    className="mt-3 inline-flex rounded-lg bg-white px-3.5 py-2 text-[12px] font-medium text-indigo-700 shadow-sm ring-1 ring-inset ring-indigo-100 hover:bg-indigo-50"
+                  >
+                    Rivedi bozza
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2.5">
+              {mockConfidenceIndicators.map((indicator) => (
+                <div key={indicator.label} className="rounded-xl border border-slate-100 p-3">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="font-medium text-slate-600">{indicator.label}</span>
+                    <span className="text-indigo-600">{indicator.value}% mock</span>
+                  </div>
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                    <div
+                      className="h-full rounded-full bg-indigo-500"
+                      style={{ width: `${indicator.value}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </SectionCard>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
         <SectionCard title="Dati polizza" padding="md">

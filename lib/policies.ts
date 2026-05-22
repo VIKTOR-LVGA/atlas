@@ -3,8 +3,10 @@ import "server-only";
 import { cache } from "react";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import type {
+  PolicyCreationMetadata,
   PolicyInput,
   PolicyPremiumFrequency,
+  PolicySource,
   UserPolicy,
   UserPolicyDocument,
 } from "@/lib/types";
@@ -17,7 +19,7 @@ const policyPremiumFrequencies = [
 ] as const;
 
 const policySelect =
-  "id, user_id, document_id, provider, policy_type, premium_amount, premium_frequency, deductible, renewal_date, notes, status, created_at, updated_at";
+  "id, user_id, document_id, provider, policy_type, premium_amount, premium_frequency, deductible, renewal_date, notes, source, requires_review, status, created_at, updated_at";
 
 type PolicyRow = {
   id: string;
@@ -30,6 +32,8 @@ type PolicyRow = {
   deductible: number | string | null;
   renewal_date: string | null;
   notes: string | null;
+  source: string | null;
+  requires_review: boolean | null;
   status: string | null;
   created_at: string;
   updated_at: string;
@@ -58,6 +62,10 @@ function toPolicyPremiumFrequency(value: string | null): PolicyPremiumFrequency 
     : "monthly";
 }
 
+function toPolicySource(value: string | null): PolicySource {
+  return value === "ai_draft" ? value : "manual";
+}
+
 function toUserPolicy(
   policy: PolicyRow,
   documents: Map<string, UserPolicyDocument>
@@ -74,6 +82,8 @@ function toUserPolicy(
     deductible: toNullableNumber(policy.deductible),
     renewalDate: policy.renewal_date,
     notes: policy.notes,
+    source: toPolicySource(policy.source),
+    requiresReview: policy.requires_review ?? false,
     status: policy.status ?? "active",
     createdAt: policy.created_at,
     updatedAt: policy.updated_at,
@@ -239,7 +249,10 @@ export const getCurrentUserPolicyById = cache(
   }
 );
 
-export async function createPolicy(input: PolicyInput): Promise<UserPolicy> {
+export async function createPolicy(
+  input: PolicyInput,
+  metadata: PolicyCreationMetadata = {}
+): Promise<UserPolicy> {
   const policyInput = normalizePolicyInput(input);
   const { supabase, user } = await getPolicyUser();
 
@@ -264,6 +277,8 @@ export async function createPolicy(input: PolicyInput): Promise<UserPolicy> {
       deductible: policyInput.deductible,
       renewal_date: policyInput.renewalDate,
       notes: policyInput.notes,
+      source: metadata.source ?? "manual",
+      requires_review: metadata.requiresReview ?? false,
     })
     .select(policySelect)
     .single();
@@ -301,6 +316,7 @@ export async function updatePolicy(id: string, input: PolicyInput) {
       deductible: policyInput.deductible,
       renewal_date: policyInput.renewalDate,
       notes: policyInput.notes,
+      requires_review: false,
     })
     .eq("id", id)
     .eq("user_id", user.id)

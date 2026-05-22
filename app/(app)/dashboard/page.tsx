@@ -49,6 +49,23 @@ const pendingAnalysisItems = [
   },
 ] as const;
 
+function getActivityTimestamp(status: string, createdAt: string, updatedAt: string) {
+  return status === "uploaded" ? createdAt : updatedAt;
+}
+
+function getActivityCopy(status: string) {
+  switch (status) {
+    case "analyzed":
+      return "Analisi completata";
+    case "processing":
+      return "Analisi in corso";
+    case "failed":
+      return "Analisi fallita";
+    default:
+      return "PDF pronto per analisi";
+  }
+}
+
 function getPremiumFrequencyLabel(frequency: string) {
   switch (frequency) {
     case "quarterly":
@@ -70,6 +87,8 @@ export default async function DashboardPage() {
     getCurrentUserPolicies(),
   ]);
   const latestDocument = documentStats.latestDocument;
+  const pendingReviewPolicies = policies.filter((policy) => policy.requiresReview);
+  const hasCompletedAnalysis = documentStats.analyzedDocuments > 0;
 
   return (
     <div className="space-y-5">
@@ -78,7 +97,14 @@ export default async function DashboardPage() {
         description="Il tuo archivio documenti e aggiornato. L'analisi assicurativa arrivera dopo l'elaborazione."
         action={
           <div className="flex flex-wrap items-center gap-2">
-            <StatusBadge variant="processing" label="Analysis pending" />
+            <StatusBadge
+              variant={hasCompletedAnalysis ? "completed" : "processing"}
+              label={
+                hasCompletedAnalysis
+                  ? "Analisi completata"
+                  : "Analisi simulata pronta"
+              }
+            />
             <PrimaryButton href="/documents" icon={<span className="text-lg leading-none">+</span>}>
               Carica nuova polizza
             </PrimaryButton>
@@ -207,8 +233,8 @@ export default async function DashboardPage() {
         </div>
 
         <SectionCard
-          title="Attivita recente"
-          description="Feed generato dai tuoi upload."
+          title="Attivita analisi"
+          description="Feed generato dai tuoi PDF e dalle bozze assistite."
           padding="sm"
         >
           {recentDocuments.length > 0 ? (
@@ -227,12 +253,27 @@ export default async function DashboardPage() {
                         {document.fileName}
                       </span>
                       <span className="mt-0.5 block text-[11px] text-slate-500">
-                        PDF caricato {formatRelativeTime(document.createdAt)}
+                        {getActivityCopy(document.status)}{" "}
+                        {formatRelativeTime(
+                          getActivityTimestamp(
+                            document.status,
+                            document.createdAt,
+                            document.updatedAt
+                          )
+                        )}
                       </span>
                       <span className="mt-0.5 block text-[10px] text-slate-400">
-                        {formatDateTime(document.createdAt)} / {formatFileSize(document.fileSize)}
+                        {formatDateTime(
+                          getActivityTimestamp(
+                            document.status,
+                            document.createdAt,
+                            document.updatedAt
+                          )
+                        )}{" "}
+                        / {formatFileSize(document.fileSize)}
                       </span>
                     </span>
+                    <DocumentStatusBadge status={document.status} />
                   </Link>
                 </li>
               ))}
@@ -243,7 +284,7 @@ export default async function DashboardPage() {
                 Attivita in attesa
               </p>
               <p className="mt-1 text-[12px] leading-relaxed text-slate-500">
-                Gli upload recenti compariranno qui con nome, dimensione e orario.
+                Upload e analisi simulate compariranno qui con nome, stato e orario.
               </p>
             </div>
           )}
@@ -256,7 +297,7 @@ export default async function DashboardPage() {
             title="Le tue polizze"
             description={
               policies.length > 0
-                ? "Schede manuali collegate ai tuoi documenti quando disponibili."
+                ? "Schede manuali e bozze assistite collegate ai tuoi documenti."
                 : "L'archivio polizze si popolera dopo l'analisi dei PDF caricati."
             }
             action={
@@ -268,51 +309,75 @@ export default async function DashboardPage() {
             }
           >
             {policies.length > 0 ? (
-              <div className="grid min-h-[286px] gap-3 md:grid-cols-2">
-                {policies.slice(0, 4).map((policy) => (
-                  <Link
-                    key={policy.id}
-                    href={`/policies/${policy.id}`}
-                    className="flex flex-col rounded-xl border border-slate-100 bg-white p-4 transition hover:border-blue-100 hover:bg-blue-50/30"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <span className="min-w-0">
-                        <span className="block truncate text-[13px] font-semibold text-slate-900">
-                          {policy.provider}
+              <div className="min-h-[286px] space-y-3">
+                {pendingReviewPolicies.length > 0 && (
+                  <div className="flex flex-col gap-3 rounded-xl border border-indigo-100 bg-indigo-50/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <StatusBadge variant="attention" label="Revisione richiesta" />
+                        <span className="text-[12px] font-semibold text-slate-900">
+                          {pendingReviewPolicies.length} bozze da verificare
                         </span>
-                        <span className="mt-0.5 block truncate text-[11px] text-slate-500">
-                          {policy.policyType}
-                        </span>
-                      </span>
-                      <StatusBadge
-                        variant={policy.status === "active" ? "active" : "neutral"}
-                        label={policy.status === "active" ? "Attiva" : policy.status}
-                      />
+                      </div>
+                      <p className="mt-1 text-[12px] text-slate-600">
+                        L&apos;analisi mock ha precompilato polizze da confermare.
+                      </p>
                     </div>
-                    <div className="mt-auto grid grid-cols-2 gap-3 border-t border-slate-50 pt-3 text-[11px]">
-                      <span>
-                        <span className="block uppercase tracking-wide text-slate-400">
-                          Premio
+                    <Link
+                      href={`/policies/${pendingReviewPolicies[0].id}`}
+                      className="rounded-lg bg-white px-3.5 py-2 text-[12px] font-medium text-indigo-700 shadow-sm ring-1 ring-inset ring-indigo-100 hover:bg-indigo-50"
+                    >
+                      Rivedi bozza
+                    </Link>
+                  </div>
+                )}
+
+                <div className="grid gap-3 md:grid-cols-2">
+                  {policies.slice(0, 4).map((policy) => (
+                    <Link
+                      key={policy.id}
+                      href={`/policies/${policy.id}`}
+                      className="flex flex-col rounded-xl border border-slate-100 bg-white p-4 transition hover:border-blue-100 hover:bg-blue-50/30"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="min-w-0">
+                          <span className="block truncate text-[13px] font-semibold text-slate-900">
+                            {policy.provider}
+                          </span>
+                          <span className="mt-0.5 block truncate text-[11px] text-slate-500">
+                            {policy.policyType}
+                          </span>
                         </span>
-                        <span className="mt-1 block font-medium text-slate-800">
-                          {policy.premiumAmount === null
-                            ? "Da completare"
-                            : `${formatCHF(policy.premiumAmount)} / ${getPremiumFrequencyLabel(policy.premiumFrequency)}`}
+                        <StatusBadge
+                          variant={policy.requiresReview ? "attention" : "active"}
+                          label={policy.requiresReview ? "Da rivedere" : "Attiva"}
+                        />
+                      </div>
+                      <div className="mt-auto grid grid-cols-2 gap-3 border-t border-slate-50 pt-3 text-[11px]">
+                        <span>
+                          <span className="block uppercase tracking-wide text-slate-400">
+                            Premio
+                          </span>
+                          <span className="mt-1 block font-medium text-slate-800">
+                            {policy.premiumAmount === null
+                              ? "Da completare"
+                              : `${formatCHF(policy.premiumAmount)} / ${getPremiumFrequencyLabel(policy.premiumFrequency)}`}
+                          </span>
                         </span>
-                      </span>
-                      <span>
-                        <span className="block uppercase tracking-wide text-slate-400">
-                          Rinnovo
+                        <span>
+                          <span className="block uppercase tracking-wide text-slate-400">
+                            Rinnovo
+                          </span>
+                          <span className="mt-1 block font-medium text-slate-800">
+                            {policy.renewalDate
+                              ? formatDate(policy.renewalDate)
+                              : "Da completare"}
+                          </span>
                         </span>
-                        <span className="mt-1 block font-medium text-slate-800">
-                          {policy.renewalDate
-                            ? formatDate(policy.renewalDate)
-                            : "Da completare"}
-                        </span>
-                      </span>
-                    </div>
-                  </Link>
-                ))}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="flex min-h-[286px] flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/40 px-6 py-10 text-center">

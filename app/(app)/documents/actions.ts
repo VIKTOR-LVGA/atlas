@@ -5,6 +5,10 @@ import "server-only";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
+  analyzeCurrentUserDocument,
+  DocumentAnalysisError,
+} from "@/lib/document-analysis";
+import {
   deleteCurrentUserDocument,
   DocumentManagementError,
   DocumentUploadError,
@@ -17,6 +21,7 @@ export type UploadDocumentActionState = {
 };
 
 export type DeleteDocumentActionState = UploadDocumentActionState;
+export type AnalyzeDocumentActionState = UploadDocumentActionState;
 
 export async function uploadDocumentAction(
   _previousState: UploadDocumentActionState,
@@ -91,4 +96,38 @@ export async function deleteDocumentAction(
     status: "success",
     message: "Documento eliminato.",
   };
+}
+
+export async function analyzeDocumentAction(
+  id: string,
+  _previousState: AnalyzeDocumentActionState,
+  formData: FormData
+): Promise<AnalyzeDocumentActionState> {
+  void formData;
+
+  let policyId: string;
+
+  try {
+    const policy = await analyzeCurrentUserDocument(id);
+    policyId = policy.id;
+  } catch (error) {
+    revalidatePath("/documents");
+    revalidatePath("/dashboard");
+    revalidatePath(`/documents/${id}`);
+
+    return {
+      status: "error",
+      message:
+        error instanceof DocumentAnalysisError ||
+        error instanceof DocumentManagementError
+          ? error.message
+          : "Analisi simulata non riuscita. Riprova tra poco.",
+    };
+  }
+
+  revalidatePath("/documents");
+  revalidatePath("/dashboard");
+  revalidatePath("/policies");
+  revalidatePath(`/documents/${id}`);
+  redirect(`/policies/${policyId}`);
 }

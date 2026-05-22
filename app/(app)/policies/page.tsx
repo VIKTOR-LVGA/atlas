@@ -68,10 +68,15 @@ export default async function PoliciesPage() {
                       {policy.policyType}
                     </p>
                   </Link>
-                  <StatusBadge
-                    variant={policy.status === "active" ? "active" : "neutral"}
-                    label={policy.status === "active" ? "Attiva" : policy.status}
-                  />
+                  <div className="flex shrink-0 flex-col items-end gap-1">
+                    <StatusBadge
+                      variant={policy.status === "active" ? "active" : "neutral"}
+                      label={policy.status === "active" ? "Attiva" : policy.status}
+                    />
+                    {policy.requiresReview && (
+                      <StatusBadge variant="attention" label="Da rivedere" />
+                    )}
+                  </div>
                 </div>
 
                 <dl className="mt-4 grid grid-cols-2 gap-3 text-[12px]">
@@ -105,6 +110,11 @@ export default async function PoliciesPage() {
                   ) : (
                     <span className="text-[11px] text-slate-400">
                       Nessun PDF collegato
+                    </span>
+                  )}
+                  {policy.source === "ai_draft" && (
+                    <span className="text-[11px] font-medium text-indigo-600">
+                      Bozza AI
                     </span>
                   )}
                   <Link
