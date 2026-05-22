@@ -2,8 +2,11 @@ import Link from "next/link";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatCard } from "@/components/ui/StatCard";
 import { SectionCard } from "@/components/ui/SectionCard";
-import { StatusBadge } from "@/components/ui/StatusBadge";
-import { LinkAction } from "@/components/ui/LinkAction";
+import {
+  StatusBadge,
+  type StatusBadgeVariant,
+} from "@/components/ui/StatusBadge";
+import { DocumentUploadForm } from "@/components/documents/DocumentUploadForm";
 import {
   IconFolder,
   IconUpload,
@@ -12,35 +15,39 @@ import {
   IconFilter,
   IconDocuments,
 } from "@/components/icons";
-import { documents, dashboardStats } from "@/lib/mock-data";
-import { formatDate } from "@/lib/utils";
+import { getCurrentUserDocuments } from "@/lib/documents";
+import { formatDate, formatFileSize } from "@/lib/utils";
 
 export const metadata = { title: "Documenti" };
 
-const docStatusMap = {
-  completed: "completed" as const,
-  analyzing: "processing" as const,
-  uploaded: "processing" as const,
-  error: "error" as const,
+const docStatusMap: Record<string, StatusBadgeVariant> = {
+  completed: "completed",
+  analyzing: "processing",
+  uploaded: "processing",
+  error: "error",
 };
 
-const docStatusLabel = {
+const docStatusLabel: Record<string, string> = {
   completed: "Completato",
   analyzing: "In elaborazione",
   uploaded: "Caricato",
-  error: "Errore OCR",
+  error: "Errore",
 };
 
-const categories = [
-  { label: "Auto", count: 8 },
-  { label: "Mobilia", count: 6 },
-  { label: "Salute", count: 5 },
-  { label: "RC", count: 4 },
-  { label: "Altro", count: 13 },
-];
+function getStatusVariant(status: string) {
+  return docStatusMap[status] ?? "neutral";
+}
 
-export default function DocumentsPage() {
+function getStatusLabel(status: string) {
+  return docStatusLabel[status] ?? status;
+}
+
+export default async function DocumentsPage() {
+  const documents = await getCurrentUserDocuments();
   const recent = documents.slice(0, 4);
+  const uploadedCount = documents.filter(
+    (document) => document.status === "uploaded"
+  ).length;
 
   return (
     <div className="space-y-5">
@@ -52,22 +59,22 @@ export default function DocumentsPage() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard
           label="Archivio documenti"
-          value={String(dashboardStats.documentsTotal)}
-          subtext={`${dashboardStats.documentsAnalyzed} analizzati`}
+          value={String(documents.length)}
+          subtext="PDF caricati"
           variant="blue"
           icon={<IconFolder className="h-[18px] w-[18px]" />}
         />
         <StatCard
           label="Upload recenti"
-          value="4"
-          subtext="Ultimi 7 giorni"
+          value={String(recent.length)}
+          subtext="Piu recenti"
           variant="blue"
           icon={<IconUpload className="h-[18px] w-[18px]" />}
         />
         <StatCard
-          label="Stato OCR"
-          value={`${dashboardStats.ocrPercent}%`}
-          subtext="1 errore · 2 in corso"
+          label="Stato upload"
+          value={String(uploadedCount)}
+          subtext="Pronti in archivio"
           variant="green"
           icon={<IconDocuments className="h-[18px] w-[18px]" />}
         />
@@ -76,16 +83,10 @@ export default function DocumentsPage() {
             <IconDocuments className="h-[18px] w-[18px]" />
           </div>
           <p className="mt-3 text-[11px] font-medium uppercase tracking-wide text-slate-500">
-            Categorie
+            Formato
           </p>
-          <ul className="mt-2 space-y-1">
-            {categories.map((c) => (
-              <li key={c.label} className="flex justify-between text-[12px]">
-                <span className="text-slate-600">{c.label}</span>
-                <span className="font-medium text-slate-900">{c.count}</span>
-              </li>
-            ))}
-          </ul>
+          <p className="mt-2 text-[14px] font-semibold text-slate-900">PDF assicurativi</p>
+          <p className="mt-1 text-[11px] text-slate-500">Archivio privato Supabase</p>
         </div>
       </div>
 
@@ -119,42 +120,52 @@ export default function DocumentsPage() {
               <thead>
                 <tr className="border-b border-slate-50 text-[10px] uppercase text-slate-400">
                   <th className="px-5 py-2 text-left">Nome documento</th>
-                  <th className="px-3 py-2 text-left">Categoria</th>
+                  <th className="px-3 py-2 text-left">Dimensione</th>
                   <th className="px-3 py-2 text-left">Data</th>
-                  <th className="px-3 py-2 text-left">Stato OCR</th>
-                  <th className="px-3 py-2 text-left">Azioni</th>
+                  <th className="px-3 py-2 text-left">Stato</th>
                 </tr>
               </thead>
               <tbody>
-                {documents.map((doc) => (
-                  <tr key={doc.id} className="border-b border-slate-50 hover:bg-slate-50/50">
-                    <td className="px-5 py-3">
-                      <div className="flex items-center gap-2">
-                        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-50 text-[10px] font-bold text-red-600">
-                          PDF
-                        </span>
-                        <div>
-                          <p className="font-medium text-slate-900">{doc.name}</p>
-                          <p className="text-[10px] text-slate-400">{doc.size}</p>
+                {documents.length > 0 ? (
+                  documents.map((doc) => (
+                    <tr key={doc.id} className="border-b border-slate-50 hover:bg-slate-50/50">
+                      <td className="px-5 py-3">
+                        <div className="flex items-center gap-2">
+                          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-50 text-[10px] font-bold text-red-600">
+                            PDF
+                          </span>
+                          <div className="min-w-0">
+                            <p className="truncate font-medium text-slate-900">{doc.fileName}</p>
+                            <p className="text-[10px] text-slate-400">
+                              {doc.mimeType ?? "application/pdf"}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-3 py-3 text-slate-600">{doc.category}</td>
-                    <td className="px-3 py-3 text-slate-600">{formatDate(doc.uploadedAt)}</td>
-                    <td className="px-3 py-3">
-                      <StatusBadge
-                        variant={docStatusMap[doc.status]}
-                        label={docStatusLabel[doc.status]}
-                      />
-                    </td>
-                    <td className="px-3 py-3">
-                      <div className="flex gap-2">
-                        <LinkAction href="#">Apri</LinkAction>
-                        <LinkAction href="/analysis">Analizza</LinkAction>
-                      </div>
+                      </td>
+                      <td className="px-3 py-3 text-slate-600">
+                        {formatFileSize(doc.fileSize)}
+                      </td>
+                      <td className="px-3 py-3 text-slate-600">{formatDate(doc.createdAt)}</td>
+                      <td className="px-3 py-3">
+                        <StatusBadge
+                          variant={getStatusVariant(doc.status)}
+                          label={getStatusLabel(doc.status)}
+                        />
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="px-5 py-10 text-center">
+                      <p className="text-[13px] font-medium text-slate-800">
+                        Nessun PDF caricato.
+                      </p>
+                      <p className="mt-1 text-[11px] text-slate-500">
+                        Il primo documento apparira qui dopo l&apos;upload.
+                      </p>
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
             <div className="flex justify-center gap-1 border-t border-slate-50 py-3">
@@ -167,36 +178,32 @@ export default function DocumentsPage() {
 
         <div className="space-y-4">
           <SectionCard padding="md">
-            <div className="flex flex-col items-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 px-4 py-10 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
-                <IconUpload className="h-6 w-6" />
-              </div>
-              <p className="mt-3 text-[13px] font-semibold text-slate-900">Trascina i file qui</p>
-              <p className="mt-1 text-[11px] text-slate-500">PDF, JPG, PNG · max 10 MB</p>
-              <button
-                type="button"
-                className="mt-4 rounded-lg bg-blue-600 px-5 py-2 text-[13px] font-medium text-white hover:bg-blue-700"
-              >
-                Seleziona file
-              </button>
-            </div>
+            <DocumentUploadForm />
           </SectionCard>
 
           <SectionCard title="Upload recenti" padding="sm">
-            <ul className="divide-y divide-slate-50">
-              {recent.map((doc) => (
-                <li key={doc.id} className="flex items-center justify-between py-2.5 first:pt-0">
-                  <div className="min-w-0">
-                    <p className="truncate text-[12px] font-medium text-slate-800">{doc.name}</p>
-                    <p className="text-[10px] text-slate-400">{formatDate(doc.uploadedAt)}</p>
-                  </div>
-                  <StatusBadge
-                    variant={docStatusMap[doc.status]}
-                    label={docStatusLabel[doc.status]}
-                  />
-                </li>
-              ))}
-            </ul>
+            {recent.length > 0 ? (
+              <ul className="divide-y divide-slate-50">
+                {recent.map((doc) => (
+                  <li key={doc.id} className="flex items-center justify-between py-2.5 first:pt-0">
+                    <div className="min-w-0">
+                      <p className="truncate text-[12px] font-medium text-slate-800">
+                        {doc.fileName}
+                      </p>
+                      <p className="text-[10px] text-slate-400">{formatDate(doc.createdAt)}</p>
+                    </div>
+                    <StatusBadge
+                      variant={getStatusVariant(doc.status)}
+                      label={getStatusLabel(doc.status)}
+                    />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="py-2 text-[12px] text-slate-500">
+                Gli upload recenti compariranno qui.
+              </p>
+            )}
           </SectionCard>
         </div>
       </div>

@@ -68,6 +68,17 @@ export interface Document {
   size: string;
 }
 
+export interface UserDocument {
+  id: string;
+  fileName: string;
+  filePath: string;
+  fileSize: number | null;
+  mimeType: string | null;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Benchmark {
   id: string;
   category: string;
