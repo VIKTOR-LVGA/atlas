@@ -2,10 +2,8 @@ import Link from "next/link";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatCard } from "@/components/ui/StatCard";
 import { SectionCard } from "@/components/ui/SectionCard";
-import {
-  StatusBadge,
-  type StatusBadgeVariant,
-} from "@/components/ui/StatusBadge";
+import { DocumentList } from "@/components/documents/DocumentList";
+import { DocumentStatusBadge } from "@/components/documents/DocumentStatusBadge";
 import { DocumentUploadForm } from "@/components/documents/DocumentUploadForm";
 import {
   IconFolder,
@@ -16,31 +14,9 @@ import {
   IconDocuments,
 } from "@/components/icons";
 import { getCurrentUserDocuments } from "@/lib/documents";
-import { formatDate, formatFileSize } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 
 export const metadata = { title: "Documenti" };
-
-const docStatusMap: Record<string, StatusBadgeVariant> = {
-  completed: "completed",
-  analyzing: "processing",
-  uploaded: "processing",
-  error: "error",
-};
-
-const docStatusLabel: Record<string, string> = {
-  completed: "Completato",
-  analyzing: "In elaborazione",
-  uploaded: "Caricato",
-  error: "Errore",
-};
-
-function getStatusVariant(status: string) {
-  return docStatusMap[status] ?? "neutral";
-}
-
-function getStatusLabel(status: string) {
-  return docStatusLabel[status] ?? status;
-}
 
 export default async function DocumentsPage() {
   const documents = await getCurrentUserDocuments();
@@ -116,63 +92,14 @@ export default async function DocumentsPage() {
                 Filtri
               </button>
             </div>
-            <table className="w-full text-[12px]">
-              <thead>
-                <tr className="border-b border-slate-50 text-[10px] uppercase text-slate-400">
-                  <th className="px-5 py-2 text-left">Nome documento</th>
-                  <th className="px-3 py-2 text-left">Dimensione</th>
-                  <th className="px-3 py-2 text-left">Data</th>
-                  <th className="px-3 py-2 text-left">Stato</th>
-                </tr>
-              </thead>
-              <tbody>
-                {documents.length > 0 ? (
-                  documents.map((doc) => (
-                    <tr key={doc.id} className="border-b border-slate-50 hover:bg-slate-50/50">
-                      <td className="px-5 py-3">
-                        <div className="flex items-center gap-2">
-                          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-50 text-[10px] font-bold text-red-600">
-                            PDF
-                          </span>
-                          <div className="min-w-0">
-                            <p className="truncate font-medium text-slate-900">{doc.fileName}</p>
-                            <p className="text-[10px] text-slate-400">
-                              {doc.mimeType ?? "application/pdf"}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-3 py-3 text-slate-600">
-                        {formatFileSize(doc.fileSize)}
-                      </td>
-                      <td className="px-3 py-3 text-slate-600">{formatDate(doc.createdAt)}</td>
-                      <td className="px-3 py-3">
-                        <StatusBadge
-                          variant={getStatusVariant(doc.status)}
-                          label={getStatusLabel(doc.status)}
-                        />
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={4} className="px-5 py-10 text-center">
-                      <p className="text-[13px] font-medium text-slate-800">
-                        Nessun PDF caricato.
-                      </p>
-                      <p className="mt-1 text-[11px] text-slate-500">
-                        Il primo documento apparira qui dopo l&apos;upload.
-                      </p>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-            <div className="flex justify-center gap-1 border-t border-slate-50 py-3">
-              <button type="button" className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-[12px] text-white">
-                1
-              </button>
-            </div>
+            <DocumentList documents={documents} />
+            {documents.length > 0 && (
+              <div className="flex justify-center gap-1 border-t border-slate-50 py-3">
+                <button type="button" className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-[12px] text-white">
+                  1
+                </button>
+              </div>
+            )}
           </SectionCard>
         </div>
 
@@ -186,16 +113,13 @@ export default async function DocumentsPage() {
               <ul className="divide-y divide-slate-50">
                 {recent.map((doc) => (
                   <li key={doc.id} className="flex items-center justify-between py-2.5 first:pt-0">
-                    <div className="min-w-0">
+                    <Link href={`/documents/${doc.id}`} className="min-w-0">
                       <p className="truncate text-[12px] font-medium text-slate-800">
                         {doc.fileName}
                       </p>
                       <p className="text-[10px] text-slate-400">{formatDate(doc.createdAt)}</p>
-                    </div>
-                    <StatusBadge
-                      variant={getStatusVariant(doc.status)}
-                      label={getStatusLabel(doc.status)}
-                    />
+                    </Link>
+                    <DocumentStatusBadge status={doc.status} />
                   </li>
                 ))}
               </ul>

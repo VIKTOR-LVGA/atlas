@@ -8,11 +8,19 @@ import { getSupabaseServerClient } from "@/lib/supabase/server";
 const POLICY_DOCUMENTS_BUCKET = "policy-documents";
 const MAX_POLICY_DOCUMENT_SIZE = 10 * 1024 * 1024;
 const PDF_SIGNATURE = "%PDF-";
+const SIGNED_DOCUMENT_URL_TTL_SECONDS = 60;
 
 export class DocumentUploadError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "DocumentUploadError";
+  }
+}
+
+export class DocumentManagementError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "DocumentManagementError";
   }
 }
 
@@ -97,6 +105,32 @@ export const getCurrentUserDocuments = cache(async (): Promise<UserDocument[]> =
   return data.map(toUserDocument);
 });
 
+export const getCurrentUserDocumentById = cache(
+  async (id: string): Promise<UserDocument | null> => {
+    const supabase = await getSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return null;
+    }
+
+    const { data, error } = await supabase
+      .from("documents")
+      .select("id, file_name, file_path, file_size, mime_type, status, created_at, updated_at")
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (error || !data) {
+      return null;
+    }
+
+    return toUserDocument(data);
+  }
+);
+
 export async function uploadUserDocument(file: File): Promise<UserDocument> {
   await assertPdfDocument(file);
 
@@ -145,4 +179,69 @@ export async function uploadUserDocument(file: File): Promise<UserDocument> {
   }
 
   return toUserDocument(document);
+}
+
+export async function createSignedDocumentUrl(document: UserDocument) {
+  const supabase = await getSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user || !document.filePath.startsWith(`${user.id}/`)) {
+    return null;
+  }
+
+  const { data, error } = await supabase.storage
+    .from(POLICY_DOCUMENTS_BUCKET)
+    .createSignedUrl(document.filePath, SIGNED_DOCUMENT_URL_TTL_SECONDS, {
+      download: document.fileName,
+    });
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data.signedUrl;
+}
+
+export async function deleteCurrentUserDocument(id: string) {
+  const supabase = await getSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new DocumentManagementError("Accedi di nuovo per eliminare il documento.");
+  }
+
+  const { data: document, error: documentError } = await supabase
+    .from("documents")
+    .select("id, file_path")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (documentError || !document) {
+    return false;
+  }
+
+  const { error: storageError } = await supabase.storage
+    .from(POLICY_DOCUMENTS_BUCKET)
+    .remove([document.file_path]);
+
+  if (storageError) {
+    throw new DocumentManagementError("Il PDF non e stato eliminato da Storage.");
+  }
+
+  const { error: deleteError } = await supabase
+    .from("documents")
+    .delete()
+    .eq("id", document.id)
+    .eq("user_id", user.id);
+
+  if (deleteError) {
+    throw new DocumentManagementError("Il registro documenti non e stato aggiornato.");
+  }
+
+  return true;
 }

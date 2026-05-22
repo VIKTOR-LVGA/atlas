@@ -1,9 +1,23 @@
 import Link from "next/link";
-import type { Policy } from "@/lib/types";
-import { categoryLabels, statusLabels } from "@/lib/mock-data";
+import type { Policy, PolicyCategory, PolicyStatus } from "@/lib/types";
 import { formatCHF, formatDate, cn } from "@/lib/utils";
 import { Badge } from "./Badge";
 import { IconChevronRight } from "@/components/icons";
+
+const categoryLabels: Record<PolicyCategory, string> = {
+  health: "Salute",
+  car: "Auto",
+  household: "Mobilia",
+  liability: "RC",
+  legal: "Giuridica",
+  life: "Vita",
+};
+
+const statusLabels: Record<PolicyStatus, string> = {
+  active: "Attiva",
+  expiring: "In scadenza",
+  review: "Da rivedere",
+};
 
 const statusVariant: Record<string, "success" | "warning" | "danger"> = {
   active: "success",

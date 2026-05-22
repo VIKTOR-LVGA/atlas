@@ -2,47 +2,66 @@ import Link from "next/link";
 import {
   PageHeader,
   PrimaryButton,
-  SecondaryButton,
 } from "@/components/ui/PageHeader";
 import { StatCard } from "@/components/ui/StatCard";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { AlertItem } from "@/components/ui/AlertItem";
 import { CTABox } from "@/components/ui/CTABox";
 import { LinkAction } from "@/components/ui/LinkAction";
+import { DocumentStatusBadge } from "@/components/documents/DocumentStatusBadge";
 import {
-  IconCar,
-  IconShield,
-  IconAlert,
-  IconPiggy,
   IconChevronRight,
+  IconClock,
+  IconDocuments,
+  IconFolder,
+  IconSparkle,
+  IconUpload,
 } from "@/components/icons";
-import { alerts, dashboardStats, policies } from "@/lib/mock-data";
-import { categoryIconBg, PolicyCategoryIcon } from "@/lib/policy-ui";
-import { formatCHF, cn } from "@/lib/utils";
-import type { PolicyHealthStatus } from "@/lib/types";
+import { getDashboardStats, getRecentDocuments } from "@/lib/dashboard";
+import { getProfileShortName } from "@/lib/profile-display";
+import { getCurrentProfile } from "@/lib/profiles";
+import {
+  formatDateTime,
+  formatFileSize,
+  formatRelativeTime,
+} from "@/lib/utils";
 
 export const metadata = { title: "Dashboard" };
 
-const healthToBadge: Record<PolicyHealthStatus, "ok" | "attention" | "critical"> = {
-  ok: "ok",
-  attention: "attention",
-  critical: "critical",
-};
+const pendingAnalysisItems = [
+  {
+    title: "Insurance health score",
+    description: "Richiede estrazione strutturata dalle polizze caricate.",
+    status: "Analysis pending",
+  },
+  {
+    title: "AI recommendations",
+    description: "Le raccomandazioni arriveranno dopo la fase di analisi.",
+    status: "Coming soon",
+  },
+  {
+    title: "Duplicate coverage detection",
+    description: "Atlas confrontera le coperture quando il motore sara attivo.",
+    status: "Awaiting analysis",
+  },
+] as const;
 
-export default function DashboardPage() {
-  const tablePolicies = policies.slice(0, 6);
+export default async function DashboardPage() {
+  const [profile, documentStats, recentDocuments] = await Promise.all([
+    getCurrentProfile(),
+    getDashboardStats(),
+    getRecentDocuments(5),
+  ]);
+  const latestDocument = documentStats.latestDocument;
 
   return (
     <div className="space-y-5">
       <PageHeader
-        title="Ciao Marco!"
-        description="Ecco l'analisi delle tue assicurazioni in sintesi."
+        title={`Ciao ${getProfileShortName(profile)}!`}
+        description="Il tuo archivio documenti e aggiornato. L'analisi assicurativa arrivera dopo l'elaborazione."
         action={
           <div className="flex flex-wrap items-center gap-2">
-            <SecondaryButton icon={<span className="text-slate-400">↻</span>}>
-              Aggiorna analisi
-            </SecondaryButton>
+            <StatusBadge variant="processing" label="Analysis pending" />
             <PrimaryButton href="/documents" icon={<span className="text-lg leading-none">+</span>}>
               Carica nuova polizza
             </PrimaryButton>
@@ -52,112 +71,208 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard
-          label="Premio totale annuo"
-          value={formatCHF(dashboardStats.annualPremium)}
-          subtext={`${dashboardStats.activePolicies} polizze attive`}
+          label="Documenti caricati"
+          value={String(documentStats.totalDocuments)}
+          subtext={
+            documentStats.totalDocuments > 0
+              ? "PDF nel tuo archivio"
+              : "Carica la prima polizza"
+          }
           variant="blue"
-          icon={<IconCar className="h-[18px] w-[18px]" />}
+          icon={<IconDocuments className="h-[18px] w-[18px]" />}
         />
         <StatCard
-          label="Punteggio copertura"
-          value={`${dashboardStats.coverageHealthScore}%`}
-          subtext="Buon livello complessivo"
+          label="Upload questo mese"
+          value={String(documentStats.documentsUploadedThisMonth)}
+          subtext="Basato sui tuoi upload"
           variant="green"
-          icon={<IconShield className="h-[18px] w-[18px]" />}
+          icon={<IconUpload className="h-[18px] w-[18px]" />}
         />
         <StatCard
-          label="Alert attivi"
-          value={String(dashboardStats.alertsCount)}
-          subtext="Vedi dettagli"
-          subtextLink="link"
+          label="Ultimo documento"
+          value={latestDocument ? formatRelativeTime(latestDocument.createdAt) : "Nessun upload"}
+          subtext={latestDocument?.fileName ?? "Attivita in attesa"}
           variant="yellow"
-          icon={<IconAlert className="h-[18px] w-[18px]" />}
+          icon={<IconClock className="h-[18px] w-[18px]" />}
         />
         <StatCard
-          label="Risparmio potenziale"
-          value={formatCHF(dashboardStats.potentialSavings.min)}
-          subtext={`-${dashboardStats.savingsPercent}% del premio attuale`}
-          variant="purple"
-          icon={<IconPiggy className="h-[18px] w-[18px]" />}
+          label="Storage usato"
+          value={formatFileSize(documentStats.totalStorageUsed)}
+          subtext={`${documentStats.totalDocuments} file registrati`}
+          variant="indigo"
+          icon={<IconFolder className="h-[18px] w-[18px]" />}
         />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <SectionCard
-            title="Le tue polizze"
-            action={<LinkAction href="/policies">Vedi tutte</LinkAction>}
+            title="Upload recenti"
+            description="Documenti reali nel tuo archivio privato."
+            action={<LinkAction href="/documents">Apri documenti</LinkAction>}
             padding="none"
           >
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-[12px]">
-                <thead>
-                  <tr className="border-b border-slate-50 text-[10px] font-medium uppercase tracking-wider text-slate-400">
-                    <th className="px-5 py-2.5">Polizza</th>
-                    <th className="px-3 py-2.5">Compagnia</th>
-                    <th className="px-3 py-2.5">Premio annuo</th>
-                    <th className="px-3 py-2.5">Stato</th>
-                    <th className="w-8 px-3 py-2.5" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {tablePolicies.map((p) => (
-                    <tr
-                      key={p.id}
-                      className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50"
-                    >
-                      <td className="px-5 py-3">
-                        <Link href={`/policies/${p.id}`} className="flex items-center gap-2.5">
-                          <span
-                            className={cn(
-                              "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
-                              categoryIconBg[p.category]
-                            )}
-                          >
-                            <PolicyCategoryIcon category={p.category} />
-                          </span>
-                          <span className="font-medium text-slate-900">{p.name}</span>
-                        </Link>
-                      </td>
-                      <td className="px-3 py-3 text-slate-600">{p.insurer}</td>
-                      <td className="px-3 py-3 font-medium text-slate-900">
-                        {formatCHF(p.annualPremium)}
-                      </td>
-                      <td className="px-3 py-3">
-                        <StatusBadge variant={healthToBadge[p.healthStatus]} />
-                      </td>
-                      <td className="px-3 py-3">
-                        <IconChevronRight className="h-4 w-4 text-slate-300" />
-                      </td>
+            {recentDocuments.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-[12px]">
+                  <thead>
+                    <tr className="border-b border-slate-50 text-[10px] font-medium uppercase tracking-wider text-slate-400">
+                      <th className="px-5 py-2.5">Documento</th>
+                      <th className="px-3 py-2.5">Dimensione</th>
+                      <th className="px-3 py-2.5">Caricato</th>
+                      <th className="px-3 py-2.5">Stato</th>
+                      <th className="w-8 px-3 py-2.5" />
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {recentDocuments.map((document) => (
+                      <tr
+                        key={document.id}
+                        className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50"
+                      >
+                        <td className="px-5 py-3">
+                          <Link
+                            href={`/documents/${document.id}`}
+                            className="flex min-w-[190px] items-center gap-2.5"
+                          >
+                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+                              <IconDocuments className="h-4 w-4" />
+                            </span>
+                            <span className="min-w-0">
+                              <span className="block truncate font-medium text-slate-900">
+                                {document.fileName}
+                              </span>
+                              <span className="block text-[10px] text-slate-400">
+                                {document.mimeType ?? "application/pdf"}
+                              </span>
+                            </span>
+                          </Link>
+                        </td>
+                        <td className="px-3 py-3 text-slate-600">
+                          {formatFileSize(document.fileSize)}
+                        </td>
+                        <td className="px-3 py-3 text-slate-600">
+                          <time
+                            dateTime={document.createdAt}
+                            title={formatDateTime(document.createdAt)}
+                          >
+                            {formatRelativeTime(document.createdAt)}
+                          </time>
+                        </td>
+                        <td className="px-3 py-3">
+                          <DocumentStatusBadge status={document.status} />
+                        </td>
+                        <td className="px-3 py-3">
+                          <IconChevronRight className="h-4 w-4 text-slate-300" />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center px-6 py-10 text-center">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                  <IconUpload className="h-5 w-5" />
+                </span>
+                <p className="mt-4 text-[14px] font-semibold text-slate-900">
+                  Nessun PDF caricato
+                </p>
+                <p className="mt-1 max-w-sm text-[12px] leading-relaxed text-slate-500">
+                  Carica la tua prima polizza per alimentare statistiche, cronologia e analisi future.
+                </p>
+                <PrimaryButton href="/documents" className="mt-4">
+                  Vai ai documenti
+                </PrimaryButton>
+              </div>
+            )}
+          </SectionCard>
+        </div>
+
+        <SectionCard
+          title="Attivita recente"
+          description="Feed generato dai tuoi upload."
+          padding="sm"
+        >
+          {recentDocuments.length > 0 ? (
+            <ul className="divide-y divide-slate-50">
+              {recentDocuments.map((document) => (
+                <li key={document.id}>
+                  <Link
+                    href={`/documents/${document.id}`}
+                    className="flex gap-3 py-3 first:pt-0 hover:text-blue-700"
+                  >
+                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+                      <IconUpload className="h-4 w-4" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-[12px] font-medium text-slate-900">
+                        {document.fileName}
+                      </span>
+                      <span className="mt-0.5 block text-[11px] text-slate-500">
+                        PDF caricato {formatRelativeTime(document.createdAt)}
+                      </span>
+                      <span className="mt-0.5 block text-[10px] text-slate-400">
+                        {formatDateTime(document.createdAt)} / {formatFileSize(document.fileSize)}
+                      </span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="flex min-h-[220px] flex-col justify-center text-center">
+              <p className="text-[13px] font-medium text-slate-900">
+                Attivita in attesa
+              </p>
+              <p className="mt-1 text-[12px] leading-relaxed text-slate-500">
+                Gli upload recenti compariranno qui con nome, dimensione e orario.
+              </p>
             </div>
-            <div className="border-t border-slate-50 py-3 text-center">
-              <LinkAction href="/policies">
-                Vedi tutte le polizze ({dashboardStats.activePolicies})
-              </LinkAction>
+          )}
+        </SectionCard>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <SectionCard
+            title="Le tue polizze"
+            description="L'archivio polizze si popolera dopo l'analisi dei PDF caricati."
+            action={<StatusBadge variant="processing" label="Awaiting analysis" />}
+          >
+            <div className="flex min-h-[286px] flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/40 px-6 py-10 text-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                <IconDocuments className="h-5 w-5" />
+              </span>
+              <p className="mt-4 text-[15px] font-semibold text-slate-900">
+                Nessuna polizza analizzata
+              </p>
+              <p className="mt-1 max-w-sm text-[12px] leading-relaxed text-slate-500">
+                Carica una polizza PDF per iniziare.
+              </p>
+              <PrimaryButton href="/documents" className="mt-4">
+                Vai ai documenti
+              </PrimaryButton>
             </div>
           </SectionCard>
         </div>
 
         <SectionCard
-          title="Alert e criticità"
-          action={<LinkAction href="/analysis">Vedi tutte</LinkAction>}
+          title="Alert intelligence"
+          description="Criticita assicurative disponibili dopo l'analisi."
+          action={<StatusBadge variant="neutral" label="Analisi in attesa" />}
           padding="sm"
         >
-          <div className="divide-y divide-slate-50">
-            {alerts.slice(0, 4).map((a) => (
-              <AlertItem
-                key={a.id}
-                title={a.title}
-                description={a.description}
-                severity={a.severity}
-                href="/analysis"
-                icon={<IconAlert className="h-4 w-4" />}
-              />
-            ))}
+          <div className="flex min-h-[286px] flex-col justify-center rounded-xl border border-slate-100 bg-slate-50/40 p-4">
+            <span className="w-fit">
+              <StatusBadge variant="processing" label="AI processing unavailable" />
+            </span>
+            <p className="mt-4 text-[13px] font-semibold text-slate-900">
+              Analisi in attesa
+            </p>
+            <p className="mt-1 text-[12px] leading-relaxed text-slate-500">
+              Gli alert reali appariranno quando Atlas potra leggere le coperture dai tuoi PDF.
+            </p>
           </div>
         </SectionCard>
       </div>
@@ -166,60 +281,76 @@ export default function DashboardPage() {
         <div className="lg:col-span-2">
           <SectionCard
             title="Confronto mercato"
-            action={<LinkAction href="/market">Vedi dettagli</LinkAction>}
+            description="Benchmark bloccato finche non esistono polizze analizzate."
+            action={<StatusBadge variant="processing" label="Analisi in attesa" />}
           >
-            <p className="text-[12px] text-slate-600">
-              I tuoi premi sono sopra la media di mercato per profili simili in Ticino.
-            </p>
-            <div className="mt-4 space-y-3">
-              <div>
-                <div className="mb-1 flex justify-between text-[11px] text-slate-500">
-                  <span>Il tuo premio attuale</span>
-                  <span className="font-medium text-slate-800">
-                    {formatCHF(dashboardStats.annualPremium)}
-                  </span>
-                </div>
-                <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                  <div className="h-full w-[85%] rounded-full bg-blue-500" />
-                </div>
+            <div className="rounded-xl border border-slate-100 bg-slate-50/40 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[13px] font-semibold text-slate-900">
+                  Analisi in attesa
+                </p>
+                <StatusBadge variant="neutral" label="Awaiting analysis" />
               </div>
-              <div>
-                <div className="mb-1 flex justify-between text-[11px] text-slate-500">
-                  <span>Media mercato</span>
-                  <span className="font-medium text-slate-800">
-                    {formatCHF(dashboardStats.annualPremium - dashboardStats.potentialSavings.min)}
-                  </span>
+              <p className="mt-1 text-[12px] leading-relaxed text-slate-500">
+                Il confronto di mercato sara calcolato solo su premi e coperture estratti dalle tue polizze.
+              </p>
+              <div className="mt-4 space-y-3 opacity-60">
+                <div>
+                  <div className="mb-1 text-[11px] text-slate-400">Premi analizzati</div>
+                  <div className="h-2 overflow-hidden rounded-full bg-slate-100" />
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                  <div className="h-full w-[62%] rounded-full bg-emerald-400" />
+                <div>
+                  <div className="mb-1 text-[11px] text-slate-400">Benchmark disponibile</div>
+                  <div className="h-2 overflow-hidden rounded-full bg-slate-100" />
                 </div>
               </div>
             </div>
-            <p className="mt-4 text-right text-[13px] font-semibold text-emerald-600">
-              Risparmio potenziale {formatCHF(dashboardStats.potentialSavings.min)} (
-              {dashboardStats.savingsPercent}%)
-            </p>
           </SectionCard>
         </div>
 
+        <SectionCard
+          title="AI assicurativa"
+          description="Moduli visibili, elaborazione non ancora attiva."
+          action={<StatusBadge variant="neutral" label="Coming soon" />}
+          padding="sm"
+        >
+          <div className="space-y-2.5">
+            {pendingAnalysisItems.map((item) => (
+              <div key={item.title} className="rounded-xl border border-slate-100 p-3">
+                <div className="flex items-start justify-between gap-2">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+                    <IconSparkle className="h-4 w-4" />
+                  </span>
+                  <StatusBadge variant="processing" label={item.status} />
+                </div>
+                <p className="mt-3 text-[12px] font-semibold text-slate-900">
+                  {item.title}
+                </p>
+                <p className="mt-0.5 text-[11px] leading-relaxed text-slate-500">
+                  {item.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </SectionCard>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <CTABox
+            variant="banner"
+            title="Atlas e indipendente: non vendiamo polizze ne riceviamo commissioni da assicuratori."
+            buttonLabel=""
+          />
+        </div>
+
         <CTABox
-          title="Vuoi un'analisi approfondita?"
-          description="Un consulente indipendente rivede il tuo portafoglio e ti guida nelle decisioni."
-          checklist={[
-            "Analisi personalizzata del portafoglio",
-            "Piano d'azione prioritario",
-            "Supporto nella negoziazione",
-          ]}
-          buttonLabel="Richiedi consulenza (da CHF 290)"
+          title="Consulenza in preparazione"
+          description="La consulenza si colleghera a documenti e analisi reali quando il flusso sara disponibile."
+          buttonLabel="Apri consulenza"
           buttonHref="/consulting"
         />
       </div>
-
-      <CTABox
-        variant="banner"
-        title="Atlas è indipendente: non vendiamo polizze né riceviamo commissioni da assicuratori."
-        buttonLabel=""
-      />
     </div>
   );
 }

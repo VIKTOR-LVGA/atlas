@@ -4,15 +4,13 @@ import { useState } from "react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { LinkAction } from "@/components/ui/LinkAction";
 import { useCurrentProfile } from "@/components/profile/ProfileProvider";
-import { getProfileDisplayName, getProfileInitials } from "@/lib/profile-display";
-import { formatDate } from "@/lib/utils";
-import { cn } from "@/lib/utils";
 import {
-  IconShield,
-  IconChevronRight,
-} from "@/components/icons";
+  NotificationSettingsForm,
+  ProfileSettingsPanels,
+} from "@/components/settings/ProfileSettingsForms";
+import { cn } from "@/lib/utils";
+import { IconShield } from "@/components/icons";
 
 const tabs = [
   { id: "profilo", label: "Profilo" },
@@ -23,26 +21,9 @@ const tabs = [
   { id: "integrazioni", label: "Integrazioni" },
 ];
 
-const integrations = [
-  "Google Drive",
-  "Google Calendar",
-  "Apple Calendar",
-  "Microsoft Outlook",
-];
-
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("profilo");
   const profile = useCurrentProfile();
-  const fullNameParts = profile?.fullName?.trim().split(/\s+/).filter(Boolean) ?? [];
-  const memberSince = profile?.createdAt
-    ? `Membro dal ${formatDate(profile.createdAt)}`
-    : "Profilo creato da Supabase Auth";
-  const profileFields = [
-    { l: "Nome", v: fullNameParts[0] ?? "" },
-    { l: "Cognome", v: fullNameParts.slice(1).join(" ") },
-    { l: "Email", v: profile?.email ?? "" },
-    { l: "Telefono", v: "+41 79 000 00 00" },
-  ];
 
   return (
     <div className="space-y-5">
@@ -69,213 +50,73 @@ export default function SettingsPage() {
         ))}
       </nav>
 
-      {activeTab === "profilo" && (
-        <div className="grid gap-4 lg:grid-cols-2">
-          <SectionCard title="Informazioni profilo">
-            <div className="flex flex-col gap-6 sm:flex-row">
-              <div className="text-center sm:text-left">
-                <div className="relative mx-auto h-24 w-24 sm:mx-0">
-                  <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-2xl font-semibold text-white">
-                    {getProfileInitials(profile)}
-                  </div>
-                  <button
-                    type="button"
-                    className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-slate-100 text-slate-600"
-                  >
-                    📷
-                  </button>
-                </div>
-                <p className="mt-3 text-[14px] font-semibold text-slate-900">
-                  {getProfileDisplayName(profile)}
-                </p>
-                <StatusBadge
-                  variant={profile?.hasProfileRow ? "ok" : "processing"}
-                  label={profile?.hasProfileRow ? "Account verificato" : "Profilo in attesa"}
-                  className="mt-1"
-                />
-                <p className="mt-1 text-[11px] text-slate-500">
-                  {memberSince}
-                </p>
-              </div>
-              <form className="grid flex-1 gap-3 sm:grid-cols-2" onSubmit={(e) => e.preventDefault()}>
-                {profileFields.map((f) => (
-                  <div key={f.l}>
-                    <label className="text-[11px] font-medium text-slate-600">{f.l}</label>
-                    <input
-                      type="text"
-                      defaultValue={f.v}
-                      className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-                    />
-                  </div>
-                ))}
-                <div className="flex gap-2 sm:col-span-2 sm:justify-end">
-                  <button type="button" className="rounded-lg px-4 py-2 text-[13px] text-slate-600">
-                    Annulla
-                  </button>
-                  <button
-                    type="submit"
-                    className="rounded-lg bg-blue-600 px-4 py-2 text-[13px] font-medium text-white hover:bg-blue-700"
-                  >
-                    Salva modifiche
-                  </button>
-                </div>
-              </form>
-            </div>
-          </SectionCard>
+      {activeTab === "profilo" && <ProfileSettingsPanels profile={profile} />}
 
-          <SectionCard title="Lingua e regione">
-            <div className="grid gap-3 sm:grid-cols-2">
-              {[
-                { l: "Lingua", v: "Italiano" },
-                { l: "Valuta", v: "CHF" },
-                { l: "Formato data", v: "GG/MM/AAAA" },
-                { l: "Fuso orario", v: "Europe/Zurich" },
-              ].map((f) => (
-                <div key={f.l}>
-                  <label className="text-[11px] font-medium text-slate-600">{f.l}</label>
-                  <select className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-[13px]">
-                    <option>{f.v}</option>
-                  </select>
-                </div>
-              ))}
-            </div>
-            <button
-              type="button"
-              className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-[13px] font-medium text-white"
-            >
-              Salva preferenze
-            </button>
-          </SectionCard>
-        </div>
-      )}
-
-      {activeTab === "notifiche" && (
-        <SectionCard title="Preferenze notifiche">
-          <table className="w-full text-[12px]">
-            <thead>
-              <tr className="border-b border-slate-50 text-[10px] uppercase text-slate-400">
-                <th className="pb-2 text-left">Tipo</th>
-                <th className="pb-2 text-center">Email</th>
-                <th className="pb-2 text-center">Push</th>
-                <th className="pb-2 text-center">SMS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                "Aggiornamenti polizze",
-                "Nuova analisi completata",
-                "Scadenze imminenti",
-                "Raccomandazioni",
-              ].map((row) => (
-                <tr key={row} className="border-b border-slate-50">
-                  <td className="py-3 text-slate-800">{row}</td>
-                  {["email", "push", "sms"].map((ch) => (
-                    <td key={ch} className="py-3 text-center">
-                      <input
-                        type="checkbox"
-                        defaultChecked={ch !== "sms"}
-                        className="rounded border-slate-300 text-blue-600"
-                      />
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="mt-4 flex justify-end">
-            <button type="button" className="rounded-lg bg-blue-600 px-4 py-2 text-[13px] font-medium text-white">
-              Salva preferenze
-            </button>
-          </div>
-        </SectionCard>
-      )}
+      {activeTab === "notifiche" && <NotificationSettingsForm profile={profile} />}
 
       {activeTab === "sicurezza" && (
-        <SectionCard title="Sicurezza account">
-          <ul className="divide-y divide-slate-50">
-            {[
-              { t: "Autenticazione a due fattori", s: "Attivo", badge: "ok" as const },
-              { t: "Password", s: "Ultima modifica 3 mesi fa", badge: null },
-              { t: "Sessioni attive", s: "2 dispositivi", badge: null },
-            ].map((item) => (
-              <li key={item.t} className="flex items-center justify-between py-3">
-                <div>
-                  <p className="text-[13px] font-medium text-slate-900">{item.t}</p>
-                  <p className="text-[11px] text-slate-500">{item.s}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  {item.badge && <StatusBadge variant={item.badge} />}
-                  <button type="button" className="rounded-lg border border-slate-200 px-3 py-1.5 text-[12px] font-medium text-slate-700">
-                    Gestisci
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
+        <SectionCard
+          title="Sicurezza account"
+          action={<StatusBadge variant="neutral" label="In preparazione" />}
+        >
+          <div className="rounded-xl border border-slate-100 bg-slate-50/40 p-4">
+            <p className="text-[13px] font-semibold text-slate-900">
+              Stato sicurezza non ancora esposto
+            </p>
+            <p className="mt-1 max-w-xl text-[12px] leading-relaxed text-slate-500">
+              Atlas non mostra 2FA, sessioni o cronologia password finche quei dati non sono
+              collegati all&apos;account reale.
+            </p>
+          </div>
         </SectionCard>
       )}
 
       {activeTab === "fatturazione" && (
-        <SectionCard title="Fatturazione e abbonamento">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-xl border border-slate-100 p-4">
-            <div>
-              <p className="text-[13px] font-semibold text-slate-900">Premium Mensile</p>
-              <p className="text-[12px] text-slate-500">CHF 29.00 / mese</p>
-            </div>
-            <button type="button" className="rounded-lg border border-slate-200 px-4 py-2 text-[12px] font-medium">
-              Gestisci abbonamento
-            </button>
-          </div>
-          <div className="mt-3 flex items-center justify-between rounded-xl border border-slate-100 p-4">
-            <div className="flex items-center gap-3">
-              <span className="rounded bg-slate-100 px-2 py-1 text-[11px] font-bold text-slate-700">VISA</span>
-              <span className="text-[13px] text-slate-700">•••• 4242</span>
-            </div>
-            <LinkAction href="#">Modifica</LinkAction>
+        <SectionCard
+          title="Fatturazione e abbonamento"
+          action={<StatusBadge variant="neutral" label="Non disponibile" />}
+        >
+          <div className="rounded-xl border border-slate-100 bg-slate-50/40 p-4">
+            <p className="text-[13px] font-semibold text-slate-900">
+              Fatturazione non ancora collegata
+            </p>
+            <p className="mt-1 text-[12px] leading-relaxed text-slate-500">
+              Nessun piano, carta o pagamento demo viene mostrato nelle impostazioni del tuo account.
+            </p>
           </div>
         </SectionCard>
       )}
 
       {activeTab === "integrazioni" && (
-        <SectionCard title="Integrazioni">
-          <ul className="divide-y divide-slate-50">
-            {integrations.map((name) => (
-              <li key={name} className="flex items-center justify-between py-3">
-                <span className="text-[13px] text-slate-800">{name}</span>
-                <button type="button" className="rounded-lg border border-blue-200 px-3 py-1.5 text-[12px] font-medium text-blue-700">
-                  Connetti
-                </button>
-              </li>
-            ))}
-          </ul>
+        <SectionCard
+          title="Integrazioni"
+          action={<StatusBadge variant="neutral" label="In preparazione" />}
+        >
+          <div className="rounded-xl border border-slate-100 bg-slate-50/40 p-4">
+            <p className="text-[13px] font-semibold text-slate-900">
+              Nessuna integrazione attiva
+            </p>
+            <p className="mt-1 text-[12px] leading-relaxed text-slate-500">
+              Le connessioni esterne appariranno qui solo quando saranno abilitate per il tuo account.
+            </p>
+          </div>
         </SectionCard>
       )}
 
       {activeTab === "preferenze" && (
-        <SectionCard title="Preferenze generali">
-          {[
-            { l: "Modalità chiara", on: true },
-            { l: "Suggerimenti contestuali", on: true },
-            { l: "Condividi dati di utilizzo", on: false },
-          ].map((pref) => (
-            <div key={pref.l} className="flex items-center justify-between border-b border-slate-50 py-3 last:border-0">
-              <span className="text-[13px] text-slate-700">{pref.l}</span>
-              <button
-                type="button"
-                className={cn(
-                  "relative h-5 w-9 rounded-full transition",
-                  pref.on ? "bg-blue-600" : "bg-slate-200"
-                )}
-              >
-                <span
-                  className={cn(
-                    "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition",
-                    pref.on ? "left-4" : "left-0.5"
-                  )}
-                />
-              </button>
-            </div>
-          ))}
+        <SectionCard
+          title="Preferenze generali"
+          action={<StatusBadge variant="neutral" label="In preparazione" />}
+        >
+          <div className="rounded-xl border border-slate-100 bg-slate-50/40 p-4">
+            <p className="text-[13px] font-semibold text-slate-900">
+              Preferenze aggiuntive in arrivo
+            </p>
+            <p className="mt-1 text-[12px] leading-relaxed text-slate-500">
+              Lingua, formato data e notifiche reali sono gia gestiti nelle schede profilo e
+              notifiche.
+            </p>
+          </div>
         </SectionCard>
       )}
 
@@ -286,10 +127,7 @@ export default function SettingsPage() {
             I tuoi dati sono protetti con crittografia e hosting in Svizzera.
           </p>
         </div>
-        <button type="button" className="flex items-center gap-1 text-[12px] font-medium text-blue-600">
-          Scopri le nostre misure di sicurezza
-          <IconChevronRight className="h-3.5 w-3.5" />
-        </button>
+        <StatusBadge variant="neutral" label="Dettagli in preparazione" />
       </div>
 
       <SectionCard title="Dati e account">
@@ -297,20 +135,20 @@ export default function SettingsPage() {
           <div className="flex flex-col gap-3 rounded-xl border border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-[13px] font-medium text-slate-900">Esporta i tuoi dati</p>
-              <p className="text-[11px] text-slate-500">JSON con polizze, analisi e documenti</p>
+              <p className="text-[11px] text-slate-500">
+                Esportazione non ancora disponibile.
+              </p>
             </div>
-            <button type="button" className="rounded-lg border border-slate-200 px-4 py-2 text-[12px] font-medium">
-              Esporta
-            </button>
+            <StatusBadge variant="neutral" label="In preparazione" />
           </div>
           <div className="flex flex-col gap-3 rounded-xl border border-red-100 bg-red-50/30 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-[13px] font-medium text-red-900">Elimina account</p>
-              <p className="text-[11px] text-red-700/80">Azione irreversibile</p>
+              <p className="text-[11px] text-red-700/80">
+                Flusso eliminazione non ancora disponibile.
+              </p>
             </div>
-            <button type="button" className="rounded-lg border border-red-200 bg-white px-4 py-2 text-[12px] font-medium text-red-700">
-              Elimina account
-            </button>
+            <StatusBadge variant="neutral" label="In preparazione" />
           </div>
         </div>
       </SectionCard>

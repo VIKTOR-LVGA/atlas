@@ -106,12 +106,36 @@ export interface UserProfile {
   memberSince: string;
 }
 
+export type ProfileLanguage = "it" | "de" | "fr" | "en";
+
+export type ProfileCurrency = "CHF";
+
+export type ProfileDateFormat = "DD/MM/YYYY" | "YYYY-MM-DD";
+
 export interface CurrentProfile {
   id: string;
   fullName: string | null;
   email: string | null;
   avatarUrl: string | null;
+  phone: string | null;
+  language: ProfileLanguage;
+  currency: ProfileCurrency;
+  dateFormat: ProfileDateFormat;
+  notificationEmail: boolean;
+  notificationPush: boolean;
+  notificationSms: boolean;
   createdAt: string | null;
   updatedAt: string | null;
   hasProfileRow: boolean;
+}
+
+export interface CurrentProfileUpdate {
+  fullName: string;
+  phone: string | null;
+  language: ProfileLanguage;
+  currency: ProfileCurrency;
+  dateFormat: ProfileDateFormat;
+  notificationEmail: boolean;
+  notificationPush: boolean;
+  notificationSms: boolean;
 }
