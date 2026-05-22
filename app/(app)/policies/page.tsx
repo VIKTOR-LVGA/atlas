@@ -5,6 +5,10 @@ import { PageHeader, PrimaryButton } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { getCurrentUserPolicies } from "@/lib/policies";
+import {
+  getPolicyDetailSummary,
+  getPolicyTypeLabel,
+} from "@/lib/policy-types";
 import { formatCHF, formatDate } from "@/lib/utils";
 import type { PolicyPremiumFrequency, UserPolicy } from "@/lib/types";
 
@@ -54,18 +58,28 @@ export default async function PoliciesPage() {
           padding="none"
         >
           <div className="grid gap-3 p-4 lg:grid-cols-2">
-            {policies.map((policy) => (
-              <article
-                key={policy.id}
-                className="rounded-xl border border-slate-100 bg-white p-4 transition hover:border-blue-100 hover:bg-blue-50/20"
-              >
+            {policies.map((policy) => {
+              const policyTypeLabel = getPolicyTypeLabel(
+                policy.policyType,
+                policy.policyCategoryLabel
+              );
+              const detailSummary = getPolicyDetailSummary(
+                policy.policyType,
+                policy.details
+              );
+
+              return (
+                <article
+                  key={policy.id}
+                  className="rounded-xl border border-slate-100 bg-white p-4 transition hover:border-blue-100 hover:bg-blue-50/20"
+                >
                 <div className="flex items-start justify-between gap-3">
                   <Link href={`/policies/${policy.id}`} className="min-w-0">
                     <p className="truncate text-[14px] font-semibold text-slate-900">
                       {policy.provider}
                     </p>
                     <p className="mt-0.5 truncate text-[12px] text-slate-500">
-                      {policy.policyType}
+                      {policyTypeLabel}
                     </p>
                   </Link>
                   <div className="flex shrink-0 flex-col items-end gap-1">
@@ -97,6 +111,11 @@ export default async function PoliciesPage() {
                     </dd>
                   </div>
                 </dl>
+                {detailSummary && (
+                  <p className="mt-3 truncate rounded-lg bg-slate-50 px-2.5 py-2 text-[11px] text-slate-600">
+                    {detailSummary}
+                  </p>
+                )}
 
                 <div className="mt-4 flex flex-col gap-2 border-t border-slate-50 pt-3 sm:flex-row sm:items-center sm:justify-between">
                   {policy.document ? (
@@ -124,8 +143,9 @@ export default async function PoliciesPage() {
                     Apri dettaglio
                   </Link>
                 </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
         </SectionCard>
       ) : (

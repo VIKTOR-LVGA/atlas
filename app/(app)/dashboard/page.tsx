@@ -21,6 +21,10 @@ import { getDashboardStats, getRecentDocuments } from "@/lib/dashboard";
 import { getProfileShortName } from "@/lib/profile-display";
 import { getCurrentProfile } from "@/lib/profiles";
 import {
+  getPolicyDetailSummary,
+  getPolicyTypeLabel,
+} from "@/lib/policy-types";
+import {
   formatCHF,
   formatDate,
   formatDateTime,
@@ -333,50 +337,66 @@ export default async function DashboardPage() {
                 )}
 
                 <div className="grid gap-3 md:grid-cols-2">
-                  {policies.slice(0, 4).map((policy) => (
-                    <Link
-                      key={policy.id}
-                      href={`/policies/${policy.id}`}
-                      className="flex flex-col rounded-xl border border-slate-100 bg-white p-4 transition hover:border-blue-100 hover:bg-blue-50/30"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <span className="min-w-0">
-                          <span className="block truncate text-[13px] font-semibold text-slate-900">
-                            {policy.provider}
+                  {policies.slice(0, 4).map((policy) => {
+                    const policyTypeLabel = getPolicyTypeLabel(
+                      policy.policyType,
+                      policy.policyCategoryLabel
+                    );
+                    const detailSummary = getPolicyDetailSummary(
+                      policy.policyType,
+                      policy.details
+                    );
+
+                    return (
+                      <Link
+                        key={policy.id}
+                        href={`/policies/${policy.id}`}
+                        className="flex flex-col rounded-xl border border-slate-100 bg-white p-4 transition hover:border-blue-100 hover:bg-blue-50/30"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="min-w-0">
+                            <span className="block truncate text-[13px] font-semibold text-slate-900">
+                              {policy.provider}
+                            </span>
+                            <span className="mt-0.5 block truncate text-[11px] text-slate-500">
+                              {policyTypeLabel}
+                            </span>
                           </span>
-                          <span className="mt-0.5 block truncate text-[11px] text-slate-500">
-                            {policy.policyType}
+                          <StatusBadge
+                            variant={policy.requiresReview ? "attention" : "active"}
+                            label={policy.requiresReview ? "Da rivedere" : "Attiva"}
+                          />
+                        </div>
+                        {detailSummary && (
+                          <span className="mt-3 block truncate rounded-lg bg-slate-50 px-2.5 py-2 text-[11px] text-slate-600">
+                            {detailSummary}
                           </span>
-                        </span>
-                        <StatusBadge
-                          variant={policy.requiresReview ? "attention" : "active"}
-                          label={policy.requiresReview ? "Da rivedere" : "Attiva"}
-                        />
-                      </div>
-                      <div className="mt-auto grid grid-cols-2 gap-3 border-t border-slate-50 pt-3 text-[11px]">
-                        <span>
-                          <span className="block uppercase tracking-wide text-slate-400">
-                            Premio
+                        )}
+                        <div className="mt-auto grid grid-cols-2 gap-3 border-t border-slate-50 pt-3 text-[11px]">
+                          <span>
+                            <span className="block uppercase tracking-wide text-slate-400">
+                              Premio
+                            </span>
+                            <span className="mt-1 block font-medium text-slate-800">
+                              {policy.premiumAmount === null
+                                ? "Da completare"
+                                : `${formatCHF(policy.premiumAmount)} / ${getPremiumFrequencyLabel(policy.premiumFrequency)}`}
+                            </span>
                           </span>
-                          <span className="mt-1 block font-medium text-slate-800">
-                            {policy.premiumAmount === null
-                              ? "Da completare"
-                              : `${formatCHF(policy.premiumAmount)} / ${getPremiumFrequencyLabel(policy.premiumFrequency)}`}
+                          <span>
+                            <span className="block uppercase tracking-wide text-slate-400">
+                              Rinnovo
+                            </span>
+                            <span className="mt-1 block font-medium text-slate-800">
+                              {policy.renewalDate
+                                ? formatDate(policy.renewalDate)
+                                : "Da completare"}
+                            </span>
                           </span>
-                        </span>
-                        <span>
-                          <span className="block uppercase tracking-wide text-slate-400">
-                            Rinnovo
-                          </span>
-                          <span className="mt-1 block font-medium text-slate-800">
-                            {policy.renewalDate
-                              ? formatDate(policy.renewalDate)
-                              : "Da completare"}
-                          </span>
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
+                        </div>
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             ) : (

@@ -6,14 +6,22 @@ import {
   updateCurrentUserDocumentStatus,
 } from "@/lib/documents";
 import { createPolicy, PolicyManagementError } from "@/lib/policies";
-import type { PolicyInput, UserDocument, UserPolicy } from "@/lib/types";
+import type {
+  PolicyDetails,
+  PolicyInput,
+  TypedPolicyType,
+  UserDocument,
+  UserPolicy,
+} from "@/lib/types";
 
 type MockPolicyTemplate = {
   provider: string;
-  policyType: string;
+  policyType: TypedPolicyType;
   premiums: number[];
   deductibles: number[];
+  coverageAmounts: Array<number | null>;
   keywords: string[];
+  getDetails: (seed: number) => PolicyDetails;
 };
 
 export type PolicyExtractionDraft = Pick<
@@ -23,6 +31,8 @@ export type PolicyExtractionDraft = Pick<
   | "premiumAmount"
   | "deductible"
   | "renewalDate"
+  | "coverageAmount"
+  | "details"
 > & {
   confidence: {
     provider: number;
@@ -30,6 +40,7 @@ export type PolicyExtractionDraft = Pick<
     premiumAmount: number;
     deductible: number;
     renewalDate: number;
+    details: number;
   };
 };
 
@@ -49,41 +60,103 @@ export class DocumentAnalysisError extends Error {
   }
 }
 
+function pickValue<T>(values: readonly T[], seed: number, offset: number) {
+  return values[(seed + offset) % values.length];
+}
+
+function getSwissPlate(seed: number) {
+  const cantons = ["TI", "ZH", "VD", "GE", "BE"];
+  const number = 10000 + (seed % 889999);
+
+  return `${pickValue(cantons, seed, 5)} ${number}`;
+}
+
 const mockTemplates: MockPolicyTemplate[] = [
   {
     provider: "Helsana",
-    policyType: "Assicurazione complementare salute",
+    policyType: "health",
     premiums: [94.8, 126.5, 182.4],
     deductibles: [300, 500, 1000],
-    keywords: ["helsana", "sanita", "salute", "health", "complementare"],
+    coverageAmounts: [null, null, null],
+    keywords: ["helsana", "sanita", "salute", "health", "malati", "cassa"],
+    getDetails: (seed) => ({
+      franchise: pickValue([300, 500, 1000, 2500], seed, 1),
+      model: pickValue(["Standard", "Telmed", "HMO"], seed, 3),
+      complementary: seed % 2 === 0,
+      hospital_coverage: pickValue(
+        ["Comune Svizzera", "Semi-privata Svizzera", "Privata mondo"],
+        seed,
+        7
+      ),
+    }),
   },
   {
     provider: "AXA",
-    policyType: "Assicurazione auto",
+    policyType: "car",
     premiums: [78.2, 118.6, 164.9],
     deductibles: [500, 1000, 1500],
-    keywords: ["axa", "auto", "casco", "vehicle", "veicolo"],
+    coverageAmounts: [20000, 45000, 75000],
+    keywords: ["axa", "auto", "casco", "vehicle", "veicolo", "car"],
+    getDetails: (seed) => ({
+      plate_number: getSwissPlate(seed),
+      casco: pickValue(["Totale", "Parziale", "Nessuna"], seed, 2),
+      bonus_malus: pickValue(["35%", "45%", "55%"], seed, 4),
+      annual_km: pickValue([8000, 12000, 18000], seed, 8),
+    }),
   },
   {
     provider: "la Mobiliare",
-    policyType: "RC privata e mobilia domestica",
+    policyType: "liability",
+    premiums: [17.4, 25.9, 39.8],
+    deductibles: [0, 200, 500],
+    coverageAmounts: [5000000, 10000000, 20000000],
+    keywords: ["rc", "liability", "responsabil", "responsabilita"],
+    getDetails: (seed) => ({
+      liability_limit: pickValue([5000000, 10000000, 20000000], seed, 2),
+      household_members_included: pickValue([1, 2, 4], seed, 6),
+    }),
+  },
+  {
+    provider: "la Mobiliare",
+    policyType: "household",
     premiums: [24.9, 38.4, 57.7],
     deductibles: [200, 500, 1000],
-    keywords: ["mobiliar", "mobilia", "casa", "rc", "household"],
+    coverageAmounts: [60000, 90000, 140000],
+    keywords: ["mobilia", "casa", "economia", "domestic", "household", "hausrat"],
+    getDetails: (seed) => ({
+      insured_sum: pickValue([60000, 90000, 140000], seed, 1),
+      glass_coverage: seed % 2 === 0,
+      theft_coverage: seed % 3 !== 0,
+    }),
   },
   {
     provider: "Zurich",
-    policyType: "Protezione giuridica",
+    policyType: "legal",
     premiums: [19.5, 31.8, 48.3],
     deductibles: [0, 200, 500],
+    coverageAmounts: [null, null, null],
     keywords: ["zurich", "legal", "giuridica", "recht", "protection"],
+    getDetails: (seed) => ({
+      private_legal: true,
+      traffic_legal: seed % 2 === 0,
+      coverage_region: pickValue(
+        ["Svizzera", "Svizzera ed Europa", "Mondo esclusi USA"],
+        seed,
+        4
+      ),
+    }),
   },
   {
     provider: "Swiss Life",
-    policyType: "Assicurazione vita",
+    policyType: "other",
     premiums: [142, 215, 318],
     deductibles: [0, 0, 0],
+    coverageAmounts: [50000, 100000, 150000],
     keywords: ["vita", "life", "previdenza", "swisslife", "pensione"],
+    getDetails: () => ({
+      generic_details:
+        "Categoria non ancora specializzata: verificare coperture e beneficiari.",
+    }),
   },
 ] as const;
 
@@ -107,10 +180,6 @@ function pickTemplate(fileName: string, seed: number) {
   );
 }
 
-function pickValue<T>(values: readonly T[], seed: number, offset: number) {
-  return values[(seed + offset) % values.length];
-}
-
 function getMockRenewalDate(seed: number) {
   const renewalDate = new Date();
   renewalDate.setUTCDate(renewalDate.getUTCDate() + 90 + (seed % 240));
@@ -120,6 +189,13 @@ function getMockRenewalDate(seed: number) {
 
 function getConfidence(seed: number, floor: number, offset: number) {
   return Math.min(98, floor + ((seed + offset) % 10));
+}
+
+function getOverallConfidence(confidence: PolicyExtractionDraft["confidence"]) {
+  const values = Object.values(confidence);
+  const total = values.reduce((sum, value) => sum + value, 0);
+
+  return Math.round(total / values.length);
 }
 
 async function waitForMockExtraction(seed: number) {
@@ -150,24 +226,30 @@ export const mockPolicyDocumentExtractor: PolicyDocumentExtractor = {
         premiumAmount: pickValue(template.premiums, seed, 1),
         deductible: pickValue(template.deductibles, seed, 3),
         renewalDate: getMockRenewalDate(seed),
+        coverageAmount: pickValue(template.coverageAmounts, seed, 5),
+        details: template.getDetails(seed),
         confidence: {
           provider: getConfidence(seed, 87, 1),
           policyType: getConfidence(seed, 84, 3),
           premiumAmount: getConfidence(seed, 78, 5),
           deductible: getConfidence(seed, 76, 7),
           renewalDate: getConfidence(seed, 80, 9),
+          details: getConfidence(seed, 72, 11),
         },
       },
     };
   },
 };
 
-function getDraftNotes(document: UserDocument, extraction: PolicyDocumentExtractionResult) {
+function getExtractionNotes(
+  document: UserDocument,
+  extraction: PolicyDocumentExtractionResult
+) {
   return [
     "Bozza generata da estrazione simulata Atlas.",
     `Documento sorgente: ${document.fileName}.`,
     `Tempo simulato: ${(extraction.processingMs / 1000).toFixed(1)}s.`,
-    "Verifica compagnia, premio, franchigia e data rinnovo prima di usare questi dati.",
+    "Tipo e dettagli sono precompilati da template e richiedono revisione.",
   ].join("\n");
 }
 
@@ -205,15 +287,24 @@ export async function analyzeCurrentUserDocument(
         documentId: processingDocument.id,
         provider: extraction.draft.provider,
         policyType: extraction.draft.policyType,
+        policyCategoryLabel: null,
+        policyNumber: null,
         premiumAmount: extraction.draft.premiumAmount,
         premiumFrequency: "monthly",
         deductible: extraction.draft.deductible,
+        startDate: null,
+        endDate: null,
         renewalDate: extraction.draft.renewalDate,
-        notes: getDraftNotes(processingDocument, extraction),
+        currency: "CHF",
+        coverageAmount: extraction.draft.coverageAmount,
+        details: extraction.draft.details,
+        notes: null,
       },
       {
         source: "ai_draft",
         requiresReview: true,
+        extractionConfidence: getOverallConfidence(extraction.draft.confidence),
+        extractionNotes: getExtractionNotes(processingDocument, extraction),
       }
     );
 

@@ -1,6 +1,11 @@
 import "server-only";
 
 import { cache } from "react";
+import {
+  isTypedPolicyType,
+  sanitizePolicyDetails,
+  toTypedPolicyType,
+} from "@/lib/policy-types";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import type {
   PolicyCreationMetadata,
@@ -19,7 +24,7 @@ const policyPremiumFrequencies = [
 ] as const;
 
 const policySelect =
-  "id, user_id, document_id, provider, policy_type, premium_amount, premium_frequency, deductible, renewal_date, notes, source, requires_review, status, created_at, updated_at";
+  "id, user_id, document_id, provider, policy_type, policy_category_label, policy_number, premium_amount, premium_frequency, deductible, start_date, end_date, renewal_date, currency, coverage_amount, details, notes, extraction_confidence, extraction_notes, source, requires_review, status, created_at, updated_at";
 
 type PolicyRow = {
   id: string;
@@ -27,11 +32,20 @@ type PolicyRow = {
   document_id: string | null;
   provider: string;
   policy_type: string;
+  policy_category_label: string | null;
+  policy_number: string | null;
   premium_amount: number | string | null;
   premium_frequency: string | null;
   deductible: number | string | null;
+  start_date: string | null;
+  end_date: string | null;
   renewal_date: string | null;
+  currency: string | null;
+  coverage_amount: number | string | null;
+  details: unknown;
   notes: string | null;
+  extraction_confidence: number | string | null;
+  extraction_notes: string | null;
   source: string | null;
   requires_review: boolean | null;
   status: string | null;
@@ -70,18 +84,33 @@ function toUserPolicy(
   policy: PolicyRow,
   documents: Map<string, UserPolicyDocument>
 ): UserPolicy {
+  const policyType = toTypedPolicyType(policy.policy_type);
+
   return {
     id: policy.id,
     userId: policy.user_id,
     documentId: policy.document_id,
     document: policy.document_id ? documents.get(policy.document_id) ?? null : null,
     provider: policy.provider,
-    policyType: policy.policy_type,
+    policyType,
+    policyCategoryLabel:
+      policy.policy_category_label ??
+      (!isTypedPolicyType(policy.policy_type) && policyType === "other"
+        ? policy.policy_type
+        : null),
+    policyNumber: policy.policy_number,
     premiumAmount: toNullableNumber(policy.premium_amount),
     premiumFrequency: toPolicyPremiumFrequency(policy.premium_frequency),
     deductible: toNullableNumber(policy.deductible),
+    startDate: policy.start_date,
+    endDate: policy.end_date,
     renewalDate: policy.renewal_date,
+    currency: policy.currency?.trim() || "CHF",
+    coverageAmount: toNullableNumber(policy.coverage_amount),
+    details: sanitizePolicyDetails(policyType, policy.details),
     notes: policy.notes,
+    extractionConfidence: toNullableNumber(policy.extraction_confidence),
+    extractionNotes: policy.extraction_notes,
     source: toPolicySource(policy.source),
     requiresReview: policy.requires_review ?? false,
     status: policy.status ?? "active",
@@ -96,17 +125,33 @@ function assertNullableAmount(value: number | null, fieldName: string) {
   }
 }
 
+function assertNullableDate(value: string | null, fieldName: string) {
+  if (
+    value &&
+    (!/^\d{4}-\d{2}-\d{2}$/.test(value) ||
+      !Number.isFinite(new Date(`${value}T00:00:00Z`).getTime()))
+  ) {
+    throw new PolicyManagementError(`${fieldName} non valida.`);
+  }
+}
+
 function normalizePolicyInput(input: PolicyInput): PolicyInput {
   const provider = input.provider.trim();
-  const policyType = input.policyType.trim();
+  const policyCategoryLabel = input.policyCategoryLabel?.trim() || null;
+  const policyNumber = input.policyNumber?.trim() || null;
+  const currency = input.currency.trim().toUpperCase();
   const notes = input.notes?.trim() || null;
 
   if (!provider) {
     throw new PolicyManagementError("Inserisci la compagnia assicurativa.");
   }
 
-  if (!policyType) {
-    throw new PolicyManagementError("Inserisci il tipo di polizza.");
+  if (!isTypedPolicyType(input.policyType)) {
+    throw new PolicyManagementError("Scegli un tipo di polizza valido.");
+  }
+
+  if (!currency) {
+    throw new PolicyManagementError("Inserisci la valuta della polizza.");
   }
 
   if (!policyPremiumFrequencies.includes(input.premiumFrequency)) {
@@ -115,20 +160,24 @@ function normalizePolicyInput(input: PolicyInput): PolicyInput {
 
   assertNullableAmount(input.premiumAmount, "Premio");
   assertNullableAmount(input.deductible, "Franchigia");
+  assertNullableAmount(input.coverageAmount, "Somma copertura");
 
-  if (
-    input.renewalDate &&
-    (!/^\d{4}-\d{2}-\d{2}$/.test(input.renewalDate) ||
-      !Number.isFinite(new Date(`${input.renewalDate}T00:00:00Z`).getTime()))
-  ) {
-    throw new PolicyManagementError("Data rinnovo non valida.");
+  assertNullableDate(input.startDate, "Data inizio");
+  assertNullableDate(input.endDate, "Data fine");
+  assertNullableDate(input.renewalDate, "Data rinnovo");
+
+  if (input.startDate && input.endDate && input.endDate < input.startDate) {
+    throw new PolicyManagementError("La data fine precede la data inizio.");
   }
 
   return {
     ...input,
     documentId: input.documentId?.trim() || null,
     provider,
-    policyType,
+    policyCategoryLabel,
+    policyNumber,
+    currency,
+    details: sanitizePolicyDetails(input.policyType, input.details),
     notes,
   };
 }
@@ -272,11 +321,20 @@ export async function createPolicy(
       document_id: documentId,
       provider: policyInput.provider,
       policy_type: policyInput.policyType,
+      policy_category_label: policyInput.policyCategoryLabel,
+      policy_number: policyInput.policyNumber,
       premium_amount: policyInput.premiumAmount,
       premium_frequency: policyInput.premiumFrequency,
       deductible: policyInput.deductible,
+      start_date: policyInput.startDate,
+      end_date: policyInput.endDate,
       renewal_date: policyInput.renewalDate,
+      currency: policyInput.currency,
+      coverage_amount: policyInput.coverageAmount,
+      details: policyInput.details,
       notes: policyInput.notes,
+      extraction_confidence: metadata.extractionConfidence ?? null,
+      extraction_notes: metadata.extractionNotes ?? null,
       source: metadata.source ?? "manual",
       requires_review: metadata.requiresReview ?? false,
     })
@@ -311,10 +369,17 @@ export async function updatePolicy(id: string, input: PolicyInput) {
       document_id: documentId,
       provider: policyInput.provider,
       policy_type: policyInput.policyType,
+      policy_category_label: policyInput.policyCategoryLabel,
+      policy_number: policyInput.policyNumber,
       premium_amount: policyInput.premiumAmount,
       premium_frequency: policyInput.premiumFrequency,
       deductible: policyInput.deductible,
+      start_date: policyInput.startDate,
+      end_date: policyInput.endDate,
       renewal_date: policyInput.renewalDate,
+      currency: policyInput.currency,
+      coverage_amount: policyInput.coverageAmount,
+      details: policyInput.details,
       notes: policyInput.notes,
       requires_review: false,
     })

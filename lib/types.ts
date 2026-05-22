@@ -91,7 +91,37 @@ export type PolicyPremiumFrequency =
   | "semiannual"
   | "annual";
 
+export type TypedPolicyType =
+  | "health"
+  | "liability"
+  | "household"
+  | "car"
+  | "legal"
+  | "other";
+
 export type PolicySource = "manual" | "ai_draft";
+
+export type PolicyDetailValue = string | number | boolean | null;
+
+export type PolicyDetails = {
+  franchise?: number | null;
+  model?: string | null;
+  complementary?: boolean;
+  hospital_coverage?: string | null;
+  plate_number?: string | null;
+  casco?: string | null;
+  bonus_malus?: string | null;
+  annual_km?: number | null;
+  insured_sum?: number | null;
+  glass_coverage?: boolean;
+  theft_coverage?: boolean;
+  liability_limit?: number | null;
+  household_members_included?: number | null;
+  private_legal?: boolean;
+  traffic_legal?: boolean;
+  coverage_region?: string | null;
+  generic_details?: string | null;
+};
 
 export interface UserPolicyDocument {
   id: string;
@@ -104,12 +134,21 @@ export interface UserPolicy {
   documentId: string | null;
   document: UserPolicyDocument | null;
   provider: string;
-  policyType: string;
+  policyType: TypedPolicyType;
+  policyCategoryLabel: string | null;
+  policyNumber: string | null;
   premiumAmount: number | null;
   premiumFrequency: PolicyPremiumFrequency;
   deductible: number | null;
+  startDate: string | null;
+  endDate: string | null;
   renewalDate: string | null;
+  currency: string;
+  coverageAmount: number | null;
+  details: PolicyDetails;
   notes: string | null;
+  extractionConfidence: number | null;
+  extractionNotes: string | null;
   source: PolicySource;
   requiresReview: boolean;
   status: string;
@@ -120,17 +159,26 @@ export interface UserPolicy {
 export interface PolicyInput {
   documentId: string | null;
   provider: string;
-  policyType: string;
+  policyType: TypedPolicyType;
+  policyCategoryLabel: string | null;
+  policyNumber: string | null;
   premiumAmount: number | null;
   premiumFrequency: PolicyPremiumFrequency;
   deductible: number | null;
+  startDate: string | null;
+  endDate: string | null;
   renewalDate: string | null;
+  currency: string;
+  coverageAmount: number | null;
+  details: PolicyDetails;
   notes: string | null;
 }
 
 export interface PolicyCreationMetadata {
   source?: PolicySource;
   requiresReview?: boolean;
+  extractionConfidence?: number | null;
+  extractionNotes?: string | null;
 }
 
 export interface Benchmark {

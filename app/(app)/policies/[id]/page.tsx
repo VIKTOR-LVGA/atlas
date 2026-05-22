@@ -7,6 +7,10 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { getCurrentUserPolicyById } from "@/lib/policies";
+import {
+  getPolicyDetailRows,
+  getPolicyTypeLabel,
+} from "@/lib/policy-types";
 import { formatCHF, formatDate, formatDateTime } from "@/lib/utils";
 import type { PolicyPremiumFrequency } from "@/lib/types";
 
@@ -23,13 +27,6 @@ const premiumFrequencyLabels: Record<PolicyPremiumFrequency, string> = {
   annual: "Annuale",
 };
 
-const mockConfidenceIndicators = [
-  { label: "Compagnia", value: 94 },
-  { label: "Tipo polizza", value: 91 },
-  { label: "Premio", value: 86 },
-  { label: "Franchigia", value: 82 },
-] as const;
-
 export default async function PolicyDetailPage({ params }: PageProps) {
   const { id } = await params;
   const policy = await getCurrentUserPolicyById(id);
@@ -37,6 +34,11 @@ export default async function PolicyDetailPage({ params }: PageProps) {
   if (!policy) {
     notFound();
   }
+  const policyTypeLabel = getPolicyTypeLabel(
+    policy.policyType,
+    policy.policyCategoryLabel
+  );
+  const detailRows = getPolicyDetailRows(policy.policyType, policy.details);
 
   return (
     <div className="space-y-5">
@@ -46,7 +48,7 @@ export default async function PolicyDetailPage({ params }: PageProps) {
 
       <PageHeader
         title={policy.provider}
-        description={policy.policyType}
+        description={policyTypeLabel}
         action={
           <div className="flex flex-wrap items-center justify-end gap-2">
             {policy.requiresReview && (
@@ -96,21 +98,33 @@ export default async function PolicyDetailPage({ params }: PageProps) {
               </div>
             </div>
 
-            <div className="space-y-2.5">
-              {mockConfidenceIndicators.map((indicator) => (
-                <div key={indicator.label} className="rounded-xl border border-slate-100 p-3">
-                  <div className="flex items-center justify-between text-[11px]">
-                    <span className="font-medium text-slate-600">{indicator.label}</span>
-                    <span className="text-indigo-600">{indicator.value}% mock</span>
-                  </div>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
-                    <div
-                      className="h-full rounded-full bg-indigo-500"
-                      style={{ width: `${indicator.value}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+            <div className="rounded-xl border border-slate-100 p-3">
+              <div className="flex items-center justify-between text-[11px]">
+                <span className="font-medium text-slate-600">
+                  Confidenza estrazione
+                </span>
+                <span className="text-indigo-600">
+                  {policy.extractionConfidence === null
+                    ? "Mock"
+                    : `${policy.extractionConfidence}% mock`}
+                </span>
+              </div>
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                <div
+                  className="h-full rounded-full bg-indigo-500"
+                  style={{
+                    width: `${Math.max(
+                      12,
+                      Math.min(100, policy.extractionConfidence ?? 86)
+                    )}%`,
+                  }}
+                />
+              </div>
+              {policy.extractionNotes && (
+                <p className="mt-3 whitespace-pre-wrap text-[11px] leading-relaxed text-slate-500">
+                  {policy.extractionNotes}
+                </p>
+              )}
             </div>
           </div>
         </SectionCard>
@@ -126,9 +140,15 @@ export default async function PolicyDetailPage({ params }: PageProps) {
               </dd>
             </div>
             <div>
-              <dt className="text-[11px] uppercase text-slate-400">Tipo polizza</dt>
+              <dt className="text-[11px] uppercase text-slate-400">Categoria</dt>
               <dd className="mt-1 text-[13px] font-medium text-slate-900">
-                {policy.policyType}
+                {policyTypeLabel}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[11px] uppercase text-slate-400">Numero polizza</dt>
+              <dd className="mt-1 text-[13px] font-medium text-slate-900">
+                {policy.policyNumber ?? "Da completare"}
               </dd>
             </div>
             <div>
@@ -148,11 +168,39 @@ export default async function PolicyDetailPage({ params }: PageProps) {
               </dd>
             </div>
             <div>
+              <dt className="text-[11px] uppercase text-slate-400">Valuta</dt>
+              <dd className="mt-1 text-[13px] font-medium text-slate-900">
+                {policy.currency}
+              </dd>
+            </div>
+            <div>
               <dt className="text-[11px] uppercase text-slate-400">Franchigia</dt>
               <dd className="mt-1 text-[13px] font-medium text-slate-900">
                 {policy.deductible === null
                   ? "Da completare"
                   : formatCHF(policy.deductible)}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[11px] uppercase text-slate-400">
+                Somma copertura
+              </dt>
+              <dd className="mt-1 text-[13px] font-medium text-slate-900">
+                {policy.coverageAmount === null
+                  ? "Da completare"
+                  : formatCHF(policy.coverageAmount)}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[11px] uppercase text-slate-400">Data inizio</dt>
+              <dd className="mt-1 text-[13px] font-medium text-slate-900">
+                {policy.startDate ? formatDate(policy.startDate) : "Da completare"}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[11px] uppercase text-slate-400">Data fine</dt>
+              <dd className="mt-1 text-[13px] font-medium text-slate-900">
+                {policy.endDate ? formatDate(policy.endDate) : "Da completare"}
               </dd>
             </div>
             <div>
@@ -184,6 +232,30 @@ export default async function PolicyDetailPage({ params }: PageProps) {
         </SectionCard>
 
         <div className="space-y-4">
+          <SectionCard title={`Dettagli ${policyTypeLabel}`} padding="md">
+            {detailRows.length > 0 ? (
+              <dl className="space-y-3">
+                {detailRows.map((row) => (
+                  <div
+                    key={row.key}
+                    className="rounded-xl border border-slate-100 bg-slate-50/50 p-3"
+                  >
+                    <dt className="text-[10px] uppercase tracking-wide text-slate-400">
+                      {row.label}
+                    </dt>
+                    <dd className="mt-1 whitespace-pre-wrap text-[12px] font-medium text-slate-900">
+                      {row.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            ) : (
+              <p className="text-[12px] leading-relaxed text-slate-500">
+                Nessun dettaglio specifico salvato per questa categoria.
+              </p>
+            )}
+          </SectionCard>
+
           <SectionCard title="Documento collegato" padding="md">
             {policy.document ? (
               <Link

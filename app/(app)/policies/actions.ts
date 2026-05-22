@@ -10,7 +10,13 @@ import {
   PolicyManagementError,
   updatePolicy,
 } from "@/lib/policies";
-import type { PolicyInput, PolicyPremiumFrequency } from "@/lib/types";
+import { isTypedPolicyType } from "@/lib/policy-types";
+import type {
+  PolicyDetails,
+  PolicyInput,
+  PolicyPremiumFrequency,
+  TypedPolicyType,
+} from "@/lib/types";
 
 const policyPremiumFrequencies = [
   "monthly",
@@ -25,10 +31,15 @@ export type PolicyActionState = {
   fieldErrors?: {
     provider?: string;
     policyType?: string;
+    currency?: string;
     premiumAmount?: string;
     premiumFrequency?: string;
     deductible?: string;
+    coverageAmount?: string;
+    startDate?: string;
+    endDate?: string;
     renewalDate?: string;
+    details?: string;
   };
 };
 
@@ -42,9 +53,17 @@ function getTextField(formData: FormData, name: string) {
 
 function getNullableAmount(
   formData: FormData,
-  field: "premium_amount" | "deductible",
+  field:
+    | "premium_amount"
+    | "deductible"
+    | "coverage_amount"
+    | "detail_franchise"
+    | "detail_annual_km"
+    | "detail_insured_sum"
+    | "detail_liability_limit"
+    | "detail_household_members_included",
   fieldErrors: NonNullable<PolicyActionState["fieldErrors"]>,
-  errorKey: "premiumAmount" | "deductible"
+  errorKey: "premiumAmount" | "deductible" | "coverageAmount" | "details"
 ) {
   const amount = getTextField(formData, field);
 
@@ -62,10 +81,107 @@ function getNullableAmount(
   return number;
 }
 
+function hasCheckboxValue(formData: FormData, name: string) {
+  return formData.get(name) === "on";
+}
+
+function getNullableTextField(formData: FormData, name: string) {
+  return getTextField(formData, name) || null;
+}
+
+function validateDateField(
+  date: string,
+  fieldErrors: NonNullable<PolicyActionState["fieldErrors"]>,
+  errorKey: "startDate" | "endDate" | "renewalDate"
+) {
+  if (
+    date &&
+    (!/^\d{4}-\d{2}-\d{2}$/.test(date) ||
+      !Number.isFinite(new Date(`${date}T00:00:00Z`).getTime()))
+  ) {
+    fieldErrors[errorKey] = "Inserisci una data valida.";
+  }
+}
+
+function getPolicyDetails(
+  formData: FormData,
+  policyType: TypedPolicyType,
+  fieldErrors: NonNullable<PolicyActionState["fieldErrors"]>
+): PolicyDetails {
+  switch (policyType) {
+    case "health":
+      return {
+        franchise: getNullableAmount(
+          formData,
+          "detail_franchise",
+          fieldErrors,
+          "details"
+        ),
+        model: getNullableTextField(formData, "detail_model"),
+        complementary: hasCheckboxValue(formData, "detail_complementary"),
+        hospital_coverage: getNullableTextField(
+          formData,
+          "detail_hospital_coverage"
+        ),
+      };
+    case "car":
+      return {
+        plate_number: getNullableTextField(formData, "detail_plate_number"),
+        casco: getNullableTextField(formData, "detail_casco"),
+        bonus_malus: getNullableTextField(formData, "detail_bonus_malus"),
+        annual_km: getNullableAmount(
+          formData,
+          "detail_annual_km",
+          fieldErrors,
+          "details"
+        ),
+      };
+    case "household":
+      return {
+        insured_sum: getNullableAmount(
+          formData,
+          "detail_insured_sum",
+          fieldErrors,
+          "details"
+        ),
+        glass_coverage: hasCheckboxValue(formData, "detail_glass_coverage"),
+        theft_coverage: hasCheckboxValue(formData, "detail_theft_coverage"),
+      };
+    case "liability":
+      return {
+        liability_limit: getNullableAmount(
+          formData,
+          "detail_liability_limit",
+          fieldErrors,
+          "details"
+        ),
+        household_members_included: getNullableAmount(
+          formData,
+          "detail_household_members_included",
+          fieldErrors,
+          "details"
+        ),
+      };
+    case "legal":
+      return {
+        private_legal: hasCheckboxValue(formData, "detail_private_legal"),
+        traffic_legal: hasCheckboxValue(formData, "detail_traffic_legal"),
+        coverage_region: getNullableTextField(formData, "detail_coverage_region"),
+      };
+    default:
+      return {
+        generic_details: getNullableTextField(formData, "detail_generic_details"),
+      };
+  }
+}
+
 function getPolicyInput(formData: FormData) {
   const provider = getTextField(formData, "provider");
   const policyType = getTextField(formData, "policy_type");
+  const currency = getTextField(formData, "currency") || "CHF";
   const premiumFrequency = getTextField(formData, "premium_frequency");
+  const startDate = getTextField(formData, "start_date");
+  const endDate = getTextField(formData, "end_date");
   const renewalDate = getTextField(formData, "renewal_date");
   const fieldErrors: NonNullable<PolicyActionState["fieldErrors"]> = {};
 
@@ -73,8 +189,12 @@ function getPolicyInput(formData: FormData) {
     fieldErrors.provider = "Inserisci la compagnia.";
   }
 
-  if (!policyType) {
-    fieldErrors.policyType = "Inserisci il tipo di polizza.";
+  if (!isTypedPolicyType(policyType)) {
+    fieldErrors.policyType = "Scegli un tipo di polizza valido.";
+  }
+
+  if (!currency) {
+    fieldErrors.currency = "Inserisci la valuta.";
   }
 
   if (
@@ -85,12 +205,12 @@ function getPolicyInput(formData: FormData) {
     fieldErrors.premiumFrequency = "Scegli una frequenza valida.";
   }
 
-  if (
-    renewalDate &&
-    (!/^\d{4}-\d{2}-\d{2}$/.test(renewalDate) ||
-      !Number.isFinite(new Date(`${renewalDate}T00:00:00Z`).getTime()))
-  ) {
-    fieldErrors.renewalDate = "Inserisci una data valida.";
+  validateDateField(startDate, fieldErrors, "startDate");
+  validateDateField(endDate, fieldErrors, "endDate");
+  validateDateField(renewalDate, fieldErrors, "renewalDate");
+
+  if (startDate && endDate && endDate < startDate) {
+    fieldErrors.endDate = "La data fine precede la data inizio.";
   }
 
   const premiumAmount = getNullableAmount(
@@ -105,6 +225,15 @@ function getPolicyInput(formData: FormData) {
     fieldErrors,
     "deductible"
   );
+  const coverageAmount = getNullableAmount(
+    formData,
+    "coverage_amount",
+    fieldErrors,
+    "coverageAmount"
+  );
+  const details = isTypedPolicyType(policyType)
+    ? getPolicyDetails(formData, policyType, fieldErrors)
+    : {};
 
   if (Object.keys(fieldErrors).length > 0) {
     return { input: null, fieldErrors };
@@ -113,11 +242,18 @@ function getPolicyInput(formData: FormData) {
   const input: PolicyInput = {
     documentId: getTextField(formData, "document_id") || null,
     provider,
-    policyType,
+    policyType: policyType as TypedPolicyType,
+    policyCategoryLabel: getNullableTextField(formData, "policy_category_label"),
+    policyNumber: getNullableTextField(formData, "policy_number"),
     premiumAmount,
     premiumFrequency: premiumFrequency as PolicyPremiumFrequency,
     deductible,
+    startDate: startDate || null,
+    endDate: endDate || null,
     renewalDate: renewalDate || null,
+    currency,
+    coverageAmount,
+    details,
     notes: getTextField(formData, "notes") || null,
   };
 
