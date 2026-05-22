@@ -94,3 +94,13 @@ export interface UserProfile {
   canton: string;
   memberSince: string;
 }
+
+export interface CurrentProfile {
+  id: string;
+  fullName: string | null;
+  email: string | null;
+  avatarUrl: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+  hasProfileRow: boolean;
+}

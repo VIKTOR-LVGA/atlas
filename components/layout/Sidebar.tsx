@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useCurrentProfile } from "@/components/profile/ProfileProvider";
+import { getProfileDisplayName, getProfileInitials } from "@/lib/profile-display";
 import {
   IconLogo,
   IconMenu,
@@ -31,6 +33,7 @@ const navItems = [
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
+  const profile = useCurrentProfile();
 
   const isActive = (href: string) => {
     if (href === "/dashboard") return pathname === "/dashboard";
@@ -76,6 +79,19 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
 
       <div className="p-4">
+        <div className="mb-3 flex min-w-0 items-center gap-2.5 rounded-xl border border-slate-100 bg-white px-3 py-2 shadow-sm">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[11px] font-semibold text-white">
+            {getProfileInitials(profile)}
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-[12px] font-medium text-slate-800">
+              {getProfileDisplayName(profile)}
+            </p>
+            <p className="truncate text-[10px] text-slate-500">
+              {profile?.email ?? "Profilo Atlas"}
+            </p>
+          </div>
+        </div>
         <div className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-blue-50/40 p-4">
           <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-white shadow-sm">
             <IconShield className="h-[18px] w-[18px] text-blue-600" />

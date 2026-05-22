@@ -1,15 +1,12 @@
 "use client";
 
 import { IconBell, IconChevronDown, IconHelp } from "@/components/icons";
-import { userProfile } from "@/lib/mock-data";
 import { logout } from "@/app/(app)/actions";
+import { useCurrentProfile } from "@/components/profile/ProfileProvider";
+import { getProfileInitials, getProfileShortName } from "@/lib/profile-display";
 
 export function TopBar() {
-  const initials = userProfile.name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .slice(0, 2);
+  const profile = useCurrentProfile();
 
   return (
     <header className="flex h-14 shrink-0 items-center justify-end gap-2 border-b border-slate-100 bg-white px-4 sm:px-6">
@@ -33,10 +30,10 @@ export function TopBar() {
         className="ml-1 flex items-center gap-2 rounded-lg py-1.5 pl-1 pr-2 transition hover:bg-slate-50"
       >
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-xs font-semibold text-white">
-          {initials}
+          {getProfileInitials(profile)}
         </span>
         <span className="hidden text-sm font-medium text-slate-800 sm:inline">
-          {userProfile.name.split(" ")[0]} B.
+          {getProfileShortName(profile)}
         </span>
         <IconChevronDown className="hidden h-3.5 w-3.5 text-slate-400 sm:block" />
       </button>

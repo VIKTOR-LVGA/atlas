@@ -5,7 +5,8 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { LinkAction } from "@/components/ui/LinkAction";
-import { userProfile } from "@/lib/mock-data";
+import { useCurrentProfile } from "@/components/profile/ProfileProvider";
+import { getProfileDisplayName, getProfileInitials } from "@/lib/profile-display";
 import { formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import {
@@ -31,6 +32,17 @@ const integrations = [
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("profilo");
+  const profile = useCurrentProfile();
+  const fullNameParts = profile?.fullName?.trim().split(/\s+/).filter(Boolean) ?? [];
+  const memberSince = profile?.createdAt
+    ? `Membro dal ${formatDate(profile.createdAt)}`
+    : "Profilo creato da Supabase Auth";
+  const profileFields = [
+    { l: "Nome", v: fullNameParts[0] ?? "" },
+    { l: "Cognome", v: fullNameParts.slice(1).join(" ") },
+    { l: "Email", v: profile?.email ?? "" },
+    { l: "Telefono", v: "+41 79 000 00 00" },
+  ];
 
   return (
     <div className="space-y-5">
@@ -64,7 +76,7 @@ export default function SettingsPage() {
               <div className="text-center sm:text-left">
                 <div className="relative mx-auto h-24 w-24 sm:mx-0">
                   <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-2xl font-semibold text-white">
-                    MB
+                    {getProfileInitials(profile)}
                   </div>
                   <button
                     type="button"
@@ -73,19 +85,20 @@ export default function SettingsPage() {
                     📷
                   </button>
                 </div>
-                <p className="mt-3 text-[14px] font-semibold text-slate-900">{userProfile.name}</p>
-                <StatusBadge variant="ok" label="Account verificato" className="mt-1" />
+                <p className="mt-3 text-[14px] font-semibold text-slate-900">
+                  {getProfileDisplayName(profile)}
+                </p>
+                <StatusBadge
+                  variant={profile?.hasProfileRow ? "ok" : "processing"}
+                  label={profile?.hasProfileRow ? "Account verificato" : "Profilo in attesa"}
+                  className="mt-1"
+                />
                 <p className="mt-1 text-[11px] text-slate-500">
-                  Membro dal {formatDate(userProfile.memberSince)}
+                  {memberSince}
                 </p>
               </div>
               <form className="grid flex-1 gap-3 sm:grid-cols-2" onSubmit={(e) => e.preventDefault()}>
-                {[
-                  { l: "Nome", v: "Marco" },
-                  { l: "Cognome", v: "Bianchi" },
-                  { l: "Email", v: userProfile.email },
-                  { l: "Telefono", v: "+41 79 000 00 00" },
-                ].map((f) => (
+                {profileFields.map((f) => (
                   <div key={f.l}>
                     <label className="text-[11px] font-medium text-slate-600">{f.l}</label>
                     <input
