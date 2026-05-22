@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { AuthFormField } from "@/components/auth/AuthFormField";
 import { AuthMessage } from "@/components/auth/AuthMessage";
-import { getSupabase } from "@/lib/supabase/client";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import {
   validateEmail,
   validatePassword,
@@ -55,7 +55,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const { data, error: authError } = await getSupabase().auth.signUp({
+      const { data, error: authError } = await getSupabaseBrowserClient().auth.signUp({
         email: email.trim(),
         password,
         options: {

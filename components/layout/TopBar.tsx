@@ -2,6 +2,7 @@
 
 import { IconBell, IconChevronDown, IconHelp } from "@/components/icons";
 import { userProfile } from "@/lib/mock-data";
+import { logout } from "@/app/(app)/actions";
 
 export function TopBar() {
   const initials = userProfile.name
@@ -39,6 +40,14 @@ export function TopBar() {
         </span>
         <IconChevronDown className="hidden h-3.5 w-3.5 text-slate-400 sm:block" />
       </button>
+      <form action={logout}>
+        <button
+          type="submit"
+          className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-[12px] font-medium text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"
+        >
+          Esci
+        </button>
+      </form>
     </header>
   );
 }

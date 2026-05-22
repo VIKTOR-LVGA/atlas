@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { AuthFormField } from "@/components/auth/AuthFormField";
 import { AuthMessage } from "@/components/auth/AuthMessage";
-import { getSupabase } from "@/lib/supabase/client";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { validateEmail, validatePassword } from "@/lib/auth-validation";
 import { cn } from "@/lib/utils";
 
@@ -37,10 +37,12 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const { error: authError } = await getSupabase().auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
+      const { error: authError } = await getSupabaseBrowserClient().auth.signInWithPassword(
+        {
+          email: email.trim(),
+          password,
+        }
+      );
 
       if (authError) {
         setError(
@@ -80,17 +82,27 @@ export default function LoginPage() {
           disabled={loading}
         />
 
-        <AuthFormField
-          id="password"
-          label="Password"
-          type="password"
-          value={password}
-          onChange={setPassword}
-          error={fieldErrors.password}
-          placeholder="••••••••"
-          autoComplete="current-password"
-          disabled={loading}
-        />
+        <div>
+          <AuthFormField
+            id="password"
+            label="Password"
+            type="password"
+            value={password}
+            onChange={setPassword}
+            error={fieldErrors.password}
+            placeholder="••••••••"
+            autoComplete="current-password"
+            disabled={loading}
+          />
+          <div className="mt-1.5 text-right">
+            <Link
+              href="/forgot-password"
+              className="text-[12px] font-medium text-blue-600 hover:text-blue-700"
+            >
+              Password dimenticata?
+            </Link>
+          </div>
+        </div>
 
         <button
           type="submit"
