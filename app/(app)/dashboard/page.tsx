@@ -21,10 +21,13 @@ import { getDashboardStats, getRecentDocuments } from "@/lib/dashboard";
 import { getProfileShortName } from "@/lib/profile-display";
 import { getCurrentProfile } from "@/lib/profiles";
 import {
+  formatCHF,
+  formatDate,
   formatDateTime,
   formatFileSize,
   formatRelativeTime,
 } from "@/lib/utils";
+import { getCurrentUserPolicies } from "@/lib/policies";
 
 export const metadata = { title: "Dashboard" };
 
@@ -46,11 +49,25 @@ const pendingAnalysisItems = [
   },
 ] as const;
 
+function getPremiumFrequencyLabel(frequency: string) {
+  switch (frequency) {
+    case "quarterly":
+      return "trimestrale";
+    case "semiannual":
+      return "semestrale";
+    case "annual":
+      return "annuale";
+    default:
+      return "mensile";
+  }
+}
+
 export default async function DashboardPage() {
-  const [profile, documentStats, recentDocuments] = await Promise.all([
+  const [profile, documentStats, recentDocuments, policies] = await Promise.all([
     getCurrentProfile(),
     getDashboardStats(),
     getRecentDocuments(5),
+    getCurrentUserPolicies(),
   ]);
   const latestDocument = documentStats.latestDocument;
 
@@ -237,23 +254,82 @@ export default async function DashboardPage() {
         <div className="lg:col-span-2">
           <SectionCard
             title="Le tue polizze"
-            description="L'archivio polizze si popolera dopo l'analisi dei PDF caricati."
-            action={<StatusBadge variant="processing" label="Awaiting analysis" />}
+            description={
+              policies.length > 0
+                ? "Schede manuali collegate ai tuoi documenti quando disponibili."
+                : "L'archivio polizze si popolera dopo l'analisi dei PDF caricati."
+            }
+            action={
+              policies.length > 0 ? (
+                <LinkAction href="/policies">Apri polizze</LinkAction>
+              ) : (
+                <StatusBadge variant="processing" label="Awaiting analysis" />
+              )
+            }
           >
-            <div className="flex min-h-[286px] flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/40 px-6 py-10 text-center">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
-                <IconDocuments className="h-5 w-5" />
-              </span>
-              <p className="mt-4 text-[15px] font-semibold text-slate-900">
-                Nessuna polizza analizzata
-              </p>
-              <p className="mt-1 max-w-sm text-[12px] leading-relaxed text-slate-500">
-                Carica una polizza PDF per iniziare.
-              </p>
-              <PrimaryButton href="/documents" className="mt-4">
-                Vai ai documenti
-              </PrimaryButton>
-            </div>
+            {policies.length > 0 ? (
+              <div className="grid min-h-[286px] gap-3 md:grid-cols-2">
+                {policies.slice(0, 4).map((policy) => (
+                  <Link
+                    key={policy.id}
+                    href={`/policies/${policy.id}`}
+                    className="flex flex-col rounded-xl border border-slate-100 bg-white p-4 transition hover:border-blue-100 hover:bg-blue-50/30"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="min-w-0">
+                        <span className="block truncate text-[13px] font-semibold text-slate-900">
+                          {policy.provider}
+                        </span>
+                        <span className="mt-0.5 block truncate text-[11px] text-slate-500">
+                          {policy.policyType}
+                        </span>
+                      </span>
+                      <StatusBadge
+                        variant={policy.status === "active" ? "active" : "neutral"}
+                        label={policy.status === "active" ? "Attiva" : policy.status}
+                      />
+                    </div>
+                    <div className="mt-auto grid grid-cols-2 gap-3 border-t border-slate-50 pt-3 text-[11px]">
+                      <span>
+                        <span className="block uppercase tracking-wide text-slate-400">
+                          Premio
+                        </span>
+                        <span className="mt-1 block font-medium text-slate-800">
+                          {policy.premiumAmount === null
+                            ? "Da completare"
+                            : `${formatCHF(policy.premiumAmount)} / ${getPremiumFrequencyLabel(policy.premiumFrequency)}`}
+                        </span>
+                      </span>
+                      <span>
+                        <span className="block uppercase tracking-wide text-slate-400">
+                          Rinnovo
+                        </span>
+                        <span className="mt-1 block font-medium text-slate-800">
+                          {policy.renewalDate
+                            ? formatDate(policy.renewalDate)
+                            : "Da completare"}
+                        </span>
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="flex min-h-[286px] flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/40 px-6 py-10 text-center">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                  <IconDocuments className="h-5 w-5" />
+                </span>
+                <p className="mt-4 text-[15px] font-semibold text-slate-900">
+                  Nessuna polizza analizzata
+                </p>
+                <p className="mt-1 max-w-sm text-[12px] leading-relaxed text-slate-500">
+                  Carica una polizza PDF per iniziare.
+                </p>
+                <PrimaryButton href="/documents" className="mt-4">
+                  Vai ai documenti
+                </PrimaryButton>
+              </div>
+            )}
           </SectionCard>
         </div>
 

@@ -79,6 +79,45 @@ export interface UserDocument {
   updatedAt: string;
 }
 
+export type PolicyPremiumFrequency =
+  | "monthly"
+  | "quarterly"
+  | "semiannual"
+  | "annual";
+
+export interface UserPolicyDocument {
+  id: string;
+  fileName: string;
+}
+
+export interface UserPolicy {
+  id: string;
+  userId: string;
+  documentId: string | null;
+  document: UserPolicyDocument | null;
+  provider: string;
+  policyType: string;
+  premiumAmount: number | null;
+  premiumFrequency: PolicyPremiumFrequency;
+  deductible: number | null;
+  renewalDate: string | null;
+  notes: string | null;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PolicyInput {
+  documentId: string | null;
+  provider: string;
+  policyType: string;
+  premiumAmount: number | null;
+  premiumFrequency: PolicyPremiumFrequency;
+  deductible: number | null;
+  renewalDate: string | null;
+  notes: string | null;
+}
+
 export interface Benchmark {
   id: string;
   category: string;

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Download } from "lucide-react";
+import { Download, PlusCircle } from "lucide-react";
 import { DocumentDeleteForm } from "@/components/documents/DocumentDeleteForm";
 import { DocumentStatusBadge } from "@/components/documents/DocumentStatusBadge";
 import { IconDocuments } from "@/components/icons";
@@ -80,9 +80,16 @@ export default async function DocumentDetailPage({ params }: PageProps) {
 
         <SectionCard title="Azioni" padding="md">
           <div className="space-y-3">
+            <Link
+              href={`/policies/new?documentId=${document.id}`}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-[13px] font-medium text-white hover:bg-blue-700"
+            >
+              <PlusCircle className="h-4 w-4" />
+              Crea polizza
+            </Link>
             <a
               href={`/documents/${document.id}/download`}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-[13px] font-medium text-white hover:bg-blue-700"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-[13px] font-medium text-slate-700 hover:bg-slate-50"
             >
               <Download className="h-4 w-4" />
               Scarica PDF

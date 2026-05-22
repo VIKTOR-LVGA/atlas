@@ -1,103 +1,151 @@
+import Link from "next/link";
+import { FileText, Plus } from "lucide-react";
+import { IconPolicies } from "@/components/icons";
 import { PageHeader, PrimaryButton } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
-import { StatCard } from "@/components/ui/StatCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import {
-  IconAnalysis,
-  IconDocuments,
-  IconPlus,
-  IconPolicies,
-} from "@/components/icons";
-import { getDashboardStats } from "@/lib/dashboard";
+import { getCurrentUserPolicies } from "@/lib/policies";
+import { formatCHF, formatDate } from "@/lib/utils";
+import type { PolicyPremiumFrequency, UserPolicy } from "@/lib/types";
+
+export const metadata = { title: "Polizze" };
+
+const premiumFrequencyLabels: Record<PolicyPremiumFrequency, string> = {
+  monthly: "mensile",
+  quarterly: "trimestrale",
+  semiannual: "semestrale",
+  annual: "annuale",
+};
+
+function PolicyPremium({ policy }: { policy: UserPolicy }) {
+  if (policy.premiumAmount === null) {
+    return <span className="text-slate-400">Premio da completare</span>;
+  }
+
+  return (
+    <>
+      {formatCHF(policy.premiumAmount)}{" "}
+      <span className="font-normal text-slate-500">
+        / {premiumFrequencyLabels[policy.premiumFrequency]}
+      </span>
+    </>
+  );
+}
 
 export default async function PoliciesPage() {
-  const documentStats = await getDashboardStats();
+  const policies = await getCurrentUserPolicies();
 
   return (
     <div className="space-y-5">
       <PageHeader
         title="Le mie polizze"
-        description="Le polizze analizzate compariranno qui quando Atlas potra estrarle dai PDF caricati."
+        description="Polizze strutturate create dai tuoi documenti caricati."
         action={
-          <PrimaryButton href="/documents" icon={<IconPlus className="h-4 w-4" />}>
-            Carica una polizza
+          <PrimaryButton href="/policies/new" icon={<Plus className="h-4 w-4" />}>
+            Nuova polizza
           </PrimaryButton>
         }
       />
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard
-          label="PDF in archivio"
-          value={String(documentStats.totalDocuments)}
-          subtext="Documenti reali caricati"
-          variant="blue"
-          icon={<IconDocuments className="h-[18px] w-[18px]" />}
-        />
-        <StatCard
-          label="Polizze analizzate"
-          value="In attesa"
-          subtext="Estrazione non disponibile"
-          variant="yellow"
-          icon={<IconPolicies className="h-[18px] w-[18px]" />}
-        />
-        <StatCard
-          label="Coperture"
-          value="Non disponibili"
-          subtext="Analisi documenti richiesta"
-          variant="indigo"
-          icon={<IconAnalysis className="h-[18px] w-[18px]" />}
-        />
-        <StatCard
-          label="Ultimo risultato"
-          value="Nessuno"
-          subtext="Nessuna polizza analizzata"
-          variant="green"
-          icon={<IconPolicies className="h-[18px] w-[18px]" />}
-        />
-      </div>
+      {policies.length > 0 ? (
+        <SectionCard
+          title="Archivio polizze"
+          description="Dati inseriti manualmente prima dell'estrazione AI."
+          padding="none"
+        >
+          <div className="grid gap-3 p-4 lg:grid-cols-2">
+            {policies.map((policy) => (
+              <article
+                key={policy.id}
+                className="rounded-xl border border-slate-100 bg-white p-4 transition hover:border-blue-100 hover:bg-blue-50/20"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <Link href={`/policies/${policy.id}`} className="min-w-0">
+                    <p className="truncate text-[14px] font-semibold text-slate-900">
+                      {policy.provider}
+                    </p>
+                    <p className="mt-0.5 truncate text-[12px] text-slate-500">
+                      {policy.policyType}
+                    </p>
+                  </Link>
+                  <StatusBadge
+                    variant={policy.status === "active" ? "active" : "neutral"}
+                    label={policy.status === "active" ? "Attiva" : policy.status}
+                  />
+                </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <SectionCard
-            title="Archivio polizze"
-            description="Questa vista non mostra dati demo nel prodotto autenticato."
-            action={<StatusBadge variant="processing" label="Analisi in attesa" />}
-          >
-            <div className="flex min-h-[360px] flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/40 px-6 py-10 text-center">
-              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
-                <IconPolicies className="h-6 w-6" />
-              </span>
-              <h2 className="mt-4 text-[16px] font-semibold text-slate-900">
-                Nessuna polizza analizzata
-              </h2>
-              <p className="mt-1 max-w-md text-[13px] leading-relaxed text-slate-500">
-                Carica una polizza PDF per iniziare. Quando il backend di analisi sara pronto,
-                questa pagina mostrera polizze, coperture e scadenze reali.
-              </p>
-              <PrimaryButton href="/documents" className="mt-5">
-                Vai ai documenti
-              </PrimaryButton>
-            </div>
-          </SectionCard>
-        </div>
+                <dl className="mt-4 grid grid-cols-2 gap-3 text-[12px]">
+                  <div>
+                    <dt className="text-[10px] uppercase tracking-wide text-slate-400">
+                      Premio
+                    </dt>
+                    <dd className="mt-1 font-medium text-slate-900">
+                      <PolicyPremium policy={policy} />
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-[10px] uppercase tracking-wide text-slate-400">
+                      Rinnovo
+                    </dt>
+                    <dd className="mt-1 font-medium text-slate-900">
+                      {policy.renewalDate ? formatDate(policy.renewalDate) : "Da completare"}
+                    </dd>
+                  </div>
+                </dl>
 
-        <SectionCard title="Prossimo passaggio" padding="sm">
-          <div className="space-y-3">
-            {[
-              "Carica i PDF assicurativi",
-              "Atlas estrarra i dati di polizza",
-              "Polizze e coperture appariranno qui",
-            ].map((step, index) => (
-              <div key={step} className="flex gap-3 rounded-xl border border-slate-100 p-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[11px] font-semibold text-blue-700">
-                  {index + 1}
-                </span>
-                <p className="text-[12px] leading-relaxed text-slate-600">{step}</p>
-              </div>
+                <div className="mt-4 flex flex-col gap-2 border-t border-slate-50 pt-3 sm:flex-row sm:items-center sm:justify-between">
+                  {policy.document ? (
+                    <Link
+                      href={`/documents/${policy.document.id}`}
+                      className="inline-flex min-w-0 items-center gap-1.5 text-[11px] font-medium text-blue-700 hover:text-blue-800"
+                    >
+                      <FileText className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">{policy.document.fileName}</span>
+                    </Link>
+                  ) : (
+                    <span className="text-[11px] text-slate-400">
+                      Nessun PDF collegato
+                    </span>
+                  )}
+                  <Link
+                    href={`/policies/${policy.id}`}
+                    className="text-[12px] font-medium text-slate-700 hover:text-blue-700"
+                  >
+                    Apri dettaglio
+                  </Link>
+                </div>
+              </article>
             ))}
           </div>
         </SectionCard>
-      </div>
+      ) : (
+        <SectionCard
+          title="Archivio polizze"
+          description="Non ci sono ancora polizze manuali per questo account."
+        >
+          <div className="flex min-h-[360px] flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/40 px-6 py-10 text-center">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+              <IconPolicies className="h-5 w-5" />
+            </span>
+            <p className="mt-4 text-[15px] font-semibold text-slate-900">
+              Nessuna polizza analizzata
+            </p>
+            <p className="mt-1 max-w-sm text-[12px] leading-relaxed text-slate-500">
+              Carica una polizza PDF per iniziare oppure crea una scheda manuale
+              dai documenti gia archiviati.
+            </p>
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              <PrimaryButton href="/documents">Vai ai documenti</PrimaryButton>
+              <Link
+                href="/policies/new"
+                className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-[13px] font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+              >
+                Crea manualmente
+              </Link>
+            </div>
+          </div>
+        </SectionCard>
+      )}
     </div>
   );
 }
