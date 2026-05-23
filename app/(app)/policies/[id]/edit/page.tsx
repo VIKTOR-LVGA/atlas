@@ -1,7 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PolicyForm } from "@/components/policies/PolicyForm";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { PageShell } from "@/components/ui/PageShell";
+import { WarningPanel } from "@/components/ui/WarningPanel";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { getCurrentUserDocuments } from "@/lib/documents";
 import { getCurrentUserPolicyById } from "@/lib/policies";
@@ -24,22 +25,32 @@ export default async function EditPolicyPage({ params }: PageProps) {
   }
 
   return (
-    <div className="space-y-5">
-      <Link
-        href={`/policies/${policy.id}`}
-        className="text-[12px] text-slate-500 hover:text-slate-700"
-      >
-        Torna al dettaglio polizza
-      </Link>
-
+    <PageShell
+      backHref={`/policies/${policy.id}`}
+      backLabel="Torna al dettaglio"
+    >
       <PageHeader
         title={`Modifica ${policy.provider}`}
-        description="Aggiorna i dati inseriti manualmente e il PDF collegato."
+        description={
+          policy.requiresReview
+            ? "Conferma o correggi i campi estratti dall'AI prima di salvare."
+            : "Aggiorna i dati della polizza e il PDF collegato."
+        }
       />
+
+      {policy.requiresReview ? (
+        <WarningPanel
+          title="Bozza AI in revisione"
+          items={[
+            "Verifica premio, franchigia e persone assicurate.",
+            "Salva la scheda quando i dati corrispondono al PDF.",
+          ]}
+        />
+      ) : null}
 
       <SectionCard title="Dati polizza" padding="md">
         <PolicyForm documents={documents} policy={policy} />
       </SectionCard>
-    </div>
+    </PageShell>
   );
 }

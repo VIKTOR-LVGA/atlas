@@ -8,13 +8,14 @@ import {
   Download,
   ExternalLink,
   FileText,
-  Files,
   MoreVertical,
 } from "lucide-react";
 import { DocumentDeleteForm } from "@/components/documents/DocumentDeleteForm";
 import { DocumentAnalysisForm } from "@/components/documents/DocumentAnalysisForm";
 import { DocumentStatusBadge } from "@/components/documents/DocumentStatusBadge";
 import type { UserDocument } from "@/lib/types";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { IconUpload } from "@/components/icons";
 import { cn, formatDate, formatFileSize } from "@/lib/utils";
 
 function getDocumentHref(document: UserDocument) {
@@ -126,21 +127,13 @@ function openDocumentFromKeyboard(
 
 function DocumentEmptyState() {
   return (
-    <div className="px-4 py-10 sm:px-6">
-      <div className="mx-auto flex max-w-md flex-col items-center text-center">
-        <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-700">
-          <Files className="h-9 w-9" />
-          <span className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-xl border border-white bg-white text-red-500 shadow-sm">
-            <FileText className="h-4 w-4" />
-          </span>
-        </div>
-        <p className="mt-4 text-[14px] font-semibold text-slate-900">
-          Nessun PDF in archivio
-        </p>
-        <p className="mt-1 text-[12px] leading-5 text-slate-500">
-          Carica la prima polizza per ritrovarla qui con dettagli e download sicuro.
-        </p>
-      </div>
+    <div className="p-4 sm:p-6">
+      <EmptyState
+        icon={<IconUpload className="h-6 w-6" />}
+        title="Nessun PDF in archivio"
+        description="Carica la prima polizza per analizzarla con AI e creare una bozza strutturata."
+        className="border-none bg-transparent py-8"
+      />
     </div>
   );
 }

@@ -25,7 +25,7 @@ export function SectionCard({
   return (
     <section
       className={cn(
-        "rounded-2xl border border-slate-100 bg-white shadow-sm",
+        "rounded-2xl border border-slate-100/80 bg-white shadow-sm shadow-slate-900/[0.03]",
         className
       )}
     >

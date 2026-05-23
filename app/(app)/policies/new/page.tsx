@@ -2,6 +2,7 @@ import Link from "next/link";
 import { FileText } from "lucide-react";
 import { PolicyForm } from "@/components/policies/PolicyForm";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { PageShell } from "@/components/ui/PageShell";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { getCurrentUserDocuments } from "@/lib/documents";
 
@@ -22,11 +23,7 @@ export default async function NewPolicyPage({ searchParams }: PageProps) {
     documents.find((document) => document.id === requestedDocumentId) ?? null;
 
   return (
-    <div className="space-y-5">
-      <Link href="/policies" className="text-[12px] text-slate-500 hover:text-slate-700">
-        Torna alle polizze
-      </Link>
-
+    <PageShell backHref="/policies" backLabel="Torna alle polizze">
       <PageHeader
         title="Nuova polizza"
         description="Crea una scheda strutturata manuale prima dell'estrazione AI."
@@ -74,6 +71,6 @@ export default async function NewPolicyPage({ searchParams }: PageProps) {
           )}
         </SectionCard>
       </div>
-    </div>
+    </PageShell>
   );
 }

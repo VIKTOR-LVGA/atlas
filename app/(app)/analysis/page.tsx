@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { PageHeader, PrimaryButton } from "@/components/ui/PageHeader";
+import { PageShell } from "@/components/ui/PageShell";
+import { MetricCard } from "@/components/ui/MetricCard";
 import { SectionCard } from "@/components/ui/SectionCard";
-import { StatCard } from "@/components/ui/StatCard";
+import { PlaceholderModule } from "@/components/ui/PlaceholderModule";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { DocumentStatusBadge } from "@/components/documents/DocumentStatusBadge";
 import {
@@ -13,67 +15,92 @@ import {
   IconShield,
 } from "@/components/icons";
 import { getDashboardStats, getRecentDocuments } from "@/lib/dashboard";
-import { formatDateTime, formatFileSize, formatRelativeTime } from "@/lib/utils";
+import { getCurrentUserPolicies } from "@/lib/policies";
+import { formatFileSize, formatRelativeTime } from "@/lib/utils";
 
 export const metadata = { title: "Analisi" };
 
 export default async function AnalysisPage() {
-  const [documentStats, recentDocuments] = await Promise.all([
+  const [documentStats, recentDocuments, policies] = await Promise.all([
     getDashboardStats(),
     getRecentDocuments(4),
+    getCurrentUserPolicies(),
   ]);
-  const hasDocuments = documentStats.totalDocuments > 0;
+  const verifiedPolicies = policies.filter((policy) => !policy.requiresReview);
 
   const workflowSteps = [
     {
       label: "Upload documenti",
-      status: hasDocuments ? "Pronto" : "In attesa",
-      variant: hasDocuments ? "ok" : "neutral",
+      status: documentStats.totalDocuments > 0 ? "Completato" : "In attesa",
+      variant: documentStats.totalDocuments > 0 ? ("ok" as const) : ("neutral" as const),
     },
-    { label: "OCR e estrazione", status: "Non disponibile", variant: "neutral" },
-    { label: "Analisi coperture", status: "Analisi in attesa", variant: "processing" },
-    { label: "Benchmark mercato", status: "In attesa", variant: "neutral" },
-    { label: "Raccomandazioni", status: "In attesa", variant: "neutral" },
-  ] as const;
+    {
+      label: "Estrazione AI",
+      status:
+        documentStats.analyzedDocuments > 0 ? "Attivo" : "In attesa",
+      variant:
+        documentStats.analyzedDocuments > 0 ? ("ok" as const) : ("processing" as const),
+    },
+    {
+      label: "Revisione bozze",
+      status:
+        policies.filter((p) => p.requiresReview).length > 0
+          ? `${policies.filter((p) => p.requiresReview).length} da rivedere`
+          : policies.length > 0
+            ? "Completata"
+            : "In attesa",
+      variant:
+        policies.filter((p) => p.requiresReview).length > 0
+          ? ("attention" as const)
+          : policies.length > 0
+            ? ("ok" as const)
+            : ("neutral" as const),
+    },
+    {
+      label: "Score e alert",
+      status: "In arrivo",
+      variant: "neutral" as const,
+    },
+  ];
 
   return (
-    <div className="space-y-5">
+    <PageShell>
       <PageHeader
         title="Analisi"
-        description="Analisi non ancora disponibile: Atlas conserva i PDF reali, ma non estrae ancora le polizze."
+        description="Intelligence assicurativa su coperture, rischi e opportunita — in espansione."
         action={
           <PrimaryButton href="/documents" icon={<IconPlus className="h-4 w-4" />}>
-            Carica una polizza PDF
+            Carica PDF
           </PrimaryButton>
         }
       />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard
-          label="Documenti caricati"
+        <MetricCard
+          label="Documenti"
           value={String(documentStats.totalDocuments)}
-          subtext="Archivio reale"
+          subtext={`${documentStats.analyzedDocuments} analizzati`}
           variant="blue"
           icon={<IconDocuments className="h-[18px] w-[18px]" />}
         />
-        <StatCard
-          label="Polizze analizzate"
-          value="In attesa"
-          subtext="Estrazione non attiva"
+        <MetricCard
+          label="Polizze estratte"
+          value={String(policies.length)}
+          subtext={`${verifiedPolicies.length} verificate`}
           variant="green"
           icon={<IconShield className="h-[18px] w-[18px]" />}
         />
-        <StatCard
+        <MetricCard
           label="Health score"
-          value="Non disponibile"
-          subtext="Analisi documenti richiesta"
+          value="—"
+          subtext="Modulo in arrivo"
           variant="indigo"
           icon={<IconAnalysis className="h-[18px] w-[18px]" />}
         />
-        <StatCard
-          label="Alert reali"
-          value="In attesa"
-          subtext="Nessun alert simulato"
+        <MetricCard
+          label="Alert"
+          value="—"
+          subtext="Dopo piu polizze"
           variant="yellow"
           icon={<IconAlert className="h-[18px] w-[18px]" />}
         />
@@ -81,44 +108,43 @@ export default async function AnalysisPage() {
 
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <SectionCard
-            title="Analisi assicurativa"
-            action={<StatusBadge variant="processing" label="Analisi in attesa" />}
-          >
-            <div className="flex min-h-[330px] flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/40 px-6 py-10 text-center">
-              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
-                <IconAnalysis className="h-6 w-6" />
-              </span>
-              <h2 className="mt-4 text-[16px] font-semibold text-slate-900">
-                Analisi non ancora disponibile
-              </h2>
-              <p className="mt-1 max-w-lg text-[13px] leading-relaxed text-slate-500">
-                Carica una polizza PDF per iniziare. Score, rischi, coperture e opportunita
-                verranno mostrati solo quando l&apos;analisi documentale sara pronta.
-              </p>
-              <PrimaryButton href="/documents" className="mt-5">
-                Apri documenti
-              </PrimaryButton>
-            </div>
+          <SectionCard title="Analisi coperture">
+            <PlaceholderModule
+              icon={<IconAnalysis className="h-6 w-6" />}
+              title={
+                policies.length > 0
+                  ? "Analisi avanzata in preparazione"
+                  : "Carica e analizza una polizza"
+              }
+              description={
+                policies.length > 0
+                  ? "Hai gia polizze estratte. Score, duplicati e gap compariranno qui quando il motore di analisi sara attivo."
+                  : "Dopo l'estrazione AI da un PDF, Atlas potra confrontare coperture e segnalare criticita."
+              }
+              statusLabel={policies.length > 0 ? "Polizze disponibili" : "Serve PDF"}
+              actionLabel="Vai alle polizze"
+              actionHref="/policies"
+            />
           </SectionCard>
         </div>
 
-        <SectionCard title="Workflow" padding="sm">
-          <ol className="space-y-2.5">
+        <SectionCard title="Percorso" padding="sm">
+          <ol className="space-y-2">
             {workflowSteps.map((step, index) => (
-              <li key={step.label} className="rounded-xl border border-slate-100 p-3">
-                <div className="flex items-start gap-3">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[11px] font-semibold text-slate-600">
-                    {index + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[12px] font-medium text-slate-900">{step.label}</p>
-                    <StatusBadge
-                      variant={step.variant}
-                      label={step.status}
-                      className="mt-1"
-                    />
-                  </div>
+              <li
+                key={step.label}
+                className="flex items-start gap-3 rounded-xl border border-slate-100 p-3"
+              >
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[11px] font-semibold text-slate-600">
+                  {index + 1}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[12px] font-medium text-slate-900">{step.label}</p>
+                  <StatusBadge
+                    variant={step.variant}
+                    label={step.status}
+                    className="mt-1"
+                  />
                 </div>
               </li>
             ))}
@@ -126,69 +152,59 @@ export default async function AnalysisPage() {
         </SectionCard>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <SectionCard
-            title="Documenti pronti per analisi"
-            description="Upload reali disponibili in Supabase."
-            action={<Link href="/documents" className="text-[12px] font-medium text-blue-600">Tutti</Link>}
-            padding="sm"
-          >
-            {recentDocuments.length > 0 ? (
-              <ul className="divide-y divide-slate-50">
-                {recentDocuments.map((document) => (
-                  <li key={document.id}>
-                    <Link
-                      href={`/documents/${document.id}`}
-                      className="flex items-center justify-between gap-4 py-3 first:pt-0"
-                    >
-                      <span className="min-w-0">
-                        <span className="block truncate text-[13px] font-medium text-slate-900">
-                          {document.fileName}
-                        </span>
-                        <span className="mt-0.5 block text-[11px] text-slate-500">
-                          {formatFileSize(document.fileSize)} / caricato{" "}
-                          {formatRelativeTime(document.createdAt)}
-                        </span>
-                      </span>
-                      <span className="flex shrink-0 items-center gap-2">
-                        <span
-                          className="hidden text-[10px] text-slate-400 sm:inline"
-                          title={formatDateTime(document.createdAt)}
-                        >
-                          {formatDateTime(document.createdAt)}
-                        </span>
-                        <DocumentStatusBadge status={document.status} />
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="rounded-xl bg-slate-50 p-4 text-[12px] text-slate-500">
-                Carica una polizza PDF per iniziare.
-              </p>
-            )}
-          </SectionCard>
-        </div>
-
-        <SectionCard title="Output in attesa" padding="sm">
-          <div className="space-y-2.5">
-            {[
-              "Punteggio copertura",
-              "Rischi e doppie coperture",
-              "Opportunita di miglioramento",
-            ].map((item) => (
-              <div key={item} className="flex items-center gap-2 rounded-xl border border-slate-100 p-3">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-slate-400">
-                  <IconCheck className="h-3 w-3" />
-                </span>
-                <span className="text-[12px] text-slate-600">{item}</span>
-              </div>
+      <SectionCard
+        title="Documenti nel flusso"
+        action={
+          <Link href="/documents" className="text-[12px] font-medium text-blue-600">
+            Tutti
+          </Link>
+        }
+        padding="sm"
+      >
+        {recentDocuments.length > 0 ? (
+          <ul className="divide-y divide-slate-50">
+            {recentDocuments.map((document) => (
+              <li key={document.id}>
+                <Link
+                  href={`/documents/${document.id}`}
+                  className="flex items-center justify-between gap-4 py-3 first:pt-0"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate text-[13px] font-medium text-slate-900">
+                      {document.fileName}
+                    </span>
+                    <span className="mt-0.5 block text-[11px] text-slate-500">
+                      {formatFileSize(document.fileSize)} ·{" "}
+                      {formatRelativeTime(document.createdAt)}
+                    </span>
+                  </span>
+                  <DocumentStatusBadge status={document.status} />
+                </Link>
+              </li>
             ))}
-          </div>
-        </SectionCard>
-      </div>
-    </div>
+          </ul>
+        ) : (
+          <p className="text-[12px] text-slate-500">Nessun documento caricato.</p>
+        )}
+      </SectionCard>
+
+      <SectionCard title="Output futuri" padding="sm">
+        <div className="grid gap-2 sm:grid-cols-3">
+          {[
+            "Punteggio copertura",
+            "Rischi e doppie coperture",
+            "Opportunita di risparmio",
+          ].map((item) => (
+            <div
+              key={item}
+              className="flex items-center gap-2 rounded-xl border border-slate-100 p-3"
+            >
+              <IconCheck className="h-4 w-4 text-slate-300" />
+              <span className="text-[12px] text-slate-600">{item}</span>
+            </div>
+          ))}
+        </div>
+      </SectionCard>
+    </PageShell>
   );
 }

@@ -1,20 +1,35 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Download, PlusCircle } from "lucide-react";
+import { Download, FileText, PlusCircle } from "lucide-react";
 import { DocumentDeleteForm } from "@/components/documents/DocumentDeleteForm";
 import { DocumentAnalysisForm } from "@/components/documents/DocumentAnalysisForm";
 import { DocumentStatusBadge } from "@/components/documents/DocumentStatusBadge";
-import { IconDocuments } from "@/components/icons";
+import { ActionBar, ActionButton } from "@/components/ui/ActionBar";
+import { InfoGrid } from "@/components/ui/InfoGrid";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { PageShell } from "@/components/ui/PageShell";
 import { SectionCard } from "@/components/ui/SectionCard";
+import { CollapsibleSection } from "@/components/ui/CollapsibleSection";
 import { getCurrentUserDocumentById } from "@/lib/documents";
-import { formatDateTime, formatFileSize } from "@/lib/utils";
+import { formatDateTime, formatFileSize, formatRelativeTime } from "@/lib/utils";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
 export const metadata = { title: "Dettaglio documento" };
+
+function getStatusGuidance(status: string) {
+  switch (status) {
+    case "analyzed":
+      return "Estrazione completata. Apri la polizza collegata o rianalizza se il PDF e cambiato.";
+    case "processing":
+      return "Analisi in corso. Attendi il completamento prima di ricaricare la pagina.";
+    case "failed":
+      return "L'analisi non e riuscita. Verifica che il PDF contenga testo leggibile e riprova.";
+    default:
+      return "Documento pronto. Avvia l'analisi AI per creare una bozza polizza strutturata.";
+  }
+}
 
 export default async function DocumentDetailPage({ params }: PageProps) {
   const { id } = await params;
@@ -25,91 +40,81 @@ export default async function DocumentDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div className="space-y-5">
-      <Link href="/documents" className="text-[12px] text-slate-500 hover:text-slate-700">
-        Torna ai documenti
-      </Link>
-
+    <PageShell backHref="/documents" backLabel="Torna ai documenti">
       <PageHeader
         title={document.fileName}
-        description="PDF assicurativo caricato nell'archivio privato."
-        action={<DocumentStatusBadge status={document.status} />}
+        description={getStatusGuidance(document.status)}
+        meta={<DocumentStatusBadge status={document.status} />}
       />
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
-        <SectionCard title="Dettagli file" padding="md">
-          <dl className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <dt className="text-[11px] uppercase text-slate-400">Nome file</dt>
-              <dd className="mt-1 break-words text-[13px] font-medium text-slate-900">
-                {document.fileName}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[11px] uppercase text-slate-400">Dimensione</dt>
-              <dd className="mt-1 text-[13px] font-medium text-slate-900">
-                {formatFileSize(document.fileSize)}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[11px] uppercase text-slate-400">Mime type</dt>
-              <dd className="mt-1 text-[13px] font-medium text-slate-900">
-                {document.mimeType ?? "application/pdf"}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[11px] uppercase text-slate-400">Creato il</dt>
-              <dd className="mt-1 text-[13px] font-medium text-slate-900">
-                {formatDateTime(document.createdAt)}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[11px] uppercase text-slate-400">Stato</dt>
-              <dd className="mt-1">
-                <DocumentStatusBadge status={document.status} />
-              </dd>
-            </div>
-          </dl>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
+        <SectionCard title="Informazioni file">
+          <InfoGrid
+            items={[
+              { label: "Nome", value: document.fileName, span: 2 },
+              { label: "Dimensione", value: formatFileSize(document.fileSize) },
+              { label: "Formato", value: document.mimeType ?? "application/pdf" },
+              {
+                label: "Caricato",
+                value: (
+                  <span>
+                    {formatRelativeTime(document.createdAt)}
+                    <span className="mt-0.5 block text-[11px] font-normal text-slate-400">
+                      {formatDateTime(document.createdAt)}
+                    </span>
+                  </span>
+                ),
+              },
+              {
+                label: "Aggiornato",
+                value: formatDateTime(document.updatedAt),
+              },
+            ]}
+          />
 
-          <div className="mt-5 rounded-xl border border-slate-100 bg-slate-50/70 p-4">
-            <p className="text-[11px] uppercase text-slate-400">Percorso Storage</p>
-            <p className="mt-1 break-all font-mono text-[12px] text-slate-700">
-              {document.filePath}
+          <div className="mt-4 flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50/50 p-3">
+            <FileText className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
+            <p className="text-[12px] leading-relaxed text-slate-600">
+              {getStatusGuidance(document.status)}
             </p>
           </div>
         </SectionCard>
 
-        <SectionCard title="Azioni" padding="md">
-          <div className="space-y-3">
-            <DocumentAnalysisForm
-              documentId={document.id}
-              documentStatus={document.status}
-            />
-            <Link
-              href={`/policies/new?documentId=${document.id}`}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-[13px] font-medium text-white hover:bg-blue-700"
-            >
-              <PlusCircle className="h-4 w-4" />
-              Crea polizza
-            </Link>
-            <a
-              href={`/documents/${document.id}/download`}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-[13px] font-medium text-slate-700 hover:bg-slate-50"
-            >
-              <Download className="h-4 w-4" />
-              Scarica PDF
-            </a>
-            <DocumentDeleteForm documentId={document.id} redirectToDocuments />
-            <Link
-              href="/documents"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-[13px] font-medium text-slate-700 hover:bg-slate-50"
-            >
-              <IconDocuments className="h-4 w-4" />
-              Documenti
-            </Link>
-          </div>
-        </SectionCard>
+        <aside className="space-y-4 lg:sticky lg:top-6 lg:self-start">
+          <SectionCard title="Azioni" padding="sm">
+            <ActionBar>
+              <DocumentAnalysisForm
+                documentId={document.id}
+                documentStatus={document.status}
+              />
+              <ActionButton
+                href={`/policies/new?documentId=${document.id}`}
+                variant="secondary"
+              >
+                <PlusCircle className="h-4 w-4" />
+                Crea polizza manuale
+              </ActionButton>
+              <a
+                href={`/documents/${document.id}/download`}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-[13px] font-medium text-slate-700 hover:bg-slate-50"
+              >
+                <Download className="h-4 w-4" />
+                Scarica PDF
+              </a>
+              <DocumentDeleteForm documentId={document.id} redirectToDocuments />
+            </ActionBar>
+          </SectionCard>
+        </aside>
       </div>
-    </div>
+
+      <CollapsibleSection
+        title="Dettagli tecnici storage"
+        description="Percorso interno del file"
+      >
+        <p className="break-all font-mono text-[11px] text-slate-600">
+          {document.filePath}
+        </p>
+      </CollapsibleSection>
+    </PageShell>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { PageShell } from "@/components/ui/PageShell";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useCurrentProfile } from "@/components/profile/ProfileProvider";
@@ -26,7 +27,7 @@ export default function SettingsPage() {
   const profile = useCurrentProfile();
 
   return (
-    <div className="space-y-5">
+    <PageShell>
       <PageHeader
         title="Impostazioni"
         description="Gestisci il tuo account, le preferenze e la sicurezza."
@@ -152,6 +153,6 @@ export default function SettingsPage() {
           </div>
         </div>
       </SectionCard>
-    </div>
+    </PageShell>
   );
 }
