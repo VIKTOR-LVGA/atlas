@@ -44,10 +44,10 @@ export function DocumentUploadForm() {
       />
       <div
         className={cn(
-          "flex flex-col items-center rounded-2xl border-2 border-dashed bg-slate-50/50 px-4 py-10 text-center transition",
+          "flex flex-col items-center rounded-2xl border-2 border-dashed bg-card-muted px-4 py-10 text-center transition",
           dragging
-            ? "border-blue-400 bg-blue-50/80 shadow-sm ring-4 ring-blue-100"
-            : "border-slate-200 hover:border-blue-200 hover:bg-slate-50"
+            ? "border-accent bg-accent-soft shadow-sm ring-4 ring-accent/20"
+            : "border-border hover:border-border hover:bg-card-muted"
         )}
         onDragEnter={(event) => {
           event.preventDefault();
@@ -71,21 +71,21 @@ export function DocumentUploadForm() {
           }
         }}
       >
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft text-accent">
           <CloudUpload className="h-6 w-6" />
         </div>
-        <p className="mt-3 text-[13px] font-semibold text-slate-900">
+        <p className="mt-3 text-[13px] font-semibold text-foreground">
           Trascina il PDF qui
         </p>
-        <p className="mt-1 text-[11px] text-slate-500">Solo PDF, max 10 MB</p>
+        <p className="mt-1 text-[11px] text-muted">Solo PDF, max 10 MB</p>
         <label
           htmlFor="policy-document-file"
-          className="mt-4 cursor-pointer rounded-lg bg-blue-600 px-5 py-2 text-[13px] font-medium text-white hover:bg-blue-700"
+          className="atlas-btn-primary mt-4 cursor-pointer px-5 py-2 text-[13px]"
         >
           Seleziona PDF
         </label>
         {selectedFileName && state.status !== "success" && (
-          <p className="mt-3 max-w-full truncate text-[11px] font-medium text-slate-600">
+          <p className="mt-3 max-w-full truncate text-[11px] font-medium text-muted">
             {selectedFileName}
           </p>
         )}
@@ -93,7 +93,7 @@ export function DocumentUploadForm() {
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-lg border border-blue-600 bg-blue-600 px-4 py-2 text-[13px] font-medium text-white hover:bg-blue-700 disabled:cursor-wait disabled:border-blue-300 disabled:bg-blue-300"
+        className="atlas-btn-primary w-full px-4 py-2 text-[13px] disabled:cursor-wait disabled:opacity-60"
       >
         {pending ? (
           <span className="inline-flex items-center gap-2">
@@ -106,10 +106,10 @@ export function DocumentUploadForm() {
       </button>
       {pending && (
         <div className="space-y-1.5" role="progressbar" aria-label="Upload in corso">
-          <div className="h-1.5 overflow-hidden rounded-full bg-blue-100">
-            <span className="block h-full w-2/3 animate-pulse rounded-full bg-blue-500" />
+          <div className="h-1.5 overflow-hidden rounded-full bg-accent-soft">
+            <span className="block h-full w-2/3 animate-pulse rounded-full bg-accent-soft0" />
           </div>
-          <p className="text-[11px] text-slate-500">Salvataggio nel tuo archivio privato.</p>
+          <p className="text-[11px] text-muted">Salvataggio nel tuo archivio privato.</p>
         </div>
       )}
       {state.status === "error" && (
@@ -124,9 +124,9 @@ export function DocumentUploadForm() {
         <div
           role="status"
           aria-live="polite"
-          className="fixed bottom-5 right-5 z-50 flex max-w-[calc(100vw-2.5rem)] items-center gap-2.5 rounded-xl border border-emerald-100 bg-white px-4 py-3 text-[12px] font-medium text-slate-800 shadow-xl shadow-slate-900/10"
+          className="fixed bottom-5 right-5 z-50 flex max-w-[calc(100vw-2.5rem)] items-center gap-2.5 rounded-xl border border-[var(--success-border)] bg-card px-4 py-3 text-[12px] font-medium text-foreground shadow-xl shadow-[var(--shadow-card)]"
         >
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--success-bg)] text-[var(--success-text)]">
             <CheckCircle2 className="h-4 w-4" />
           </span>
           {state.message}

@@ -57,7 +57,7 @@ function TextField({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="text-[11px] font-medium text-slate-600">
+      <label htmlFor={id} className="text-[11px] font-medium text-muted">
         {label}
       </label>
       <input
@@ -65,7 +65,7 @@ function TextField({
         name={name}
         defaultValue={defaultValue ?? ""}
         placeholder={placeholder}
-        className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-[13px] outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+        className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-[13px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
       />
     </div>
   );
@@ -86,7 +86,7 @@ function NumberField({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="text-[11px] font-medium text-slate-600">
+      <label htmlFor={id} className="text-[11px] font-medium text-muted">
         {label}
       </label>
       <input
@@ -98,7 +98,7 @@ function NumberField({
         step="0.01"
         defaultValue={defaultValue ?? ""}
         placeholder={placeholder}
-        className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-[13px] outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+        className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-[13px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
       />
     </div>
   );
@@ -116,12 +116,12 @@ function CheckboxField({
   defaultChecked?: boolean;
 }) {
   return (
-    <label className="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-slate-100 bg-slate-50/40 p-3">
+    <label className="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-border bg-card-muted p-3">
       <span>
-        <span className="block text-[12px] font-medium text-slate-900">
+        <span className="block text-[12px] font-medium text-foreground">
           {label}
         </span>
-        <span className="mt-0.5 block text-[11px] leading-relaxed text-slate-500">
+        <span className="mt-0.5 block text-[11px] leading-relaxed text-muted">
           {description}
         </span>
       </span>
@@ -129,7 +129,7 @@ function CheckboxField({
         name={name}
         type="checkbox"
         defaultChecked={defaultChecked}
-        className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600"
+        className="mt-0.5 h-4 w-4 rounded border-border text-accent"
       />
     </label>
   );
@@ -305,7 +305,7 @@ function TypeDetailsFields({
         <div className="sm:col-span-2">
           <label
             htmlFor="policy-other-details"
-            className="text-[11px] font-medium text-slate-600"
+            className="text-[11px] font-medium text-muted"
           >
             Dettagli aggiuntivi
           </label>
@@ -315,7 +315,7 @@ function TypeDetailsFields({
             rows={4}
             defaultValue={details.generic_details ?? ""}
             placeholder="Campi o coperture specifiche da ricordare."
-            className="mt-1 w-full resize-y rounded-lg border border-slate-200 px-3 py-2.5 text-[13px] outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+            className="mt-1 w-full resize-y rounded-lg border border-border px-3 py-2.5 text-[13px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
           />
         </div>
       );
@@ -341,11 +341,11 @@ export function PolicyForm({
 
   return (
     <form action={formAction} className="space-y-5">
-      <div className="rounded-xl border border-slate-100 bg-slate-50/40 p-4">
-        <p className="text-[12px] font-semibold text-slate-900">Dati comuni</p>
+      <div className="rounded-xl border border-border bg-card-muted p-4">
+        <p className="text-[12px] font-semibold text-foreground">Dati comuni</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="policy-provider" className="text-[11px] font-medium text-slate-600">
+            <label htmlFor="policy-provider" className="text-[11px] font-medium text-muted">
               Compagnia
             </label>
             <input
@@ -354,12 +354,12 @@ export function PolicyForm({
               required
               defaultValue={policy?.provider ?? ""}
               placeholder="Es. Helsana"
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-[13px] outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-[13px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
             />
             <FieldError>{state.fieldErrors?.provider}</FieldError>
           </div>
           <div>
-            <label htmlFor="policy-type" className="text-[11px] font-medium text-slate-600">
+            <label htmlFor="policy-type" className="text-[11px] font-medium text-muted">
               Tipo polizza
             </label>
             <select
@@ -369,7 +369,7 @@ export function PolicyForm({
               onChange={(event) =>
                 setPolicyType(event.target.value as TypedPolicyType)
               }
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-[13px] outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-[13px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
             >
               {typedPolicyTypes.map((type) => (
                 <option key={type} value={type}>
@@ -383,7 +383,7 @@ export function PolicyForm({
             <div>
               <label
                 htmlFor="policy-category-label"
-                className="text-[11px] font-medium text-slate-600"
+                className="text-[11px] font-medium text-muted"
               >
                 Etichetta categoria
               </label>
@@ -392,7 +392,7 @@ export function PolicyForm({
                 name="policy_category_label"
                 defaultValue={policy?.policyCategoryLabel ?? ""}
                 placeholder="Es. Viaggio"
-                className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-[13px] outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-[13px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
               />
             </div>
           )}
@@ -411,14 +411,14 @@ export function PolicyForm({
             placeholder="0.00"
           />
           <div>
-            <label htmlFor="policy-frequency" className="text-[11px] font-medium text-slate-600">
+            <label htmlFor="policy-frequency" className="text-[11px] font-medium text-muted">
               Frequenza premio
             </label>
             <select
               id="policy-frequency"
               name="premium_frequency"
               defaultValue={policy?.premiumFrequency ?? "monthly"}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-[13px] outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-[13px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
             >
               {premiumFrequencyOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -429,14 +429,14 @@ export function PolicyForm({
             <FieldError>{state.fieldErrors?.premiumFrequency}</FieldError>
           </div>
           <div>
-            <label htmlFor="policy-currency" className="text-[11px] font-medium text-slate-600">
+            <label htmlFor="policy-currency" className="text-[11px] font-medium text-muted">
               Valuta
             </label>
             <select
               id="policy-currency"
               name="currency"
               defaultValue={policy?.currency ?? "CHF"}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-[13px] outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-[13px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
             >
               <option value="CHF">CHF</option>
             </select>
@@ -457,7 +457,7 @@ export function PolicyForm({
             placeholder="0.00"
           />
           <div>
-            <label htmlFor="policy-start" className="text-[11px] font-medium text-slate-600">
+            <label htmlFor="policy-start" className="text-[11px] font-medium text-muted">
               Data inizio
             </label>
             <input
@@ -465,12 +465,12 @@ export function PolicyForm({
               name="start_date"
               type="date"
               defaultValue={policy?.startDate ?? ""}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-[13px] outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-[13px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
             />
             <FieldError>{state.fieldErrors?.startDate}</FieldError>
           </div>
           <div>
-            <label htmlFor="policy-end" className="text-[11px] font-medium text-slate-600">
+            <label htmlFor="policy-end" className="text-[11px] font-medium text-muted">
               Data fine
             </label>
             <input
@@ -478,12 +478,12 @@ export function PolicyForm({
               name="end_date"
               type="date"
               defaultValue={policy?.endDate ?? ""}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-[13px] outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-[13px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
             />
             <FieldError>{state.fieldErrors?.endDate}</FieldError>
           </div>
           <div>
-            <label htmlFor="policy-renewal" className="text-[11px] font-medium text-slate-600">
+            <label htmlFor="policy-renewal" className="text-[11px] font-medium text-muted">
               Data rinnovo
             </label>
             <input
@@ -491,7 +491,7 @@ export function PolicyForm({
               name="renewal_date"
               type="date"
               defaultValue={policy?.renewalDate ?? ""}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-[13px] outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-[13px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
             />
             <FieldError>{state.fieldErrors?.renewalDate}</FieldError>
           </div>
@@ -503,13 +503,13 @@ export function PolicyForm({
         </div>
       </div>
 
-      <div className="rounded-xl border border-blue-100 bg-blue-50/30 p-4">
+      <div className="rounded-xl border border-border bg-accent-soft/30 p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <p className="text-[12px] font-semibold text-slate-900">
+            <p className="text-[12px] font-semibold text-foreground">
               Dettagli {policyTypeLabels[policyType]}
             </p>
-            <p className="mt-0.5 text-[11px] text-slate-500">
+            <p className="mt-0.5 text-[11px] text-muted">
               Campi specifici per questa categoria.
             </p>
           </div>
@@ -521,11 +521,11 @@ export function PolicyForm({
       </div>
 
       {policyType === "health" && healthReviewState ? (
-        <div className="rounded-xl border border-emerald-100 bg-emerald-50/20 p-4">
-          <p className="text-[12px] font-semibold text-slate-900">
+        <div className="rounded-xl border atlas-alert-success/20 p-4">
+          <p className="text-[12px] font-semibold text-foreground">
             Revisione estrazione (persone e coperture)
           </p>
-          <p className="mt-0.5 text-[11px] text-slate-500">
+          <p className="mt-0.5 text-[11px] text-muted">
             Controlla l&apos;assegnazione delle righe estratte dal PDF.
           </p>
           <div className="mt-4">
@@ -538,14 +538,14 @@ export function PolicyForm({
       ) : null}
 
       <div>
-        <label htmlFor="policy-document" className="text-[11px] font-medium text-slate-600">
+        <label htmlFor="policy-document" className="text-[11px] font-medium text-muted">
           Documento PDF collegato
         </label>
         <select
           id="policy-document"
           name="document_id"
           defaultValue={defaultDocumentId}
-          className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-[13px] outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-[13px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
         >
           <option value="">Nessun documento collegato</option>
           {documents.map((document) => (
@@ -554,13 +554,13 @@ export function PolicyForm({
             </option>
           ))}
         </select>
-        <p className="mt-1 text-[11px] text-slate-500">
+        <p className="mt-1 text-[11px] text-muted">
           Il PDF resta nel tuo archivio privato e puo alimentare l&apos;analisi in seguito.
         </p>
       </div>
 
       <div>
-        <label htmlFor="policy-notes" className="text-[11px] font-medium text-slate-600">
+        <label htmlFor="policy-notes" className="text-[11px] font-medium text-muted">
           Note
         </label>
         <textarea
@@ -569,16 +569,16 @@ export function PolicyForm({
           rows={5}
           defaultValue={policy?.notes ?? ""}
           placeholder="Dettagli utili, coperture da verificare o promemoria."
-          className="mt-1 w-full resize-y rounded-lg border border-slate-200 px-3 py-2.5 text-[13px] outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+          className="mt-1 w-full resize-y rounded-lg border border-border px-3 py-2.5 text-[13px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
         />
       </div>
 
-      <div className="flex flex-col gap-3 border-t border-slate-50 pt-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 border-t border-border-subtle pt-4 sm:flex-row sm:items-center sm:justify-between">
         <p
           aria-live="polite"
           className={cn(
             "text-[12px]",
-            state.status === "error" ? "text-red-600" : "text-slate-500"
+            state.status === "error" ? "text-red-600" : "text-muted"
           )}
         >
           {state.message || "I campi opzionali possono restare vuoti."}
@@ -586,7 +586,7 @@ export function PolicyForm({
         <div className="flex flex-wrap justify-end gap-2">
           <Link
             href={policy ? `/policies/${policy.id}` : "/policies"}
-            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-[13px] font-medium text-slate-700 hover:bg-slate-50"
+            className="rounded-lg border border-border bg-card px-4 py-2 text-[13px] font-medium text-muted-foreground hover:bg-card-muted"
           >
             Annulla
           </Link>
@@ -597,7 +597,7 @@ export function PolicyForm({
                 name="save_mode"
                 value="save"
                 disabled={pending}
-                className="rounded-lg border border-blue-200 bg-white px-4 py-2 text-[13px] font-medium text-blue-700 hover:bg-blue-50 disabled:cursor-wait disabled:opacity-60"
+                className="rounded-lg border border-border bg-card px-4 py-2 text-[13px] font-medium text-accent hover:bg-accent-soft disabled:cursor-wait disabled:opacity-60"
               >
                 {pending ? "Salvataggio..." : "Salva modifiche"}
               </button>
@@ -606,7 +606,7 @@ export function PolicyForm({
                 name="save_mode"
                 value="confirm"
                 disabled={pending}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-[13px] font-medium text-white shadow-sm hover:bg-blue-700 disabled:cursor-wait disabled:bg-blue-300"
+                className="atlas-btn-primary px-4 py-2 text-[13px] shadow-sm disabled:cursor-wait disabled:opacity-60"
               >
                 {pending ? "Salvataggio..." : "Conferma polizza"}
               </button>
@@ -615,7 +615,7 @@ export function PolicyForm({
             <button
               type="submit"
               disabled={pending}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-[13px] font-medium text-white shadow-sm hover:bg-blue-700 disabled:cursor-wait disabled:bg-blue-300"
+              className="atlas-btn-primary px-4 py-2 text-[13px] shadow-sm disabled:cursor-wait disabled:opacity-60"
             >
               {pending ? "Salvataggio..." : "Crea polizza"}
             </button>

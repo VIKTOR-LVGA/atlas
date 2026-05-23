@@ -59,7 +59,7 @@ export default async function DocumentDetailPage({ params }: PageProps) {
                 value: (
                   <span>
                     {formatRelativeTime(document.createdAt)}
-                    <span className="mt-0.5 block text-[11px] font-normal text-slate-400">
+                    <span className="mt-0.5 block text-[11px] font-normal text-muted">
                       {formatDateTime(document.createdAt)}
                     </span>
                   </span>
@@ -72,9 +72,9 @@ export default async function DocumentDetailPage({ params }: PageProps) {
             ]}
           />
 
-          <div className="mt-4 flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50/50 p-3">
-            <FileText className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
-            <p className="text-[12px] leading-relaxed text-slate-600">
+          <div className="mt-4 flex items-start gap-3 rounded-xl border border-border bg-accent-soft p-3">
+            <FileText className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+            <p className="text-[12px] leading-relaxed text-muted">
               {getStatusGuidance(document.status)}
             </p>
           </div>
@@ -96,7 +96,7 @@ export default async function DocumentDetailPage({ params }: PageProps) {
               </ActionButton>
               <a
                 href={`/documents/${document.id}/download`}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-[13px] font-medium text-slate-700 hover:bg-slate-50"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-[13px] font-medium text-muted-foreground hover:bg-card-muted"
               >
                 <Download className="h-4 w-4" />
                 Scarica PDF
@@ -111,7 +111,7 @@ export default async function DocumentDetailPage({ params }: PageProps) {
         title="Dettagli tecnici storage"
         description="Percorso interno del file"
       >
-        <p className="break-all font-mono text-[11px] text-slate-600">
+        <p className="break-all font-mono text-[11px] text-muted">
           {document.filePath}
         </p>
       </CollapsibleSection>

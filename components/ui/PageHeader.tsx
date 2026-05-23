@@ -19,9 +19,9 @@ export function PageHeader({
   return (
     <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between", className)}>
       <div>
-        <h1 className="text-[22px] font-semibold tracking-tight text-slate-900">{title}</h1>
+        <h1 className="text-[22px] font-semibold tracking-tight text-foreground">{title}</h1>
         {description && (
-          <p className="mt-1 text-[13px] text-slate-500">{description}</p>
+          <p className="mt-1 text-[13px] text-muted">{description}</p>
         )}
       </div>
       <div className="flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:items-center">
@@ -43,10 +43,7 @@ export function PrimaryButton({
   icon?: React.ReactNode;
   className?: string;
 }) {
-  const cls = cn(
-    "inline-flex items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-[13px] font-medium text-white shadow-sm transition hover:bg-blue-700",
-    className
-  );
+  const cls = cn("atlas-btn-primary", className);
   if (href) {
     return (
       <Link href={href} className={cls}>
@@ -73,13 +70,7 @@ export function SecondaryButton({
   className?: string;
 }) {
   return (
-    <button
-      type="button"
-      className={cn(
-        "inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2 text-[13px] font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50",
-        className
-      )}
-    >
+    <button type="button" className={cn("atlas-btn-secondary", className)}>
       {icon}
       {children}
     </button>

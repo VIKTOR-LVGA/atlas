@@ -112,7 +112,7 @@ export function ProfileSettingsPanels({ profile }: { profile: CurrentProfile | n
             <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-2xl font-semibold text-white sm:mx-0">
               {getProfileInitials(profile)}
             </div>
-            <p className="mt-3 text-[14px] font-semibold text-slate-900">
+            <p className="mt-3 text-[14px] font-semibold text-foreground">
               {getProfileDisplayName(profile)}
             </p>
             <StatusBadge
@@ -120,12 +120,12 @@ export function ProfileSettingsPanels({ profile }: { profile: CurrentProfile | n
               label={profile?.hasProfileRow ? "Account verificato" : "Profilo in attesa"}
               className="mt-1"
             />
-            <p className="mt-1 text-[11px] text-slate-500">{memberSince}</p>
+            <p className="mt-1 text-[11px] text-muted">{memberSince}</p>
           </div>
 
           <div className="grid flex-1 gap-3 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label htmlFor="settings-full-name" className="text-[11px] font-medium text-slate-600">
+              <label htmlFor="settings-full-name" className="text-[11px] font-medium text-muted">
                 Nome completo
               </label>
               <input
@@ -134,12 +134,12 @@ export function ProfileSettingsPanels({ profile }: { profile: CurrentProfile | n
                 type="text"
                 required
                 defaultValue={values.fullName}
-                className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-[13px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
               />
               <FieldError>{state.fieldErrors?.fullName}</FieldError>
             </div>
             <div>
-              <label htmlFor="settings-email" className="text-[11px] font-medium text-slate-600">
+              <label htmlFor="settings-email" className="text-[11px] font-medium text-muted">
                 Email
               </label>
               <input
@@ -147,11 +147,11 @@ export function ProfileSettingsPanels({ profile }: { profile: CurrentProfile | n
                 type="email"
                 readOnly
                 defaultValue={profile?.email ?? ""}
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-[13px] text-slate-500 outline-none"
+                className="mt-1 w-full rounded-lg border border-border bg-card-muted px-3 py-2 text-[13px] text-muted outline-none"
               />
             </div>
             <div>
-              <label htmlFor="settings-phone" className="text-[11px] font-medium text-slate-600">
+              <label htmlFor="settings-phone" className="text-[11px] font-medium text-muted">
                 Telefono
               </label>
               <input
@@ -160,7 +160,7 @@ export function ProfileSettingsPanels({ profile }: { profile: CurrentProfile | n
                 type="tel"
                 defaultValue={values.phone}
                 placeholder="+41 ..."
-                className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-[13px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
               />
             </div>
           </div>
@@ -170,7 +170,7 @@ export function ProfileSettingsPanels({ profile }: { profile: CurrentProfile | n
       <SectionCard title="Lingua e regione">
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
-            <label htmlFor="settings-language" className="text-[11px] font-medium text-slate-600">
+            <label htmlFor="settings-language" className="text-[11px] font-medium text-muted">
               Lingua
             </label>
             <select
@@ -180,7 +180,7 @@ export function ProfileSettingsPanels({ profile }: { profile: CurrentProfile | n
               onChange={(event) =>
                 setLanguage(event.target.value as ProfileLanguage)
               }
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-[13px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
             >
               {languageOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -191,28 +191,28 @@ export function ProfileSettingsPanels({ profile }: { profile: CurrentProfile | n
             <FieldError>{state.fieldErrors?.language}</FieldError>
           </div>
           <div>
-            <label htmlFor="settings-currency" className="text-[11px] font-medium text-slate-600">
+            <label htmlFor="settings-currency" className="text-[11px] font-medium text-muted">
               Valuta
             </label>
             <select
               id="settings-currency"
               name="currency"
               defaultValue={values.currency}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-[13px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
             >
               <option value="CHF">CHF</option>
             </select>
             <FieldError>{state.fieldErrors?.currency}</FieldError>
           </div>
           <div>
-            <label htmlFor="settings-date-format" className="text-[11px] font-medium text-slate-600">
+            <label htmlFor="settings-date-format" className="text-[11px] font-medium text-muted">
               Formato data
             </label>
             <select
               id="settings-date-format"
               name="date_format"
               defaultValue={values.dateFormat}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-[13px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
             >
               <option value="DD/MM/YYYY">DD/MM/YYYY</option>
               <option value="YYYY-MM-DD">YYYY-MM-DD</option>
@@ -221,16 +221,16 @@ export function ProfileSettingsPanels({ profile }: { profile: CurrentProfile | n
           </div>
         </div>
 
-        <div className="mt-5 flex flex-col gap-3 border-t border-slate-50 pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-5 flex flex-col gap-3 border-t border-border-subtle pt-4 sm:flex-row sm:items-center sm:justify-between">
           <SaveMessage state={state} />
           <div className="flex justify-end gap-2">
-            <button type="reset" className="rounded-lg px-4 py-2 text-[13px] text-slate-600 hover:bg-slate-50">
+            <button type="reset" className="rounded-lg px-4 py-2 text-[13px] text-muted hover:bg-card-muted">
               Annulla
             </button>
             <button
               type="submit"
               disabled={pending}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-[13px] font-medium text-white hover:bg-blue-700 disabled:cursor-wait disabled:bg-blue-300"
+              className="atlas-btn-primary px-4 py-2 text-[13px] disabled:cursor-wait disabled:opacity-60"
             >
               {pending ? "Salvataggio..." : "Salva modifiche"}
             </button>
@@ -276,17 +276,17 @@ export function NotificationSettingsForm({
     <SectionCard title="Preferenze notifiche">
       <form action={formAction}>
         <ProfileHiddenInputs profile={values} />
-        <div className="divide-y divide-slate-50">
+        <div className="divide-y divide-border-subtle">
           {notificationChannels.map((channel) => (
             <label
               key={channel.name}
               className="flex cursor-pointer items-center justify-between gap-4 py-3 first:pt-0"
             >
               <span>
-                <span className="block text-[13px] font-medium text-slate-900">
+                <span className="block text-[13px] font-medium text-foreground">
                   {channel.label}
                 </span>
-                <span className="mt-0.5 block text-[11px] text-slate-500">
+                <span className="mt-0.5 block text-[11px] text-muted">
                   {channel.description}
                 </span>
               </span>
@@ -294,13 +294,13 @@ export function NotificationSettingsForm({
                 name={channel.name}
                 type="checkbox"
                 defaultChecked={channel.checked}
-                className="h-4 w-4 rounded border-slate-300 text-blue-600"
+                className="h-4 w-4 rounded border-border text-accent"
               />
             </label>
           ))}
         </div>
 
-        <div className="mt-4 flex flex-col gap-3 border-t border-slate-50 pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-4 flex flex-col gap-3 border-t border-border-subtle pt-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <SaveMessage state={state} />
             <FieldError>{state.fieldErrors?.fullName}</FieldError>
@@ -308,7 +308,7 @@ export function NotificationSettingsForm({
           <button
             type="submit"
             disabled={pending}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-[13px] font-medium text-white hover:bg-blue-700 disabled:cursor-wait disabled:bg-blue-300"
+            className="atlas-btn-primary px-4 py-2 text-[13px] disabled:cursor-wait disabled:opacity-60"
           >
             {pending ? "Salvataggio..." : "Salva notifiche"}
           </button>

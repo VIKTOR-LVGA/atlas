@@ -24,10 +24,10 @@ export function ConfidenceBadge({
         "inline-flex items-center rounded-full border font-medium",
         size === "sm" ? "px-2 py-0.5 text-[10px]" : "px-2.5 py-0.5 text-[11px]",
         uncertain
-          ? "border-amber-200 bg-amber-50 text-amber-800"
+          ? "border-[var(--warning-border)] bg-[var(--warning-bg)] text-[var(--warning-text)]"
           : confidence !== null && confidence !== undefined && confidence >= 80
-            ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-            : "border-slate-200 bg-slate-50 text-slate-700",
+            ? "border-[var(--success-border)] bg-[var(--success-bg)] text-[var(--success-text)]"
+            : "border-border bg-card-muted text-muted-foreground",
         className
       )}
     >

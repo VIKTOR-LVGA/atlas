@@ -80,7 +80,7 @@ export default async function DocumentsPage() {
 
           {recent.length > 0 ? (
             <SectionCard title="Recenti" padding="sm">
-              <ul className="divide-y divide-slate-50">
+              <ul className="divide-y divide-border-subtle">
                 {recent.map((doc) => (
                   <li key={doc.id}>
                     <Link
@@ -88,10 +88,10 @@ export default async function DocumentsPage() {
                       className="flex items-center justify-between gap-3 py-2.5 first:pt-0"
                     >
                       <span className="min-w-0">
-                        <span className="block truncate text-[12px] font-medium text-slate-800">
+                        <span className="block truncate text-[12px] font-medium text-foreground">
                           {doc.fileName}
                         </span>
-                        <span className="text-[10px] text-slate-400">
+                        <span className="text-[10px] text-muted">
                           {formatDate(doc.createdAt)} · {formatFileSize(doc.fileSize)}
                         </span>
                       </span>
@@ -105,21 +105,21 @@ export default async function DocumentsPage() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
-          <Shield className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
+          <Shield className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
           <div>
-            <p className="text-[13px] font-semibold text-slate-900">
+            <p className="text-[13px] font-semibold text-foreground">
               Archivio privato e sicuro
             </p>
-            <p className="text-[12px] text-slate-500">
+            <p className="text-[12px] text-muted">
               I PDF restano nel tuo account Supabase, accessibili solo a te.
             </p>
           </div>
         </div>
         <Link
           href="/settings"
-          className="shrink-0 rounded-lg border border-slate-200 px-4 py-2 text-[12px] font-medium text-slate-700 hover:bg-slate-50"
+          className="shrink-0 rounded-lg border border-border px-4 py-2 text-[12px] font-medium text-muted-foreground hover:bg-card-muted"
         >
           Impostazioni account
         </Link>

@@ -31,7 +31,7 @@ export function PolicyDeleteForm({ policyId }: { policyId: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-red-100 bg-white px-4 py-2.5 text-[13px] font-medium text-red-600 hover:border-red-200 hover:bg-red-50 disabled:cursor-wait disabled:opacity-60"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--danger-border)] bg-card px-4 py-2.5 text-[13px] font-medium text-[var(--danger-text)] hover:bg-[var(--danger-bg)] disabled:cursor-wait disabled:opacity-60"
       >
         <Trash2 className="h-4 w-4" />
         {pending ? "Eliminazione..." : "Elimina polizza"}

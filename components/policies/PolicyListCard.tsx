@@ -30,7 +30,7 @@ export function PolicyListCard({ policy }: { policy: UserPolicy }) {
   const coverageCount = policy.details.coverages?.length ?? 0;
 
   return (
-    <article className="group rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition hover:border-blue-100 hover:shadow-md">
+    <article className="group rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:border-border hover:shadow-md">
       <div className="flex items-start gap-3">
         <span
           className={cn(
@@ -43,10 +43,10 @@ export function PolicyListCard({ policy }: { policy: UserPolicy }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <Link href={`/policies/${policy.id}`} className="min-w-0">
-              <p className="truncate text-[15px] font-semibold text-slate-900 group-hover:text-blue-700">
+              <p className="truncate text-[15px] font-semibold text-foreground group-hover:text-accent">
                 {policy.provider}
               </p>
-              <p className="mt-0.5 truncate text-[12px] text-slate-500">
+              <p className="mt-0.5 truncate text-[12px] text-muted">
                 {policyTypeLabel}
               </p>
             </Link>
@@ -62,27 +62,27 @@ export function PolicyListCard({ policy }: { policy: UserPolicy }) {
 
           <dl className="mt-4 grid grid-cols-2 gap-3 text-[12px]">
             <div>
-              <dt className="text-[10px] uppercase tracking-wide text-slate-400">
+              <dt className="text-[10px] uppercase tracking-wide text-muted">
                 Premio
               </dt>
-              <dd className="mt-0.5 font-medium text-slate-900">
+              <dd className="mt-0.5 font-medium text-foreground">
                 {policy.premiumAmount === null
                   ? "Da completare"
                   : `${formatCHF(policy.premiumAmount)} / ${premiumFrequencyLabels[policy.premiumFrequency]}`}
               </dd>
             </div>
             <div>
-              <dt className="text-[10px] uppercase tracking-wide text-slate-400">
+              <dt className="text-[10px] uppercase tracking-wide text-muted">
                 Rinnovo
               </dt>
-              <dd className="mt-0.5 font-medium text-slate-900">
+              <dd className="mt-0.5 font-medium text-foreground">
                 {policy.renewalDate ? formatDate(policy.renewalDate) : "—"}
               </dd>
             </div>
           </dl>
 
           {(insuredCount > 0 || coverageCount > 0 || detailSummary) && (
-            <p className="mt-3 rounded-lg bg-slate-50 px-2.5 py-2 text-[11px] text-slate-600">
+            <p className="mt-3 rounded-lg bg-card-muted px-2.5 py-2 text-[11px] text-muted">
               {[
                 insuredCount > 0 ? `${insuredCount} persone` : null,
                 coverageCount > 0 ? `${coverageCount} coperture` : null,
@@ -93,21 +93,21 @@ export function PolicyListCard({ policy }: { policy: UserPolicy }) {
             </p>
           )}
 
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-slate-50 pt-3">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-border-subtle pt-3">
             {policy.document ? (
               <Link
                 href={`/documents/${policy.document.id}`}
-                className="inline-flex min-w-0 max-w-[55%] items-center gap-1.5 text-[11px] font-medium text-blue-700 hover:text-blue-800"
+                className="inline-flex min-w-0 max-w-[55%] items-center gap-1.5 text-[11px] font-medium text-accent hover:text-accent"
               >
                 <FileText className="h-3.5 w-3.5 shrink-0" />
                 <span className="truncate">{policy.document.fileName}</span>
               </Link>
             ) : (
-              <span className="text-[11px] text-slate-400">Nessun PDF</span>
+              <span className="text-[11px] text-muted">Nessun PDF</span>
             )}
             <Link
               href={`/policies/${policy.id}`}
-              className="inline-flex items-center gap-0.5 text-[12px] font-medium text-slate-700 hover:text-blue-700"
+              className="inline-flex items-center gap-0.5 text-[12px] font-medium text-muted-foreground hover:text-accent"
             >
               Dettaglio
               <ChevronRight className="h-3.5 w-3.5" />

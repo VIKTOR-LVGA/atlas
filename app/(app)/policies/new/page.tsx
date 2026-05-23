@@ -41,29 +41,29 @@ export default async function NewPolicyPage({ searchParams }: PageProps) {
           {selectedDocument ? (
             <Link
               href={`/documents/${selectedDocument.id}`}
-              className="flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50/50 p-3 hover:bg-blue-50"
+              className="flex items-start gap-3 rounded-xl border border-border bg-accent-soft p-3 hover:bg-accent-soft"
             >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-blue-600">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-card text-accent">
                 <FileText className="h-4 w-4" />
               </span>
               <span className="min-w-0">
-                <span className="block truncate text-[12px] font-semibold text-slate-900">
+                <span className="block truncate text-[12px] font-semibold text-foreground">
                   {selectedDocument.fileName}
                 </span>
-                <span className="mt-0.5 block text-[11px] text-slate-500">
+                <span className="mt-0.5 block text-[11px] text-muted">
                   Collegato dalla pagina documento
                 </span>
               </span>
             </Link>
           ) : (
             <div className="space-y-3">
-              <p className="text-[12px] leading-relaxed text-slate-500">
+              <p className="text-[12px] leading-relaxed text-muted">
                 Puoi creare la polizza senza PDF o scegliere un documento
                 caricato nel form.
               </p>
               <Link
                 href="/documents"
-                className="inline-flex rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-[12px] font-medium text-slate-700 hover:bg-slate-50"
+                className="inline-flex rounded-lg border border-border bg-card px-3.5 py-2 text-[12px] font-medium text-muted-foreground hover:bg-card-muted"
               >
                 Apri documenti
               </Link>

@@ -16,19 +16,19 @@ export type StatusBadgeVariant =
   | "neutral";
 
 const styles: Record<StatusBadgeVariant, string> = {
-  ok: "bg-emerald-50 text-emerald-700",
-  attention: "bg-amber-50 text-amber-700",
-  critical: "bg-red-50 text-red-700",
-  active: "bg-emerald-50 text-emerald-700",
-  expiring: "bg-amber-50 text-amber-700",
-  review: "bg-red-50 text-red-700",
-  completed: "bg-emerald-50 text-emerald-700",
-  processing: "bg-blue-50 text-blue-700",
-  error: "bg-red-50 text-red-700",
-  high: "bg-red-50 text-red-700",
-  medium: "bg-amber-50 text-amber-700",
-  low: "bg-slate-100 text-slate-600",
-  neutral: "bg-slate-100 text-slate-600",
+  ok: "bg-[var(--success-bg)] text-[var(--success-text)]",
+  attention: "bg-[var(--warning-bg)] text-[var(--warning-text)]",
+  critical: "bg-[var(--danger-bg)] text-[var(--danger-text)]",
+  active: "bg-[var(--success-bg)] text-[var(--success-text)]",
+  expiring: "bg-[var(--warning-bg)] text-[var(--warning-text)]",
+  review: "bg-[var(--danger-bg)] text-[var(--danger-text)]",
+  completed: "bg-[var(--success-bg)] text-[var(--success-text)]",
+  processing: "bg-accent-soft text-accent",
+  error: "bg-[var(--danger-bg)] text-[var(--danger-text)]",
+  high: "bg-[var(--danger-bg)] text-[var(--danger-text)]",
+  medium: "bg-[var(--warning-bg)] text-[var(--warning-text)]",
+  low: "bg-card-muted text-muted",
+  neutral: "bg-card-muted text-muted",
 };
 
 const labels: Record<StatusBadgeVariant, string> = {

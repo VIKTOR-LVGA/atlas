@@ -30,7 +30,7 @@ export default async function MarketPage() {
         action={<PrimaryButton href="/documents">Carica PDF</PrimaryButton>}
       />
 
-      <div className="rounded-xl border border-blue-100 bg-blue-50/60 px-4 py-3 text-[12px] text-slate-700">
+      <div className="rounded-xl border border-border bg-accent-soft px-4 py-3 text-[12px] text-muted-foreground">
         Nessun premio o risparmio simulato: i confronti useranno solo dati estratti dai
         tuoi documenti.
       </div>
@@ -97,16 +97,16 @@ export default async function MarketPage() {
             ].map(({ item, ready }) => (
               <div
                 key={item}
-                className="flex items-center justify-between gap-2 rounded-xl border border-slate-100 p-3"
+                className="flex items-center justify-between gap-2 rounded-xl border border-border p-3"
               >
-                <p className="text-[12px] font-medium text-slate-800">{item}</p>
+                <p className="text-[12px] font-medium text-foreground">{item}</p>
                 <StatusBadge
                   variant={ready ? "ok" : "neutral"}
                   label={ready ? "Pronto" : "In attesa"}
                 />
               </div>
             ))}
-            <p className="flex items-center gap-2 text-[11px] text-slate-500">
+            <p className="flex items-center gap-2 text-[11px] text-muted">
               <IconClock className="h-4 w-4" />
               Aggiornamenti automatici quando il modulo sara attivo.
             </p>

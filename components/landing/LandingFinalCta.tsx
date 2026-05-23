@@ -29,12 +29,12 @@ export function LandingFinalCta() {
                 </Link>
                 <Link
                   href="/login"
-                  className="text-sm font-medium text-slate-400 transition hover:text-white"
+                  className="text-sm font-medium text-muted transition hover:text-white"
                 >
                   Hai già un account? Accedi
                 </Link>
               </div>
-              <p className="mt-8 text-xs text-slate-600">
+              <p className="mt-8 text-xs text-muted">
                 +2&apos;500 utenti si affidano ad Atlas per la chiarezza assicurativa
               </p>
             </div>

@@ -20,17 +20,17 @@ export function AIExtractionCard({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-slate-100 bg-white p-4 shadow-sm",
+        "rounded-2xl border border-border bg-card p-4 shadow-sm",
         className
       )}
     >
       <div className="flex items-center gap-2">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-soft text-accent">
           <Sparkles className="h-4 w-4" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-[12px] font-semibold text-slate-900">Estrazione AI</p>
-          <p className="text-[11px] text-slate-500">Normalizzazione svizzera</p>
+          <p className="text-[12px] font-semibold text-foreground">Estrazione AI</p>
+          <p className="text-[11px] text-muted">Normalizzazione svizzera</p>
         </div>
         <ConfidenceBadge
           confidence={confidence}
@@ -38,14 +38,14 @@ export function AIExtractionCard({
           size="md"
         />
       </div>
-      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-100">
+      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-card-muted">
         <div
           className="h-full rounded-full bg-indigo-500 transition-all"
           style={{ width: `${width}%` }}
         />
       </div>
       {notes ? (
-        <p className="mt-3 line-clamp-3 text-[11px] leading-relaxed text-slate-500">
+        <p className="mt-3 line-clamp-3 text-[11px] leading-relaxed text-muted">
           {notes}
         </p>
       ) : null}

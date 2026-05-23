@@ -46,8 +46,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         <Link href="/dashboard" className="flex items-center gap-2.5" onClick={onNavigate}>
           <IconLogo className="h-9 w-9 shrink-0" />
           <div className="min-w-0">
-            <p className="text-[15px] font-semibold leading-tight text-slate-900">Atlas</p>
-            <p className="text-[11px] leading-tight text-slate-500">Analisi indipendente</p>
+            <p className="text-[15px] font-semibold leading-tight text-foreground">Atlas</p>
+            <p className="text-[11px] leading-tight text-muted">Analisi indipendente</p>
           </div>
         </Link>
       </div>
@@ -64,14 +64,19 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               className={cn(
                 "relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors",
                 active
-                  ? "bg-blue-50 text-blue-700"
-                  : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900"
+                  ? "bg-[var(--nav-active-bg)] text-[var(--nav-active-text)]"
+                  : "text-muted hover:bg-card-muted hover:text-foreground"
               )}
             >
               {active && (
-                <span className="absolute -left-3 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-r-full bg-blue-600" />
+                <span className="absolute -left-3 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-r-full bg-accent" />
               )}
-              <Icon className={cn("h-[18px] w-[18px] shrink-0", active ? "text-blue-600" : "text-slate-500")} />
+              <Icon
+                className={cn(
+                  "h-[18px] w-[18px] shrink-0",
+                  active ? "text-[var(--nav-active-icon)]" : "text-muted"
+                )}
+              />
               {item.label}
             </Link>
           );
@@ -79,30 +84,30 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
 
       <div className="p-4">
-        <div className="mb-3 flex min-w-0 items-center gap-2.5 rounded-xl border border-slate-100 bg-white px-3 py-2 shadow-sm">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[11px] font-semibold text-white">
+        <div className="mb-3 flex min-w-0 items-center gap-2.5 rounded-xl border border-border bg-card px-3 py-2 shadow-[var(--shadow-card)]">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-[11px] font-semibold text-accent-foreground">
             {getProfileInitials(profile)}
           </span>
           <div className="min-w-0">
-            <p className="truncate text-[12px] font-medium text-slate-800">
+            <p className="truncate text-[12px] font-medium text-foreground">
               {getProfileDisplayName(profile)}
             </p>
-            <p className="truncate text-[10px] text-slate-500">
+            <p className="truncate text-[10px] text-muted">
               {profile?.email ?? "Profilo Atlas"}
             </p>
           </div>
         </div>
-        <div className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-blue-50/40 p-4">
-          <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-white shadow-sm">
-            <IconShield className="h-[18px] w-[18px] text-blue-600" />
+        <div className="rounded-2xl border border-border bg-accent-soft p-4">
+          <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-card shadow-[var(--shadow-card)]">
+            <IconShield className="h-[18px] w-[18px] text-accent" />
           </div>
-          <p className="text-[12px] font-semibold leading-snug text-slate-800">
+          <p className="text-[12px] font-semibold leading-snug text-foreground">
             Le tue polizze. La tua sicurezza. La nostra indipendenza.
           </p>
           <Link
             href="/"
             onClick={onNavigate}
-            className="mt-3 flex w-full items-center justify-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-[12px] font-medium text-slate-700 shadow-sm transition hover:border-slate-300"
+            className="atlas-btn-secondary mt-3 w-full"
           >
             Scopri come funziona
           </Link>
@@ -117,16 +122,17 @@ export function Sidebar() {
 
   return (
     <>
-      <div className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-slate-100 bg-white px-4 lg:hidden">
+      <div className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-sidebar-border bg-card px-4 lg:hidden">
         <Link href="/dashboard" className="flex items-center gap-2">
           <IconLogo className="h-8 w-8" />
-          <span className="text-sm font-semibold text-slate-900">Atlas</span>
+          <span className="text-sm font-semibold text-foreground">Atlas</span>
         </Link>
         <button
           type="button"
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="rounded-lg p-2 text-slate-600 hover:bg-slate-50"
+          className="rounded-lg p-2 text-muted hover:bg-card-muted hover:text-foreground"
           aria-label="Menu"
+          aria-expanded={mobileOpen}
         >
           <IconMenu />
         </button>
@@ -134,7 +140,7 @@ export function Sidebar() {
 
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-slate-900/20 lg:hidden"
+          className="fixed inset-0 z-40 bg-overlay lg:hidden"
           onClick={() => setMobileOpen(false)}
           aria-hidden
         />
@@ -142,7 +148,7 @@ export function Sidebar() {
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[250px] flex-col border-r border-slate-100 bg-[#f8fafc] transition-transform lg:static lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 flex w-[min(100vw-3rem,250px)] flex-col border-r border-sidebar-border bg-sidebar transition-transform lg:static lg:w-[250px] lg:translate-x-0",
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >

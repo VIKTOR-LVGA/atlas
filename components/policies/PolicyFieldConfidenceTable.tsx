@@ -11,10 +11,10 @@ export function PolicyFieldConfidenceTable({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-100">
+    <div className="overflow-hidden rounded-xl border border-border">
       <table className="w-full text-left text-[12px]">
         <thead>
-          <tr className="border-b border-slate-50 bg-slate-50/80 text-[10px] uppercase tracking-wide text-slate-400">
+          <tr className="border-b border-border-subtle bg-card-muted text-[10px] uppercase tracking-wide text-muted">
             <th className="px-3 py-2 font-medium">Campo</th>
             <th className="px-3 py-2 font-medium">Valore</th>
             <th className="px-3 py-2 text-right font-medium">Confidenza</th>
@@ -22,9 +22,9 @@ export function PolicyFieldConfidenceTable({
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.key} className="border-b border-slate-50 last:border-0">
-              <td className="px-3 py-2.5 font-medium text-slate-800">{row.label}</td>
-              <td className="max-w-[200px] truncate px-3 py-2.5 text-slate-600">
+            <tr key={row.key} className="border-b border-border-subtle last:border-0">
+              <td className="px-3 py-2.5 font-medium text-foreground">{row.label}</td>
+              <td className="max-w-[200px] truncate px-3 py-2.5 text-muted">
                 {row.value || "—"}
               </td>
               <td className="px-3 py-2.5 text-right">

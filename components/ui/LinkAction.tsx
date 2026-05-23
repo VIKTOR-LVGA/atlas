@@ -14,7 +14,7 @@ export function LinkAction({
     <Link
       href={href}
       className={cn(
-        "text-[12px] font-medium text-blue-600 transition hover:text-blue-700",
+        "text-[12px] font-medium text-accent transition hover:text-accent",
         className
       )}
     >

@@ -3,9 +3,9 @@ import { cn } from "@/lib/utils";
 type MessageVariant = "success" | "error" | "info";
 
 const styles: Record<MessageVariant, string> = {
-  success: "border-emerald-100 bg-emerald-50 text-emerald-800",
-  error: "border-red-100 bg-red-50 text-red-800",
-  info: "border-blue-100 bg-blue-50 text-blue-800",
+  success: "atlas-alert-success",
+  error: "atlas-alert-danger",
+  info: "atlas-alert-info",
 };
 
 interface AuthMessageProps {

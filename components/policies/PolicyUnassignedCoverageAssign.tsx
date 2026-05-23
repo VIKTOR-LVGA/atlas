@@ -61,12 +61,12 @@ function AssignCoverageRow({
       : "";
 
   return (
-    <li className="rounded-xl border border-amber-100/80 bg-amber-50/30 p-3">
-      <p className="text-[12px] font-medium leading-snug text-slate-800">
+    <li className="rounded-xl border atlas-alert-warning p-3">
+      <p className="text-[12px] font-medium leading-snug text-foreground">
         {formatCoverageLabel(item.coverage)}
       </p>
       {item.suggestedPersonName ? (
-        <p className="mt-1 text-[11px] text-blue-700">
+        <p className="mt-1 text-[11px] text-accent">
           Suggerito:{" "}
           <span className="font-medium">{item.suggestedPersonName}</span>
         </p>
@@ -74,13 +74,13 @@ function AssignCoverageRow({
       <form action={formAction} className="mt-3 space-y-2">
         <input type="hidden" name="coverage_stable_key" value={item.stableKey} />
         <label className="block">
-          <span className="text-[11px] font-medium text-slate-500">Persona</span>
+          <span className="text-[11px] font-medium text-muted">Persona</span>
           <select
             name="insured_person_key"
             required
             defaultValue={defaultPersonKey}
             disabled={pending || people.length === 0}
-            className="mt-0.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-[12px] text-slate-800 shadow-sm outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-100 disabled:opacity-60"
+            className="mt-0.5 w-full rounded-lg border border-border bg-card px-3 py-2 text-[12px] text-foreground shadow-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/30 disabled:opacity-60"
           >
             <option value="" disabled>
               Scegli persona
@@ -96,7 +96,7 @@ function AssignCoverageRow({
         <button
           type="submit"
           disabled={pending || people.length === 0}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-[12px] font-medium text-white hover:bg-blue-700 disabled:cursor-wait disabled:opacity-60"
+          className="inline-flex w-full items-center justify-center gap-2 atlas-btn-primary px-3 py-2 text-[12px] disabled:cursor-wait disabled:opacity-60"
         >
           <UserPlus className="h-3.5 w-3.5" />
           {pending ? "Assegnazione..." : "Assegna"}

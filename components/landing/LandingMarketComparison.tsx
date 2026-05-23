@@ -16,7 +16,7 @@ export function LandingMarketComparison() {
               title="Individua sprechi, duplicati e opportunità"
               description="Atlas segnala coperture sovrapposte, elementi da verificare e confronta i premi estratti con benchmark di mercato — sempre partendo dai tuoi dati reali."
             />
-            <ul className="mt-8 space-y-3.5 text-sm text-slate-400">
+            <ul className="mt-8 space-y-3.5 text-sm text-muted">
               {[
                 "Alert su possibili doppioni tra polizze",
                 "Coperture non assegnate evidenziate per revisione",
@@ -38,7 +38,7 @@ export function LandingMarketComparison() {
 
           <div className="landing-preview-aura">
             <div className="landing-preview-frame p-5 sm:p-6">
-              <p className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wide text-slate-500">
+              <p className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wide text-muted">
                 <BarChart3 className="h-3.5 w-3.5" />
                 Esempio illustrativo · dati dimostrativi
               </p>
@@ -71,7 +71,7 @@ export function LandingMarketComparison() {
                   </svg>
                   <div className="absolute text-center">
                     <p className="text-2xl font-semibold text-white">CHF 842</p>
-                    <p className="text-[10px] text-slate-500">potenziale annuo</p>
+                    <p className="text-[10px] text-muted">potenziale annuo</p>
                   </div>
                 </div>
 
@@ -86,10 +86,10 @@ export function LandingMarketComparison() {
                     },
                   ].map((bar) => (
                     <div key={bar.label}>
-                      <div className="mb-1.5 flex justify-between text-[10px] text-slate-500">
+                      <div className="mb-1.5 flex justify-between text-[10px] text-muted">
                         <span>{bar.label}</span>
                       </div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+                      <div className="h-1.5 overflow-hidden rounded-full bg-card/[0.06]">
                         <div
                           className={`h-full rounded-full ${bar.color} shadow-sm`}
                           style={{ width: bar.width }}
@@ -100,20 +100,20 @@ export function LandingMarketComparison() {
                 </div>
               </div>
 
-              <div className="mt-8 rounded-xl border border-white/[0.06] bg-white/[0.03] p-4">
+              <div className="mt-8 rounded-xl border border-white/[0.06] bg-card/[0.03] p-4">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-500/15 text-indigo-300">
                       <Layers className="h-4 w-4" />
                     </span>
                     <div>
-                      <p className="text-[11px] text-slate-500">Protezione complessiva</p>
+                      <p className="text-[11px] text-muted">Protezione complessiva</p>
                       <p className="text-lg font-semibold text-white">78 / 100</p>
                     </div>
                   </div>
                   <span className="landing-badge-emerald">Buona base</span>
                 </div>
-                <p className="mt-3 text-[11px] leading-relaxed text-slate-600">
+                <p className="mt-3 text-[11px] leading-relaxed text-muted">
                   In app, i confronti usano solo premi e coperture estratti dai tuoi PDF.
                 </p>
               </div>

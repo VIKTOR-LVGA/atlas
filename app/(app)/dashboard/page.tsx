@@ -89,19 +89,19 @@ export default async function DashboardPage() {
       />
 
       {nextAction ? (
-        <div className="flex flex-col gap-3 rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50/90 to-white p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-2xl border border-border bg-accent-soft p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-wide text-blue-600">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-accent">
               Prossima azione
             </p>
-            <p className="mt-1 text-[14px] font-semibold text-slate-900">
+            <p className="mt-1 text-[14px] font-semibold text-foreground">
               {nextAction.label}
             </p>
-            <p className="mt-0.5 text-[12px] text-slate-600">{nextAction.description}</p>
+            <p className="mt-0.5 text-[12px] text-muted">{nextAction.description}</p>
           </div>
           <Link
             href={nextAction.href}
-            className="inline-flex shrink-0 items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-[13px] font-medium text-white hover:bg-blue-700"
+            className="atlas-btn-primary shrink-0 py-2.5 text-[13px]"
           >
             Continua
           </Link>
@@ -148,36 +148,36 @@ export default async function DashboardPage() {
             padding="none"
           >
             {recentDocuments.length > 0 ? (
-              <div className="divide-y divide-slate-50">
+              <div className="divide-y divide-border-subtle">
                 {recentDocuments.map((document) => (
                   <Link
                     key={document.id}
                     href={`/documents/${document.id}`}
-                    className="flex items-center gap-3 px-4 py-3 transition hover:bg-slate-50/80 sm:px-5"
+                    className="flex items-center gap-3 px-4 py-3 transition hover:bg-card-muted sm:px-5"
                   >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--danger-bg)] text-[var(--danger-text)]">
                       <IconDocuments className="h-4 w-4" />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[13px] font-medium text-slate-900">
+                      <span className="block truncate text-[13px] font-medium text-foreground">
                         {document.fileName}
                       </span>
-                      <span className="mt-0.5 block text-[11px] text-slate-500">
+                      <span className="mt-0.5 block text-[11px] text-muted">
                         {getActivityCopy(document.status)} ·{" "}
                         {formatRelativeTime(document.createdAt)}
                       </span>
                     </span>
                     <DocumentStatusBadge status={document.status} />
-                    <IconChevronRight className="hidden h-4 w-4 text-slate-300 sm:block" />
+                    <IconChevronRight className="hidden h-4 w-4 text-muted sm:block" />
                   </Link>
                 ))}
               </div>
             ) : (
               <div className="px-6 py-10 text-center">
-                <p className="text-[13px] font-medium text-slate-900">
+                <p className="text-[13px] font-medium text-foreground">
                   Nessun documento caricato
                 </p>
-                <p className="mt-1 text-[12px] text-slate-500">
+                <p className="mt-1 text-[12px] text-muted">
                   Carica un PDF per avviare l&apos;estrazione.
                 </p>
                 <PrimaryButton href="/documents" className="mt-4">
@@ -205,10 +205,10 @@ export default async function DashboardPage() {
               </div>
             ) : (
               <div className="px-6 py-10 text-center">
-                <p className="text-[13px] font-medium text-slate-900">
+                <p className="text-[13px] font-medium text-foreground">
                   Nessuna polizza strutturata
                 </p>
-                <p className="mt-1 text-[12px] text-slate-500">
+                <p className="mt-1 text-[12px] text-muted">
                   Analizza un PDF per generare la prima bozza.
                 </p>
               </div>
@@ -220,19 +220,19 @@ export default async function DashboardPage() {
           {pendingReviewPolicies.length > 0 ? (
             <SectionCard title="Revisione" padding="sm">
               <div className="flex items-start gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--warning-bg)] text-[var(--warning-text)]">
                   <ClipboardCheck className="h-5 w-5" />
                 </span>
                 <div>
-                  <p className="text-[13px] font-semibold text-slate-900">
+                  <p className="text-[13px] font-semibold text-foreground">
                     {pendingReviewPolicies.length} bozze AI
                   </p>
-                  <p className="mt-1 text-[12px] leading-relaxed text-slate-500">
+                  <p className="mt-1 text-[12px] leading-relaxed text-muted">
                     Conferma i dati estratti prima di usarli come riferimento.
                   </p>
                   <Link
                     href={`/policies/${pendingReviewPolicies[0].id}/edit`}
-                    className="mt-3 inline-flex text-[12px] font-medium text-blue-600 hover:text-blue-700"
+                    className="mt-3 inline-flex text-[12px] font-medium text-accent hover:text-accent"
                   >
                     Inizia revisione
                   </Link>
@@ -264,7 +264,7 @@ export default async function DashboardPage() {
             </div>
           </SectionCard>
 
-          <div className="rounded-2xl border border-blue-100 bg-blue-50/60 px-4 py-3 text-[12px] leading-relaxed text-slate-600">
+          <div className="rounded-2xl border border-border bg-accent-soft px-4 py-3 text-[12px] leading-relaxed text-muted">
             Atlas e indipendente: non vendiamo polizze ne riceviamo commissioni da
             assicuratori.
           </div>

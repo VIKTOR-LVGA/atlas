@@ -112,8 +112,8 @@ export default function ResetPasswordPage() {
         subtitle="Verifica del link di recupero in corso..."
       >
         <div className="flex flex-col items-center justify-center py-12">
-          <span className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-blue-600" />
-          <p className="mt-4 text-[13px] text-slate-500">Caricamento...</p>
+          <span className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-accent" />
+          <p className="mt-4 text-[13px] text-muted">Caricamento...</p>
         </div>
       </AuthLayout>
     );
@@ -129,12 +129,12 @@ export default function ResetPasswordPage() {
         <div className="mt-6 space-y-3 text-center">
           <Link
             href="/forgot-password"
-            className="inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-[14px] font-medium text-white hover:bg-blue-700"
+            className="atlas-btn-primary w-full py-2.5 text-[14px]"
           >
             Richiedi nuovo link
           </Link>
-          <p className="text-[13px] text-slate-600">
-            <Link href="/login" className="font-medium text-blue-600 hover:text-blue-700">
+          <p className="text-[13px] text-muted">
+            <Link href="/login" className="font-medium text-accent hover:text-accent-hover">
               Torna al login
             </Link>
           </p>
@@ -151,7 +151,7 @@ export default function ResetPasswordPage() {
       >
         <AuthMessage variant="success" message={success} />
         <div className="mt-6 flex justify-center py-4">
-          <span className="h-6 w-6 animate-spin rounded-full border-2 border-slate-200 border-t-blue-600" />
+          <span className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-accent" />
         </div>
       </AuthLayout>
     );
@@ -195,8 +195,7 @@ export default function ResetPasswordPage() {
           type="submit"
           disabled={isSubmitting}
           className={cn(
-            "flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-[14px] font-medium text-white shadow-sm transition",
-            "hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+            "atlas-btn-primary w-full py-2.5 text-[14px]",
             "disabled:cursor-not-allowed disabled:opacity-60"
           )}
         >
@@ -211,8 +210,8 @@ export default function ResetPasswordPage() {
         </button>
       </form>
 
-      <p className="mt-6 text-center text-[13px] text-slate-600">
-        <Link href="/login" className="font-medium text-blue-600 hover:text-blue-700">
+      <p className="mt-6 text-center text-[13px] text-muted">
+        <Link href="/login" className="font-medium text-accent hover:text-accent-hover">
           ← Torna al login
         </Link>
       </p>

@@ -15,7 +15,7 @@ export function BackLink({
     <Link
       href={href}
       className={cn(
-        "inline-flex items-center gap-1 text-[12px] font-medium text-slate-500 transition hover:text-slate-800",
+        "inline-flex items-center gap-1 text-[12px] font-medium text-muted transition hover:text-foreground",
         className
       )}
     >

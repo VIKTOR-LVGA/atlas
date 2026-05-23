@@ -4,10 +4,10 @@ import { IconChevronRight } from "@/components/icons";
 import type { AlertSeverity } from "@/lib/types";
 
 const iconBg: Record<AlertSeverity, string> = {
-  high: "bg-red-50 text-red-600",
-  medium: "bg-amber-50 text-amber-600",
-  low: "bg-slate-100 text-slate-500",
-  info: "bg-blue-50 text-blue-600",
+  high: "bg-[var(--danger-bg)] text-[var(--danger-text)]",
+  medium: "bg-[var(--warning-bg)] text-[var(--warning-text)]",
+  low: "bg-card-muted text-muted",
+  info: "bg-accent-soft text-accent",
 };
 
 interface AlertItemProps {
@@ -38,17 +38,17 @@ export function AlertItem({
         {icon}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[13px] font-medium text-slate-900">{title}</p>
-        <p className="mt-0.5 line-clamp-2 text-[11px] leading-relaxed text-slate-500">
+        <p className="text-[13px] font-medium text-foreground">{title}</p>
+        <p className="mt-0.5 line-clamp-2 text-[11px] leading-relaxed text-muted">
           {description}
         </p>
       </div>
-      <IconChevronRight className="h-4 w-4 shrink-0 text-slate-300" />
+      <IconChevronRight className="h-4 w-4 shrink-0 text-muted" />
     </>
   );
 
   const baseClass = cn(
-    "flex items-center gap-3 rounded-xl px-1 py-2.5 transition hover:bg-slate-50/80",
+    "flex items-center gap-3 rounded-xl px-1 py-2.5 transition hover:bg-card-muted",
     className
   );
 

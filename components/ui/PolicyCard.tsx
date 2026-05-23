@@ -35,7 +35,7 @@ export function PolicyCard({ policy, compact }: PolicyCardProps) {
     <Link
       href={`/policies/${policy.id}`}
       className={cn(
-        "group block rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50 transition-all hover:border-slate-300 hover:shadow-md",
+        "group block rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)] transition-all hover:border-border hover:shadow-md",
         compact && "p-4"
       )}
     >
@@ -47,26 +47,26 @@ export function PolicyCard({ policy, compact }: PolicyCardProps) {
               {statusLabels[policy.status]}
             </Badge>
           </div>
-          <h3 className="mt-2 truncate text-sm font-semibold text-slate-900 group-hover:text-blue-700">
+          <h3 className="mt-2 truncate text-sm font-semibold text-foreground group-hover:text-accent">
             {policy.name}
           </h3>
-          <p className="mt-0.5 text-sm text-slate-500">{policy.insurer}</p>
+          <p className="mt-0.5 text-sm text-muted">{policy.insurer}</p>
         </div>
-        <IconChevronRight className="mt-1 shrink-0 text-slate-300 transition group-hover:text-slate-500" />
+        <IconChevronRight className="mt-1 shrink-0 text-muted transition group-hover:text-muted" />
       </div>
-      <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-slate-100 pt-4 text-sm">
+      <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-border pt-4 text-sm">
         <div>
-          <p className="text-xs text-slate-500">Premio annuo</p>
-          <p className="font-medium text-slate-900">{formatCHF(policy.annualPremium)}</p>
+          <p className="text-xs text-muted">Premio annuo</p>
+          <p className="font-medium text-foreground">{formatCHF(policy.annualPremium)}</p>
         </div>
         <div>
-          <p className="text-xs text-slate-500">Copertura</p>
-          <p className="font-medium text-slate-900">{policy.coverageScore}%</p>
+          <p className="text-xs text-muted">Copertura</p>
+          <p className="font-medium text-foreground">{policy.coverageScore}%</p>
         </div>
         {!compact && (
           <div>
-            <p className="text-xs text-slate-500">Rinnovo</p>
-            <p className="font-medium text-slate-900">{formatDate(policy.renewalDate)}</p>
+            <p className="text-xs text-muted">Rinnovo</p>
+            <p className="font-medium text-foreground">{formatDate(policy.renewalDate)}</p>
           </div>
         )}
       </div>

@@ -53,11 +53,11 @@ export function DocumentDeleteForm({
         className={cn(
           "inline-flex items-center justify-center gap-1.5 font-medium text-red-600 transition disabled:cursor-wait disabled:opacity-60",
           variant === "icon" &&
-            "h-8 w-8 rounded-lg border border-slate-200 bg-white shadow-sm hover:-translate-y-px hover:border-red-200 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-100",
+            "h-8 w-8 rounded-lg border border-border bg-card shadow-sm hover:-translate-y-px hover:bg-[var(--danger-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--danger-border)]",
           variant === "button" &&
-            "rounded-lg border border-red-100 bg-white px-3.5 py-2 text-[12px] hover:border-red-200 hover:bg-red-50",
+            "rounded-lg border border-[var(--danger-border)] bg-card px-3.5 py-2 text-[12px] hover:bg-[var(--danger-bg)]",
           variant === "menu" &&
-            "w-full justify-start rounded-lg px-2.5 py-2 text-[12px] hover:bg-red-50"
+            "w-full justify-start rounded-lg px-2.5 py-2 text-[12px] hover:bg-[var(--danger-bg)]"
         )}
       >
         <Trash2 className={variant === "icon" ? "h-4 w-4" : "h-3.5 w-3.5"} />

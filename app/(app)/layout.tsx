@@ -12,11 +12,11 @@ export default async function AppLayout({
 
   return (
     <ProfileProvider profile={profile}>
-      <div className="flex min-h-screen bg-[#f1f5f9]">
+      <div className="flex min-h-screen overflow-x-hidden bg-background">
         <Sidebar />
-        <div className="flex min-w-0 flex-1 flex-col lg:pl-0">
+        <div className="flex min-w-0 flex-1 flex-col">
           <TopBar />
-          <main className="flex-1 overflow-auto">
+          <main className="flex-1 overflow-x-hidden overflow-y-auto">
             <div className="mx-auto w-full max-w-[1200px] px-4 py-5 sm:px-6 sm:py-8">
               {children}
             </div>

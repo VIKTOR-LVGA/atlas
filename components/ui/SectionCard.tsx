@@ -25,18 +25,18 @@ export function SectionCard({
   return (
     <section
       className={cn(
-        "rounded-2xl border border-slate-100/80 bg-white shadow-sm shadow-slate-900/[0.03]",
+        "rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]",
         className
       )}
     >
       {(title || action) && (
-        <div className="flex items-center justify-between gap-3 border-b border-slate-50 px-5 py-3.5">
+        <div className="flex items-center justify-between gap-3 border-b border-border-subtle px-5 py-3.5">
           <div>
             {title && (
-              <h2 className="text-[13px] font-semibold text-slate-900">{title}</h2>
+              <h2 className="text-[13px] font-semibold text-foreground">{title}</h2>
             )}
             {description && (
-              <p className="mt-0.5 text-[11px] text-slate-500">{description}</p>
+              <p className="mt-0.5 text-[11px] text-muted">{description}</p>
             )}
           </div>
           {action}

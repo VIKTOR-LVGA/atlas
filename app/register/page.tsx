@@ -146,8 +146,7 @@ export default function RegisterPage() {
           type="submit"
           disabled={loading}
           className={cn(
-            "flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-[14px] font-medium text-white shadow-sm transition",
-            "hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+            "atlas-btn-primary w-full py-2.5 text-[14px]",
             "disabled:cursor-not-allowed disabled:opacity-60"
           )}
         >
@@ -162,9 +161,9 @@ export default function RegisterPage() {
         </button>
       </form>
 
-      <p className="mt-6 text-center text-[13px] text-slate-600">
+      <p className="mt-6 text-center text-[13px] text-muted">
         Hai già un account?{" "}
-        <Link href="/login" className="font-medium text-blue-600 hover:text-blue-700">
+        <Link href="/login" className="font-medium text-accent hover:text-accent-hover">
           Accedi
         </Link>
       </p>

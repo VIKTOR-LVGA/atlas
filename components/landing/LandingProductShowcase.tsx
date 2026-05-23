@@ -26,13 +26,13 @@ export function LandingProductShowcase() {
               <div className="landing-preview-inner rounded-[14px] p-4 sm:p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-[10px] font-medium uppercase tracking-wide text-slate-500">
+                    <p className="text-[10px] font-medium uppercase tracking-wide text-muted">
                       Dettaglio polizza
                     </p>
                     <h3 className="mt-1 text-lg font-semibold text-white">
                       CSS · Cassa malati
                     </h3>
-                    <p className="text-[11px] text-slate-500">Bozza AI · Da rivedere</p>
+                    <p className="text-[11px] text-muted">Bozza AI · Da rivedere</p>
                   </div>
                   <span className="landing-badge-amber">Da rivedere</span>
                 </div>
@@ -44,7 +44,7 @@ export function LandingProductShowcase() {
                     { label: "Confidenza", value: "87%" },
                   ].map((item) => (
                     <div key={item.label} className="landing-stat-chip text-center">
-                      <p className="text-[9px] text-slate-500">{item.label}</p>
+                      <p className="text-[9px] text-muted">{item.label}</p>
                       <p className="mt-0.5 text-sm font-semibold text-white">
                         {item.value}
                       </p>
@@ -53,7 +53,7 @@ export function LandingProductShowcase() {
                 </div>
 
                 <div className="mt-4 space-y-2">
-                  <p className="text-[11px] font-medium text-slate-300">
+                  <p className="text-[11px] font-medium text-muted">
                     Persone assicurate
                   </p>
                   {[
@@ -70,20 +70,20 @@ export function LandingProductShowcase() {
                   ].map((person) => (
                     <div
                       key={person.name}
-                      className="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-2.5"
+                      className="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-card/[0.03] p-2.5"
                     >
                       <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400">
                         <User className="h-4 w-4" />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="text-[11px] font-medium text-slate-200">
+                        <p className="text-[11px] font-medium text-[var(--landing-text)]">
                           {person.name}
                         </p>
-                        <p className="truncate text-[9px] text-slate-500">
+                        <p className="truncate text-[9px] text-muted">
                           {person.coverages}
                         </p>
                       </div>
-                      <p className="text-[10px] font-medium text-slate-400">
+                      <p className="text-[10px] font-medium text-muted">
                         {person.premium}
                       </p>
                     </div>
@@ -110,7 +110,7 @@ export function LandingProductShowcase() {
                       Estrazione AI strutturata
                     </p>
                   </div>
-                  <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
+                  <p className="mt-2 text-[11px] leading-relaxed text-muted">
                     Normalizzazione svizzera (LAMal, complementari, franchigie, modelli
                     Telmed/HMO) con punteggio di confidenza per campo.
                   </p>
@@ -123,9 +123,9 @@ export function LandingProductShowcase() {
                     ].map((row) => (
                       <div
                         key={row.field}
-                        className="flex items-center justify-between rounded-lg border border-white/[0.05] bg-white/[0.02] px-2.5 py-1.5"
+                        className="flex items-center justify-between rounded-lg border border-white/[0.05] bg-card/[0.02] px-2.5 py-1.5"
                       >
-                        <span className="text-[10px] text-slate-400">{row.field}</span>
+                        <span className="text-[10px] text-muted">{row.field}</span>
                         <span
                           className={`text-[10px] font-medium ${row.ok ? "text-emerald-400" : "text-amber-400"}`}
                         >
@@ -145,7 +145,7 @@ export function LandingProductShowcase() {
                 </span>
                 <div>
                   <p className="font-medium text-white">Revisione e conferma</p>
-                  <p className="mt-1 text-sm leading-relaxed text-slate-400">
+                  <p className="mt-1 text-sm leading-relaxed text-muted">
                     Correggi assegnazioni, premi e persone nel workspace di revisione.
                     Conferma la polizza quando i dati corrispondono al PDF.
                   </p>

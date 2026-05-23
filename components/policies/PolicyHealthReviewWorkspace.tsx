@@ -22,7 +22,7 @@ function NumberInput({
 }) {
   return (
     <label className={className}>
-      <span className="text-[10px] font-medium text-slate-500">{label}</span>
+      <span className="text-[10px] font-medium text-muted">{label}</span>
       <input
         type="number"
         min="0"
@@ -32,7 +32,7 @@ function NumberInput({
           const next = event.target.value.trim();
           onChange(next ? Number(next) : null);
         }}
-        className="mt-0.5 w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-[12px] outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+        className="mt-0.5 w-full rounded-lg border border-border px-2.5 py-1.5 text-[12px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
       />
     </label>
   );
@@ -77,20 +77,20 @@ function CoverageEditor({
   const assignLabel = assignedToPersonKey ? "Sposta" : "Assegna";
 
   return (
-    <li className="rounded-xl border border-slate-100 bg-slate-50/50 p-3">
+    <li className="rounded-xl border border-border bg-card-muted p-3">
       <div className="grid gap-2 sm:grid-cols-2">
         <label className="sm:col-span-2">
-          <span className="text-[10px] font-medium text-slate-500">Nome copertura</span>
+          <span className="text-[10px] font-medium text-muted">Nome copertura</span>
           <input
             value={coverage.name}
             onChange={(event) =>
               onChange({ ...coverage, name: event.target.value })
             }
-            className="mt-0.5 w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-[12px] outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+            className="mt-0.5 w-full rounded-lg border border-border px-2.5 py-1.5 text-[12px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
           />
         </label>
         <label>
-          <span className="text-[10px] font-medium text-slate-500">Tipo</span>
+          <span className="text-[10px] font-medium text-muted">Tipo</span>
           <input
             value={coverage.coverage_type ?? coverage.category_label ?? ""}
             onChange={(event) =>
@@ -100,7 +100,7 @@ function CoverageEditor({
                 category_label: event.target.value || null,
               })
             }
-            className="mt-0.5 w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-[12px] outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+            className="mt-0.5 w-full rounded-lg border border-border px-2.5 py-1.5 text-[12px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
           />
         </label>
         <NumberInput
@@ -109,29 +109,29 @@ function CoverageEditor({
           onChange={(premium_final) => onChange({ ...coverage, premium_final })}
         />
         <label className="sm:col-span-2">
-          <span className="text-[10px] font-medium text-slate-500">Note</span>
+          <span className="text-[10px] font-medium text-muted">Note</span>
           <input
             value={coverage.notes ?? ""}
             onChange={(event) =>
               onChange({ ...coverage, notes: event.target.value || null })
             }
-            className="mt-0.5 w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-[12px] outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+            className="mt-0.5 w-full rounded-lg border border-border px-2.5 py-1.5 text-[12px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
           />
         </label>
       </div>
 
-      <div className="mt-3 space-y-2 border-t border-slate-100 pt-3">
+      <div className="mt-3 space-y-2 border-t border-border pt-3">
         {assignedPerson ? (
-          <p className="text-[11px] text-slate-600">
+          <p className="text-[11px] text-muted">
             Assegnata a{" "}
-            <span className="font-medium text-slate-800">
+            <span className="font-medium text-foreground">
               {personLabel(assignedPerson)}
             </span>
           </p>
         ) : null}
 
         {showSuggestion ? (
-          <p className="text-[11px] text-blue-700">
+          <p className="text-[11px] text-accent">
             Suggerito:{" "}
             <span className="font-medium">{suggestedName}</span>
           </p>
@@ -139,11 +139,11 @@ function CoverageEditor({
 
         <div className="flex flex-wrap items-end gap-2">
           <label className="min-w-[160px] flex-1">
-            <span className="text-[10px] font-medium text-slate-500">Persona</span>
+            <span className="text-[10px] font-medium text-muted">Persona</span>
             <select
               value={assignTo}
               onChange={(event) => setAssignTo(event.target.value)}
-              className="mt-0.5 w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[12px] outline-none focus:border-blue-300"
+              className="mt-0.5 w-full rounded-lg border border-border bg-card px-2.5 py-1.5 text-[12px] outline-none focus:border-accent"
             >
               <option value="">Scegli persona</option>
               {allPeople.map((person) => (
@@ -165,7 +165,7 @@ function CoverageEditor({
               onAssign(assignTo);
               setAssignTo("");
             }}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            className="atlas-btn-primary inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] disabled:opacity-50"
           >
             <UserPlus className="h-3.5 w-3.5" />
             {assignLabel}
@@ -173,7 +173,7 @@ function CoverageEditor({
           <button
             type="button"
             onClick={onRemove}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-600 hover:bg-slate-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-[11px] font-medium text-muted hover:bg-card-muted"
           >
             {removeLabel === "unassign" ? (
               <UserMinus className="h-3.5 w-3.5" />
@@ -346,7 +346,7 @@ export function PolicyHealthReviewWorkspace({
     <div className="space-y-4">
       <input type="hidden" name="health_review_json" value={serialized} readOnly />
 
-      <div className="rounded-xl border border-amber-100 bg-amber-50/40 px-3 py-2.5">
+      <div className="rounded-xl border atlas-alert-warning px-3 py-2.5">
         <p className="text-[12px] font-medium text-amber-900">
           Revisione struttura estratta
         </p>
@@ -357,7 +357,7 @@ export function PolicyHealthReviewWorkspace({
       </div>
 
       {warnings.length > 0 ? (
-        <ul className="space-y-1 rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2.5 text-[11px] text-slate-600">
+        <ul className="space-y-1 rounded-xl border border-border bg-card-muted px-3 py-2.5 text-[11px] text-muted">
           {warnings.map((warning) => (
             <li key={warning}>• {warning}</li>
           ))}
@@ -367,11 +367,11 @@ export function PolicyHealthReviewWorkspace({
       {state.people.map((person) => (
         <article
           key={person.stableKey}
-          className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm"
+          className="rounded-2xl border border-border bg-card p-4 shadow-sm"
         >
           <div className="grid gap-3 sm:grid-cols-2">
             <label>
-              <span className="text-[10px] font-medium text-slate-500">Nome</span>
+              <span className="text-[10px] font-medium text-muted">Nome</span>
               <input
                 value={person.name ?? ""}
                 onChange={(event) =>
@@ -379,11 +379,11 @@ export function PolicyHealthReviewWorkspace({
                     name: event.target.value || null,
                   })
                 }
-                className="mt-0.5 w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-[12px] outline-none focus:border-blue-300"
+                className="mt-0.5 w-full rounded-lg border border-border px-2.5 py-1.5 text-[12px] outline-none focus:border-accent"
               />
             </label>
             <label>
-              <span className="text-[10px] font-medium text-slate-500">
+              <span className="text-[10px] font-medium text-muted">
                 N. assicurato
               </span>
               <input
@@ -393,7 +393,7 @@ export function PolicyHealthReviewWorkspace({
                     insured_number: event.target.value || null,
                   })
                 }
-                className="mt-0.5 w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-[12px] outline-none focus:border-blue-300"
+                className="mt-0.5 w-full rounded-lg border border-border px-2.5 py-1.5 text-[12px] outline-none focus:border-accent"
               />
             </label>
             <NumberInput
@@ -404,7 +404,7 @@ export function PolicyHealthReviewWorkspace({
               }
             />
             <label>
-              <span className="text-[10px] font-medium text-slate-500">Modello</span>
+              <span className="text-[10px] font-medium text-muted">Modello</span>
               <input
                 value={person.model ?? ""}
                 onChange={(event) =>
@@ -412,7 +412,7 @@ export function PolicyHealthReviewWorkspace({
                     model: event.target.value || null,
                   })
                 }
-                className="mt-0.5 w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-[12px] outline-none focus:border-blue-300"
+                className="mt-0.5 w-full rounded-lg border border-border px-2.5 py-1.5 text-[12px] outline-none focus:border-accent"
               />
             </label>
             <NumberInput
@@ -426,7 +426,7 @@ export function PolicyHealthReviewWorkspace({
           </div>
 
           <div className="mt-4">
-            <p className="text-[11px] font-semibold text-slate-800">
+            <p className="text-[11px] font-semibold text-foreground">
               Coperture di {person.name ?? "questa persona"}
             </p>
             {person.coverages.length > 0 ? (
@@ -455,14 +455,14 @@ export function PolicyHealthReviewWorkspace({
                 ))}
               </ul>
             ) : (
-              <p className="mt-2 text-[11px] text-slate-500">
+              <p className="mt-2 text-[11px] text-muted">
                 Nessuna copertura assegnata.
               </p>
             )}
           </div>
 
           {person.coverages.length > 0 ? (
-            <p className="mt-3 text-[11px] text-slate-500">
+            <p className="mt-3 text-[11px] text-muted">
               Somma righe:{" "}
               {formatCHF(
                 person.coverages.reduce(
@@ -475,7 +475,7 @@ export function PolicyHealthReviewWorkspace({
         </article>
       ))}
 
-      <section className="rounded-2xl border border-amber-100 bg-amber-50/20 p-4">
+      <section className="rounded-2xl border atlas-alert-warning p-4">
         <h3 className="text-[12px] font-semibold text-amber-900">
           Coperture da verificare ({state.unassigned.length})
         </h3>

@@ -133,13 +133,13 @@ export default async function AnalysisPage() {
             {workflowSteps.map((step, index) => (
               <li
                 key={step.label}
-                className="flex items-start gap-3 rounded-xl border border-slate-100 p-3"
+                className="flex items-start gap-3 rounded-xl border border-border p-3"
               >
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[11px] font-semibold text-slate-600">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-card-muted text-[11px] font-semibold text-muted">
                   {index + 1}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[12px] font-medium text-slate-900">{step.label}</p>
+                  <p className="text-[12px] font-medium text-foreground">{step.label}</p>
                   <StatusBadge
                     variant={step.variant}
                     label={step.status}
@@ -155,14 +155,14 @@ export default async function AnalysisPage() {
       <SectionCard
         title="Documenti nel flusso"
         action={
-          <Link href="/documents" className="text-[12px] font-medium text-blue-600">
+          <Link href="/documents" className="text-[12px] font-medium text-accent">
             Tutti
           </Link>
         }
         padding="sm"
       >
         {recentDocuments.length > 0 ? (
-          <ul className="divide-y divide-slate-50">
+          <ul className="divide-y divide-border-subtle">
             {recentDocuments.map((document) => (
               <li key={document.id}>
                 <Link
@@ -170,10 +170,10 @@ export default async function AnalysisPage() {
                   className="flex items-center justify-between gap-4 py-3 first:pt-0"
                 >
                   <span className="min-w-0">
-                    <span className="block truncate text-[13px] font-medium text-slate-900">
+                    <span className="block truncate text-[13px] font-medium text-foreground">
                       {document.fileName}
                     </span>
-                    <span className="mt-0.5 block text-[11px] text-slate-500">
+                    <span className="mt-0.5 block text-[11px] text-muted">
                       {formatFileSize(document.fileSize)} ·{" "}
                       {formatRelativeTime(document.createdAt)}
                     </span>
@@ -184,7 +184,7 @@ export default async function AnalysisPage() {
             ))}
           </ul>
         ) : (
-          <p className="text-[12px] text-slate-500">Nessun documento caricato.</p>
+          <p className="text-[12px] text-muted">Nessun documento caricato.</p>
         )}
       </SectionCard>
 
@@ -197,10 +197,10 @@ export default async function AnalysisPage() {
           ].map((item) => (
             <div
               key={item}
-              className="flex items-center gap-2 rounded-xl border border-slate-100 p-3"
+              className="flex items-center gap-2 rounded-xl border border-border p-3"
             >
-              <IconCheck className="h-4 w-4 text-slate-300" />
-              <span className="text-[12px] text-slate-600">{item}</span>
+              <IconCheck className="h-4 w-4 text-muted" />
+              <span className="text-[12px] text-muted">{item}</span>
             </div>
           ))}
         </div>

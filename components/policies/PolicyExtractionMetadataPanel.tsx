@@ -47,7 +47,7 @@ export function PolicyExtractionMetadataPanel({
       description="Metadati per revisione avanzata"
       badge={
         metadata.warnings?.length ? (
-          <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700">
+          <span className="rounded-full bg-[var(--warning-bg)] px-2 py-0.5 text-[10px] font-medium text-[var(--warning-text)]">
             {metadata.warnings.length} avvisi
           </span>
         ) : null
@@ -56,12 +56,12 @@ export function PolicyExtractionMetadataPanel({
       <div className="space-y-3 text-[12px]">
         {sections.map((section) => (
           <div key={section.label}>
-            <p className="font-medium text-slate-700">{section.label}</p>
-            <p className="mt-0.5 leading-relaxed text-slate-500">{section.value}</p>
+            <p className="font-medium text-muted-foreground">{section.label}</p>
+            <p className="mt-0.5 leading-relaxed text-muted">{section.value}</p>
           </div>
         ))}
         {metadata.warnings?.length ? (
-          <div className="rounded-lg border border-amber-100 bg-amber-50/80 p-3">
+          <div className="rounded-lg border border-[var(--warning-border)] bg-[var(--warning-bg)] p-3">
             <p className="font-medium text-amber-900">Avvisi interni</p>
             <ul className="mt-1 space-y-1 text-amber-800">
               {metadata.warnings.map((warning) => (

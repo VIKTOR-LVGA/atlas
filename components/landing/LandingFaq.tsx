@@ -35,13 +35,13 @@ export function LandingFaq() {
               key={faq.q}
               className="group landing-glass rounded-xl px-5 py-4 transition open:border-indigo-500/20 open:bg-indigo-500/[0.06]"
             >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-slate-100 marker:content-none [&::-webkit-details-marker]:hidden">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-[var(--landing-text)] marker:content-none [&::-webkit-details-marker]:hidden">
                 {faq.q}
-                <span className="shrink-0 text-slate-500 transition group-open:rotate-45 group-open:text-indigo-400">
+                <span className="shrink-0 text-muted transition group-open:rotate-45 group-open:text-indigo-400">
                   +
                 </span>
               </summary>
-              <p className="mt-3 border-t border-white/[0.06] pt-3 text-sm leading-relaxed text-slate-500">
+              <p className="mt-3 border-t border-white/[0.06] pt-3 text-sm leading-relaxed text-muted">
                 {faq.a}
               </p>
             </details>

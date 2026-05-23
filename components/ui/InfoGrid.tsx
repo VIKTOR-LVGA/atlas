@@ -33,12 +33,12 @@ export function InfoGrid({
           key={item.label}
           className={cn(item.span === 2 && "sm:col-span-2", compact && "min-w-0")}
         >
-          <dt className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
+          <dt className="text-[10px] font-medium uppercase tracking-wide text-muted">
             {item.label}
           </dt>
           <dd
             className={cn(
-              "mt-1 font-medium text-slate-900",
+              "mt-1 font-medium text-foreground",
               compact ? "text-[12px]" : "text-[13px]"
             )}
           >

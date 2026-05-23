@@ -40,7 +40,7 @@ function DocumentButtonLink({
   className?: string;
 }) {
   const sharedClassName = cn(
-    "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:-translate-y-px hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200",
+    "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card text-muted shadow-sm transition hover:-translate-y-px hover:border-border hover:bg-accent-soft hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30",
     className
   );
 
@@ -77,25 +77,25 @@ function MobileActionMenu({ document }: { document: UserDocument }) {
       <summary
         title="Altre azioni"
         aria-label={`Altre azioni per ${document.fileName}`}
-        className="flex h-8 w-8 cursor-pointer list-none items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200 [&::-webkit-details-marker]:hidden"
+        className="flex h-8 w-8 cursor-pointer list-none items-center justify-center rounded-lg border border-border bg-card text-muted shadow-sm transition hover:border-border hover:bg-accent-soft hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30 [&::-webkit-details-marker]:hidden"
         onClick={stopRowNavigation}
       >
         <MoreVertical className="h-4 w-4" />
       </summary>
       <div
-        className="absolute right-0 top-10 z-20 w-44 rounded-xl border border-slate-100 bg-white p-1.5 shadow-xl shadow-slate-900/10"
+        className="absolute right-0 top-10 z-20 w-44 rounded-xl border border-border bg-card p-1.5 shadow-xl shadow-[var(--shadow-card)]"
         onClick={stopRowNavigation}
       >
         <Link
           href={getDocumentHref(document)}
-          className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-[12px] font-medium text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
+          className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-[12px] font-medium text-muted-foreground transition hover:bg-accent-soft hover:text-accent"
         >
           <ExternalLink className="h-3.5 w-3.5" />
           Apri dettagli
         </Link>
         <a
           href={getDownloadHref(document)}
-          className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-[12px] font-medium text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
+          className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-[12px] font-medium text-muted-foreground transition hover:bg-accent-soft hover:text-accent"
         >
           <Download className="h-3.5 w-3.5" />
           Scarica PDF
@@ -150,7 +150,7 @@ export function DocumentList({ documents }: { documents: UserDocument[] }) {
       <div className="hidden overflow-x-auto md:block">
         <table className="w-full min-w-[680px] text-[12px]">
           <thead>
-            <tr className="border-b border-slate-50 text-[10px] uppercase text-slate-400">
+            <tr className="border-b border-border-subtle text-[10px] uppercase text-muted">
               <th className="px-5 py-2 text-left">Nome documento</th>
               <th className="px-3 py-2 text-left">Dimensione</th>
               <th className="px-3 py-2 text-left">Data</th>
@@ -168,29 +168,29 @@ export function DocumentList({ documents }: { documents: UserDocument[] }) {
                   role="link"
                   tabIndex={0}
                   aria-label={`Apri ${document.fileName}`}
-                  className="group cursor-pointer border-b border-slate-50 outline-none transition hover:bg-blue-50/40 focus-visible:bg-blue-50/70"
+                  className="group cursor-pointer border-b border-border-subtle outline-none transition hover:bg-accent-soft focus-visible:bg-accent-soft"
                   onClick={openDocument}
                   onKeyDown={(event) => openDocumentFromKeyboard(event, openDocument)}
                 >
                   <td className="px-5 py-3.5">
                     <div className="flex min-w-0 items-center gap-2.5">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-600 transition group-hover:bg-white">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--danger-bg)] text-[var(--danger-text)] transition group-hover:bg-card">
                         <FileText className="h-4 w-4" />
                       </span>
                       <div className="min-w-0">
-                        <p className="truncate font-medium text-slate-900">
+                        <p className="truncate font-medium text-foreground">
                           {document.fileName}
                         </p>
-                        <p className="truncate text-[10px] text-slate-400">
+                        <p className="truncate text-[10px] text-muted">
                           {document.mimeType ?? "application/pdf"}
                         </p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-3 py-3.5 text-slate-600">
+                  <td className="px-3 py-3.5 text-muted">
                     {formatFileSize(document.fileSize)}
                   </td>
-                  <td className="px-3 py-3.5 text-slate-600">
+                  <td className="px-3 py-3.5 text-muted">
                     {formatDate(document.createdAt)}
                   </td>
                   <td className="px-3 py-3.5">
@@ -218,7 +218,7 @@ export function DocumentList({ documents }: { documents: UserDocument[] }) {
         </table>
       </div>
 
-      <div className="divide-y divide-slate-50 md:hidden">
+      <div className="divide-y divide-border-subtle md:hidden">
         {documents.map((document) => {
           const openDocument = () => router.push(getDocumentHref(document));
 
@@ -228,25 +228,25 @@ export function DocumentList({ documents }: { documents: UserDocument[] }) {
               role="link"
               tabIndex={0}
               aria-label={`Apri ${document.fileName}`}
-              className="group cursor-pointer px-4 py-4 outline-none transition hover:bg-blue-50/40 focus-visible:bg-blue-50/70"
+              className="group cursor-pointer px-4 py-4 outline-none transition hover:bg-accent-soft focus-visible:bg-accent-soft"
               onClick={openDocument}
               onKeyDown={(event) => openDocumentFromKeyboard(event, openDocument)}
             >
               <div className="flex items-start gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600 transition group-hover:bg-white">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--danger-bg)] text-[var(--danger-text)] transition group-hover:bg-card">
                   <FileText className="h-5 w-5" />
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <p className="truncate text-[13px] font-semibold text-slate-900">
+                      <p className="truncate text-[13px] font-semibold text-foreground">
                         {document.fileName}
                       </p>
-                      <p className="mt-0.5 truncate text-[11px] text-slate-500">
+                      <p className="mt-0.5 truncate text-[11px] text-muted">
                         {formatFileSize(document.fileSize)} / {formatDate(document.createdAt)}
                       </p>
                     </div>
-                    <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-slate-300 transition group-hover:text-blue-500" />
+                    <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-muted transition group-hover:text-accent" />
                   </div>
                   <div className="mt-2">
                     <DocumentStatusBadge status={document.status} />

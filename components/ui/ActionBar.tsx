@@ -34,10 +34,10 @@ export function ActionButton({
     "inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-[13px] font-medium transition";
 
   const variants = {
-    primary: "bg-blue-600 text-white hover:bg-blue-700",
+    primary: "bg-accent text-accent-foreground hover:bg-accent-hover",
     secondary:
-      "border border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50",
-    ghost: "text-slate-600 hover:bg-slate-50",
+      "border border-border bg-card text-muted-foreground shadow-sm hover:bg-card-muted",
+    ghost: "text-muted hover:bg-card-muted",
   };
 
   return (

@@ -21,32 +21,32 @@ export function ReviewBanner({
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 rounded-2xl border border-indigo-100 bg-gradient-to-r from-indigo-50/90 to-white p-4 sm:flex-row sm:items-center sm:justify-between",
+        "flex flex-col gap-4 rounded-2xl border border-border bg-gradient-to-r from-accent-soft to-card p-4 sm:flex-row sm:items-center sm:justify-between",
         className
       )}
     >
       <div className="flex items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-indigo-600 shadow-sm">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-card text-accent shadow-sm">
           <ClipboardCheck className="h-5 w-5" />
         </span>
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <StatusBadge variant="attention" label="Da rivedere" />
             {uncertainCount > 0 ? (
-              <span className="text-[11px] text-indigo-700">
+              <span className="text-[11px] text-accent">
                 {uncertainCount} campi incerti
               </span>
             ) : null}
           </div>
-          <p className="mt-1 text-[14px] font-semibold text-slate-900">{title}</p>
-          <p className="mt-0.5 max-w-xl text-[12px] leading-relaxed text-slate-600">
+          <p className="mt-1 text-[14px] font-semibold text-foreground">{title}</p>
+          <p className="mt-0.5 max-w-xl text-[12px] leading-relaxed text-muted">
             {description}
           </p>
         </div>
       </div>
       <Link
         href={editHref}
-        className="inline-flex shrink-0 items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-[13px] font-medium text-white shadow-sm hover:bg-blue-700"
+        className="atlas-btn-primary inline-flex shrink-0 items-center justify-center px-4 py-2.5 text-[13px] shadow-sm"
       >
         Rivedi bozza
       </Link>

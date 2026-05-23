@@ -147,7 +147,7 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
       {assigned === "1" ? (
         <div
           role="status"
-          className="rounded-xl border border-emerald-100 bg-emerald-50/80 px-4 py-3 text-[13px] font-medium text-emerald-800"
+          className="rounded-xl border atlas-alert-success px-4 py-3 text-[13px] font-medium"
         >
           Copertura assegnata correttamente. Il riepilogo è aggiornato.
         </div>
@@ -156,7 +156,7 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
       {saved === "1" ? (
         <div
           role="status"
-          className="rounded-xl border border-blue-100 bg-blue-50/80 px-4 py-3 text-[13px] font-medium text-blue-900"
+          className="rounded-xl border atlas-alert-info px-4 py-3 text-[13px] font-medium"
         >
           Modifiche salvate. Puoi continuare la revisione o confermare la polizza.
         </div>
@@ -165,7 +165,7 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
       {confirmed === "1" ? (
         <div
           role="status"
-          className="rounded-xl border border-emerald-100 bg-emerald-50/80 px-4 py-3 text-[13px] font-medium text-emerald-800"
+          className="rounded-xl border atlas-alert-success px-4 py-3 text-[13px] font-medium"
         >
           Polizza confermata. I dati sono ora contrassegnati come verificati.
         </div>
@@ -276,11 +276,11 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
               ]}
             />
             {policy.notes ? (
-              <div className="mt-4 rounded-xl bg-slate-50 p-3">
-                <p className="text-[10px] font-medium uppercase text-slate-400">
+              <div className="mt-4 rounded-xl bg-card-muted p-3">
+                <p className="text-[10px] font-medium uppercase text-muted">
                   Note
                 </p>
-                <p className="mt-1 whitespace-pre-wrap text-[13px] text-slate-700">
+                <p className="mt-1 whitespace-pre-wrap text-[13px] text-muted-foreground">
                   {policy.notes}
                 </p>
               </div>
@@ -331,22 +331,22 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
             {policy.document ? (
               <Link
                 href={`/documents/${policy.document.id}`}
-                className="flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50/50 p-3 transition hover:bg-blue-50"
+                className="flex items-start gap-3 rounded-xl border border-border bg-accent-soft p-3 transition hover:bg-accent-soft"
               >
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-blue-600">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-card text-accent">
                   <FileText className="h-4 w-4" />
                 </span>
                 <span className="min-w-0">
-                  <span className="block truncate text-[12px] font-semibold text-slate-900">
+                  <span className="block truncate text-[12px] font-semibold text-foreground">
                     {policy.document.fileName}
                   </span>
-                  <span className="mt-0.5 block text-[11px] text-blue-700">
+                  <span className="mt-0.5 block text-[11px] text-accent">
                     Apri PDF sorgente
                   </span>
                 </span>
               </Link>
             ) : (
-              <p className="text-[12px] leading-relaxed text-slate-500">
+              <p className="text-[12px] leading-relaxed text-muted">
                 Nessun PDF collegato.
               </p>
             )}
@@ -366,7 +366,7 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
             </ActionBar>
           </SectionCard>
 
-          <div className="rounded-xl border border-slate-100 bg-slate-50/80 px-3 py-2.5 text-[11px] text-slate-500">
+          <div className="rounded-xl border border-border bg-card-muted px-3 py-2.5 text-[11px] text-muted">
             <p>Aggiornata {formatDateTime(policy.updatedAt)}</p>
             <p className="mt-0.5">Creata {formatDateTime(policy.createdAt)}</p>
           </div>

@@ -54,7 +54,7 @@ export function LandingTrust() {
                 🇨🇭
               </span>
               <p className="mt-4 text-sm font-semibold text-white">Privacy svizzera</p>
-              <p className="mt-1 text-xs text-slate-500">nLPD · GDPR</p>
+              <p className="mt-1 text-xs text-muted">nLPD · GDPR</p>
               <div className="mx-auto mt-4 flex h-10 w-10 items-center justify-center rounded-full border border-indigo-500/30 bg-indigo-500/15">
                 <ShieldCheck className="h-5 w-5 text-indigo-300" />
               </div>
@@ -77,7 +77,7 @@ export function LandingTrust() {
               >
                 <pillar.icon className="h-5 w-5 text-indigo-400" />
                 <p className="mt-3 font-medium text-white">{pillar.title}</p>
-                <p className="mt-1.5 text-sm leading-relaxed text-slate-500">
+                <p className="mt-1.5 text-sm leading-relaxed text-muted">
                   {pillar.description}
                 </p>
               </div>

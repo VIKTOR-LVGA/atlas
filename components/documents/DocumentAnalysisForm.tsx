@@ -90,11 +90,11 @@ export function DocumentAnalysisForm({
         className={cn(
           "inline-flex items-center justify-center gap-1.5 font-medium transition disabled:cursor-not-allowed disabled:opacity-65",
           variant === "button" &&
-            "w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-[13px] text-white shadow-sm hover:bg-indigo-700",
+            "atlas-btn-primary w-full px-4 py-2.5 text-[13px] shadow-sm",
           variant === "icon" &&
-            "h-8 w-8 rounded-lg border border-indigo-100 bg-indigo-50 text-indigo-700 shadow-sm hover:-translate-y-px hover:border-indigo-200 hover:bg-indigo-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-200",
+            "h-8 w-8 rounded-lg border border-border bg-accent-soft text-accent shadow-sm hover:-translate-y-px hover:border-accent/40 hover:bg-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30",
           variant === "menu" &&
-            "w-full justify-start rounded-lg px-2.5 py-2 text-[12px] text-indigo-700 hover:bg-indigo-50"
+            "w-full justify-start rounded-lg px-2.5 py-2 text-[12px] text-accent hover:bg-accent-soft"
         )}
       >
         <AnalysisIcon
@@ -105,7 +105,7 @@ export function DocumentAnalysisForm({
         {variant === "icon" ? <span className="sr-only">{label}</span> : label}
       </button>
       {variant !== "icon" && busy && (
-        <p className="animate-pulse text-[11px] text-indigo-600">
+        <p className="animate-pulse text-[11px] text-accent">
           Atlas prepara una bozza strutturata da rivedere.
         </p>
       )}
@@ -113,7 +113,7 @@ export function DocumentAnalysisForm({
         !busy &&
         documentStatus === "failed" &&
         state.status !== "error" && (
-          <p className="text-[11px] text-slate-500">
+          <p className="text-[11px] text-muted">
             Ultima analisi non riuscita. Riprova o crea la polizza manualmente.
           </p>
         )}

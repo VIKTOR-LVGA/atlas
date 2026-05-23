@@ -25,7 +25,7 @@ export function AuthFormField({
 }: AuthFormFieldProps) {
   return (
     <div>
-      <label htmlFor={id} className="block text-[13px] font-medium text-slate-700">
+      <label htmlFor={id} className="block text-[13px] font-medium text-foreground">
         {label}
       </label>
       <input
@@ -39,15 +39,12 @@ export function AuthFormField({
         aria-invalid={!!error}
         aria-describedby={error ? `${id}-error` : undefined}
         className={cn(
-          "mt-1.5 w-full rounded-lg border bg-white px-3.5 py-2.5 text-[14px] text-slate-900 outline-none transition",
-          "placeholder:text-slate-400",
-          "focus:border-blue-400 focus:ring-2 focus:ring-blue-100",
-          "disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500",
-          error ? "border-red-300 focus:border-red-400 focus:ring-red-100" : "border-slate-200"
+          "atlas-input mt-1.5",
+          error && "border-red-400 focus:border-red-400 focus:shadow-[0_0_0_3px_rgba(248,113,113,0.2)]"
         )}
       />
       {error && (
-        <p id={`${id}-error`} className="mt-1.5 text-[12px] text-red-600">
+        <p id={`${id}-error`} className="mt-1.5 text-[12px] text-red-600 dark:text-red-400">
           {error}
         </p>
       )}

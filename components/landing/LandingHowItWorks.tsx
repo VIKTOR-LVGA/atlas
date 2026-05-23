@@ -59,7 +59,7 @@ export function LandingHowItWorks() {
                 Passo {index + 1}
               </p>
               <h3 className="mt-2 text-lg font-semibold text-white">{step.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-500">
+              <p className="mt-2 text-sm leading-relaxed text-muted">
                 {step.description}
               </p>
             </div>
