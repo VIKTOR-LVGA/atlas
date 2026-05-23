@@ -5,6 +5,7 @@ import {
   DocumentManagementError,
   getCurrentUserDocumentById,
   markCurrentUserDocumentAnalysisFailed,
+  setCurrentUserDocumentAnalysisError,
   updateCurrentUserDocumentStatus,
 } from "@/lib/documents";
 import {
@@ -53,6 +54,7 @@ export type PolicyDocumentExtractionResult = {
   draft: PolicyExtractionDraft;
   processingMs: number;
   usedFallback?: boolean;
+  fallbackReason?: string;
 };
 
 export interface PolicyDocumentExtractor {
@@ -276,7 +278,7 @@ function getExtractionNotes(
 
   if (extraction.usedFallback) {
     return [
-      "Fallback mock usato perche il PDF non contiene testo leggibile senza OCR.",
+      "Fallback mock usato perche il PDF non contiene testo leggibile senza OCR o ha qualita insufficiente.",
       `Documento sorgente: ${document.fileName}.`,
       "La bozza e plausibile ma non deriva da lettura reale del contenuto.",
     ].join("\n");
@@ -351,6 +353,7 @@ async function extractPolicyWithFallback(document: UserDocument) {
 
       return {
         ...fallbackExtraction,
+        fallbackReason: error.message,
         usedFallback: true,
       };
     }
@@ -419,7 +422,15 @@ export async function analyzeCurrentUserDocument(
     );
 
     await updateCurrentUserDocumentStatus(processingDocument.id, "analyzed");
-    await clearCurrentUserDocumentAnalysisError(processingDocument.id);
+
+    if (extraction.usedFallback && extraction.fallbackReason) {
+      await setCurrentUserDocumentAnalysisError(
+        processingDocument.id,
+        extraction.fallbackReason
+      );
+    } else {
+      await clearCurrentUserDocumentAnalysisError(processingDocument.id);
+    }
 
     return policy;
   } catch (error) {

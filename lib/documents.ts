@@ -339,6 +339,33 @@ export async function clearCurrentUserDocumentAnalysisError(id: string) {
   }
 }
 
+export async function setCurrentUserDocumentAnalysisError(
+  id: string,
+  analysisError: string
+) {
+  const supabase = await getSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from("documents")
+    .update({ analysis_error: getInternalFailureReason(analysisError) })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) {
+    logPolicyAnalysisError("document_analysis_error_store_failed", {
+      documentId: id,
+      error: error.message,
+    });
+  }
+}
+
 export async function deleteCurrentUserDocument(id: string) {
   const supabase = await getSupabaseServerClient();
   const {

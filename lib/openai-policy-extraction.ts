@@ -458,7 +458,7 @@ async function callOpenAIForPolicyExtraction(
 export const openAIPolicyDocumentExtractor: PolicyDocumentExtractor = {
   async extract(document) {
     const pdf = await downloadCurrentUserDocumentFile(document);
-    const text = extractReadableTextFromPdf(pdf);
+    const text = await extractReadableTextFromPdf(pdf);
     const extraction = await callOpenAIForPolicyExtraction(document, text);
 
     return normalizeOpenAIExtraction(extraction, document);
