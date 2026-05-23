@@ -226,6 +226,27 @@ export async function createSignedDocumentUrl(document: UserDocument) {
   return data.signedUrl;
 }
 
+export async function downloadCurrentUserDocumentFile(document: UserDocument) {
+  const supabase = await getSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user || !document.filePath.startsWith(`${user.id}/`)) {
+    throw new DocumentManagementError("Documento non disponibile per l'analisi.");
+  }
+
+  const { data, error } = await supabase.storage
+    .from(POLICY_DOCUMENTS_BUCKET)
+    .download(document.filePath);
+
+  if (error || !data) {
+    throw new DocumentManagementError("PDF non scaricabile da Storage.");
+  }
+
+  return Buffer.from(await data.arrayBuffer());
+}
+
 export async function updateCurrentUserDocumentStatus(
   id: string,
   status: DocumentStatus

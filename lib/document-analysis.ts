@@ -6,6 +6,8 @@ import {
   updateCurrentUserDocumentStatus,
 } from "@/lib/documents";
 import { createPolicy, PolicyManagementError } from "@/lib/policies";
+import { openAIPolicyDocumentExtractor } from "@/lib/openai-policy-extraction";
+import { PdfTextExtractionError } from "@/lib/pdf-text";
 import type {
   PolicyDetails,
   PolicyInput,
@@ -24,17 +26,10 @@ type MockPolicyTemplate = {
   getDetails: (seed: number) => PolicyDetails;
 };
 
-export type PolicyExtractionDraft = Pick<
-  PolicyInput,
-  | "provider"
-  | "policyType"
-  | "premiumAmount"
-  | "deductible"
-  | "renewalDate"
-  | "coverageAmount"
-  | "details"
-> & {
-  confidence: {
+export type PolicyExtractionDraft = PolicyInput & {
+  extractionConfidence: number | null;
+  extractionNotes: string | null;
+  confidence?: {
     provider: number;
     policyType: number;
     premiumAmount: number;
@@ -47,6 +42,7 @@ export type PolicyExtractionDraft = Pick<
 export type PolicyDocumentExtractionResult = {
   draft: PolicyExtractionDraft;
   processingMs: number;
+  usedFallback?: boolean;
 };
 
 export interface PolicyDocumentExtractor {
@@ -192,6 +188,10 @@ function getConfidence(seed: number, floor: number, offset: number) {
 }
 
 function getOverallConfidence(confidence: PolicyExtractionDraft["confidence"]) {
+  if (!confidence) {
+    return null;
+  }
+
   const values = Object.values(confidence);
   const total = values.reduce((sum, value) => sum + value, 0);
 
@@ -222,12 +222,22 @@ export const mockPolicyDocumentExtractor: PolicyDocumentExtractor = {
       processingMs,
       draft: {
         provider: template.provider,
+        documentId: null,
         policyType: template.policyType,
+        policyCategoryLabel: null,
+        policyNumber: null,
         premiumAmount: pickValue(template.premiums, seed, 1),
+        premiumFrequency: "monthly",
         deductible: pickValue(template.deductibles, seed, 3),
+        startDate: null,
+        endDate: null,
         renewalDate: getMockRenewalDate(seed),
+        currency: "CHF",
         coverageAmount: pickValue(template.coverageAmounts, seed, 5),
         details: template.getDetails(seed),
+        notes: null,
+        extractionConfidence: null,
+        extractionNotes: null,
         confidence: {
           provider: getConfidence(seed, 87, 1),
           policyType: getConfidence(seed, 84, 3),
@@ -245,6 +255,18 @@ function getExtractionNotes(
   document: UserDocument,
   extraction: PolicyDocumentExtractionResult
 ) {
+  if (extraction.draft.extractionNotes) {
+    return extraction.draft.extractionNotes;
+  }
+
+  if (extraction.usedFallback) {
+    return [
+      "Fallback mock usato perche il PDF non contiene testo leggibile senza OCR.",
+      `Documento sorgente: ${document.fileName}.`,
+      "La bozza e plausibile ma non deriva da lettura reale del contenuto.",
+    ].join("\n");
+  }
+
   return [
     "Bozza generata da estrazione simulata Atlas.",
     `Documento sorgente: ${document.fileName}.`,
@@ -253,9 +275,26 @@ function getExtractionNotes(
   ].join("\n");
 }
 
+async function extractPolicyWithFallback(document: UserDocument) {
+  try {
+    return await openAIPolicyDocumentExtractor.extract(document);
+  } catch (error) {
+    if (error instanceof PdfTextExtractionError) {
+      const fallbackExtraction = await mockPolicyDocumentExtractor.extract(document);
+
+      return {
+        ...fallbackExtraction,
+        usedFallback: true,
+      };
+    }
+
+    throw error;
+  }
+}
+
 export async function analyzeCurrentUserDocument(
   id: string,
-  extractor: PolicyDocumentExtractor = mockPolicyDocumentExtractor
+  extractor: PolicyDocumentExtractor = { extract: extractPolicyWithFallback }
 ): Promise<UserPolicy> {
   const document = await getCurrentUserDocumentById(id);
 
@@ -287,23 +326,25 @@ export async function analyzeCurrentUserDocument(
         documentId: processingDocument.id,
         provider: extraction.draft.provider,
         policyType: extraction.draft.policyType,
-        policyCategoryLabel: null,
-        policyNumber: null,
+        policyCategoryLabel: extraction.draft.policyCategoryLabel,
+        policyNumber: extraction.draft.policyNumber,
         premiumAmount: extraction.draft.premiumAmount,
-        premiumFrequency: "monthly",
+        premiumFrequency: extraction.draft.premiumFrequency,
         deductible: extraction.draft.deductible,
-        startDate: null,
-        endDate: null,
+        startDate: extraction.draft.startDate,
+        endDate: extraction.draft.endDate,
         renewalDate: extraction.draft.renewalDate,
-        currency: "CHF",
+        currency: extraction.draft.currency,
         coverageAmount: extraction.draft.coverageAmount,
         details: extraction.draft.details,
-        notes: null,
+        notes: extraction.draft.notes,
       },
       {
         source: "ai_draft",
         requiresReview: true,
-        extractionConfidence: getOverallConfidence(extraction.draft.confidence),
+        extractionConfidence:
+          extraction.draft.extractionConfidence ??
+          getOverallConfidence(extraction.draft.confidence),
         extractionNotes: getExtractionNotes(processingDocument, extraction),
       }
     );
