@@ -54,7 +54,7 @@ export default async function PoliciesPage() {
       {policies.length > 0 ? (
         <SectionCard
           title="Archivio polizze"
-          description="Dati inseriti manualmente prima dell'estrazione AI."
+          description="Schede manuali e bozze AI normalizzate dai tuoi PDF."
           padding="none"
         >
           <div className="grid gap-3 p-4 lg:grid-cols-2">

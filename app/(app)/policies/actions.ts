@@ -58,6 +58,7 @@ function getNullableAmount(
     | "deductible"
     | "coverage_amount"
     | "detail_franchise"
+    | "detail_health_deductible"
     | "detail_annual_km"
     | "detail_insured_sum"
     | "detail_liability_limit"
@@ -117,11 +118,23 @@ function getPolicyDetails(
           fieldErrors,
           "details"
         ),
+        deductible: getNullableAmount(
+          formData,
+          "detail_health_deductible",
+          fieldErrors,
+          "details"
+        ),
         model: getNullableTextField(formData, "detail_model"),
         complementary: hasCheckboxValue(formData, "detail_complementary"),
         hospital_coverage: getNullableTextField(
           formData,
           "detail_hospital_coverage"
+        ),
+        accident_covered: hasCheckboxValue(formData, "detail_accident_covered"),
+        telemedicine: hasCheckboxValue(formData, "detail_telemedicine"),
+        family_doctor_model: hasCheckboxValue(
+          formData,
+          "detail_family_doctor_model"
         ),
       };
     case "car":

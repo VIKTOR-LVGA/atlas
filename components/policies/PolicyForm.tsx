@@ -149,6 +149,13 @@ function TypeDetailsFields({
             defaultValue={details.franchise}
             placeholder="300"
           />
+          <NumberField
+            id="policy-health-deductible"
+            label="Scoperto / partecipazione"
+            name="detail_health_deductible"
+            defaultValue={details.deductible}
+            placeholder="700"
+          />
           <TextField
             id="policy-health-model"
             label="Modello"
@@ -168,6 +175,24 @@ function TypeDetailsFields({
             label="Complementare"
             description="La polizza include una copertura complementare."
             defaultChecked={details.complementary}
+          />
+          <CheckboxField
+            name="detail_accident_covered"
+            label="Infortunio incluso"
+            description="La copertura infortuni e inclusa nella polizza."
+            defaultChecked={details.accident_covered ?? undefined}
+          />
+          <CheckboxField
+            name="detail_telemedicine"
+            label="Telemedicina"
+            description="Il modello prevede primo contatto telefonico o digitale."
+            defaultChecked={details.telemedicine ?? undefined}
+          />
+          <CheckboxField
+            name="detail_family_doctor_model"
+            label="Medico di famiglia"
+            description="Il modello richiede medico di famiglia o rete HMO."
+            defaultChecked={details.family_doctor_model ?? undefined}
           />
         </>
       );

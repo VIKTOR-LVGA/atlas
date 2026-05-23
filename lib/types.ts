@@ -101,13 +101,105 @@ export type TypedPolicyType =
 
 export type PolicySource = "manual" | "ai_draft";
 
-export type PolicyDetailValue = string | number | boolean | null;
+export type PolicyDetailScalar = string | number | boolean | null;
+
+export type PolicyFieldConfidenceKey =
+  | "provider"
+  | "policy_type"
+  | "policy_number"
+  | "premium_amount"
+  | "premium_frequency"
+  | "deductible"
+  | "start_date"
+  | "end_date"
+  | "renewal_date"
+  | "currency"
+  | "coverage_amount"
+  | "details";
+
+export interface PolicyFieldConfidence {
+  value: PolicyDetailScalar;
+  confidence: number | null;
+  uncertain: boolean;
+  evidence?: string | null;
+}
+
+export type PolicyFieldConfidenceMap = Partial<
+  Record<PolicyFieldConfidenceKey, PolicyFieldConfidence>
+>;
+
+export interface PolicyCoverageDetail {
+  name: string;
+  policy_type?: TypedPolicyType | null;
+  coverage_type?: string | null;
+  category_label?: string | null;
+  premium_amount?: number | null;
+  premium_frequency?: PolicyPremiumFrequency | null;
+  deductible?: number | null;
+  franchise?: number | null;
+  coverage_amount?: number | null;
+  insured_person_name?: string | null;
+  confidence?: number | null;
+  uncertain?: boolean;
+  notes?: string | null;
+}
+
+export interface PolicyInsuredPersonDetail {
+  name: string | null;
+  birth_date?: string | null;
+  premium_amount?: number | null;
+  premium_frequency?: PolicyPremiumFrequency | null;
+  franchise?: number | null;
+  deductible?: number | null;
+  model?: string | null;
+  accident_covered?: boolean | null;
+  confidence?: number | null;
+  uncertain?: boolean;
+}
+
+export interface PolicyProductDetail {
+  name: string;
+  coverage_type?: string | null;
+  premium_amount?: number | null;
+  premium_frequency?: PolicyPremiumFrequency | null;
+  confidence?: number | null;
+  uncertain?: boolean;
+  notes?: string | null;
+}
+
+export interface PolicyExtractionMetadata {
+  matched_keywords?: string[];
+  inferred_sections?: string[];
+  warnings?: string[];
+  provider_raw?: string | null;
+  normalized_provider?: string | null;
+}
+
+export type PolicyDetailValue =
+  | PolicyDetailScalar
+  | string[]
+  | PolicyCoverageDetail[]
+  | PolicyInsuredPersonDetail[]
+  | PolicyProductDetail[]
+  | PolicyFieldConfidenceMap
+  | PolicyExtractionMetadata;
 
 export type PolicyDetails = {
+  coverage_kind?: string | null;
   franchise?: number | null;
+  deductible?: number | null;
   model?: string | null;
   complementary?: boolean;
   hospital_coverage?: string | null;
+  accident_covered?: boolean | null;
+  telemedicine?: boolean | null;
+  family_doctor_model?: boolean | null;
+  complementary_products?: PolicyProductDetail[];
+  insured_people?: PolicyInsuredPersonDetail[];
+  coverages?: PolicyCoverageDetail[];
+  products?: PolicyProductDetail[];
+  field_confidence?: PolicyFieldConfidenceMap;
+  extraction_metadata?: PolicyExtractionMetadata;
   plate_number?: string | null;
   casco?: string | null;
   bonus_malus?: string | null;

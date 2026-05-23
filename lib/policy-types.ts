@@ -1,8 +1,20 @@
 import type {
+  PolicyCoverageDetail,
   PolicyDetails,
   PolicyDetailValue,
+  PolicyExtractionMetadata,
+  PolicyFieldConfidence,
+  PolicyFieldConfidenceKey,
+  PolicyFieldConfidenceMap,
+  PolicyInsuredPersonDetail,
+  PolicyPremiumFrequency,
+  PolicyProductDetail,
   TypedPolicyType,
 } from "@/lib/types";
+import {
+  isSwissPolicySubtype,
+  swissPolicySubtypeLabels,
+} from "@/lib/swiss-insurance-normalization";
 import { formatCHF } from "@/lib/utils";
 
 export const typedPolicyTypes = [
@@ -23,8 +35,32 @@ export const policyTypeLabels: Record<TypedPolicyType, string> = {
   other: "Altro",
 };
 
+const sharedPolicyDetailKeys = [
+  "coverage_kind",
+  "coverages",
+  "insured_people",
+  "products",
+  "field_confidence",
+  "extraction_metadata",
+] as const satisfies Array<keyof PolicyDetails>;
+
 const policyDetailKeys: Record<TypedPolicyType, Array<keyof PolicyDetails>> = {
-  health: ["franchise", "model", "complementary", "hospital_coverage"],
+  health: [
+    "coverage_kind",
+    "franchise",
+    "deductible",
+    "model",
+    "complementary",
+    "hospital_coverage",
+    "accident_covered",
+    "telemedicine",
+    "family_doctor_model",
+    "complementary_products",
+    "insured_people",
+    "coverages",
+    "field_confidence",
+    "extraction_metadata",
+  ],
   liability: ["liability_limit", "household_members_included"],
   household: ["insured_sum", "glass_coverage", "theft_coverage"],
   car: ["plate_number", "casco", "bonus_malus", "annual_km"],
@@ -33,10 +69,21 @@ const policyDetailKeys: Record<TypedPolicyType, Array<keyof PolicyDetails>> = {
 };
 
 const detailLabels: Record<keyof PolicyDetails, string> = {
+  coverage_kind: "Tipo copertura",
   franchise: "Franchise",
+  deductible: "Scoperto",
   model: "Modello",
   complementary: "Complementare",
   hospital_coverage: "Copertura ospedaliera",
+  accident_covered: "Infortunio incluso",
+  telemedicine: "Telemedicina",
+  family_doctor_model: "Medico di famiglia",
+  complementary_products: "Prodotti complementari",
+  insured_people: "Persone assicurate",
+  coverages: "Coperture rilevate",
+  products: "Prodotti rilevati",
+  field_confidence: "Confidenza campi",
+  extraction_metadata: "Metadati estrazione",
   plate_number: "Targa",
   casco: "Casco",
   bonus_malus: "Bonus malus",
@@ -54,11 +101,27 @@ const detailLabels: Record<keyof PolicyDetails, string> = {
 
 const moneyDetailKeys = new Set<keyof PolicyDetails>([
   "franchise",
+  "deductible",
   "insured_sum",
   "liability_limit",
 ]);
 
-function isPolicyDetailValue(value: unknown): value is PolicyDetailValue {
+const fieldConfidenceLabels: Record<PolicyFieldConfidenceKey, string> = {
+  provider: "Compagnia",
+  policy_type: "Tipo polizza",
+  policy_number: "Numero polizza",
+  premium_amount: "Premio",
+  premium_frequency: "Frequenza premio",
+  deductible: "Franchigia",
+  start_date: "Data inizio",
+  end_date: "Data fine",
+  renewal_date: "Data rinnovo",
+  currency: "Valuta",
+  coverage_amount: "Somma copertura",
+  details: "Dettagli",
+};
+
+function isPolicyDetailScalar(value: unknown) {
   return (
     value === null ||
     typeof value === "string" ||
@@ -67,13 +130,281 @@ function isPolicyDetailValue(value: unknown): value is PolicyDetailValue {
   );
 }
 
-function hasDisplayValue(
-  value: PolicyDetailValue | undefined
-): value is PolicyDetailValue {
-  return value !== undefined && value !== null && value !== "";
+function normalizeNullableText(value: unknown) {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+function normalizeNullableNumber(value: unknown) {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  const number = Number(value);
+
+  return Number.isFinite(number) && number >= 0 ? number : null;
+}
+
+function normalizeNullableBoolean(value: unknown) {
+  return typeof value === "boolean" ? value : null;
+}
+
+function normalizeConfidence(value: unknown) {
+  const confidence = normalizeNullableNumber(value);
+
+  return confidence === null
+    ? null
+    : Math.min(100, Math.max(0, Math.round(confidence)));
+}
+
+function normalizePremiumFrequency(
+  value: unknown
+): PolicyPremiumFrequency | null {
+  return ["monthly", "quarterly", "semiannual", "annual"].includes(
+    value as PolicyPremiumFrequency
+  )
+    ? (value as PolicyPremiumFrequency)
+    : null;
+}
+
+function sanitizeStringArray(value: unknown) {
+  return Array.isArray(value)
+    ? value
+        .map((item) => normalizeNullableText(item))
+        .filter((item): item is string => Boolean(item))
+        .slice(0, 16)
+    : [];
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function sanitizeProduct(value: unknown): PolicyProductDetail | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const name = normalizeNullableText(value.name);
+
+  if (!name) {
+    return null;
+  }
+
+  return {
+    name,
+    coverage_type: normalizeNullableText(value.coverage_type),
+    premium_amount: normalizeNullableNumber(value.premium_amount),
+    premium_frequency: normalizePremiumFrequency(value.premium_frequency),
+    confidence: normalizeConfidence(value.confidence),
+    uncertain: Boolean(value.uncertain),
+    notes: normalizeNullableText(value.notes),
+  };
+}
+
+function sanitizeProducts(value: unknown) {
+  return Array.isArray(value)
+    ? value
+        .map(sanitizeProduct)
+        .filter((item): item is PolicyProductDetail => Boolean(item))
+        .slice(0, 24)
+    : [];
+}
+
+function sanitizeCoverage(value: unknown): PolicyCoverageDetail | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const name = normalizeNullableText(value.name);
+
+  if (!name) {
+    return null;
+  }
+
+  return {
+    name,
+    policy_type: isTypedPolicyType(normalizeNullableText(value.policy_type) ?? "")
+      ? (normalizeNullableText(value.policy_type) as TypedPolicyType)
+      : null,
+    coverage_type: normalizeNullableText(value.coverage_type),
+    category_label: normalizeNullableText(value.category_label),
+    premium_amount: normalizeNullableNumber(value.premium_amount),
+    premium_frequency: normalizePremiumFrequency(value.premium_frequency),
+    deductible: normalizeNullableNumber(value.deductible),
+    franchise: normalizeNullableNumber(value.franchise),
+    coverage_amount: normalizeNullableNumber(value.coverage_amount),
+    insured_person_name: normalizeNullableText(value.insured_person_name),
+    confidence: normalizeConfidence(value.confidence),
+    uncertain: Boolean(value.uncertain),
+    notes: normalizeNullableText(value.notes),
+  };
+}
+
+function sanitizeCoverages(value: unknown) {
+  return Array.isArray(value)
+    ? value
+        .map(sanitizeCoverage)
+        .filter((item): item is PolicyCoverageDetail => Boolean(item))
+        .slice(0, 32)
+    : [];
+}
+
+function sanitizeInsuredPerson(value: unknown): PolicyInsuredPersonDetail | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const hasAnyValue = [
+    value.name,
+    value.birth_date,
+    value.premium_amount,
+    value.franchise,
+    value.deductible,
+    value.model,
+  ].some((item) => item !== null && item !== undefined && item !== "");
+
+  if (!hasAnyValue) {
+    return null;
+  }
+
+  return {
+    name: normalizeNullableText(value.name),
+    birth_date: normalizeNullableText(value.birth_date),
+    premium_amount: normalizeNullableNumber(value.premium_amount),
+    premium_frequency: normalizePremiumFrequency(value.premium_frequency),
+    franchise: normalizeNullableNumber(value.franchise),
+    deductible: normalizeNullableNumber(value.deductible),
+    model: normalizeNullableText(value.model),
+    accident_covered: normalizeNullableBoolean(value.accident_covered),
+    confidence: normalizeConfidence(value.confidence),
+    uncertain: Boolean(value.uncertain),
+  };
+}
+
+function sanitizeInsuredPeople(value: unknown) {
+  return Array.isArray(value)
+    ? value
+        .map(sanitizeInsuredPerson)
+        .filter((item): item is PolicyInsuredPersonDetail => Boolean(item))
+        .slice(0, 24)
+    : [];
+}
+
+function sanitizeFieldConfidence(value: unknown): PolicyFieldConfidence | null {
+  if (!isRecord(value) || !isPolicyDetailScalar(value.value)) {
+    return null;
+  }
+
+  return {
+    value: value.value,
+    confidence: normalizeConfidence(value.confidence),
+    uncertain: Boolean(value.uncertain),
+    evidence: normalizeNullableText(value.evidence),
+  };
+}
+
+function sanitizeFieldConfidenceMap(value: unknown): PolicyFieldConfidenceMap {
+  if (!isRecord(value)) {
+    return {};
+  }
+
+  return Object.entries(fieldConfidenceLabels).reduce<PolicyFieldConfidenceMap>(
+    (result, [key]) => {
+      const confidence = sanitizeFieldConfidence(value[key]);
+
+      if (confidence) {
+        result[key as PolicyFieldConfidenceKey] = confidence;
+      }
+
+      return result;
+    },
+    {}
+  );
+}
+
+function sanitizeExtractionMetadata(value: unknown): PolicyExtractionMetadata {
+  if (!isRecord(value)) {
+    return {};
+  }
+
+  return {
+    matched_keywords: sanitizeStringArray(value.matched_keywords),
+    inferred_sections: sanitizeStringArray(value.inferred_sections),
+    warnings: sanitizeStringArray(value.warnings),
+    provider_raw: normalizeNullableText(value.provider_raw),
+    normalized_provider: normalizeNullableText(value.normalized_provider),
+  };
+}
+
+function hasDisplayValue(value: PolicyDetailValue | undefined) {
+  if (value === undefined || value === null || value === "") {
+    return false;
+  }
+
+  if (Array.isArray(value)) {
+    return value.length > 0;
+  }
+
+  if (typeof value === "object") {
+    return Object.keys(value).length > 0;
+  }
+
+  return true;
+}
+
+function getCoverageKindLabel(value: unknown) {
+  return typeof value === "string" && isSwissPolicySubtype(value)
+    ? swissPolicySubtypeLabels[value]
+    : normalizeNullableText(value);
+}
+
+function stringifyStructuredDetail(key: keyof PolicyDetails, value: PolicyDetailValue) {
+  if (key === "coverage_kind") {
+    return getCoverageKindLabel(value) ?? "";
+  }
+
+  if (key === "insured_people" && Array.isArray(value)) {
+    return `${value.length} persona${value.length === 1 ? "" : "e"}`;
+  }
+
+  if (
+    (key === "coverages" ||
+      key === "products" ||
+      key === "complementary_products") &&
+    Array.isArray(value)
+  ) {
+    return `${value.length} elemento${value.length === 1 ? "" : "i"}`;
+  }
+
+  if (key === "field_confidence") {
+    const uncertainCount = getPolicyFieldConfidenceRows({
+      field_confidence: value as PolicyFieldConfidenceMap,
+    }).filter((row) => row.uncertain).length;
+
+    return uncertainCount > 0
+      ? `${uncertainCount} campi incerti`
+      : "Confidenze disponibili";
+  }
+
+  if (key === "extraction_metadata") {
+    const metadata = value as PolicyExtractionMetadata;
+    const warningCount = metadata.warnings?.length ?? 0;
+
+    return warningCount > 0
+      ? `${warningCount} avviso${warningCount === 1 ? "" : "i"}`
+      : "Metadati disponibili";
+  }
+
+  return null;
 }
 
 function stringifyDetail(key: keyof PolicyDetails, value: PolicyDetailValue) {
+  const structuredDetail = stringifyStructuredDetail(key, value);
+
+  if (structuredDetail !== null) {
+    return structuredDetail;
+  }
+
   if (typeof value === "boolean") {
     return value ? "Si" : "No";
   }
@@ -108,7 +439,11 @@ export function toTypedPolicyType(value: string | null | undefined): TypedPolicy
     return normalizedValue;
   }
 
-  if (/(cassa|malat|salut|health|helsana)/.test(normalizedValue)) {
+  if (
+    /(cassa|malat|salut|health|helsana|lamal|lca|kvg|vvg|ospedal|dent|infortun|accident)/.test(
+      normalizedValue
+    )
+  ) {
     return "health";
   }
 
@@ -120,11 +455,11 @@ export function toTypedPolicyType(value: string | null | undefined): TypedPolicy
     return "household";
   }
 
-  if (/(auto|casco|car|veicol|vehicle)/.test(normalizedValue)) {
+  if (/(auto|casco|car|veicol|vehicle|teilkasko|vollkasko)/.test(normalizedValue)) {
     return "car";
   }
 
-  if (/(giurid|legal|recht)/.test(normalizedValue)) {
+  if (/(giurid|legal|recht|protection juridique)/.test(normalizedValue)) {
     return "legal";
   }
 
@@ -146,17 +481,95 @@ export function sanitizePolicyDetails(
   policyType: TypedPolicyType,
   details: unknown
 ): PolicyDetails {
-  if (!details || typeof details !== "object" || Array.isArray(details)) {
+  if (!isRecord(details)) {
     return {};
   }
 
-  const source = details as Record<string, unknown>;
+  const source = details;
+  const allowedKeys = [
+    ...new Set([...policyDetailKeys[policyType], ...sharedPolicyDetailKeys]),
+  ];
 
-  return policyDetailKeys[policyType].reduce<PolicyDetails>((result, key) => {
+  return allowedKeys.reduce<PolicyDetails>((result, key) => {
     const value = source[key];
 
-    if (isPolicyDetailValue(value)) {
-      result[key] = value as never;
+    switch (key) {
+      case "coverage_kind": {
+        result.coverage_kind = normalizeNullableText(value);
+        break;
+      }
+      case "franchise":
+      case "deductible":
+      case "annual_km":
+      case "insured_sum":
+      case "liability_limit":
+      case "household_members_included": {
+        result[key] = normalizeNullableNumber(value) as never;
+        break;
+      }
+      case "complementary":
+      case "accident_covered":
+      case "telemedicine":
+      case "family_doctor_model":
+      case "glass_coverage":
+      case "theft_coverage":
+      case "private_legal":
+      case "traffic_legal": {
+        result[key] = normalizeNullableBoolean(value) as never;
+        break;
+      }
+      case "complementary_products":
+      case "products": {
+        const products = sanitizeProducts(value);
+
+        if (products.length > 0) {
+          result[key] = products as never;
+        }
+        break;
+      }
+      case "insured_people": {
+        const insuredPeople = sanitizeInsuredPeople(value);
+
+        if (insuredPeople.length > 0) {
+          result.insured_people = insuredPeople;
+        }
+        break;
+      }
+      case "coverages": {
+        const coverages = sanitizeCoverages(value);
+
+        if (coverages.length > 0) {
+          result.coverages = coverages;
+        }
+        break;
+      }
+      case "field_confidence": {
+        const fieldConfidence = sanitizeFieldConfidenceMap(value);
+
+        if (Object.keys(fieldConfidence).length > 0) {
+          result.field_confidence = fieldConfidence;
+        }
+        break;
+      }
+      case "extraction_metadata": {
+        const metadata = sanitizeExtractionMetadata(value);
+        const hasMetadata =
+          Boolean(metadata.provider_raw) ||
+          Boolean(metadata.normalized_provider) ||
+          Boolean(metadata.matched_keywords?.length) ||
+          Boolean(metadata.inferred_sections?.length) ||
+          Boolean(metadata.warnings?.length);
+
+        if (hasMetadata) {
+          result.extraction_metadata = metadata;
+        }
+        break;
+      }
+      default: {
+        if (isPolicyDetailScalar(value)) {
+          result[key] = value as never;
+        }
+      }
     }
 
     return result;
@@ -194,4 +607,43 @@ export function getPolicyDetailSummary(
     .slice(0, 2)
     .map((row) => `${row.label}: ${row.value}`)
     .join(" / ");
+}
+
+export function getPolicyCoverages(details: PolicyDetails) {
+  return details.coverages ?? [];
+}
+
+export function getPolicyInsuredPeople(details: PolicyDetails) {
+  return details.insured_people ?? [];
+}
+
+export function getPolicyProducts(details: PolicyDetails) {
+  return [...(details.complementary_products ?? []), ...(details.products ?? [])];
+}
+
+export function getPolicyExtractionMetadata(details: PolicyDetails) {
+  return details.extraction_metadata ?? {};
+}
+
+export function getPolicyFieldConfidenceRows(details: PolicyDetails) {
+  const confidence = details.field_confidence ?? {};
+
+  return Object.entries(fieldConfidenceLabels)
+    .map(([key, label]) => {
+      const item = confidence[key as PolicyFieldConfidenceKey];
+
+      if (!item) {
+        return null;
+      }
+
+      return {
+        key,
+        label,
+        value: stringifyDetail(key as keyof PolicyDetails, item.value),
+        confidence: item.confidence,
+        uncertain: item.uncertain,
+        evidence: item.evidence ?? null,
+      };
+    })
+    .filter((row): row is NonNullable<typeof row> => Boolean(row));
 }

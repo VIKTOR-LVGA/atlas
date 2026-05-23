@@ -12,6 +12,13 @@ import {
   sanitizePolicyDetails,
   typedPolicyTypes,
 } from "@/lib/policy-types";
+import {
+  getSwissInsuranceKeywords,
+  isSwissPolicySubtype,
+  normalizeSwissInsuranceProvider,
+  normalizeSwissPolicyClassification,
+  swissPolicySubtypes,
+} from "@/lib/swiss-insurance-normalization";
 import type {
   PolicyDetails,
   PolicyPremiumFrequency,
@@ -35,6 +42,8 @@ const premiumFrequencies = [
 type OpenAIPolicyExtractionPayload = {
   provider: string | null;
   policy_type: string;
+  policy_subtype: string | null;
+  policy_category_label: string | null;
   policy_number: string | null;
   premium_amount: number | null;
   premium_frequency: string | null;
@@ -130,6 +139,46 @@ function normalizeConfidence(value: unknown) {
   return Math.min(100, Math.max(0, Math.round(confidence)));
 }
 
+function uniqueStrings(values: Array<string | null | undefined>) {
+  return [
+    ...new Set(
+      values
+        .map((value) => (typeof value === "string" ? value.trim() : ""))
+        .filter(Boolean)
+    ),
+  ];
+}
+
+function getPayloadRecord(value: unknown) {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
+function mergeFieldConfidence(
+  details: Record<string, unknown>,
+  key: string,
+  value: string | number | boolean | null,
+  confidence: number | null,
+  evidence: string | null
+) {
+  const source = getPayloadRecord(details.field_confidence);
+
+  if (source[key]) {
+    return;
+  }
+
+  details.field_confidence = {
+    ...source,
+    [key]: {
+      value,
+      confidence,
+      uncertain: confidence !== null && confidence < 75,
+      evidence,
+    },
+  };
+}
+
 function getResponseText(payload: unknown) {
   if (!payload || typeof payload !== "object") {
     return null;
@@ -179,22 +228,217 @@ function getResponseRefusal(payload: unknown) {
   return refusal ?? null;
 }
 
-function getDetailsSchemaProperties() {
-  const nullableText = {
-    anyOf: [{ type: "string" }, { type: "null" }],
+const nullableText = {
+  anyOf: [{ type: "string" }, { type: "null" }],
+};
+const nullableNumber = {
+  anyOf: [{ type: "number" }, { type: "null" }],
+};
+const nullableBoolean = {
+  anyOf: [{ type: "boolean" }, { type: "null" }],
+};
+const nullablePolicySubtype = {
+  anyOf: [{ type: "string", enum: swissPolicySubtypes }, { type: "null" }],
+};
+
+function getFieldConfidenceSchema() {
+  return {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      value: {
+        anyOf: [
+          { type: "string" },
+          { type: "number" },
+          { type: "boolean" },
+          { type: "null" },
+        ],
+      },
+      confidence: nullableNumber,
+      uncertain: { type: "boolean" },
+      evidence: nullableText,
+    },
+    required: ["value", "confidence", "uncertain", "evidence"],
   };
-  const nullableNumber = {
-    anyOf: [{ type: "number" }, { type: "null" }],
-  };
-  const nullableBoolean = {
-    anyOf: [{ type: "boolean" }, { type: "null" }],
-  };
+}
+
+function getFieldConfidenceSchemaProperties() {
+  const fieldSchema = getFieldConfidenceSchema();
 
   return {
+    provider: fieldSchema,
+    policy_type: fieldSchema,
+    policy_number: fieldSchema,
+    premium_amount: fieldSchema,
+    premium_frequency: fieldSchema,
+    deductible: fieldSchema,
+    start_date: fieldSchema,
+    end_date: fieldSchema,
+    renewal_date: fieldSchema,
+    currency: fieldSchema,
+    coverage_amount: fieldSchema,
+    details: fieldSchema,
+  };
+}
+
+function getPolicyProductSchema() {
+  return {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      name: { type: "string" },
+      coverage_type: nullablePolicySubtype,
+      premium_amount: nullableNumber,
+      premium_frequency: {
+        anyOf: [{ type: "string", enum: premiumFrequencies }, { type: "null" }],
+      },
+      confidence: nullableNumber,
+      uncertain: { type: "boolean" },
+      notes: nullableText,
+    },
+    required: [
+      "name",
+      "coverage_type",
+      "premium_amount",
+      "premium_frequency",
+      "confidence",
+      "uncertain",
+      "notes",
+    ],
+  };
+}
+
+function getCoverageSchema() {
+  return {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      name: { type: "string" },
+      policy_type: {
+        anyOf: [{ type: "string", enum: typedPolicyTypes }, { type: "null" }],
+      },
+      coverage_type: nullablePolicySubtype,
+      category_label: nullableText,
+      premium_amount: nullableNumber,
+      premium_frequency: {
+        anyOf: [{ type: "string", enum: premiumFrequencies }, { type: "null" }],
+      },
+      deductible: nullableNumber,
+      franchise: nullableNumber,
+      coverage_amount: nullableNumber,
+      insured_person_name: nullableText,
+      confidence: nullableNumber,
+      uncertain: { type: "boolean" },
+      notes: nullableText,
+    },
+    required: [
+      "name",
+      "policy_type",
+      "coverage_type",
+      "category_label",
+      "premium_amount",
+      "premium_frequency",
+      "deductible",
+      "franchise",
+      "coverage_amount",
+      "insured_person_name",
+      "confidence",
+      "uncertain",
+      "notes",
+    ],
+  };
+}
+
+function getInsuredPersonSchema() {
+  return {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      name: nullableText,
+      birth_date: nullableText,
+      premium_amount: nullableNumber,
+      premium_frequency: {
+        anyOf: [{ type: "string", enum: premiumFrequencies }, { type: "null" }],
+      },
+      franchise: nullableNumber,
+      deductible: nullableNumber,
+      model: nullableText,
+      accident_covered: nullableBoolean,
+      confidence: nullableNumber,
+      uncertain: { type: "boolean" },
+    },
+    required: [
+      "name",
+      "birth_date",
+      "premium_amount",
+      "premium_frequency",
+      "franchise",
+      "deductible",
+      "model",
+      "accident_covered",
+      "confidence",
+      "uncertain",
+    ],
+  };
+}
+
+function getExtractionMetadataSchema() {
+  return {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      matched_keywords: { type: "array", items: { type: "string" } },
+      inferred_sections: { type: "array", items: { type: "string" } },
+      warnings: { type: "array", items: { type: "string" } },
+      provider_raw: nullableText,
+      normalized_provider: nullableText,
+    },
+    required: [
+      "matched_keywords",
+      "inferred_sections",
+      "warnings",
+      "provider_raw",
+      "normalized_provider",
+    ],
+  };
+}
+
+function getDetailsSchemaProperties() {
+  const fieldConfidenceSchemaProperties = getFieldConfidenceSchemaProperties();
+
+  return {
+    coverage_kind: nullablePolicySubtype,
     franchise: nullableNumber,
+    deductible: nullableNumber,
     model: nullableText,
     complementary: nullableBoolean,
     hospital_coverage: nullableText,
+    accident_covered: nullableBoolean,
+    telemedicine: nullableBoolean,
+    family_doctor_model: nullableBoolean,
+    complementary_products: {
+      type: "array",
+      items: getPolicyProductSchema(),
+    },
+    insured_people: {
+      type: "array",
+      items: getInsuredPersonSchema(),
+    },
+    coverages: {
+      type: "array",
+      items: getCoverageSchema(),
+    },
+    products: {
+      type: "array",
+      items: getPolicyProductSchema(),
+    },
+    field_confidence: {
+      type: "object",
+      additionalProperties: false,
+      properties: fieldConfidenceSchemaProperties,
+      required: Object.keys(fieldConfidenceSchemaProperties),
+    },
+    extraction_metadata: getExtractionMetadataSchema(),
     plate_number: nullableText,
     casco: nullableText,
     bonus_malus: nullableText,
@@ -217,6 +461,8 @@ const policyExtractionSchema = {
   properties: {
     provider: { anyOf: [{ type: "string" }, { type: "null" }] },
     policy_type: { type: "string", enum: typedPolicyTypes },
+    policy_subtype: nullablePolicySubtype,
+    policy_category_label: nullableText,
     policy_number: { anyOf: [{ type: "string" }, { type: "null" }] },
     premium_amount: { anyOf: [{ type: "number" }, { type: "null" }] },
     premium_frequency: {
@@ -242,6 +488,8 @@ const policyExtractionSchema = {
   required: [
     "provider",
     "policy_type",
+    "policy_subtype",
+    "policy_category_label",
     "policy_number",
     "premium_amount",
     "premium_frequency",
@@ -259,16 +507,73 @@ const policyExtractionSchema = {
 
 function normalizeOpenAIExtraction(
   payload: OpenAIPolicyExtractionPayload,
-  document: UserDocument
+  document: UserDocument,
+  extractedText: string
 ): PolicyDocumentExtractionResult {
-  const policyType = normalizePolicyType(payload.policy_type);
-  const details = sanitizePolicyDetails(
-    policyType,
-    payload.details
-  ) as PolicyDetails;
+  const payloadDetails = getPayloadRecord(payload.details);
+  const classificationContext = [
+    payload.policy_type,
+    payload.policy_subtype,
+    payload.policy_category_label,
+    document.fileName,
+    JSON.stringify(payloadDetails).slice(0, 3000),
+  ]
+    .filter(Boolean)
+    .join("\n");
+  const classification = normalizeSwissPolicyClassification(
+    payload.policy_subtype ?? payload.policy_category_label ?? payload.policy_type,
+    classificationContext
+  );
+  const fallbackPolicyType = normalizePolicyType(payload.policy_type);
+  const policyType =
+    classification.policyType === "other" && fallbackPolicyType !== "other"
+      ? fallbackPolicyType
+      : classification.policyType;
+  const providerNormalization = normalizeSwissInsuranceProvider(
+    payload.provider,
+    `${document.fileName}\n${extractedText.slice(0, 5000)}`
+  );
   const provider =
-    normalizeNullableString(payload.provider) ??
+    providerNormalization.provider ??
     document.fileName.replace(/\.pdf$/i, "").slice(0, 80);
+  const coverageKind =
+    isSwissPolicySubtype(payload.policy_subtype ?? "")
+      ? payload.policy_subtype
+      : normalizeNullableString(payloadDetails.coverage_kind) ??
+        classification.subtype;
+  const metadata = getPayloadRecord(payloadDetails.extraction_metadata);
+  const matchedKeywords = uniqueStrings([
+    ...getSwissInsuranceKeywords(extractedText),
+    ...classification.matchedKeywords,
+    ...((Array.isArray(metadata.matched_keywords)
+      ? metadata.matched_keywords
+      : []) as string[]),
+    providerNormalization.matchedAlias,
+  ]);
+  const detailsSource: Record<string, unknown> = {
+    ...payloadDetails,
+    coverage_kind: coverageKind,
+    extraction_metadata: {
+      ...metadata,
+      matched_keywords: matchedKeywords,
+      inferred_sections: Array.isArray(metadata.inferred_sections)
+        ? metadata.inferred_sections
+        : [],
+      warnings: Array.isArray(metadata.warnings) ? metadata.warnings : [],
+      provider_raw: normalizeNullableString(payload.provider),
+      normalized_provider: provider,
+    },
+  };
+
+  mergeFieldConfidence(
+    detailsSource,
+    "provider",
+    provider,
+    providerNormalization.confidence,
+    providerNormalization.matchedAlias
+  );
+
+  const details = sanitizePolicyDetails(policyType, detailsSource) as PolicyDetails;
   const extractionNotes =
     normalizeNullableString(payload.extraction_notes) ??
     "Estrazione OpenAI completata. Verificare i dati prima di confermare la bozza.";
@@ -279,7 +584,9 @@ function normalizeOpenAIExtraction(
       documentId: null,
       provider,
       policyType,
-      policyCategoryLabel: null,
+      policyCategoryLabel:
+        normalizeNullableString(payload.policy_category_label) ??
+        (classification.subtype === "other" ? null : classification.categoryLabel),
       policyNumber: normalizeNullableString(payload.policy_number),
       premiumAmount: normalizeNullableNumber(payload.premium_amount),
       premiumFrequency: normalizePremiumFrequency(payload.premium_frequency),
@@ -326,7 +633,16 @@ async function callOpenAIForPolicyExtraction(
       body: JSON.stringify({
         model,
         instructions:
-          "Extract Swiss insurance policy data from the provided PDF text. Return JSON only using the schema. Use null for unknown values. Choose policy_type from health, liability, household, car, legal, other. Fill details only with fields relevant to the chosen type and set irrelevant detail fields to null. Dates must be YYYY-MM-DD. Currency should usually be CHF.",
+          [
+            "Extract Swiss insurance policy data from readable PDF text. Return JSON only using the schema.",
+            "You are Swiss-insurance-aware: recognize LAMal/KVG base insurance, LCA/VVG complementary insurance, hospital coverage, dental, accident, household, private liability, car, casco partial/full, legal protection, travel, life, income protection, business insurance, and other.",
+            "Use policy_type only as the broad Atlas category: health, liability, household, car, legal, other. Use policy_subtype for the specific Swiss category.",
+            "Normalize provider names when obvious, but keep uncertain fields null. Do not invent policy numbers, dates, premiums, franchises, persons, or coverages.",
+            "For a PDF containing multiple coverages or multiple insured people, keep one primary draft and put all coverages in details.coverages, people in details.insured_people, and products in details.complementary_products or details.products.",
+            "For health insurance, fill model, franchise, deductible, accident_covered, hospital_coverage, telemedicine, family_doctor_model, complementary_products, insured_people, and coverages when supported by text.",
+            "Every important field needs field_confidence with value, confidence 0-100, uncertain true when the evidence is weak, and a short evidence snippet. Use null and uncertainty instead of hallucinating.",
+            "Add extraction_metadata.matched_keywords, inferred_sections, and warnings for ambiguous or missing information. Dates must be YYYY-MM-DD. Currency should usually be CHF.",
+          ].join(" "),
         input: [
           {
             role: "user",
@@ -461,6 +777,6 @@ export const openAIPolicyDocumentExtractor: PolicyDocumentExtractor = {
     const text = await extractReadableTextFromPdf(pdf);
     const extraction = await callOpenAIForPolicyExtraction(document, text);
 
-    return normalizeOpenAIExtraction(extraction, document);
+    return normalizeOpenAIExtraction(extraction, document, text);
   },
 };

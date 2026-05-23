@@ -215,6 +215,133 @@ function getOverallConfidence(confidence: PolicyExtractionDraft["confidence"]) {
   return Math.round(total / values.length);
 }
 
+function getMockCoverageKind(policyType: TypedPolicyType) {
+  switch (policyType) {
+    case "health":
+      return "lamal_base";
+    case "car":
+      return "car";
+    case "liability":
+      return "liability";
+    case "household":
+      return "household";
+    case "legal":
+      return "legal_protection";
+    default:
+      return "other";
+  }
+}
+
+function getMockAdvancedDetails(
+  document: UserDocument,
+  template: MockPolicyTemplate,
+  seed: number
+) {
+  const baseDetails = template.getDetails(seed);
+  const premiumAmount = pickValue(template.premiums, seed, 1);
+  const deductible = pickValue(template.deductibles, seed, 3);
+  const coverageAmount = pickValue(template.coverageAmounts, seed, 5);
+  const confidence = {
+    provider: getConfidence(seed, 87, 1),
+    policyType: getConfidence(seed, 84, 3),
+    premiumAmount: getConfidence(seed, 78, 5),
+    deductible: getConfidence(seed, 76, 7),
+    renewalDate: getConfidence(seed, 80, 9),
+    details: getConfidence(seed, 72, 11),
+  };
+
+  return {
+    ...baseDetails,
+    coverage_kind: getMockCoverageKind(template.policyType),
+    insured_people:
+      template.policyType === "health"
+        ? [
+            {
+              name: null,
+              birth_date: null,
+              premium_amount: premiumAmount,
+              premium_frequency: "monthly",
+              franchise: baseDetails.franchise ?? deductible,
+              deductible,
+              model: baseDetails.model ?? null,
+              accident_covered: seed % 2 === 0,
+              confidence: confidence.details,
+              uncertain: true,
+            },
+          ]
+        : [],
+    coverages: [
+      {
+        name:
+          template.policyType === "health"
+            ? "Copertura principale rilevata"
+            : "Copertura principale",
+        policy_type: template.policyType,
+        coverage_type: getMockCoverageKind(template.policyType),
+        category_label: null,
+        premium_amount: premiumAmount,
+        premium_frequency: "monthly",
+        deductible,
+        franchise: baseDetails.franchise ?? null,
+        coverage_amount: coverageAmount,
+        insured_person_name: null,
+        confidence: confidence.details,
+        uncertain: true,
+        notes: "Copertura generata dal fallback mock, da verificare.",
+      },
+    ],
+    field_confidence: {
+      provider: {
+        value: template.provider,
+        confidence: confidence.provider,
+        uncertain: false,
+        evidence: document.fileName,
+      },
+      policy_type: {
+        value: template.policyType,
+        confidence: confidence.policyType,
+        uncertain: false,
+        evidence: document.fileName,
+      },
+      premium_amount: {
+        value: premiumAmount,
+        confidence: confidence.premiumAmount,
+        uncertain: true,
+        evidence: "Fallback mock basato sul nome file.",
+      },
+      deductible: {
+        value: deductible,
+        confidence: confidence.deductible,
+        uncertain: true,
+        evidence: "Fallback mock basato sul nome file.",
+      },
+      renewal_date: {
+        value: getMockRenewalDate(seed),
+        confidence: confidence.renewalDate,
+        uncertain: true,
+        evidence: "Data simulata.",
+      },
+      details: {
+        value: "mock",
+        confidence: confidence.details,
+        uncertain: true,
+        evidence: "Fallback mock.",
+      },
+    },
+    extraction_metadata: {
+      matched_keywords: template.keywords.filter((keyword) =>
+        document.fileName.toLowerCase().includes(keyword)
+      ),
+      inferred_sections: ["fallback mock"],
+      warnings: [
+        "Fallback mock usato: i dettagli non derivano dal contenuto reale del PDF.",
+      ],
+      provider_raw: template.provider,
+      normalized_provider: template.provider,
+    },
+  } satisfies PolicyDetails;
+}
+
 async function waitForMockExtraction(seed: number) {
   const processingMs = 2000 + (seed % 2001);
 
@@ -228,6 +355,10 @@ export const mockPolicyDocumentExtractor: PolicyDocumentExtractor = {
     const seed = getStableSeed(`${document.fileName}:${document.id}`);
     const template = pickTemplate(document.fileName, seed);
     const processingMs = await waitForMockExtraction(seed);
+    const details = getMockAdvancedDetails(document, template, seed);
+    const premiumAmount = pickValue(template.premiums, seed, 1);
+    const deductible = pickValue(template.deductibles, seed, 3);
+    const renewalDate = getMockRenewalDate(seed);
 
     if (document.fileName.toLowerCase().includes("illeggibile")) {
       throw new DocumentAnalysisError(
@@ -243,15 +374,15 @@ export const mockPolicyDocumentExtractor: PolicyDocumentExtractor = {
         policyType: template.policyType,
         policyCategoryLabel: null,
         policyNumber: null,
-        premiumAmount: pickValue(template.premiums, seed, 1),
+        premiumAmount,
         premiumFrequency: "monthly",
-        deductible: pickValue(template.deductibles, seed, 3),
+        deductible,
         startDate: null,
         endDate: null,
-        renewalDate: getMockRenewalDate(seed),
+        renewalDate,
         currency: "CHF",
         coverageAmount: pickValue(template.coverageAmounts, seed, 5),
-        details: template.getDetails(seed),
+        details,
         notes: null,
         extractionConfidence: null,
         extractionNotes: null,
@@ -285,10 +416,9 @@ function getExtractionNotes(
   }
 
   return [
-    "Bozza generata da estrazione simulata Atlas.",
+    "Bozza generata dall'analisi Atlas del PDF.",
     `Documento sorgente: ${document.fileName}.`,
-    `Tempo simulato: ${(extraction.processingMs / 1000).toFixed(1)}s.`,
-    "Tipo e dettagli sono precompilati da template e richiedono revisione.",
+    "Tipo, dettagli e confidenze richiedono revisione prima di essere considerati affidabili.",
   ].join("\n");
 }
 

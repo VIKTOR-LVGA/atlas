@@ -324,7 +324,7 @@ export default async function DashboardPage() {
                         </span>
                       </div>
                       <p className="mt-1 text-[12px] text-slate-600">
-                        L&apos;analisi mock ha precompilato polizze da confermare.
+                        L&apos;analisi AI ha precompilato polizze da confermare.
                       </p>
                     </div>
                     <Link
