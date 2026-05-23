@@ -272,6 +272,7 @@ export type PolicyDetails = {
   products?: PolicyProductDetail[];
   field_confidence?: PolicyFieldConfidenceMap;
   extraction_metadata?: PolicyExtractionMetadata;
+  reviewed_at?: string | null;
   plate_number?: string | null;
   casco?: string | null;
   bonus_malus?: string | null;

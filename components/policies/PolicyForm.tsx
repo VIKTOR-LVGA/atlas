@@ -8,6 +8,8 @@ import {
   updatePolicyAction,
 } from "@/app/(app)/policies/actions";
 import { policyTypeLabels, typedPolicyTypes } from "@/lib/policy-types";
+import { PolicyHealthReviewWorkspace } from "@/components/policies/PolicyHealthReviewWorkspace";
+import type { HealthReviewState } from "@/lib/health-policy-review";
 import type {
   PolicyDetails,
   TypedPolicyType,
@@ -32,6 +34,8 @@ interface PolicyFormProps {
   documents: UserDocument[];
   policy?: UserPolicy;
   selectedDocumentId?: string | null;
+  healthReviewState?: HealthReviewState | null;
+  healthReviewWarnings?: string[];
 }
 
 function FieldError({ children }: { children?: string }) {
@@ -322,6 +326,8 @@ export function PolicyForm({
   documents,
   policy,
   selectedDocumentId = null,
+  healthReviewState = null,
+  healthReviewWarnings = [],
 }: PolicyFormProps) {
   const action = policy
     ? updatePolicyAction.bind(null, policy.id)
@@ -514,6 +520,23 @@ export function PolicyForm({
         <FieldError>{state.fieldErrors?.details}</FieldError>
       </div>
 
+      {policyType === "health" && healthReviewState ? (
+        <div className="rounded-xl border border-emerald-100 bg-emerald-50/20 p-4">
+          <p className="text-[12px] font-semibold text-slate-900">
+            Revisione estrazione (persone e coperture)
+          </p>
+          <p className="mt-0.5 text-[11px] text-slate-500">
+            Controlla l&apos;assegnazione delle righe estratte dal PDF.
+          </p>
+          <div className="mt-4">
+            <PolicyHealthReviewWorkspace
+              initialState={healthReviewState}
+              warnings={healthReviewWarnings}
+            />
+          </div>
+        </div>
+      ) : null}
+
       <div>
         <label htmlFor="policy-document" className="text-[11px] font-medium text-slate-600">
           Documento PDF collegato
@@ -567,17 +590,36 @@ export function PolicyForm({
           >
             Annulla
           </Link>
-          <button
-            type="submit"
-            disabled={pending}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-[13px] font-medium text-white shadow-sm hover:bg-blue-700 disabled:cursor-wait disabled:bg-blue-300"
-          >
-            {pending
-              ? "Salvataggio..."
-              : policy
-                ? "Salva polizza"
-                : "Crea polizza"}
-          </button>
+          {policy ? (
+            <>
+              <button
+                type="submit"
+                name="save_mode"
+                value="save"
+                disabled={pending}
+                className="rounded-lg border border-blue-200 bg-white px-4 py-2 text-[13px] font-medium text-blue-700 hover:bg-blue-50 disabled:cursor-wait disabled:opacity-60"
+              >
+                {pending ? "Salvataggio..." : "Salva modifiche"}
+              </button>
+              <button
+                type="submit"
+                name="save_mode"
+                value="confirm"
+                disabled={pending}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-[13px] font-medium text-white shadow-sm hover:bg-blue-700 disabled:cursor-wait disabled:bg-blue-300"
+              >
+                {pending ? "Salvataggio..." : "Conferma polizza"}
+              </button>
+            </>
+          ) : (
+            <button
+              type="submit"
+              disabled={pending}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-[13px] font-medium text-white shadow-sm hover:bg-blue-700 disabled:cursor-wait disabled:bg-blue-300"
+            >
+              {pending ? "Salvataggio..." : "Crea polizza"}
+            </button>
+          )}
         </div>
       </div>
     </form>

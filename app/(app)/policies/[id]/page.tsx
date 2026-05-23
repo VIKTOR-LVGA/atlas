@@ -25,6 +25,7 @@ import {
   buildPersonStableKey,
   withCoverageStableKey,
 } from "@/lib/coverage-stable-keys";
+import { suggestPersonForCoverage } from "@/lib/health-policy-review";
 import {
   getHealthPolicyGroupedView,
   getPolicyCoveragesForDisplay,
@@ -45,7 +46,7 @@ import type { PolicyPremiumFrequency } from "@/lib/types";
 
 interface PageProps {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ assigned?: string }>;
+  searchParams: Promise<{ assigned?: string; saved?: string; confirmed?: string }>;
 }
 
 export const metadata = { title: "Dettaglio polizza" };
@@ -59,7 +60,7 @@ const premiumFrequencyLabels: Record<PolicyPremiumFrequency, string> = {
 
 export default async function PolicyDetailPage({ params, searchParams }: PageProps) {
   const { id } = await params;
-  const { assigned } = await searchParams;
+  const { assigned, saved, confirmed } = await searchParams;
   const policy = await getCurrentUserPolicyById(id);
 
   if (!policy) {
@@ -99,6 +100,12 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
     ),
   ].slice(0, 6);
 
+  const unresolvedUnassigned =
+    (healthGrouped?.unassignedCoverages.length ?? 0) > 0;
+  const showWarningPanel =
+    displayWarnings.length > 0 &&
+    (policy.requiresReview || unresolvedUnassigned);
+
   const showGroupedHealth = shouldShowGroupedHealthUI(healthGrouped);
 
   const displayInsuredCount = healthGrouped?.people.length ?? insuredPeople.length;
@@ -113,12 +120,23 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
       label: person.name ?? "Persona assicurata",
     })) ?? [];
 
+  const peopleRefs =
+    healthGrouped?.people.map((person) => ({
+      stableKey: buildPersonStableKey(person),
+      name: person.name,
+      insured_number: person.insured_number ?? null,
+    })) ?? [];
+
   const unassignedAssignItems =
     healthGrouped?.unassignedCoverages.map((coverage) => {
       const withKey = withCoverageStableKey(coverage);
+      const suggestion = suggestPersonForCoverage(withKey, peopleRefs);
+
       return {
         stableKey: withKey.stable_key ?? buildCoverageStableKey(withKey),
         coverage: withKey,
+        suggestedPersonKey: suggestion.stableKey,
+        suggestedPersonName: suggestion.name,
       };
     }) ?? [];
 
@@ -132,6 +150,24 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
           className="rounded-xl border border-emerald-100 bg-emerald-50/80 px-4 py-3 text-[13px] font-medium text-emerald-800"
         >
           Copertura assegnata correttamente. Il riepilogo è aggiornato.
+        </div>
+      ) : null}
+
+      {saved === "1" ? (
+        <div
+          role="status"
+          className="rounded-xl border border-blue-100 bg-blue-50/80 px-4 py-3 text-[13px] font-medium text-blue-900"
+        >
+          Modifiche salvate. Puoi continuare la revisione o confermare la polizza.
+        </div>
+      ) : null}
+
+      {confirmed === "1" ? (
+        <div
+          role="status"
+          className="rounded-xl border border-emerald-100 bg-emerald-50/80 px-4 py-3 text-[13px] font-medium text-emerald-800"
+        >
+          Polizza confermata. I dati sono ora contrassegnati come verificati.
         </div>
       ) : null}
 
@@ -152,7 +188,7 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
         />
       ) : null}
 
-      {displayWarnings.length > 0 ? <WarningPanel items={displayWarnings} /> : null}
+      {showWarningPanel ? <WarningPanel items={displayWarnings} /> : null}
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="space-y-6">

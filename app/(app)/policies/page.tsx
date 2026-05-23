@@ -16,6 +16,7 @@ export default async function PoliciesPage() {
   const policies = await getCurrentUserPolicies();
   const pendingReview = policies.filter((policy) => policy.requiresReview);
   const aiDrafts = policies.filter((policy) => policy.source === "ai_draft");
+  const confirmedAiDrafts = aiDrafts.filter((policy) => !policy.requiresReview);
 
   return (
     <PageShell>
@@ -52,7 +53,11 @@ export default async function PoliciesPage() {
         <MetricCard
           label="Bozze AI"
           value={String(aiDrafts.length)}
-          subtext="Estratte da PDF"
+          subtext={
+            confirmedAiDrafts.length > 0
+              ? `${confirmedAiDrafts.length} confermate`
+              : "Estratte da PDF"
+          }
           variant="indigo"
           icon={<IconPolicies className="h-[18px] w-[18px]" />}
         />

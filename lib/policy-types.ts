@@ -18,6 +18,7 @@ import type {
   PolicyPremiumSummaryDetail,
   PolicyProductDetail,
   TypedPolicyType,
+  UserPolicy,
 } from "@/lib/types";
 import {
   isSwissPolicySubtype,
@@ -50,6 +51,7 @@ const sharedPolicyDetailKeys = [
   "products",
   "field_confidence",
   "extraction_metadata",
+  "reviewed_at",
 ] as const satisfies Array<keyof PolicyDetails>;
 
 const policyDetailKeys: Record<TypedPolicyType, Array<keyof PolicyDetails>> = {
@@ -106,6 +108,7 @@ const detailLabels: Record<keyof PolicyDetails, string> = {
   products: "Prodotti rilevati",
   field_confidence: "Confidenza campi",
   extraction_metadata: "Metadati estrazione",
+  reviewed_at: "Confermata il",
   plate_number: "Targa",
   casco: "Casco",
   bonus_malus: "Bonus malus",
@@ -748,8 +751,9 @@ export function sanitizePolicyDetails(
     const value = source[key];
 
     switch (key) {
-      case "coverage_kind": {
-        result.coverage_kind = normalizeNullableText(value);
+      case "coverage_kind":
+      case "reviewed_at": {
+        result[key] = normalizeNullableText(value) as never;
         break;
       }
       case "franchise":
@@ -913,6 +917,32 @@ export { getPolicyCoveragesForDisplay, inferInsuredPeopleFromDetails } from "@/l
 
 export function getPolicyProducts(details: PolicyDetails) {
   return [...(details.complementary_products ?? []), ...(details.products ?? [])];
+}
+
+export type PolicyReviewStatusBadge = {
+  label: string;
+  variant: "attention" | "active" | "neutral" | "processing";
+};
+
+export function getPolicyReviewStatusBadge(
+  policy: Pick<UserPolicy, "requiresReview" | "source" | "status" | "details">
+): PolicyReviewStatusBadge {
+  if (policy.requiresReview) {
+    return { label: "Da rivedere", variant: "attention" };
+  }
+
+  if (policy.source === "ai_draft" && policy.details.reviewed_at) {
+    return { label: "Confermata", variant: "active" };
+  }
+
+  if (policy.source === "ai_draft") {
+    return { label: "Bozza AI", variant: "processing" };
+  }
+
+  return {
+    label: policy.status === "active" ? "Attiva" : policy.status,
+    variant: policy.status === "active" ? "active" : "neutral",
+  };
 }
 
 export function getPolicyExtractionMetadata(details: PolicyDetails) {

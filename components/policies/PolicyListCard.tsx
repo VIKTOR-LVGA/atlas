@@ -3,7 +3,11 @@ import { FileText, ChevronRight } from "lucide-react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { ConfidenceBadge } from "@/components/ui/ConfidenceBadge";
 import { TypedPolicyIcon, typedPolicyIconStyles } from "@/lib/policy-display";
-import { getPolicyDetailSummary, getPolicyTypeLabel } from "@/lib/policy-types";
+import {
+  getPolicyDetailSummary,
+  getPolicyReviewStatusBadge,
+  getPolicyTypeLabel,
+} from "@/lib/policy-types";
 import { formatCHF, formatDate } from "@/lib/utils";
 import type { PolicyPremiumFrequency, UserPolicy } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -21,6 +25,7 @@ export function PolicyListCard({ policy }: { policy: UserPolicy }) {
     policy.policyCategoryLabel
   );
   const detailSummary = getPolicyDetailSummary(policy.policyType, policy.details);
+  const reviewStatus = getPolicyReviewStatusBadge(policy);
   const insuredCount = policy.details.insured_people?.length ?? 0;
   const coverageCount = policy.details.coverages?.length ?? 0;
 
@@ -46,15 +51,10 @@ export function PolicyListCard({ policy }: { policy: UserPolicy }) {
               </p>
             </Link>
             <div className="flex shrink-0 flex-col items-end gap-1">
-              {policy.requiresReview ? (
-                <StatusBadge variant="attention" label="Da rivedere" />
-              ) : (
-                <StatusBadge
-                  variant={policy.status === "active" ? "active" : "neutral"}
-                  label={policy.status === "active" ? "Attiva" : policy.status}
-                />
-              )}
-              {policy.source === "ai_draft" && policy.extractionConfidence !== null ? (
+              <StatusBadge variant={reviewStatus.variant} label={reviewStatus.label} />
+              {policy.source === "ai_draft" &&
+              policy.requiresReview &&
+              policy.extractionConfidence !== null ? (
                 <ConfidenceBadge confidence={policy.extractionConfidence} />
               ) : null}
             </div>

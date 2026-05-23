@@ -3,7 +3,8 @@ import { PencilLine } from "lucide-react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { ConfidenceBadge } from "@/components/ui/ConfidenceBadge";
 import { TypedPolicyIcon, typedPolicyIconStyles } from "@/lib/policy-display";
-import { getPolicyTypeLabel } from "@/lib/policy-types";
+import { PolicyConfirmReviewButton } from "@/components/policies/PolicyConfirmReviewButton";
+import { getPolicyReviewStatusBadge, getPolicyTypeLabel } from "@/lib/policy-types";
 import { formatCHF } from "@/lib/utils";
 import type { PolicyPremiumFrequency, UserPolicy } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -24,6 +25,7 @@ export function PolicyHeroSummary({ policy }: PolicyHeroSummaryProps) {
     policy.policyType,
     policy.policyCategoryLabel
   );
+  const reviewStatus = getPolicyReviewStatusBadge(policy);
 
   return (
     <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6">
@@ -39,15 +41,8 @@ export function PolicyHeroSummary({ policy }: PolicyHeroSummaryProps) {
           </span>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              {policy.requiresReview ? (
-                <StatusBadge variant="attention" label="Da rivedere" />
-              ) : (
-                <StatusBadge
-                  variant={policy.status === "active" ? "active" : "neutral"}
-                  label={policy.status === "active" ? "Attiva" : policy.status}
-                />
-              )}
-              {policy.source === "ai_draft" ? (
+              <StatusBadge variant={reviewStatus.variant} label={reviewStatus.label} />
+              {policy.source === "ai_draft" && policy.requiresReview ? (
                 <StatusBadge variant="processing" label="Bozza AI" />
               ) : null}
             </div>
@@ -83,13 +78,16 @@ export function PolicyHeroSummary({ policy }: PolicyHeroSummaryProps) {
             <ConfidenceBadge confidence={policy.extractionConfidence} />
           ) : null}
           {policy.requiresReview ? (
-            <Link
-              href={`/policies/${policy.id}/edit`}
-              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-[13px] font-medium text-white shadow-sm hover:bg-blue-700"
-            >
-              <PencilLine className="h-4 w-4" />
-              Rivedi bozza
-            </Link>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <Link
+                href={`/policies/${policy.id}/edit`}
+                className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-[13px] font-medium text-white shadow-sm hover:bg-blue-700"
+              >
+                <PencilLine className="h-4 w-4" />
+                Rivedi bozza
+              </Link>
+              <PolicyConfirmReviewButton policyId={policy.id} />
+            </div>
           ) : (
             <Link
               href={`/policies/${policy.id}/edit`}

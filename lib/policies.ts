@@ -350,7 +350,11 @@ export async function createPolicy(
   return toUserPolicy(data as PolicyRow, documents);
 }
 
-export async function updatePolicy(id: string, input: PolicyInput) {
+export async function updatePolicy(
+  id: string,
+  input: PolicyInput,
+  options?: { requiresReview?: boolean }
+) {
   const policyInput = normalizePolicyInput(input);
   const { supabase, user } = await getPolicyUser();
 
@@ -381,7 +385,7 @@ export async function updatePolicy(id: string, input: PolicyInput) {
       coverage_amount: policyInput.coverageAmount,
       details: policyInput.details,
       notes: policyInput.notes,
-      requires_review: false,
+      requires_review: options?.requiresReview ?? false,
     })
     .eq("id", id)
     .eq("user_id", user.id)
@@ -399,6 +403,56 @@ export async function updatePolicy(id: string, input: PolicyInput) {
   const documents = await getPolicyDocuments(supabase, user.id, [documentId]);
 
   return toUserPolicy(data as PolicyRow, documents);
+}
+
+export async function confirmPolicyReview(policyId: string): Promise<UserPolicy | null> {
+  const { supabase, user } = await getPolicyUser();
+
+  if (!user) {
+    throw new PolicyManagementError("Accedi di nuovo per confermare la polizza.");
+  }
+
+  const existing = await getCurrentUserPolicyById(policyId);
+
+  if (!existing) {
+    return null;
+  }
+
+  if (!existing.requiresReview) {
+    return existing;
+  }
+
+  const reviewedAt = new Date().toISOString();
+  const details = sanitizePolicyDetails(existing.policyType, {
+    ...existing.details,
+    reviewed_at: reviewedAt,
+  });
+
+  const { data, error } = await supabase
+    .from("policies")
+    .update({
+      requires_review: false,
+      details,
+    })
+    .eq("id", policyId)
+    .eq("user_id", user.id)
+    .select(policySelect)
+    .maybeSingle();
+
+  if (error) {
+    throw new PolicyManagementError("Conferma polizza non riuscita.");
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  const policy = data as PolicyRow;
+  const documents = await getPolicyDocuments(supabase, user.id, [
+    policy.document_id,
+  ]);
+
+  return toUserPolicy(policy, documents);
 }
 
 export async function updatePolicyDetails(

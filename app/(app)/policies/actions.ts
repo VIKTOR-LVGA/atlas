@@ -15,6 +15,7 @@ import {
   saveExtractionCorrection,
 } from "@/lib/extraction-corrections";
 import {
+  confirmPolicyReview,
   createPolicy,
   deletePolicy,
   getCurrentUserPolicyById,
@@ -24,11 +25,13 @@ import {
 } from "@/lib/policies";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { isTypedPolicyType } from "@/lib/policy-types";
+import { mergeHealthFormDetails } from "@/lib/health-policy-review";
 import type {
   PolicyDetails,
   PolicyInput,
   PolicyPremiumFrequency,
   TypedPolicyType,
+  UserPolicy,
 } from "@/lib/types";
 
 const policyPremiumFrequencies = [
@@ -59,6 +62,11 @@ export type PolicyActionState = {
 export type DeletePolicyActionState = PolicyActionState;
 
 export type AssignCoverageActionState = {
+  status: "idle" | "success" | "error";
+  message: string;
+};
+
+export type ConfirmPolicyReviewActionState = {
   status: "idle" | "success" | "error";
   message: string;
 };
@@ -206,7 +214,7 @@ function getPolicyDetails(
   }
 }
 
-function getPolicyInput(formData: FormData) {
+function getPolicyInput(formData: FormData, existingPolicy?: UserPolicy | null) {
   const provider = getTextField(formData, "provider");
   const policyType = getTextField(formData, "policy_type");
   const currency = getTextField(formData, "currency") || "CHF";
@@ -262,9 +270,27 @@ function getPolicyInput(formData: FormData) {
     fieldErrors,
     "coverageAmount"
   );
-  const details = isTypedPolicyType(policyType)
+  let details = isTypedPolicyType(policyType)
     ? getPolicyDetails(formData, policyType, fieldErrors)
     : {};
+
+  if (
+    isTypedPolicyType(policyType) &&
+    policyType === "health" &&
+    existingPolicy?.policyType === "health"
+  ) {
+    const healthReviewJson = formData.get("health_review_json");
+    details = mergeHealthFormDetails(
+      details,
+      existingPolicy.details,
+      typeof healthReviewJson === "string" ? healthReviewJson : null
+    );
+  } else if (existingPolicy && isTypedPolicyType(policyType)) {
+    details = {
+      ...existingPolicy.details,
+      ...details,
+    };
+  }
 
   if (Object.keys(fieldErrors).length > 0) {
     return { input: null, fieldErrors };
@@ -318,7 +344,7 @@ export async function createPolicyAction(
   _previousState: PolicyActionState,
   formData: FormData
 ): Promise<PolicyActionState> {
-  const { input, fieldErrors } = getPolicyInput(formData);
+  const { input, fieldErrors } = getPolicyInput(formData, null);
 
   if (!input) {
     return {
@@ -346,7 +372,8 @@ export async function updatePolicyAction(
   _previousState: PolicyActionState,
   formData: FormData
 ): Promise<PolicyActionState> {
-  const { input, fieldErrors } = getPolicyInput(formData);
+  const existing = await getCurrentUserPolicyById(id);
+  const { input, fieldErrors } = getPolicyInput(formData, existing);
 
   if (!input) {
     return {
@@ -356,8 +383,20 @@ export async function updatePolicyAction(
     };
   }
 
+  const saveMode = String(formData.get("save_mode") ?? "save");
+  const confirmPolicy = saveMode === "confirm";
+
+  if (confirmPolicy) {
+    input.details = {
+      ...input.details,
+      reviewed_at: new Date().toISOString(),
+    };
+  }
+
   try {
-    const policy = await updatePolicy(id, input);
+    const policy = await updatePolicy(id, input, {
+      requiresReview: confirmPolicy ? false : existing?.requiresReview ?? false,
+    });
 
     if (!policy) {
       return {
@@ -371,7 +410,33 @@ export async function updatePolicyAction(
     return getPolicyErrorState(error);
   }
 
-  redirect(`/policies/${id}`);
+  redirect(
+    confirmPolicy ? `/policies/${id}?confirmed=1` : `/policies/${id}?saved=1`
+  );
+}
+
+export async function confirmPolicyReviewAction(
+  policyId: string,
+  _previousState: ConfirmPolicyReviewActionState,
+  formData: FormData
+): Promise<ConfirmPolicyReviewActionState> {
+  void formData;
+
+  try {
+    const policy = await confirmPolicyReview(policyId);
+
+    if (!policy) {
+      return {
+        status: "error",
+        message: "Polizza non trovata.",
+      };
+    }
+
+    revalidatePolicyViews(policy.id, policy.documentId);
+    redirect(`/policies/${policyId}?confirmed=1`);
+  } catch (error) {
+    return getPolicyErrorState(error) as ConfirmPolicyReviewActionState;
+  }
 }
 
 export async function assignCoverageToInsuredPerson(
