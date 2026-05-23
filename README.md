@@ -1,33 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Atlas
+
+Atlas is a Swiss insurance intelligence SaaS built with Next.js App Router,
+TypeScript, Tailwind, Supabase Auth/Storage, and AI-assisted policy extraction.
+
+## Environment
+
+Create a root `.env.local` file with these values:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+
+OPENAI_API_KEY=your-openai-api-key
+OPENAI_POLICY_EXTRACTION_MODEL=gpt-5.2
+```
+
+`OPENAI_API_KEY` is server-only. Never prefix it with `NEXT_PUBLIC_`.
 
 ## Getting Started
 
-First, run the development server:
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## AI extraction
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Document analysis uses OpenAI structured outputs first and automatically falls
+back to the mock extractor when a PDF does not contain enough readable text for
+non-OCR extraction.
+
+The extraction flow keeps API keys on the server, downloads private PDFs from
+Supabase Storage server-side, extracts readable PDF text when possible, and
+saves the generated policy as an `ai_draft` that requires review.
+
+## Useful commands
+
+```bash
+npm run lint
+npm run build
+```
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Supabase Documentation](https://supabase.com/docs)
+- [OpenAI API Documentation](https://platform.openai.com/docs)
 
 ## Deploy on Vercel
 

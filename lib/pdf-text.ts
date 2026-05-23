@@ -1,13 +1,26 @@
 import "server-only";
 
+import {
+  getTextPreview,
+  logPolicyAnalysisInfo,
+} from "@/lib/policy-analysis-logging";
+
 const PDF_SIGNATURE = "%PDF-";
 const MIN_READABLE_TEXT_LENGTH = 120;
 const MAX_EXTRACTED_TEXT_LENGTH = 18000;
 
 export class PdfTextExtractionError extends Error {
-  constructor(message: string) {
+  readonly textLength: number | null;
+  readonly textPreview: string | null;
+
+  constructor(
+    message: string,
+    options: { textLength?: number; textPreview?: string } = {}
+  ) {
     super(message);
     this.name = "PdfTextExtractionError";
+    this.textLength = options.textLength ?? null;
+    this.textPreview = options.textPreview ?? null;
   }
 }
 
@@ -56,7 +69,16 @@ export function extractReadableTextFromPdf(pdf: Buffer) {
   const header = pdf.subarray(0, PDF_SIGNATURE.length).toString("latin1");
 
   if (header !== PDF_SIGNATURE) {
-    throw new PdfTextExtractionError("Il file non sembra un PDF valido.");
+    logPolicyAnalysisInfo("pdf_text_invalid_signature", {
+      pdfBytes: pdf.length,
+      textLength: 0,
+      textPreview: "",
+    });
+
+    throw new PdfTextExtractionError("Il file non sembra un PDF valido.", {
+      textLength: 0,
+      textPreview: "",
+    });
   }
 
   const source = pdf.toString("latin1");
@@ -74,10 +96,27 @@ export function extractReadableTextFromPdf(pdf: Buffer) {
   }
 
   const text = cleanExtractedText(chunks.join("\n"));
+  const textPreview = getTextPreview(text);
+
+  logPolicyAnalysisInfo("pdf_text_extracted", {
+    pdfBytes: pdf.length,
+    textLength: text.length,
+    textPreview,
+  });
 
   if (text.length < MIN_READABLE_TEXT_LENGTH) {
+    logPolicyAnalysisInfo("pdf_text_too_short_for_openai", {
+      minReadableTextLength: MIN_READABLE_TEXT_LENGTH,
+      textLength: text.length,
+      textPreview,
+    });
+
     throw new PdfTextExtractionError(
-      "Il PDF non contiene testo leggibile senza OCR."
+      "Il PDF non contiene testo leggibile senza OCR.",
+      {
+        textLength: text.length,
+        textPreview,
+      }
     );
   }
 

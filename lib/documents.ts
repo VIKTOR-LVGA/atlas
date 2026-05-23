@@ -3,6 +3,10 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import { cache } from "react";
 import type { DocumentStatus, UserDocument } from "@/lib/types";
+import {
+  getInternalFailureReason,
+  logPolicyAnalysisError,
+} from "@/lib/policy-analysis-logging";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 const POLICY_DOCUMENTS_BUCKET = "policy-documents";
@@ -273,6 +277,66 @@ export async function updateCurrentUserDocumentStatus(
   }
 
   return data ? toUserDocument(data) : null;
+}
+
+export async function markCurrentUserDocumentAnalysisFailed(
+  id: string,
+  analysisError: string
+) {
+  const supabase = await getSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new DocumentManagementError("Accedi di nuovo per aggiornare il documento.");
+  }
+
+  const { data, error } = await supabase
+    .from("documents")
+    .update({
+      status: "failed",
+      analysis_error: getInternalFailureReason(analysisError),
+    })
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .select("id, file_name, file_path, file_size, mime_type, status, created_at, updated_at")
+    .maybeSingle();
+
+  if (!error) {
+    return data ? toUserDocument(data) : null;
+  }
+
+  logPolicyAnalysisError("document_analysis_error_store_failed", {
+    documentId: id,
+    error: error.message,
+  });
+
+  return updateCurrentUserDocumentStatus(id, "failed");
+}
+
+export async function clearCurrentUserDocumentAnalysisError(id: string) {
+  const supabase = await getSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from("documents")
+    .update({ analysis_error: null })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) {
+    logPolicyAnalysisError("document_analysis_error_clear_failed", {
+      documentId: id,
+      error: error.message,
+    });
+  }
 }
 
 export async function deleteCurrentUserDocument(id: string) {

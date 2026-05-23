@@ -3,6 +3,11 @@ import "server-only";
 import { downloadCurrentUserDocumentFile } from "@/lib/documents";
 import { extractReadableTextFromPdf } from "@/lib/pdf-text";
 import {
+  getInternalFailureReason,
+  logPolicyAnalysisError,
+  logPolicyAnalysisInfo,
+} from "@/lib/policy-analysis-logging";
+import {
   isTypedPolicyType,
   sanitizePolicyDetails,
   typedPolicyTypes,
@@ -45,9 +50,15 @@ type OpenAIPolicyExtractionPayload = {
 };
 
 export class OpenAIPolicyExtractionError extends Error {
-  constructor(message: string) {
-    super(message);
+  readonly internalMessage: string;
+
+  constructor(internalMessage: string, publicMessage?: string) {
+    super(
+      publicMessage ??
+        "Analisi AI non riuscita. Riprova tra poco o crea la polizza manualmente."
+    );
     this.name = "OpenAIPolicyExtractionError";
+    this.internalMessage = getInternalFailureReason(internalMessage);
   }
 }
 
@@ -56,11 +67,19 @@ function getOpenAIAPIKey() {
 
   if (!apiKey) {
     throw new OpenAIPolicyExtractionError(
-      "OPENAI_API_KEY non configurata. Aggiungila a .env.local per usare l'estrazione reale."
+      "OPENAI_API_KEY missing",
+      "Analisi AI non configurata. Aggiungi OPENAI_API_KEY al file .env.local."
     );
   }
 
   return apiKey;
+}
+
+function getOpenAIExtractionModel() {
+  return (
+    process.env.OPENAI_POLICY_EXTRACTION_MODEL?.trim() ||
+    DEFAULT_OPENAI_EXTRACTION_MODEL
+  );
 }
 
 function normalizeNullableString(value: unknown) {
@@ -136,6 +155,28 @@ function getResponseText(payload: unknown) {
     .join("");
 
   return text || null;
+}
+
+function getResponseRefusal(payload: unknown) {
+  if (!payload || typeof payload !== "object") {
+    return null;
+  }
+
+  const response = payload as {
+    output?: Array<{
+      content?: Array<{ refusal?: unknown; type?: string }>;
+    }>;
+  };
+
+  const refusal = response.output
+    ?.flatMap((item) => item.content ?? [])
+    .map((content) => content.refusal)
+    .find(
+      (value): value is string =>
+        typeof value === "string" && value.length > 0
+    );
+
+  return refusal ?? null;
 }
 
 function getDetailsSchemaProperties() {
@@ -260,58 +301,158 @@ async function callOpenAIForPolicyExtraction(
   document: UserDocument,
   text: string
 ) {
-  const response = await fetch(OPENAI_RESPONSES_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${getOpenAIAPIKey()}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model:
-        process.env.OPENAI_POLICY_EXTRACTION_MODEL ??
-        DEFAULT_OPENAI_EXTRACTION_MODEL,
-      instructions:
-        "Extract Swiss insurance policy data from the provided PDF text. Return JSON only using the schema. Use null for unknown values. Choose policy_type from health, liability, household, car, legal, other. Fill details only with fields relevant to the chosen type and set irrelevant detail fields to null. Dates must be YYYY-MM-DD. Currency should usually be CHF.",
-      input: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "input_text",
-              text: `Filename: ${document.fileName}\n\nPDF text:\n${text}`,
-            },
-          ],
-        },
-      ],
-      text: {
-        format: {
-          type: "json_schema",
-          name: "atlas_policy_extraction",
-          strict: true,
-          schema: policyExtractionSchema,
-        },
+  const model = getOpenAIExtractionModel();
+  const hasOpenAIAPIKey = Boolean(process.env.OPENAI_API_KEY);
+
+  logPolicyAnalysisInfo("openai_request_start", {
+    documentId: document.id,
+    fileName: document.fileName,
+    hasOpenAIAPIKey,
+    model,
+    extractedTextLength: text.length,
+  });
+
+  const apiKey = getOpenAIAPIKey();
+
+  let response: Response;
+
+  try {
+    response = await fetch(OPENAI_RESPONSES_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
       },
-    }),
+      body: JSON.stringify({
+        model,
+        instructions:
+          "Extract Swiss insurance policy data from the provided PDF text. Return JSON only using the schema. Use null for unknown values. Choose policy_type from health, liability, household, car, legal, other. Fill details only with fields relevant to the chosen type and set irrelevant detail fields to null. Dates must be YYYY-MM-DD. Currency should usually be CHF.",
+        input: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "input_text",
+                text: `Filename: ${document.fileName}\n\nPDF text:\n${text}`,
+              },
+            ],
+          },
+        ],
+        text: {
+          format: {
+            type: "json_schema",
+            name: "atlas_policy_extraction",
+            strict: true,
+            schema: policyExtractionSchema,
+          },
+        },
+      }),
+    });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unknown fetch error";
+
+    logPolicyAnalysisError("openai_request_network_failed", {
+      documentId: document.id,
+      model,
+      error: message,
+    });
+
+    throw new OpenAIPolicyExtractionError(
+      `OpenAI request failed before HTTP response: ${message}`
+    );
+  }
+
+  const requestId = response.headers.get("x-request-id");
+
+  logPolicyAnalysisInfo("openai_response_received", {
+    documentId: document.id,
+    httpStatus: response.status,
+    requestId,
+    model,
   });
 
   if (!response.ok) {
     const errorText = await response.text().catch(() => "");
+    const internalReason = `OpenAI HTTP ${response.status}: ${errorText}`;
+
+    logPolicyAnalysisError("openai_request_failed", {
+      documentId: document.id,
+      httpStatus: response.status,
+      requestId,
+      model,
+      errorBody: errorText,
+    });
 
     throw new OpenAIPolicyExtractionError(
-      `OpenAI extraction failed (${response.status}). ${errorText.slice(0, 240)}`
+      internalReason,
+      "Analisi AI non riuscita. Verifica configurazione OpenAI o riprova tra poco."
     );
   }
 
-  const payload = (await response.json()) as unknown;
+  let payload: unknown;
+
+  try {
+    payload = (await response.json()) as unknown;
+  } catch (error) {
+    logPolicyAnalysisError("openai_response_json_parse_failed", {
+      documentId: document.id,
+      requestId,
+      model,
+      error: error instanceof Error ? error.message : "Unknown parse error",
+    });
+
+    throw new OpenAIPolicyExtractionError(
+      error instanceof Error
+        ? `OpenAI response JSON parse failed: ${error.message}`
+        : "OpenAI response JSON parse failed"
+    );
+  }
+
+  const refusal = getResponseRefusal(payload);
+
+  if (refusal) {
+    logPolicyAnalysisError("openai_response_refused", {
+      documentId: document.id,
+      requestId,
+      model,
+      refusal,
+    });
+
+    throw new OpenAIPolicyExtractionError(`OpenAI refusal: ${refusal}`);
+  }
+
   const outputText = getResponseText(payload);
 
   if (!outputText) {
+    logPolicyAnalysisError("openai_response_missing_output_text", {
+      documentId: document.id,
+      requestId,
+      model,
+    });
+
     throw new OpenAIPolicyExtractionError(
-      "OpenAI non ha restituito JSON estraibile."
+      "OpenAI response did not contain output_text"
     );
   }
 
-  return JSON.parse(outputText) as OpenAIPolicyExtractionPayload;
+  try {
+    return JSON.parse(outputText) as OpenAIPolicyExtractionPayload;
+  } catch (error) {
+    logPolicyAnalysisError("openai_structured_output_parse_failed", {
+      documentId: document.id,
+      requestId,
+      model,
+      outputTextLength: outputText.length,
+      error: error instanceof Error ? error.message : "Unknown parse error",
+    });
+
+    throw new OpenAIPolicyExtractionError(
+      error instanceof Error
+        ? `OpenAI structured output parse failed: ${error.message}`
+        : "OpenAI structured output parse failed"
+    );
+  }
 }
 
 export const openAIPolicyDocumentExtractor: PolicyDocumentExtractor = {

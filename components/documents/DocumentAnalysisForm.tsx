@@ -109,6 +109,14 @@ export function DocumentAnalysisForm({
           Atlas prepara una bozza strutturata da rivedere.
         </p>
       )}
+      {variant !== "icon" &&
+        !busy &&
+        documentStatus === "failed" &&
+        state.status !== "error" && (
+          <p className="text-[11px] text-slate-500">
+            Ultima analisi non riuscita. Riprova o crea la polizza manualmente.
+          </p>
+        )}
       {variant !== "icon" && state.status === "error" && (
         <p aria-live="polite" className="text-[11px] text-red-600">
           {state.message}

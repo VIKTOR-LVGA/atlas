@@ -121,7 +121,7 @@ export async function analyzeDocumentAction(
         error instanceof DocumentAnalysisError ||
         error instanceof DocumentManagementError
           ? error.message
-          : "Analisi simulata non riuscita. Riprova tra poco.",
+          : "Analisi non riuscita. Riprova tra poco.",
     };
   }
 

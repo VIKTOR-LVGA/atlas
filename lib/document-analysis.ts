@@ -1,13 +1,23 @@
 import "server-only";
 
 import {
+  clearCurrentUserDocumentAnalysisError,
   DocumentManagementError,
   getCurrentUserDocumentById,
+  markCurrentUserDocumentAnalysisFailed,
   updateCurrentUserDocumentStatus,
 } from "@/lib/documents";
-import { createPolicy, PolicyManagementError } from "@/lib/policies";
-import { openAIPolicyDocumentExtractor } from "@/lib/openai-policy-extraction";
+import {
+  OpenAIPolicyExtractionError,
+  openAIPolicyDocumentExtractor,
+} from "@/lib/openai-policy-extraction";
 import { PdfTextExtractionError } from "@/lib/pdf-text";
+import {
+  getInternalFailureReason,
+  logPolicyAnalysisError,
+  logPolicyAnalysisInfo,
+} from "@/lib/policy-analysis-logging";
+import { createPolicy, PolicyManagementError } from "@/lib/policies";
 import type {
   PolicyDetails,
   PolicyInput,
@@ -50,9 +60,14 @@ export interface PolicyDocumentExtractor {
 }
 
 export class DocumentAnalysisError extends Error {
-  constructor(message: string) {
+  readonly internalMessage: string;
+
+  constructor(message: string, options: { internalMessage?: string } = {}) {
     super(message);
     this.name = "DocumentAnalysisError";
+    this.internalMessage = getInternalFailureReason(
+      options.internalMessage ?? message
+    );
   }
 }
 
@@ -275,11 +290,63 @@ function getExtractionNotes(
   ].join("\n");
 }
 
+function getAnalysisFailureReason(error: unknown) {
+  if (error instanceof OpenAIPolicyExtractionError) {
+    return error.internalMessage;
+  }
+
+  if (error instanceof DocumentAnalysisError) {
+    return error.internalMessage;
+  }
+
+  if (
+    error instanceof DocumentManagementError ||
+    error instanceof PolicyManagementError ||
+    error instanceof Error
+  ) {
+    return `${error.name}: ${error.message}`;
+  }
+
+  return "Unknown policy analysis error";
+}
+
+function toDocumentAnalysisError(error: unknown) {
+  const internalMessage = getAnalysisFailureReason(error);
+
+  if (error instanceof DocumentAnalysisError) {
+    return error;
+  }
+
+  if (error instanceof OpenAIPolicyExtractionError) {
+    return new DocumentAnalysisError(error.message, { internalMessage });
+  }
+
+  if (
+    error instanceof DocumentManagementError ||
+    error instanceof PolicyManagementError
+  ) {
+    return new DocumentAnalysisError(error.message, { internalMessage });
+  }
+
+  return new DocumentAnalysisError(
+    "Analisi non riuscita. Riprova tra poco o crea la polizza manualmente.",
+    { internalMessage }
+  );
+}
+
 async function extractPolicyWithFallback(document: UserDocument) {
   try {
     return await openAIPolicyDocumentExtractor.extract(document);
   } catch (error) {
     if (error instanceof PdfTextExtractionError) {
+      logPolicyAnalysisInfo("mock_extraction_fallback", {
+        documentId: document.id,
+        fileName: document.fileName,
+        reason: error.message,
+        extractedTextLength: error.textLength,
+        textPreview: error.textPreview,
+      });
+
       const fallbackExtraction = await mockPolicyDocumentExtractor.extract(document);
 
       return {
@@ -320,6 +387,8 @@ export async function analyzeCurrentUserDocument(
   }
 
   try {
+    await clearCurrentUserDocumentAnalysisError(processingDocument.id);
+
     const extraction = await extractor.extract(processingDocument);
     const policy = await createPolicy(
       {
@@ -350,23 +419,23 @@ export async function analyzeCurrentUserDocument(
     );
 
     await updateCurrentUserDocumentStatus(processingDocument.id, "analyzed");
+    await clearCurrentUserDocumentAnalysisError(processingDocument.id);
 
     return policy;
   } catch (error) {
-    await updateCurrentUserDocumentStatus(processingDocument.id, "failed").catch(
-      () => null
-    );
+    const internalFailureReason = getAnalysisFailureReason(error);
 
-    if (
-      error instanceof DocumentAnalysisError ||
-      error instanceof DocumentManagementError ||
-      error instanceof PolicyManagementError
-    ) {
-      throw error;
-    }
+    logPolicyAnalysisError("document_analysis_failed", {
+      documentId: processingDocument.id,
+      fileName: processingDocument.fileName,
+      reason: internalFailureReason,
+    });
 
-    throw new DocumentAnalysisError(
-      "Analisi simulata non riuscita. Riprova tra poco."
-    );
+    await markCurrentUserDocumentAnalysisFailed(
+      processingDocument.id,
+      internalFailureReason
+    ).catch(() => null);
+
+    throw toDocumentAnalysisError(error);
   }
 }
