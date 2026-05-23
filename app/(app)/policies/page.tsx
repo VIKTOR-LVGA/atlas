@@ -134,6 +134,9 @@ export default async function PoliciesPage() {
                   {policy.source === "ai_draft" && (
                     <span className="text-[11px] font-medium text-indigo-600">
                       Bozza AI
+                      {policy.extractionConfidence !== null
+                        ? ` · ${policy.extractionConfidence}%`
+                        : " · Da verificare"}
                     </span>
                   )}
                   <Link

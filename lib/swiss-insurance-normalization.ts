@@ -36,7 +36,15 @@ type PolicySubtypeDefinition = {
 const swissProviders: ProviderDefinition[] = [
   {
     canonical: "Helsana",
-    aliases: ["helsana", "helsana versicherungen", "helsana assicurazioni"],
+    aliases: [
+      "helsana",
+      "helsana versicherungen",
+      "helsana assicurazioni",
+      "helsana assicurazioni sa",
+      "helsana assicurazioni integrative",
+      "helsana assicurazioni integrative sa",
+      "helsana group",
+    ],
   },
   {
     canonical: "CSS",
@@ -55,7 +63,13 @@ const swissProviders: ProviderDefinition[] = [
   { canonical: "AXA", aliases: ["axa", "axa winterthur"] },
   {
     canonical: "Zurich",
-    aliases: ["zurich", "zurigo", "zurich insurance"],
+    aliases: [
+      "zurich",
+      "zurigo",
+      "zurich insurance",
+      "zurich versicherungen",
+      "zurich assicurazioni",
+    ],
   },
   {
     canonical: "Mobiliar",
@@ -339,4 +353,90 @@ export function getSwissInsuranceKeywords(text: string, limit = 24) {
   return uniqueStrings([...providerKeywords, ...subtypeKeywords])
     .filter((keyword) => source.includes(normalizeSearchText(keyword)))
     .slice(0, limit);
+}
+
+const sectionPatterns: Array<{ section: string; keywords: string[] }> = [
+  { section: "Premi e franchigie", keywords: ["premio", "prämie", "franchigia", "franchise"] },
+  { section: "Coperture", keywords: ["copertura", "deckung", "leistung", "prestazione"] },
+  { section: "Persone assicurate", keywords: ["persona assicurata", "assicurato", "versicherte person"] },
+  { section: "Contratto", keywords: ["contratto", "polizza", "vertrag", "police"] },
+  { section: "Ospedale", keywords: ["ospedale", "spital", "hospital", "stationär"] },
+  { section: "Complementare", keywords: ["complementare", "zusatz", "vvg", "lca"] },
+];
+
+export function getInferredSectionsFromText(text: string) {
+  const source = normalizeSearchText(text);
+
+  return sectionPatterns
+    .filter((pattern) =>
+      pattern.keywords.some((keyword) => source.includes(normalizeSearchText(keyword)))
+    )
+    .map((pattern) => pattern.section)
+    .slice(0, 8);
+}
+
+export function detectDocumentLanguages(text: string) {
+  const sample = text.slice(0, 12000);
+  const languages: string[] = [];
+
+  if (/\b(assicurazione|premio|franchigia|polizza|copertura)\b/i.test(sample)) {
+    languages.push("it");
+  }
+  if (/\b(versicherung|prämie|franchise|vertrag|deckung)\b/i.test(sample)) {
+    languages.push("de");
+  }
+  if (/\b(assurance|prime|franchise|contrat|couverture)\b/i.test(sample)) {
+    languages.push("fr");
+  }
+  if (/\b(insurance|premium|deductible|policy|coverage)\b/i.test(sample)) {
+    languages.push("en");
+  }
+
+  return [...new Set(languages)];
+}
+
+export function inferSwissExtractionWarnings(input: {
+  draft: {
+    provider: string;
+    policyType: string;
+    policyNumber: string | null;
+    premiumAmount: number | null;
+    deductible: number | null;
+    renewalDate: string | null;
+    details: Record<string, unknown>;
+  };
+  extractedText: string;
+  matchedKeywords: string[];
+  providerMatched: boolean;
+}) {
+  const warnings: string[] = [];
+  const details = input.draft.details;
+  const insuredPeople = Array.isArray(details.insured_people)
+    ? details.insured_people.length
+    : 0;
+  const coverages = Array.isArray(details.coverages) ? details.coverages.length : 0;
+
+  if (!input.providerMatched) {
+    warnings.push("Compagnia non riconosciuta con certezza dal catalogo svizzero.");
+  }
+  if (!input.draft.policyNumber) {
+    warnings.push("Numero polizza non rilevato nel documento.");
+  }
+  if (input.draft.premiumAmount === null) {
+    warnings.push("Premio non chiaramente identificato.");
+  }
+  if (input.draft.policyType === "health" && insuredPeople === 0 && coverages === 0) {
+    warnings.push("Documento salute senza persone o coperture strutturate.");
+  }
+  if (insuredPeople > 1 && input.draft.premiumAmount !== null) {
+    warnings.push("Piu persone assicurate: verificare premi individuali.");
+  }
+  if (coverages > 1) {
+    warnings.push("Piu coperture nello stesso PDF: verificare eventuali doppioni.");
+  }
+  if (input.matchedKeywords.length < 3 && input.extractedText.length > 500) {
+    warnings.push("Poche keyword svizzere riconosciute nel testo estratto.");
+  }
+
+  return [...new Set(warnings)].slice(0, 8);
 }

@@ -1,4 +1,5 @@
 import type {
+  PolicyBaseInsuranceDetail,
   PolicyCoverageDetail,
   PolicyDetails,
   PolicyDetailValue,
@@ -8,6 +9,7 @@ import type {
   PolicyFieldConfidenceMap,
   PolicyInsuredPersonDetail,
   PolicyPremiumFrequency,
+  PolicyPremiumSummaryDetail,
   PolicyProductDetail,
   TypedPolicyType,
 } from "@/lib/types";
@@ -55,6 +57,13 @@ const policyDetailKeys: Record<TypedPolicyType, Array<keyof PolicyDetails>> = {
     "accident_covered",
     "telemedicine",
     "family_doctor_model",
+    "base_insurance",
+    "travel_coverage",
+    "legal_protection",
+    "premium_summary",
+    "collective_contract",
+    "canton_or_premium_region",
+    "cancellation_deadline",
     "complementary_products",
     "insured_people",
     "coverages",
@@ -78,6 +87,13 @@ const detailLabels: Record<keyof PolicyDetails, string> = {
   accident_covered: "Infortunio incluso",
   telemedicine: "Telemedicina",
   family_doctor_model: "Medico di famiglia",
+  base_insurance: "Assicurazione base",
+  travel_coverage: "Copertura viaggio",
+  legal_protection: "Protezione giuridica",
+  premium_summary: "Riepilogo premi",
+  collective_contract: "Contratto collettivo",
+  canton_or_premium_region: "Cantone / regione premio",
+  cancellation_deadline: "Termine disdetta",
   complementary_products: "Prodotti complementari",
   insured_people: "Persone assicurate",
   coverages: "Coperture rilevate",
@@ -257,6 +273,7 @@ function sanitizeInsuredPerson(value: unknown): PolicyInsuredPersonDetail | null
   const hasAnyValue = [
     value.name,
     value.birth_date,
+    value.insured_number,
     value.premium_amount,
     value.franchise,
     value.deductible,
@@ -270,6 +287,7 @@ function sanitizeInsuredPerson(value: unknown): PolicyInsuredPersonDetail | null
   return {
     name: normalizeNullableText(value.name),
     birth_date: normalizeNullableText(value.birth_date),
+    insured_number: normalizeNullableText(value.insured_number),
     premium_amount: normalizeNullableNumber(value.premium_amount),
     premium_frequency: normalizePremiumFrequency(value.premium_frequency),
     franchise: normalizeNullableNumber(value.franchise),
@@ -322,6 +340,56 @@ function sanitizeFieldConfidenceMap(value: unknown): PolicyFieldConfidenceMap {
   );
 }
 
+function sanitizeBaseInsurance(value: unknown): PolicyBaseInsuranceDetail | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const hasAnyValue = [
+    value.name,
+    value.model,
+    value.premium_amount,
+    value.franchise,
+    value.notes,
+  ].some((item) => item !== null && item !== undefined && item !== "");
+
+  if (!hasAnyValue) {
+    return null;
+  }
+
+  return {
+    name: normalizeNullableText(value.name),
+    model: normalizeNullableText(value.model),
+    premium_amount: normalizeNullableNumber(value.premium_amount),
+    franchise: normalizeNullableNumber(value.franchise),
+    notes: normalizeNullableText(value.notes),
+  };
+}
+
+function sanitizePremiumSummary(value: unknown): PolicyPremiumSummaryDetail | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const hasAnyValue = [
+    value.total_monthly,
+    value.total_annual,
+    value.currency,
+    value.notes,
+  ].some((item) => item !== null && item !== undefined && item !== "");
+
+  if (!hasAnyValue) {
+    return null;
+  }
+
+  return {
+    total_monthly: normalizeNullableNumber(value.total_monthly),
+    total_annual: normalizeNullableNumber(value.total_annual),
+    currency: normalizeNullableText(value.currency)?.toUpperCase() ?? null,
+    notes: normalizeNullableText(value.notes),
+  };
+}
+
 function sanitizeExtractionMetadata(value: unknown): PolicyExtractionMetadata {
   if (!isRecord(value)) {
     return {};
@@ -333,6 +401,9 @@ function sanitizeExtractionMetadata(value: unknown): PolicyExtractionMetadata {
     warnings: sanitizeStringArray(value.warnings),
     provider_raw: normalizeNullableText(value.provider_raw),
     normalized_provider: normalizeNullableText(value.normalized_provider),
+    provider_aliases_matched: sanitizeStringArray(value.provider_aliases_matched),
+    detected_languages: sanitizeStringArray(value.detected_languages),
+    source_hints: sanitizeStringArray(value.source_hints),
   };
 }
 
@@ -393,6 +464,25 @@ function stringifyStructuredDetail(key: keyof PolicyDetails, value: PolicyDetail
     return warningCount > 0
       ? `${warningCount} avviso${warningCount === 1 ? "" : "i"}`
       : "Metadati disponibili";
+  }
+
+  if (key === "base_insurance" && value && typeof value === "object") {
+    const base = value as PolicyBaseInsuranceDetail;
+    return [base.name, base.model].filter(Boolean).join(" / ") || "Base rilevata";
+  }
+
+  if (key === "premium_summary" && value && typeof value === "object") {
+    const summary = value as PolicyPremiumSummaryDetail;
+    const parts: string[] = [];
+
+    if (summary.total_monthly !== null && summary.total_monthly !== undefined) {
+      parts.push(`${formatCHF(summary.total_monthly)} / mese`);
+    }
+    if (summary.total_annual !== null && summary.total_annual !== undefined) {
+      parts.push(`${formatCHF(summary.total_annual)} / anno`);
+    }
+
+    return parts.join(" · ") || "Riepilogo disponibile";
   }
 
   return null;
@@ -507,6 +597,26 @@ export function sanitizePolicyDetails(
         result[key] = normalizeNullableNumber(value) as never;
         break;
       }
+      case "base_insurance": {
+        const baseInsurance = sanitizeBaseInsurance(value);
+
+        if (baseInsurance) {
+          result.base_insurance = baseInsurance;
+        }
+        break;
+      }
+      case "premium_summary": {
+        const premiumSummary = sanitizePremiumSummary(value);
+
+        if (premiumSummary) {
+          result.premium_summary = premiumSummary;
+        }
+        break;
+      }
+      case "collective_contract": {
+        result.collective_contract = normalizeNullableBoolean(value);
+        break;
+      }
       case "complementary":
       case "accident_covered":
       case "telemedicine":
@@ -558,7 +668,10 @@ export function sanitizePolicyDetails(
           Boolean(metadata.normalized_provider) ||
           Boolean(metadata.matched_keywords?.length) ||
           Boolean(metadata.inferred_sections?.length) ||
-          Boolean(metadata.warnings?.length);
+          Boolean(metadata.warnings?.length) ||
+          Boolean(metadata.provider_aliases_matched?.length) ||
+          Boolean(metadata.detected_languages?.length) ||
+          Boolean(metadata.source_hints?.length);
 
         if (hasMetadata) {
           result.extraction_metadata = metadata;
@@ -576,10 +689,16 @@ export function sanitizePolicyDetails(
   }, {});
 }
 
+export interface PolicyDetailRow {
+  key: keyof PolicyDetails;
+  label: string;
+  value: string;
+}
+
 export function getPolicyDetailRows(
   policyType: TypedPolicyType,
   details: PolicyDetails
-) {
+): PolicyDetailRow[] {
   return policyDetailKeys[policyType]
     .map((key) => {
       const value = details[key];
@@ -588,13 +707,18 @@ export function getPolicyDetailRows(
         return null;
       }
 
+      const displayValue = stringifyDetail(key, value as PolicyDetailValue);
+
       return {
         key,
         label: detailLabels[key],
-        value: stringifyDetail(key, value),
+        value:
+          displayValue === null || displayValue === undefined
+            ? ""
+            : String(displayValue),
       };
     })
-    .filter((row): row is NonNullable<typeof row> => Boolean(row));
+    .filter((row): row is PolicyDetailRow => Boolean(row));
 }
 
 export function getPolicyDetailSummary(
@@ -625,7 +749,18 @@ export function getPolicyExtractionMetadata(details: PolicyDetails) {
   return details.extraction_metadata ?? {};
 }
 
-export function getPolicyFieldConfidenceRows(details: PolicyDetails) {
+export interface PolicyFieldConfidenceRow {
+  key: string;
+  label: string;
+  value: string;
+  confidence: number | null;
+  uncertain: boolean;
+  evidence: string | null;
+}
+
+export function getPolicyFieldConfidenceRows(
+  details: PolicyDetails
+): PolicyFieldConfidenceRow[] {
   const confidence = details.field_confidence ?? {};
 
   return Object.entries(fieldConfidenceLabels)
@@ -636,14 +771,23 @@ export function getPolicyFieldConfidenceRows(details: PolicyDetails) {
         return null;
       }
 
+      const displayValue =
+        item.value === null || item.value === undefined
+          ? ""
+          : typeof item.value === "boolean"
+            ? item.value
+              ? "Si"
+              : "No"
+            : String(item.value);
+
       return {
         key,
         label,
-        value: stringifyDetail(key as keyof PolicyDetails, item.value),
+        value: displayValue,
         confidence: item.confidence,
         uncertain: item.uncertain,
         evidence: item.evidence ?? null,
       };
     })
-    .filter((row): row is NonNullable<typeof row> => Boolean(row));
+    .filter((row): row is PolicyFieldConfidenceRow => Boolean(row));
 }

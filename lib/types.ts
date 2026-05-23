@@ -147,6 +147,7 @@ export interface PolicyCoverageDetail {
 export interface PolicyInsuredPersonDetail {
   name: string | null;
   birth_date?: string | null;
+  insured_number?: string | null;
   premium_amount?: number | null;
   premium_frequency?: PolicyPremiumFrequency | null;
   franchise?: number | null;
@@ -155,6 +156,21 @@ export interface PolicyInsuredPersonDetail {
   accident_covered?: boolean | null;
   confidence?: number | null;
   uncertain?: boolean;
+}
+
+export interface PolicyBaseInsuranceDetail {
+  name?: string | null;
+  model?: string | null;
+  premium_amount?: number | null;
+  franchise?: number | null;
+  notes?: string | null;
+}
+
+export interface PolicyPremiumSummaryDetail {
+  total_monthly?: number | null;
+  total_annual?: number | null;
+  currency?: string | null;
+  notes?: string | null;
 }
 
 export interface PolicyProductDetail {
@@ -173,6 +189,9 @@ export interface PolicyExtractionMetadata {
   warnings?: string[];
   provider_raw?: string | null;
   normalized_provider?: string | null;
+  provider_aliases_matched?: string[];
+  detected_languages?: string[];
+  source_hints?: string[];
 }
 
 export type PolicyDetailValue =
@@ -181,6 +200,8 @@ export type PolicyDetailValue =
   | PolicyCoverageDetail[]
   | PolicyInsuredPersonDetail[]
   | PolicyProductDetail[]
+  | PolicyBaseInsuranceDetail
+  | PolicyPremiumSummaryDetail
   | PolicyFieldConfidenceMap
   | PolicyExtractionMetadata;
 
@@ -194,6 +215,13 @@ export type PolicyDetails = {
   accident_covered?: boolean | null;
   telemedicine?: boolean | null;
   family_doctor_model?: boolean | null;
+  base_insurance?: PolicyBaseInsuranceDetail | null;
+  travel_coverage?: string | null;
+  legal_protection?: string | null;
+  premium_summary?: PolicyPremiumSummaryDetail | null;
+  collective_contract?: boolean | null;
+  canton_or_premium_region?: string | null;
+  cancellation_deadline?: string | null;
   complementary_products?: PolicyProductDetail[];
   insured_people?: PolicyInsuredPersonDetail[];
   coverages?: PolicyCoverageDetail[];

@@ -129,6 +129,11 @@ function InsuredPersonCard({ person }: { person: PolicyInsuredPersonDetail }) {
               Nato/a il {formatDate(person.birth_date)}
             </p>
           )}
+          {person.insured_number && (
+            <p className="mt-0.5 text-[11px] text-slate-500">
+              N. assicurato {person.insured_number}
+            </p>
+          )}
         </div>
         <ConfidencePill confidence={person.confidence} uncertain={person.uncertain} />
       </div>
@@ -518,7 +523,10 @@ export default async function PolicyDetailPage({ params }: PageProps) {
           {Boolean(
             extractionMetadata.matched_keywords?.length ||
               extractionMetadata.inferred_sections?.length ||
-              extractionMetadata.warnings?.length
+              extractionMetadata.warnings?.length ||
+              extractionMetadata.provider_aliases_matched?.length ||
+              extractionMetadata.detected_languages?.length ||
+              extractionMetadata.source_hints?.length
           ) && (
             <SectionCard title="Metadati estrazione" padding="md">
               <div className="space-y-3 text-[11px] leading-relaxed">
@@ -544,9 +552,36 @@ export default async function PolicyDetailPage({ params }: PageProps) {
                     </p>
                   </div>
                 )}
+                {Boolean(extractionMetadata.provider_aliases_matched?.length) && (
+                  <div>
+                    <div className="flex items-center gap-1.5 font-semibold text-slate-700">
+                      <BadgeCheck className="h-3.5 w-3.5 text-blue-600" />
+                      Alias compagnia
+                    </div>
+                    <p className="mt-1 text-slate-500">
+                      {extractionMetadata.provider_aliases_matched?.join(", ")}
+                    </p>
+                  </div>
+                )}
+                {Boolean(extractionMetadata.detected_languages?.length) && (
+                  <div>
+                    <div className="flex items-center gap-1.5 font-semibold text-slate-700">
+                      <Sparkles className="h-3.5 w-3.5 text-slate-500" />
+                      Lingue rilevate
+                    </div>
+                    <p className="mt-1 uppercase text-slate-500">
+                      {extractionMetadata.detected_languages?.join(", ")}
+                    </p>
+                  </div>
+                )}
                 {Boolean(extractionMetadata.warnings?.length) && (
                   <div className="rounded-lg border border-amber-100 bg-amber-50 p-2 text-amber-700">
-                    {extractionMetadata.warnings?.join(" ")}
+                    <p className="font-semibold">Da verificare</p>
+                    <ul className="mt-1 list-disc space-y-1 pl-4">
+                      {extractionMetadata.warnings?.map((warning) => (
+                        <li key={warning}>{warning}</li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </div>
