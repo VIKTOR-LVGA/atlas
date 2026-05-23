@@ -1,4 +1,8 @@
 import type { PolicyDocumentExtractionResult } from "@/lib/document-analysis";
+import {
+  enrichHealthPolicyOwnership,
+  hasHealthPolicyDetailData,
+} from "@/lib/policy-health-grouping";
 import type {
   PolicyDetails,
   PolicyExtractionMetadata,
@@ -243,7 +247,7 @@ export function enrichSwissPolicyExtraction(
     document.fileName
   );
 
-  const enrichedDetails: PolicyDetails = {
+  let enrichedDetails: PolicyDetails = {
     ...details,
     coverage_kind:
       details.coverage_kind ??
@@ -251,6 +255,19 @@ export function enrichSwissPolicyExtraction(
     field_confidence: fieldConfidence,
     extraction_metadata: extractionMetadata,
   };
+
+  if (
+    result.draft.policyType === "health" &&
+    hasHealthPolicyDetailData(enrichedDetails)
+  ) {
+    const familyPremium =
+      result.draft.premiumAmount ??
+      enrichedDetails.premium_summary?.final_monthly ??
+      enrichedDetails.premium_summary?.total_monthly ??
+      null;
+
+    enrichedDetails = enrichHealthPolicyOwnership(enrichedDetails, familyPremium);
+  }
 
   const overallConfidence =
     result.draft.extractionConfidence ??

@@ -1,5 +1,6 @@
 import { Shield } from "lucide-react";
 import { ConfidenceBadge } from "@/components/ui/ConfidenceBadge";
+import { getCoverageNetPremium } from "@/lib/policy-health-grouping";
 import { formatCHF } from "@/lib/utils";
 import type { PolicyCoverageDetail, PolicyPremiumFrequency } from "@/lib/types";
 
@@ -36,8 +37,8 @@ export function PolicyCoverageCard({ coverage }: { coverage: PolicyCoverageDetai
         <div>
           <dt className="text-slate-400">Premio</dt>
           <dd className="mt-0.5 font-medium text-slate-800">
-            {coverage.premium_amount != null
-              ? `${formatCHF(coverage.premium_amount)}${
+            {getCoverageNetPremium(coverage) != null
+              ? `${formatCHF(getCoverageNetPremium(coverage) ?? 0)}${
                   coverage.premium_frequency
                     ? ` / ${premiumFrequencyLabels[coverage.premium_frequency]}`
                     : ""

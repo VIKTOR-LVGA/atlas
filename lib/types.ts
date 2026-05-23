@@ -128,32 +128,62 @@ export type PolicyFieldConfidenceMap = Partial<
   Record<PolicyFieldConfidenceKey, PolicyFieldConfidence>
 >;
 
+export interface PolicyCoverageDiscount {
+  label: string | null;
+  amount: number | null;
+  notes?: string | null;
+}
+
+export type PolicyCoverageAssignmentSource = "manual" | "ai" | string;
+
 export interface PolicyCoverageDetail {
   name: string;
+  stable_key?: string | null;
   policy_type?: TypedPolicyType | null;
   coverage_type?: string | null;
   category_label?: string | null;
+  premium_gross?: number | null;
   premium_amount?: number | null;
+  premium_final?: number | null;
   premium_frequency?: PolicyPremiumFrequency | null;
+  discounts?: PolicyCoverageDiscount[];
   deductible?: number | null;
   franchise?: number | null;
   coverage_amount?: number | null;
   insured_person_name?: string | null;
+  insured_number?: string | null;
+  person_index?: number | null;
+  applies_to?: string | null;
+  section_id?: string | null;
+  source_page?: number | null;
+  source_order?: number | null;
   confidence?: number | null;
+  ownership_confidence?: number | null;
+  assignment_source?: PolicyCoverageAssignmentSource | null;
+  assigned_at?: string | null;
   uncertain?: boolean;
   notes?: string | null;
 }
 
 export interface PolicyInsuredPersonDetail {
   name: string | null;
+  stable_key?: string | null;
   birth_date?: string | null;
   insured_number?: string | null;
+  customer_number?: string | null;
+  policy_number?: string | null;
+  section_id?: string | null;
+  source_order?: number | null;
   premium_amount?: number | null;
   premium_frequency?: PolicyPremiumFrequency | null;
+  total_monthly_premium?: number | null;
+  base_premium?: number | null;
+  complementary_premium?: number | null;
   franchise?: number | null;
   deductible?: number | null;
   model?: string | null;
   accident_covered?: boolean | null;
+  coverages?: PolicyCoverageDetail[];
   confidence?: number | null;
   uncertain?: boolean;
 }
@@ -169,6 +199,9 @@ export interface PolicyBaseInsuranceDetail {
 export interface PolicyPremiumSummaryDetail {
   total_monthly?: number | null;
   total_annual?: number | null;
+  gross_monthly?: number | null;
+  discounts_total?: number | null;
+  final_monthly?: number | null;
   currency?: string | null;
   notes?: string | null;
 }
@@ -176,9 +209,20 @@ export interface PolicyPremiumSummaryDetail {
 export interface PolicyProductDetail {
   name: string;
   coverage_type?: string | null;
+  premium_gross?: number | null;
   premium_amount?: number | null;
+  premium_final?: number | null;
   premium_frequency?: PolicyPremiumFrequency | null;
+  discounts?: PolicyCoverageDiscount[];
+  insured_person_name?: string | null;
+  insured_number?: string | null;
+  person_index?: number | null;
+  applies_to?: string | null;
+  section_id?: string | null;
+  source_page?: number | null;
+  source_order?: number | null;
   confidence?: number | null;
+  ownership_confidence?: number | null;
   uncertain?: boolean;
   notes?: string | null;
 }

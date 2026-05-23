@@ -5,11 +5,24 @@ import "server-only";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
+  applyManualCoverageAssignment,
+  CoverageAssignmentError,
+} from "@/lib/coverage-assignment";
+import { buildPersonStableKey } from "@/lib/coverage-stable-keys";
+import {
+  ExtractionCorrectionError,
+  reportExtractionCorrectionCount,
+  saveExtractionCorrection,
+} from "@/lib/extraction-corrections";
+import {
   createPolicy,
   deletePolicy,
+  getCurrentUserPolicyById,
   PolicyManagementError,
   updatePolicy,
+  updatePolicyDetails,
 } from "@/lib/policies";
+import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { isTypedPolicyType } from "@/lib/policy-types";
 import type {
   PolicyDetails,
@@ -44,6 +57,11 @@ export type PolicyActionState = {
 };
 
 export type DeletePolicyActionState = PolicyActionState;
+
+export type AssignCoverageActionState = {
+  status: "idle" | "success" | "error";
+  message: string;
+};
 
 function getTextField(formData: FormData, name: string) {
   const value = formData.get(name);
@@ -354,6 +372,135 @@ export async function updatePolicyAction(
   }
 
   redirect(`/policies/${id}`);
+}
+
+export async function assignCoverageToInsuredPerson(
+  policyId: string,
+  coverageStableKey: string,
+  insuredPersonKey: string
+): Promise<AssignCoverageActionState> {
+  const coverageKey = coverageStableKey.trim();
+  const personKey = insuredPersonKey.trim();
+
+  if (!coverageKey || !personKey) {
+    return {
+      status: "error",
+      message: "Seleziona una persona per questa copertura.",
+    };
+  }
+
+  const supabase = await getSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {
+      status: "error",
+      message: "Accedi di nuovo per assegnare la copertura.",
+    };
+  }
+
+  const policy = await getCurrentUserPolicyById(policyId);
+
+  if (!policy) {
+    return {
+      status: "error",
+      message: "Polizza non trovata.",
+    };
+  }
+
+  if (policy.policyType !== "health") {
+    return {
+      status: "error",
+      message: "L'assegnazione manuale è disponibile per le polizze salute.",
+    };
+  }
+
+  try {
+    const assignedAt = new Date().toISOString();
+    const result = applyManualCoverageAssignment(
+      policy.details,
+      policy.premiumAmount,
+      coverageKey,
+      personKey,
+      assignedAt
+    );
+
+    const updated = await updatePolicyDetails(policyId, result.details);
+
+    if (!updated) {
+      return {
+        status: "error",
+        message: "Polizza non trovata.",
+      };
+    }
+
+    await saveExtractionCorrection(user.id, {
+      correction_type: "coverage_person_assignment",
+      policy_id: policyId,
+      document_id: policy.documentId,
+      provider: policy.provider,
+      policy_type: policy.policyType,
+      coverage_name: result.coverage.name,
+      coverage_kind:
+        result.coverage.coverage_type ??
+        result.coverage.category_label ??
+        policy.details.coverage_kind ??
+        null,
+      coverage_stable_key: coverageKey,
+      previous_assignment: result.previousAssignment,
+      corrected_assignment: {
+        insured_person_name: result.person.name,
+        insured_number: result.person.insured_number ?? null,
+        person_stable_key: buildPersonStableKey(result.person),
+        assignment_source: "manual",
+      },
+      source_context: {
+        source_page: result.coverage.source_page ?? null,
+        source_order: result.coverage.source_order ?? null,
+        extraction_confidence: result.coverage.confidence ?? null,
+        ownership_confidence_before: result.ownershipConfidenceBefore,
+        document_filename: policy.document?.fileName ?? null,
+      },
+    });
+
+    await reportExtractionCorrectionCount(
+      user.id,
+      policy.provider,
+      policy.policyType
+    );
+
+    revalidatePolicyViews(policyId, policy.documentId);
+    redirect(`/policies/${policyId}?assigned=1`);
+  } catch (error) {
+    if (
+      error instanceof CoverageAssignmentError ||
+      error instanceof ExtractionCorrectionError
+    ) {
+      return {
+        status: "error",
+        message: error.message,
+      };
+    }
+
+    return getPolicyErrorState(error) as AssignCoverageActionState;
+  }
+}
+
+export async function assignCoverageToInsuredPersonAction(
+  policyId: string,
+  _previousState: AssignCoverageActionState,
+  formData: FormData
+): Promise<AssignCoverageActionState> {
+  const coverageStableKey = String(formData.get("coverage_stable_key") ?? "");
+  const insuredPersonKey = String(formData.get("insured_person_key") ?? "");
+
+  return assignCoverageToInsuredPerson(
+    policyId,
+    coverageStableKey,
+    insuredPersonKey
+  );
 }
 
 export async function deletePolicyAction(

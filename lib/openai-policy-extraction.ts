@@ -350,72 +350,93 @@ function getFieldConfidenceSchemaProperties() {
   };
 }
 
-function getPolicyProductSchema() {
+function getDiscountSchema() {
   return {
     type: "object",
     additionalProperties: false,
     properties: {
-      name: { type: "string" },
-      coverage_type: nullablePolicySubtype,
-      premium_amount: nullableNumber,
-      premium_frequency: {
-        anyOf: [{ type: "string", enum: premiumFrequencies }, { type: "null" }],
-      },
-      confidence: nullableNumber,
-      uncertain: { type: "boolean" },
+      label: nullableText,
+      amount: nullableNumber,
       notes: nullableText,
     },
-    required: [
-      "name",
-      "coverage_type",
-      "premium_amount",
-      "premium_frequency",
-      "confidence",
-      "uncertain",
-      "notes",
-    ],
+    required: ["label", "amount", "notes"],
   };
 }
 
-function getCoverageSchema() {
+function getCoverageLineSchema(includePolicyFields: boolean) {
+  const properties: Record<string, unknown> = {
+    name: { type: "string" },
+    coverage_type: nullablePolicySubtype,
+    category_label: nullableText,
+    premium_gross: nullableNumber,
+    premium_amount: nullableNumber,
+    premium_final: nullableNumber,
+    premium_frequency: {
+      anyOf: [{ type: "string", enum: premiumFrequencies }, { type: "null" }],
+    },
+    discounts: {
+      type: "array",
+      items: getDiscountSchema(),
+    },
+    insured_person_name: nullableText,
+    insured_number: nullableText,
+    section_id: nullableText,
+    source_page: nullableNumber,
+    source_order: nullableNumber,
+    person_index: nullableNumber,
+    applies_to: nullableText,
+    confidence: nullableNumber,
+    ownership_confidence: nullableNumber,
+    uncertain: { type: "boolean" },
+    notes: nullableText,
+  };
+
+  const required = [
+    "name",
+    "coverage_type",
+    "category_label",
+    "premium_gross",
+    "premium_amount",
+    "premium_final",
+    "premium_frequency",
+    "discounts",
+    "insured_person_name",
+    "insured_number",
+    "section_id",
+    "source_page",
+    "source_order",
+    "person_index",
+    "applies_to",
+    "confidence",
+    "ownership_confidence",
+    "uncertain",
+    "notes",
+  ];
+
+  if (includePolicyFields) {
+    properties.policy_type = {
+      anyOf: [{ type: "string", enum: typedPolicyTypes }, { type: "null" }],
+    };
+    properties.deductible = nullableNumber;
+    properties.franchise = nullableNumber;
+    properties.coverage_amount = nullableNumber;
+    required.push("policy_type", "deductible", "franchise", "coverage_amount");
+  }
+
   return {
     type: "object",
     additionalProperties: false,
-    properties: {
-      name: { type: "string" },
-      policy_type: {
-        anyOf: [{ type: "string", enum: typedPolicyTypes }, { type: "null" }],
-      },
-      coverage_type: nullablePolicySubtype,
-      category_label: nullableText,
-      premium_amount: nullableNumber,
-      premium_frequency: {
-        anyOf: [{ type: "string", enum: premiumFrequencies }, { type: "null" }],
-      },
-      deductible: nullableNumber,
-      franchise: nullableNumber,
-      coverage_amount: nullableNumber,
-      insured_person_name: nullableText,
-      confidence: nullableNumber,
-      uncertain: { type: "boolean" },
-      notes: nullableText,
-    },
-    required: [
-      "name",
-      "policy_type",
-      "coverage_type",
-      "category_label",
-      "premium_amount",
-      "premium_frequency",
-      "deductible",
-      "franchise",
-      "coverage_amount",
-      "insured_person_name",
-      "confidence",
-      "uncertain",
-      "notes",
-    ],
+    properties,
+    required,
   };
+}
+
+function getPolicyProductSchema() {
+  return getCoverageLineSchema(false);
+}
+
+function getCoverageSchema() {
+  return getCoverageLineSchema(true);
 }
 
 function getBaseInsuranceSchema() {
@@ -440,10 +461,21 @@ function getPremiumSummarySchema() {
     properties: {
       total_monthly: nullableNumber,
       total_annual: nullableNumber,
+      gross_monthly: nullableNumber,
+      discounts_total: nullableNumber,
+      final_monthly: nullableNumber,
       currency: nullableText,
       notes: nullableText,
     },
-    required: ["total_monthly", "total_annual", "currency", "notes"],
+    required: [
+      "total_monthly",
+      "total_annual",
+      "gross_monthly",
+      "discounts_total",
+      "final_monthly",
+      "currency",
+      "notes",
+    ],
   };
 }
 
@@ -455,14 +487,25 @@ function getInsuredPersonSchema() {
       name: nullableText,
       birth_date: nullableText,
       insured_number: nullableText,
+      customer_number: nullableText,
+      policy_number: nullableText,
+      section_id: nullableText,
+      source_order: nullableNumber,
       premium_amount: nullableNumber,
       premium_frequency: {
         anyOf: [{ type: "string", enum: premiumFrequencies }, { type: "null" }],
       },
+      total_monthly_premium: nullableNumber,
+      base_premium: nullableNumber,
+      complementary_premium: nullableNumber,
       franchise: nullableNumber,
       deductible: nullableNumber,
       model: nullableText,
       accident_covered: nullableBoolean,
+      coverages: {
+        type: "array",
+        items: getCoverageSchema(),
+      },
       confidence: nullableNumber,
       uncertain: { type: "boolean" },
     },
@@ -470,12 +513,20 @@ function getInsuredPersonSchema() {
       "name",
       "birth_date",
       "insured_number",
+      "customer_number",
+      "policy_number",
+      "section_id",
+      "source_order",
       "premium_amount",
       "premium_frequency",
+      "total_monthly_premium",
+      "base_premium",
+      "complementary_premium",
       "franchise",
       "deductible",
       "model",
       "accident_covered",
+      "coverages",
       "confidence",
       "uncertain",
     ],
@@ -808,8 +859,12 @@ async function callOpenAIForPolicyExtraction(
             "You are Swiss-insurance-aware: recognize LAMal/KVG base insurance, LCA/VVG complementary insurance, hospital coverage, dental, accident, household, private liability, car, casco partial/full, legal protection, travel, life, income protection, business insurance, and other.",
             "Use policy_type only as the broad Atlas category: health, liability, household, car, legal, other. Use policy_subtype for the specific Swiss category.",
             "Normalize provider names when obvious, but keep uncertain fields null. Do not invent policy numbers, dates, premiums, franchises, persons, or coverages.",
-            "For a PDF containing multiple coverages or multiple insured people, keep one primary draft and put all coverages in details.coverages, people in details.insured_people, and products in details.complementary_products or details.products.",
-            "For health insurance (including Helsana family PDFs), fill model, franchise, deductible, accident_covered, hospital_coverage, telemedicine, family_doctor_model, base_insurance, complementary_products, insured_people with insured_number when present, premium_summary, collective_contract, canton_or_premium_region, cancellation_deadline only if explicit, travel_coverage, legal_protection, and coverages when supported by text.",
+            "Swiss insurance PDFs often repeat blocks per insured person. Treat headings with person name, birth date, insured number (n. d'assicurato / Versichertennummer), customer number, contract or policy number as section anchors. Preserve PDF source order using source_order (increasing integers in reading order) and source_page when visible.",
+            "For each insured person create details.insured_people[] with section_id, source_order, coverages[] nested under that person, per-person totals (total_monthly_premium, base_premium, complementary_premium), franchise, model. Also mirror lines in details.coverages[] with ownership fields when clear.",
+            "For each product/coverage line extract: name, Swiss kind (LAMal/KVG base, LCA/VVG complementary, hospital, legal protection, travel/foreign, accident, Telmed, HMO, family doctor model), premium_gross, discounts[] (label+amount for reductions), premium_final (payable), premium_amount same as premium_final, insured_person_name, insured_number, section_id, source_order, ownership_confidence (0-100, null if unknown).",
+            "Distinguish gross premium, discounts/reductions, final payable premium, per-person total, and family/contract total. Put contract/family payable total in premium_amount and premium_summary.final_monthly; never use family total as a person line premium.",
+            "Assign ownership using nearest section anchor and insured number. If ownership is unclear set insured_person_name null, ownership_confidence low, uncertain true. Prefer null over guessing.",
+            "One primary draft per PDF. For health fill hospital_coverage, telemedicine, family_doctor_model, base_insurance, premium_summary (gross_monthly, discounts_total, final_monthly), collective_contract, canton_or_premium_region, cancellation_deadline, travel_coverage, legal_protection when explicit.",
             "Every important field needs field_confidence with value, confidence 0-100, uncertain true when the evidence is weak, and a short evidence snippet. Use null and uncertainty instead of hallucinating.",
             "Add extraction_metadata.matched_keywords, inferred_sections, and warnings for ambiguous or missing information. Dates must be YYYY-MM-DD. Currency should usually be CHF.",
           ].join(" "),

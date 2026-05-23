@@ -2,12 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FileText, PencilLine } from "lucide-react";
 import { PolicyDeleteForm } from "@/components/policies/PolicyDeleteForm";
-import { PolicyCoverageCard } from "@/components/policies/PolicyCoverageCard";
 import { PolicyExtractionMetadataPanel } from "@/components/policies/PolicyExtractionMetadataPanel";
 import { PolicyFieldConfidenceTable } from "@/components/policies/PolicyFieldConfidenceTable";
 import { PolicyHeroSummary } from "@/components/policies/PolicyHeroSummary";
-import { PolicyInsuredPersonCard } from "@/components/policies/PolicyInsuredPersonCard";
-import { PolicyProductCard } from "@/components/policies/PolicyProductCard";
+import {
+  PolicyGlobalCoveragesSection,
+  PolicyInsuredPeopleSection,
+  PolicyUnassignedCoveragesSection,
+} from "@/components/policies/PolicyInsuredPeopleSection";
 import { PolicySummaryMetrics } from "@/components/policies/PolicySummaryMetrics";
 import { IconPolicies } from "@/components/icons";
 import { ActionBar, ActionButton } from "@/components/ui/ActionBar";
@@ -18,6 +20,17 @@ import { PageShell } from "@/components/ui/PageShell";
 import { ReviewBanner } from "@/components/ui/ReviewBanner";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { WarningPanel } from "@/components/ui/WarningPanel";
+import {
+  buildCoverageStableKey,
+  buildPersonStableKey,
+  withCoverageStableKey,
+} from "@/lib/coverage-stable-keys";
+import {
+  getHealthPolicyGroupedView,
+  getPolicyCoveragesForDisplay,
+  hasHealthPolicyDetailData,
+  shouldShowGroupedHealthUI,
+} from "@/lib/policy-health-grouping";
 import { getCurrentUserPolicyById } from "@/lib/policies";
 import {
   getPolicyCoverages,
@@ -25,7 +38,6 @@ import {
   getPolicyExtractionMetadata,
   getPolicyFieldConfidenceRows,
   getPolicyInsuredPeople,
-  getPolicyProducts,
   getPolicyTypeLabel,
 } from "@/lib/policy-types";
 import { formatCHF, formatDate, formatDateTime } from "@/lib/utils";
@@ -33,6 +45,7 @@ import type { PolicyPremiumFrequency } from "@/lib/types";
 
 interface PageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ assigned?: string }>;
 }
 
 export const metadata = { title: "Dettaglio polizza" };
@@ -44,8 +57,9 @@ const premiumFrequencyLabels: Record<PolicyPremiumFrequency, string> = {
   annual: "Annuale",
 };
 
-export default async function PolicyDetailPage({ params }: PageProps) {
+export default async function PolicyDetailPage({ params, searchParams }: PageProps) {
   const { id } = await params;
+  const { assigned } = await searchParams;
   const policy = await getCurrentUserPolicyById(id);
 
   if (!policy) {
@@ -58,22 +72,74 @@ export default async function PolicyDetailPage({ params }: PageProps) {
   );
   const detailRows = getPolicyDetailRows(policy.policyType, policy.details);
   const coverages = getPolicyCoverages(policy.details);
+  const coveragesForDisplay = getPolicyCoveragesForDisplay(policy.details);
   const insuredPeople = getPolicyInsuredPeople(policy.details);
-  const products = getPolicyProducts(policy.details);
   const fieldConfidenceRows = getPolicyFieldConfidenceRows(policy.details);
   const uncertainFields = fieldConfidenceRows.filter((row) => row.uncertain);
   const extractionMetadata = getPolicyExtractionMetadata(policy.details);
-  const userWarnings = extractionMetadata.warnings ?? [];
+
+  const healthGrouped =
+    policy.policyType === "health" && hasHealthPolicyDetailData(policy.details)
+      ? getHealthPolicyGroupedView(
+          policy.details,
+          policy.premiumAmount,
+          policy.id
+        )
+      : null;
+
+  const ownershipWarnings = healthGrouped?.ownershipWarnings ?? [];
+  const metadataWarnings = extractionMetadata.warnings ?? [];
+  const displayWarnings = [
+    ...new Set(
+      [...ownershipWarnings, ...metadataWarnings].filter(
+        (warning) =>
+          !warning.includes("Poche keyword") &&
+          !warning.includes("Numero polizza non rilevato")
+      )
+    ),
+  ].slice(0, 6);
+
+  const showGroupedHealth = shouldShowGroupedHealthUI(healthGrouped);
+
+  const displayInsuredCount = healthGrouped?.people.length ?? insuredPeople.length;
+  const displayCoverageCount = healthGrouped
+    ? healthGrouped.people.reduce((sum, person) => sum + person.coverages.length, 0) +
+      healthGrouped.unassignedCoverages.length
+    : coveragesForDisplay.length || coverages.length;
+
+  const assignPeople =
+    healthGrouped?.people.map((person) => ({
+      stableKey: buildPersonStableKey(person),
+      label: person.name ?? "Persona assicurata",
+    })) ?? [];
+
+  const unassignedAssignItems =
+    healthGrouped?.unassignedCoverages.map((coverage) => {
+      const withKey = withCoverageStableKey(coverage);
+      return {
+        stableKey: withKey.stable_key ?? buildCoverageStableKey(withKey),
+        coverage: withKey,
+      };
+    }) ?? [];
 
   return (
     <PageShell backHref="/policies" backLabel="Torna alle polizze">
       <PolicyHeroSummary policy={policy} />
 
+      {assigned === "1" ? (
+        <div
+          role="status"
+          className="rounded-xl border border-emerald-100 bg-emerald-50/80 px-4 py-3 text-[13px] font-medium text-emerald-800"
+        >
+          Copertura assegnata correttamente. Il riepilogo è aggiornato.
+        </div>
+      ) : null}
+
       <PolicySummaryMetrics
         premiumAmount={policy.premiumAmount}
         premiumFrequency={policy.premiumFrequency}
-        insuredCount={insuredPeople.length}
-        coverageCount={coverages.length}
+        insuredCount={displayInsuredCount}
+        coverageCount={displayCoverageCount}
         extractionConfidence={policy.extractionConfidence}
       />
 
@@ -86,55 +152,36 @@ export default async function PolicyDetailPage({ params }: PageProps) {
         />
       ) : null}
 
-      {userWarnings.length > 0 ? (
-        <WarningPanel items={userWarnings} />
-      ) : null}
+      {displayWarnings.length > 0 ? <WarningPanel items={displayWarnings} /> : null}
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="space-y-6">
-          {coverages.length > 0 ? (
-            <SectionCard
-              title="Coperture rilevate"
-              description="Prodotti e garanzie presenti nel documento."
-            >
-              <div className="grid gap-3 sm:grid-cols-2">
-                {coverages.map((coverage, index) => (
-                  <PolicyCoverageCard
-                    key={`${coverage.name}-${index}`}
-                    coverage={coverage}
-                  />
-                ))}
-              </div>
-            </SectionCard>
+          {showGroupedHealth && healthGrouped ? (
+            <>
+              <PolicyInsuredPeopleSection grouped={healthGrouped} />
+              <PolicyUnassignedCoveragesSection
+                policyId={policy.id}
+                items={unassignedAssignItems}
+                people={assignPeople}
+              />
+              {coveragesForDisplay.length > 0 ? (
+                <PolicyGlobalCoveragesSection coverages={coveragesForDisplay} />
+              ) : null}
+            </>
+          ) : policy.policyType === "health" && insuredPeople.length > 0 ? (
+            <PolicyInsuredPeopleSection
+              grouped={getHealthPolicyGroupedView(
+                policy.details,
+                policy.premiumAmount,
+                policy.id
+              )}
+            />
           ) : null}
 
-          {insuredPeople.length > 0 ? (
-            <SectionCard
-              title="Persone assicurate"
-              description="Premi e franchigie per componente familiare."
-            >
-              <div className="grid gap-3 sm:grid-cols-2">
-                {insuredPeople.map((person, index) => (
-                  <PolicyInsuredPersonCard
-                    key={`${person.name ?? "insured"}-${index}`}
-                    person={person}
-                  />
-                ))}
-              </div>
-            </SectionCard>
-          ) : null}
-
-          {products.length > 0 ? (
-            <SectionCard title="Prodotti estratti">
-              <div className="grid gap-2 sm:grid-cols-2">
-                {products.map((product, index) => (
-                  <PolicyProductCard
-                    key={`${product.name}-${index}`}
-                    product={product}
-                  />
-                ))}
-              </div>
-            </SectionCard>
+          {!showGroupedHealth &&
+          policy.policyType !== "health" &&
+          coverages.length > 0 ? (
+            <PolicyGlobalCoveragesSection coverages={coverages} />
           ) : null}
 
           <SectionCard title="Dati polizza">

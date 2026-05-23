@@ -1,6 +1,12 @@
+import {
+  buildCoverageStableKey,
+  buildPersonStableKey,
+} from "@/lib/coverage-stable-keys";
+import { inferInsuredPeopleFromDetails } from "@/lib/policy-health-grouping";
 import type {
   PolicyBaseInsuranceDetail,
   PolicyCoverageDetail,
+  PolicyCoverageDiscount,
   PolicyDetails,
   PolicyDetailValue,
   PolicyExtractionMetadata,
@@ -195,6 +201,51 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
+function sanitizeDiscounts(value: unknown): PolicyCoverageDiscount[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  const discounts: PolicyCoverageDiscount[] = [];
+
+  for (const item of value) {
+    if (!isRecord(item)) {
+      continue;
+    }
+
+    const label = normalizeNullableText(item.label);
+    const amount = normalizeNullableNumber(item.amount);
+
+    if (!label && amount === null) {
+      continue;
+    }
+
+    discounts.push({
+      label,
+      amount,
+      notes: normalizeNullableText(item.notes),
+    });
+
+    if (discounts.length >= 12) {
+      break;
+    }
+  }
+
+  return discounts;
+}
+
+function sanitizeCoveragePremiums(value: Record<string, unknown>) {
+  const premiumFinal =
+    normalizeNullableNumber(value.premium_final) ??
+    normalizeNullableNumber(value.premium_amount);
+
+  return {
+    premium_gross: normalizeNullableNumber(value.premium_gross),
+    premium_final: premiumFinal,
+    premium_amount: premiumFinal,
+  };
+}
+
 function sanitizeProduct(value: unknown): PolicyProductDetail | null {
   if (!isRecord(value)) {
     return null;
@@ -206,12 +257,23 @@ function sanitizeProduct(value: unknown): PolicyProductDetail | null {
     return null;
   }
 
+  const premiums = sanitizeCoveragePremiums(value);
+
   return {
     name,
     coverage_type: normalizeNullableText(value.coverage_type),
-    premium_amount: normalizeNullableNumber(value.premium_amount),
+    ...premiums,
     premium_frequency: normalizePremiumFrequency(value.premium_frequency),
+    discounts: sanitizeDiscounts(value.discounts),
+    insured_person_name: normalizeNullableText(value.insured_person_name),
+    insured_number: normalizeNullableText(value.insured_number),
+    person_index: normalizeNullableNumber(value.person_index),
+    applies_to: normalizeNullableText(value.applies_to),
+    section_id: normalizeNullableText(value.section_id),
+    source_page: normalizeNullableNumber(value.source_page),
+    source_order: normalizeNullableNumber(value.source_order),
     confidence: normalizeConfidence(value.confidence),
+    ownership_confidence: normalizeConfidence(value.ownership_confidence),
     uncertain: Boolean(value.uncertain),
     notes: normalizeNullableText(value.notes),
   };
@@ -237,22 +299,44 @@ function sanitizeCoverage(value: unknown): PolicyCoverageDetail | null {
     return null;
   }
 
-  return {
+  const premiums = sanitizeCoveragePremiums(value);
+  const assignmentSource = normalizeNullableText(value.assignment_source);
+
+  const coverage: PolicyCoverageDetail = {
     name,
+    stable_key: normalizeNullableText(value.stable_key),
     policy_type: isTypedPolicyType(normalizeNullableText(value.policy_type) ?? "")
       ? (normalizeNullableText(value.policy_type) as TypedPolicyType)
       : null,
     coverage_type: normalizeNullableText(value.coverage_type),
     category_label: normalizeNullableText(value.category_label),
-    premium_amount: normalizeNullableNumber(value.premium_amount),
+    ...premiums,
     premium_frequency: normalizePremiumFrequency(value.premium_frequency),
+    discounts: sanitizeDiscounts(value.discounts),
     deductible: normalizeNullableNumber(value.deductible),
     franchise: normalizeNullableNumber(value.franchise),
     coverage_amount: normalizeNullableNumber(value.coverage_amount),
     insured_person_name: normalizeNullableText(value.insured_person_name),
+    insured_number: normalizeNullableText(value.insured_number),
+    person_index: normalizeNullableNumber(value.person_index),
+    applies_to: normalizeNullableText(value.applies_to),
+    section_id: normalizeNullableText(value.section_id),
+    source_page: normalizeNullableNumber(value.source_page),
+    source_order: normalizeNullableNumber(value.source_order),
     confidence: normalizeConfidence(value.confidence),
+    ownership_confidence: normalizeConfidence(value.ownership_confidence),
+    assignment_source:
+      assignmentSource === "manual" || assignmentSource === "ai"
+        ? assignmentSource
+        : assignmentSource,
+    assigned_at: normalizeNullableText(value.assigned_at),
     uncertain: Boolean(value.uncertain),
     notes: normalizeNullableText(value.notes),
+  };
+
+  return {
+    ...coverage,
+    stable_key: coverage.stable_key ?? buildCoverageStableKey(coverage),
   };
 }
 
@@ -265,37 +349,100 @@ function sanitizeCoverages(value: unknown) {
     : [];
 }
 
+function readInsuredPersonName(value: Record<string, unknown>) {
+  const direct = normalizeNullableText(value.name);
+  if (direct) {
+    return direct;
+  }
+
+  const fullName = normalizeNullableText(value.full_name);
+  if (fullName) {
+    return fullName;
+  }
+
+  const first = normalizeNullableText(value.first_name);
+  const last = normalizeNullableText(value.last_name);
+
+  if (first || last) {
+    return [first, last].filter(Boolean).join(" ").trim() || null;
+  }
+
+  return null;
+}
+
+function parsePolicyDetailsSource(details: unknown): Record<string, unknown> | null {
+  if (typeof details === "string") {
+    try {
+      const parsed: unknown = JSON.parse(details);
+      return isRecord(parsed) ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+
+  return isRecord(details) ? details : null;
+}
+
 function sanitizeInsuredPerson(value: unknown): PolicyInsuredPersonDetail | null {
   if (!isRecord(value)) {
     return null;
   }
 
-  const hasAnyValue = [
-    value.name,
-    value.birth_date,
-    value.insured_number,
-    value.premium_amount,
-    value.franchise,
-    value.deductible,
-    value.model,
-  ].some((item) => item !== null && item !== undefined && item !== "");
+  const personName = readInsuredPersonName(value);
+
+  const hasAnyValue =
+    [
+      personName,
+      value.birth_date,
+      value.insured_number,
+      value.customer_number,
+      value.policy_number,
+      value.section_id,
+      value.premium_amount,
+      value.total_monthly_premium,
+      value.base_premium,
+      value.complementary_premium,
+      value.franchise,
+      value.deductible,
+      value.model,
+    ].some((item) => item !== null && item !== undefined && item !== "") ||
+    (Array.isArray(value.coverages) && value.coverages.length > 0);
 
   if (!hasAnyValue) {
     return null;
   }
 
-  return {
-    name: normalizeNullableText(value.name),
+  const person: PolicyInsuredPersonDetail = {
+    name: personName,
+    stable_key: normalizeNullableText(value.stable_key),
     birth_date: normalizeNullableText(value.birth_date),
     insured_number: normalizeNullableText(value.insured_number),
+    customer_number: normalizeNullableText(value.customer_number),
+    policy_number: normalizeNullableText(value.policy_number),
+    section_id: normalizeNullableText(value.section_id),
+    source_order: normalizeNullableNumber(value.source_order),
     premium_amount: normalizeNullableNumber(value.premium_amount),
     premium_frequency: normalizePremiumFrequency(value.premium_frequency),
+    total_monthly_premium: normalizeNullableNumber(value.total_monthly_premium),
+    base_premium: normalizeNullableNumber(value.base_premium),
+    complementary_premium: normalizeNullableNumber(value.complementary_premium),
     franchise: normalizeNullableNumber(value.franchise),
     deductible: normalizeNullableNumber(value.deductible),
     model: normalizeNullableText(value.model),
     accident_covered: normalizeNullableBoolean(value.accident_covered),
     confidence: normalizeConfidence(value.confidence),
     uncertain: Boolean(value.uncertain),
+  };
+
+  const personCoverages = sanitizeCoverages(value.coverages);
+
+  if (personCoverages.length > 0) {
+    person.coverages = personCoverages;
+  }
+
+  return {
+    ...person,
+    stable_key: person.stable_key ?? buildPersonStableKey(person),
   };
 }
 
@@ -371,9 +518,16 @@ function sanitizePremiumSummary(value: unknown): PolicyPremiumSummaryDetail | nu
     return null;
   }
 
+  const finalMonthly =
+    normalizeNullableNumber(value.final_monthly) ??
+    normalizeNullableNumber(value.total_monthly);
+
   const hasAnyValue = [
     value.total_monthly,
     value.total_annual,
+    value.gross_monthly,
+    value.discounts_total,
+    value.final_monthly,
     value.currency,
     value.notes,
   ].some((item) => item !== null && item !== undefined && item !== "");
@@ -383,8 +537,11 @@ function sanitizePremiumSummary(value: unknown): PolicyPremiumSummaryDetail | nu
   }
 
   return {
-    total_monthly: normalizeNullableNumber(value.total_monthly),
+    total_monthly: normalizeNullableNumber(value.total_monthly) ?? finalMonthly,
     total_annual: normalizeNullableNumber(value.total_annual),
+    gross_monthly: normalizeNullableNumber(value.gross_monthly),
+    discounts_total: normalizeNullableNumber(value.discounts_total),
+    final_monthly: finalMonthly,
     currency: normalizeNullableText(value.currency)?.toUpperCase() ?? null,
     notes: normalizeNullableText(value.notes),
   };
@@ -435,7 +592,7 @@ function stringifyStructuredDetail(key: keyof PolicyDetails, value: PolicyDetail
   }
 
   if (key === "insured_people" && Array.isArray(value)) {
-    return `${value.length} persona${value.length === 1 ? "" : "e"}`;
+    return value.length === 1 ? "1 persona" : `${value.length} persone`;
   }
 
   if (
@@ -444,7 +601,7 @@ function stringifyStructuredDetail(key: keyof PolicyDetails, value: PolicyDetail
       key === "complementary_products") &&
     Array.isArray(value)
   ) {
-    return `${value.length} elemento${value.length === 1 ? "" : "i"}`;
+    return value.length === 1 ? "1 copertura" : `${value.length} coperture`;
   }
 
   if (key === "field_confidence") {
@@ -571,11 +728,18 @@ export function sanitizePolicyDetails(
   policyType: TypedPolicyType,
   details: unknown
 ): PolicyDetails {
-  if (!isRecord(details)) {
+  const source = parsePolicyDetailsSource(details);
+
+  if (!source) {
     return {};
   }
 
-  const source = details;
+  if (
+    !Array.isArray(source.insured_people) &&
+    Array.isArray(source.insured_persons)
+  ) {
+    source.insured_people = source.insured_persons;
+  }
   const allowedKeys = [
     ...new Set([...policyDetailKeys[policyType], ...sharedPolicyDetailKeys]),
   ];
@@ -738,8 +902,14 @@ export function getPolicyCoverages(details: PolicyDetails) {
 }
 
 export function getPolicyInsuredPeople(details: PolicyDetails) {
-  return details.insured_people ?? [];
+  if ((details.insured_people?.length ?? 0) > 0) {
+    return details.insured_people ?? [];
+  }
+
+  return inferInsuredPeopleFromDetails(details);
 }
+
+export { getPolicyCoveragesForDisplay, inferInsuredPeopleFromDetails } from "@/lib/policy-health-grouping";
 
 export function getPolicyProducts(details: PolicyDetails) {
   return [...(details.complementary_products ?? []), ...(details.products ?? [])];

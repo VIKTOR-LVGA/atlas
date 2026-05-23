@@ -401,6 +401,53 @@ export async function updatePolicy(id: string, input: PolicyInput) {
   return toUserPolicy(data as PolicyRow, documents);
 }
 
+export async function updatePolicyDetails(
+  id: string,
+  details: PolicyInput["details"]
+): Promise<UserPolicy | null> {
+  const { supabase, user } = await getPolicyUser();
+
+  if (!user) {
+    throw new PolicyManagementError("Accedi di nuovo per aggiornare la polizza.");
+  }
+
+  const existing = await getCurrentUserPolicyById(id);
+
+  if (!existing) {
+    return null;
+  }
+
+  const sanitizedDetails = sanitizePolicyDetails(
+    existing.policyType,
+    details
+  );
+
+  const { data, error } = await supabase
+    .from("policies")
+    .update({
+      details: sanitizedDetails,
+    })
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .select(policySelect)
+    .maybeSingle();
+
+  if (error) {
+    throw new PolicyManagementError("Aggiornamento coperture non riuscito.");
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  const policy = data as PolicyRow;
+  const documents = await getPolicyDocuments(supabase, user.id, [
+    policy.document_id,
+  ]);
+
+  return toUserPolicy(policy, documents);
+}
+
 export async function deletePolicy(id: string) {
   const { supabase, user } = await getPolicyUser();
 
