@@ -18,6 +18,7 @@ import {
 export type UploadDocumentActionState = {
   status: "idle" | "success" | "error";
   message: string;
+  documentId?: string;
 };
 
 export type DeleteDocumentActionState = UploadDocumentActionState;
@@ -37,13 +38,14 @@ export async function uploadDocumentAction(
   }
 
   try {
-    await uploadUserDocument(file);
+    const document = await uploadUserDocument(file);
     revalidatePath("/documents");
     revalidatePath("/dashboard");
 
     return {
       status: "success",
-      message: "Documento caricato.",
+      message: "Documento caricato con successo.",
+      documentId: document.id,
     };
   } catch (error) {
     return {

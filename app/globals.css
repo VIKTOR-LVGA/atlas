@@ -964,6 +964,25 @@ body {
   transition: width 0.65s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.atlas-upload-zone--success {
+  border-style: solid;
+  border-color: var(--success-border);
+  background: color-mix(in srgb, var(--success-bg) 55%, var(--card-muted));
+}
+
+.atlas-upload-progress {
+  animation: atlas-upload-indeterminate 1.35s ease-in-out infinite;
+}
+
+@keyframes atlas-upload-indeterminate {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .atlas-reveal-stagger > *,
   .atlas-message-enter {
@@ -992,6 +1011,11 @@ body {
 
   .atlas-bar-grow {
     transition: none;
+  }
+
+  .atlas-upload-progress {
+    animation: none;
+    width: 66%;
   }
 }
 

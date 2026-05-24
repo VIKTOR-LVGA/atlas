@@ -83,7 +83,12 @@ export default async function DocumentsPage() {
         </div>
 
         <aside className={atlasAsideColumn}>
-          <SectionCard title="Carica PDF" padding="md">
+          <SectionCard
+            tone="primary"
+            title="Carica una polizza PDF"
+            description="Atlas preparerà il documento per l’analisi AI."
+            padding="md"
+          >
             <DocumentUploadForm />
           </SectionCard>
 
