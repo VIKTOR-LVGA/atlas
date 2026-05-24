@@ -974,6 +974,10 @@ body {
   animation: atlas-upload-indeterminate 1.35s ease-in-out infinite;
 }
 
+.atlas-analysis-progress {
+  transition: width 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 @keyframes atlas-upload-indeterminate {
   0% {
     transform: translateX(-120%);
@@ -1016,6 +1020,10 @@ body {
   .atlas-upload-progress {
     animation: none;
     width: 66%;
+  }
+
+  .atlas-analysis-progress {
+    transition: none;
   }
 }
 
