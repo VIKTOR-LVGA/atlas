@@ -21,7 +21,7 @@ export function ReviewBanner({
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 rounded-2xl border border-border bg-gradient-to-r from-accent-soft to-card p-4 sm:flex-row sm:items-center sm:justify-between",
+        "flex flex-col gap-3 rounded-xl border border-border bg-gradient-to-r from-accent-soft to-card p-3.5 sm:flex-row sm:items-center sm:justify-between",
         className
       )}
     >

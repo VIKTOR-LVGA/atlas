@@ -1,12 +1,11 @@
-import { Plus } from "lucide-react";
-import { PolicyListCard } from "@/components/policies/PolicyListCard";
+import { ClipboardCheck, Plus, Sparkles } from "lucide-react";
+import { PolicyPortfolioWorkspace } from "@/components/policies/PolicyPortfolioWorkspace";
 import { IconPolicies } from "@/components/icons";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { MetricCard } from "@/components/ui/MetricCard";
 import { PageHeader, PrimaryButton } from "@/components/ui/PageHeader";
 import { PageShell } from "@/components/ui/PageShell";
 import { ReviewBanner } from "@/components/ui/ReviewBanner";
-import { SectionCard } from "@/components/ui/SectionCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { getCurrentUserPolicies } from "@/lib/policies";
 
@@ -22,7 +21,7 @@ export default async function PoliciesPage() {
     <PageShell>
       <PageHeader
         title="Le mie polizze"
-        description="Schede strutturate dai tuoi PDF e creazione manuale."
+        description="Portafoglio assicurativo strutturato dai tuoi PDF e dalle schede confermate."
         action={
           <PrimaryButton href="/policies/new" icon={<Plus className="h-4 w-4" />}>
             Nuova polizza
@@ -30,20 +29,20 @@ export default async function PoliciesPage() {
         }
       />
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
         <MetricCard
           label="Totale polizze"
           value={String(policies.length)}
-          subtext="Nel tuo archivio"
-          variant="blue"
-          icon={<IconPolicies className="h-[18px] w-[18px]" />}
+          subtext="Nel portafoglio"
+          variant="indigo"
+          icon={<IconPolicies className="h-4 w-4" />}
         />
         <MetricCard
           label="Da rivedere"
           value={String(pendingReview.length)}
-          subtext="Bozze AI"
-          variant="yellow"
-          icon={<IconPolicies className="h-[18px] w-[18px]" />}
+          subtext="Bozze AI in coda"
+          variant={pendingReview.length > 0 ? "yellow" : "green"}
+          icon={<ClipboardCheck className="h-4 w-4" />}
           badge={
             pendingReview.length > 0 ? (
               <StatusBadge variant="attention" label="Azione" />
@@ -58,15 +57,15 @@ export default async function PoliciesPage() {
               ? `${confirmedAiDrafts.length} confermate`
               : "Estratte da PDF"
           }
-          variant="indigo"
-          icon={<IconPolicies className="h-[18px] w-[18px]" />}
+          variant="blue"
+          icon={<Sparkles className="h-4 w-4" />}
         />
         <MetricCard
           label="Manuali"
           value={String(policies.length - aiDrafts.length)}
           subtext="Create a mano"
-          variant="green"
-          icon={<IconPolicies className="h-[18px] w-[18px]" />}
+          variant="purple"
+          icon={<IconPolicies className="h-4 w-4" />}
         />
       </div>
 
@@ -76,23 +75,14 @@ export default async function PoliciesPage() {
           description="L'estrazione AI ha precompilato i campi principali. Apri ogni scheda e verifica i dati critici."
           editHref={`/policies/${pendingReview[0].id}/edit`}
           uncertainCount={pendingReview.length}
+          className="atlas-action-strip border-0"
         />
       ) : null}
 
       {policies.length > 0 ? (
-        <SectionCard
-          title="Archivio"
-          description="Tutte le polizze collegate ai tuoi documenti."
-          padding="none"
-        >
-          <div className="grid gap-3 p-4 md:grid-cols-2">
-            {policies.map((policy) => (
-              <PolicyListCard key={policy.id} policy={policy} />
-            ))}
-          </div>
-        </SectionCard>
+        <PolicyPortfolioWorkspace policies={policies} />
       ) : (
-        <SectionCard title="Archivio polizze">
+        <div className="atlas-surface-card p-6">
           <EmptyState
             icon={<IconPolicies className="h-6 w-6" />}
             title="Nessuna polizza ancora"
@@ -102,7 +92,7 @@ export default async function PoliciesPage() {
             secondaryActionLabel="Crea manualmente"
             secondaryActionHref="/policies/new"
           />
-        </SectionCard>
+        </div>
       )}
     </PageShell>
   );
