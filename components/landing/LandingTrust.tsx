@@ -1,4 +1,5 @@
 import { Eye, Lock, Server, ShieldCheck } from "lucide-react";
+import { LandingTrustVisual } from "@/components/landing/LandingTrustVisual";
 import {
   LandingSection,
   LandingSectionHeader,
@@ -34,32 +35,7 @@ export function LandingTrust() {
     <LandingSection id="security" tone="lift" className="py-20 md:py-28">
       <div className="mx-auto grid max-w-6xl items-center gap-14 px-6 lg:grid-cols-2">
         <div className="relative flex justify-center lg:justify-start">
-          <div
-            className="landing-glow-orb left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2"
-            style={{ background: "rgba(99, 102, 241, 0.2)" }}
-          />
-          <div className="landing-glass-strong relative flex h-72 w-72 items-center justify-center rounded-3xl sm:h-80 sm:w-80">
-            <div
-              className="absolute inset-4 rounded-2xl opacity-30"
-              style={{
-                backgroundImage: `
-                  linear-gradient(rgba(99,102,241,0.15) 1px, transparent 1px),
-                  linear-gradient(90deg, rgba(99,102,241,0.15) 1px, transparent 1px)
-                `,
-                backgroundSize: "24px 24px",
-              }}
-            />
-            <div className="relative text-center">
-              <span className="text-5xl drop-shadow-lg" aria-hidden>
-                🇨🇭
-              </span>
-              <p className="mt-4 text-sm font-semibold text-white">Privacy svizzera</p>
-              <p className="mt-1 text-xs text-muted">nLPD · GDPR</p>
-              <div className="mx-auto mt-4 flex h-10 w-10 items-center justify-center rounded-full border border-indigo-500/30 bg-indigo-500/15">
-                <ShieldCheck className="h-5 w-5 text-indigo-300" />
-              </div>
-            </div>
-          </div>
+          <LandingTrustVisual />
         </div>
 
         <div>

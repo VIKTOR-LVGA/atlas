@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { IconLogo, IconShield } from "@/components/icons";
+import { AtlasBrandLogo } from "@/components/brand/AtlasBrandLogo";
+import { IconShield } from "@/components/icons";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 interface AuthShellProps {
@@ -22,12 +23,8 @@ export function AuthShell({ children, title, subtitle }: AuthShellProps) {
 
       <header className="relative z-10 border-b border-border bg-card/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <Link href="/" className="flex items-center gap-2.5">
-            <IconLogo className="h-8 w-8" />
-            <div>
-              <span className="text-[15px] font-semibold text-foreground">Atlas</span>
-              <p className="text-[11px] text-muted">Analisi indipendente</p>
-            </div>
+          <Link href="/" className="flex items-center">
+            <AtlasBrandLogo variant="stacked" />
           </Link>
           <ThemeToggle />
         </div>

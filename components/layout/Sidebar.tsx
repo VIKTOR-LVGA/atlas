@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useCurrentProfile } from "@/components/profile/ProfileProvider";
 import { getProfileDisplayName, getProfileInitials } from "@/lib/profile-display";
+import { AtlasBrandLogo } from "@/components/brand/AtlasBrandLogo";
 import {
-  IconLogo,
   IconDashboard,
   IconPolicies,
   IconAnalysis,
@@ -46,14 +46,12 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <>
       <div className="flex h-14 items-center gap-2.5 border-b border-sidebar-border px-4">
-        <Link href="/dashboard" className="flex items-center gap-2.5" onClick={onNavigate}>
-          <IconLogo className="h-8 w-8 shrink-0" />
-          <div className="min-w-0">
-            <p className="text-[14px] font-semibold leading-tight tracking-tight text-foreground">
-              Atlas
-            </p>
-            <p className="text-[10px] leading-tight text-muted">Analisi indipendente</p>
-          </div>
+        <Link
+          href="/dashboard"
+          className="flex min-w-0 items-center"
+          onClick={onNavigate}
+        >
+          <AtlasBrandLogo variant="stacked" compact />
         </Link>
       </div>
 

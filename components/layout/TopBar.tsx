@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { IconBell, IconChevronDown, IconHelp, IconLogo, IconMenu } from "@/components/icons";
+import { AtlasBrandLogo } from "@/components/brand/AtlasBrandLogo";
+import { IconBell, IconChevronDown, IconHelp, IconMenu } from "@/components/icons";
 import { logout } from "@/app/(app)/actions";
 import { useCurrentProfile } from "@/components/profile/ProfileProvider";
 import { getProfileInitials, getProfileShortName } from "@/lib/profile-display";
@@ -25,9 +26,8 @@ export function TopBar({ onMenuOpen }: TopBarProps) {
         >
           <IconMenu />
         </button>
-        <Link href="/dashboard" className="flex min-w-0 items-center gap-2">
-          <IconLogo className="h-8 w-8 shrink-0" />
-          <span className="truncate text-sm font-semibold text-foreground">Atlas</span>
+        <Link href="/dashboard" className="flex min-w-0 items-center">
+          <AtlasBrandLogo variant="stacked" compact />
         </Link>
       </div>
 

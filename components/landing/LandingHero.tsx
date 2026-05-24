@@ -12,22 +12,25 @@ export function LandingHero() {
       <div className="landing-grid-bg pointer-events-none absolute inset-0 opacity-[0.18]" />
 
       <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 lg:grid-cols-[0.92fr_1.08fr] lg:gap-10 xl:gap-14">
-        {/* Copy — reference hierarchy */}
-        <div className="max-w-[30rem] lg:pt-2">
+        <div className="max-w-[34rem] lg:pt-2">
           <p className="inline-flex items-center gap-2 rounded-full border border-[var(--landing-border)] bg-[var(--landing-surface)] px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--landing-muted)]">
             <span aria-hidden>🇨🇭</span>
             AI per assicurazioni svizzere
           </p>
 
           <h1 className="landing-hero-headline mt-7">
-            <span className="block">Atlas capisce le tue</span>
-            <span className="landing-gradient-text block">assicurazioni svizzere.</span>
+            <span className="block">Atlas capisce</span>
+            <span className="block">le tue assicurazioni.</span>
+            <span className="mt-1 block">
+              E ti aiuta a{" "}
+              <span className="landing-hero-accent">risparmiare.</span>
+            </span>
           </h1>
 
-          <p className="mt-5 max-w-[28rem] text-[1.05rem] leading-[1.65] text-[var(--landing-muted)]">
-            Carica i PDF delle tue polizze. Atlas estrae persone, coperture e premi,
-            organizza tutto automaticamente e ti aiuta a individuare sprechi, duplicati
-            e opportunità.
+          <p className="landing-hero-lead mt-6">
+            Carica le tue polizze. Atlas le legge, le organizza e le confronta con
+            il mercato svizzero per verificare se sei coperto in modo adeguato e se
+            puoi risparmiare.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">

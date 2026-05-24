@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { IconLogo } from "@/components/icons";
+import { AtlasBrandLogo } from "@/components/brand/AtlasBrandLogo";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 const links = [
@@ -15,14 +15,8 @@ export function LandingNav() {
   return (
     <header className="landing-nav sticky top-0 z-50 border-b backdrop-blur-xl backdrop-saturate-150">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
-        <Link href="/" className="flex min-w-0 items-center gap-2.5">
-          <IconLogo className="h-8 w-8 shrink-0" />
-          <span className="truncate text-sm font-semibold tracking-tight text-[var(--landing-text)]">
-            Atlas
-          </span>
-          <span className="hidden text-[10px] font-medium uppercase tracking-[0.2em] text-[var(--landing-muted)] sm:inline">
-            AI Insurance
-          </span>
+        <Link href="/" className="flex min-w-0 items-center">
+          <AtlasBrandLogo variant="landing" />
         </Link>
 
         <nav className="hidden items-center gap-7 text-sm text-[var(--landing-muted)] md:flex">

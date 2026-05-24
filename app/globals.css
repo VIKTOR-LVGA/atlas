@@ -322,8 +322,46 @@ body {
   font-size: clamp(2.375rem, 5.2vw, 3.5rem);
   font-weight: 600;
   letter-spacing: -0.035em;
-  line-height: 1.02;
+  line-height: 1.05;
   color: var(--landing-hero-text);
+}
+
+.landing-hero-accent {
+  color: #8b9cff;
+  text-shadow: 0 0 40px rgba(123, 137, 244, 0.45);
+}
+
+[data-theme="light"] .landing-hero-accent {
+  color: #5b6ee8;
+  text-shadow: none;
+}
+
+/* Trust section — Switzerland map (native, no container) */
+.landing-trust-visual {
+  width: 100%;
+  max-width: 22rem;
+  margin-inline: auto;
+  padding: 1.75rem 0.75rem 2rem;
+}
+
+.landing-trust-visual-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  mix-blend-mode: lighten;
+}
+
+[data-theme="light"] .landing-trust-visual-img {
+  mix-blend-mode: lighten;
+}
+
+.landing-hero-lead {
+  max-width: 32rem;
+  font-size: clamp(1rem, 1.6vw, 1.0625rem);
+  line-height: 1.7;
+  color: var(--landing-muted);
+  opacity: 0.92;
 }
 
 .landing-btn-gradient {

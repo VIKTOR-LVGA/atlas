@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { IconLogo } from "@/components/icons";
+import { AtlasBrandLogo } from "@/components/brand/AtlasBrandLogo";
 
 export function LandingFooter() {
   return (
@@ -7,9 +7,8 @@ export function LandingFooter() {
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <div className="flex flex-col gap-10 md:flex-row md:justify-between">
           <div>
-            <Link href="/" className="flex items-center gap-2">
-              <IconLogo className="h-7 w-7" />
-              <span className="font-semibold text-[var(--landing-text)]">Atlas</span>
+            <Link href="/" className="inline-flex">
+              <AtlasBrandLogo variant="stacked" />
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-[var(--landing-muted)]">
               L&apos;AI che capisce le polizze assicurative svizzere. Indipendente,

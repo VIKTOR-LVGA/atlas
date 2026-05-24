@@ -17,20 +17,26 @@ function IconBase({ className, children }: IconProps & { children: React.ReactNo
 
 export function IconLogo({ className = "h-9 w-9" }: IconProps) {
   return (
-    <svg className={className} viewBox="0 0 36 36" fill="none" aria-hidden>
-      <rect width="36" height="36" rx="10" fill="#1e3a5f" />
+    <svg className={className} viewBox="0 0 40 40" fill="none" aria-hidden>
+      <defs>
+        <linearGradient id="icon-logo-peak" x1="20" y1="4" x2="20" y2="22">
+          <stop stopColor="#c4b5fd" />
+          <stop offset="1" stopColor="#7c3aed" />
+        </linearGradient>
+        <linearGradient id="icon-logo-arc" x1="8" y1="28" x2="32" y2="28">
+          <stop stopColor="#8b5cf6" />
+          <stop offset="1" stopColor="#6366f1" />
+        </linearGradient>
+      </defs>
       <path
-        d="M18 8l7 3.5v5.5c0 4.2-2.8 7.5-7 9-4.2-1.5-7-4.8-7-9V11.5L18 8z"
-        stroke="white"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
+        d="M20 6L31 24H26.2L24.2 20.5H15.8L13.8 24H9L20 6Z"
+        fill="url(#icon-logo-peak)"
       />
       <path
-        d="M14 17l3 3 5-6"
-        stroke="white"
-        strokeWidth="1.5"
+        d="M11 29.5C14.5 26.5 25.5 26.5 29 29.5"
+        stroke="url(#icon-logo-arc)"
+        strokeWidth="3.25"
         strokeLinecap="round"
-        strokeLinejoin="round"
       />
     </svg>
   );
