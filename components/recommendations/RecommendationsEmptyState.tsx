@@ -1,46 +1,51 @@
-import Link from "next/link";
-import { FileText, Sparkles } from "lucide-react";
-import { SectionCard } from "@/components/ui/SectionCard";
+import { Sparkles } from "lucide-react";
+import { PremiumOnboardingEmpty } from "@/components/onboarding/PremiumOnboardingEmpty";
+import type { PortfolioProgression } from "@/lib/portfolio-progression";
 
 interface RecommendationsEmptyStateProps {
   hasPortfolio: boolean;
+  progression?: PortfolioProgression;
 }
 
 export function RecommendationsEmptyState({
   hasPortfolio,
+  progression,
 }: RecommendationsEmptyStateProps) {
   return (
-    <SectionCard tone="primary" padding="sm">
-      <div className="flex flex-col items-center px-4 py-10 text-center sm:py-12">
-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft text-accent ring-1 ring-accent/15">
-          <Sparkles className="h-6 w-6" />
-        </span>
-        <h2 className="mt-4 text-[15px] font-semibold text-foreground">
-          {hasPortfolio
-            ? "Portafoglio allineato"
-            : "Sblocca le raccomandazioni Atlas"}
-        </h2>
-        <p className="mt-2 max-w-md text-[13px] leading-relaxed text-muted">
-          {hasPortfolio
-            ? "Non ci sono azioni urgenti sui dati attuali. Carica e conferma più polizze per raccomandazioni avanzate su completezza e coperture."
-            : "Carica e conferma più polizze per sbloccare raccomandazioni avanzate. Atlas analizza solo dati reali estratti dai tuoi documenti."}
-        </p>
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-          <Link
-            href="/documents"
-            className="atlas-btn-primary inline-flex items-center gap-2 px-4 py-2.5 text-[13px] shadow-sm"
-          >
-            <FileText className="h-4 w-4" />
-            Carica PDF
-          </Link>
-          <Link
-            href="/policies"
-            className="atlas-btn-secondary inline-flex items-center gap-2 px-4 py-2.5 text-[13px]"
-          >
-            Vedi polizze
-          </Link>
-        </div>
-      </div>
-    </SectionCard>
+    <PremiumOnboardingEmpty
+      icon={<Sparkles className="h-7 w-7" />}
+      title={
+        hasPortfolio
+          ? "Portafoglio allineato"
+          : "Sblocca le raccomandazioni Atlas"
+      }
+      description={
+        hasPortfolio
+          ? "Non ci sono azioni urgenti sui dati attuali. Carica e conferma più polizze per raccomandazioni avanzate su completezza e coperture."
+          : "Carica e conferma polizze per attivare raccomandazioni deterministiche. Atlas non inventa risparmi né benchmark."
+      }
+      actionLabel="Carica PDF"
+      actionHref="/documents"
+      secondaryActionLabel="Vedi polizze"
+      secondaryActionHref="/policies"
+      progression={progression}
+      steps={[
+        {
+          step: "1",
+          title: "Struttura",
+          text: "Crea schede polizza da PDF o manualmente.",
+        },
+        {
+          step: "2",
+          title: "Verifica",
+          text: "Conferma bozze per dati affidabili.",
+        },
+        {
+          step: "3",
+          title: "Azioni",
+          text: "Priorità su gap, rinnovi e completezza.",
+        },
+      ]}
+    />
   );
 }

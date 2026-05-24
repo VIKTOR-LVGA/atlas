@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { RefreshCw } from "lucide-react";
+import { PortfolioProgressionPanel } from "@/components/onboarding/PortfolioProgressionPanel";
 import { RecommendationsEmptyState } from "@/components/recommendations/RecommendationsEmptyState";
 import { RecommendationsExecutiveOverview } from "@/components/recommendations/RecommendationsExecutiveOverview";
 import { RecommendationsGroupedList } from "@/components/recommendations/RecommendationsGroupedList";
@@ -14,11 +15,15 @@ import {
   atlasMainColumn,
 } from "@/lib/atlas-ui";
 import { getRecommendationsIntelligence } from "@/lib/recommendations-intelligence";
+import { getPortfolioProgression } from "@/lib/portfolio-progression";
 
 export const metadata = { title: "Raccomandazioni" };
 
 export default async function RecommendationsPage() {
-  const intelligence = await getRecommendationsIntelligence();
+  const [intelligence, progression] = await Promise.all([
+    getRecommendationsIntelligence(),
+    getPortfolioProgression(),
+  ]);
   const {
     executive,
     groups,
@@ -60,8 +65,15 @@ export default async function RecommendationsPage() {
           readinessLabel={readinessLabel}
         />
 
+        {progression.showOnboardingFocus && !hasActionableRecommendations ? (
+          <PortfolioProgressionPanel progression={progression} compact />
+        ) : null}
+
         {!hasActionableRecommendations ? (
-          <RecommendationsEmptyState hasPortfolio={hasPortfolio} />
+          <RecommendationsEmptyState
+            hasPortfolio={hasPortfolio}
+            progression={progression}
+          />
         ) : (
           <div className={atlasMainAside}>
             <div className={atlasMainColumn}>

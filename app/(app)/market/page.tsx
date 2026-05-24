@@ -2,7 +2,9 @@ import { PageHeader, PrimaryButton } from "@/components/ui/PageHeader";
 import { PageShell } from "@/components/ui/PageShell";
 import { MetricCard } from "@/components/ui/MetricCard";
 import { SectionCard } from "@/components/ui/SectionCard";
-import { PlaceholderModule } from "@/components/ui/PlaceholderModule";
+import { ModuleUnlockGrid } from "@/components/onboarding/ModuleUnlockGrid";
+import { PremiumOnboardingEmpty } from "@/components/onboarding/PremiumOnboardingEmpty";
+import { PortfolioProgressionPanel } from "@/components/onboarding/PortfolioProgressionPanel";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import {
   IconClock,
@@ -21,6 +23,7 @@ import {
   atlasSpace,
 } from "@/lib/atlas-ui";
 import { getCurrentUserPolicies } from "@/lib/policies";
+import { getPortfolioProgression } from "@/lib/portfolio-progression";
 
 export const metadata = { title: "Confronto mercato" };
 
@@ -31,10 +34,14 @@ const prerequisites = [
 ];
 
 export default async function MarketPage() {
-  const [documentStats, policies] = await Promise.all([
+  const [documentStats, policies, progression] = await Promise.all([
     getDashboardStats(),
     getCurrentUserPolicies(),
+    getPortfolioProgression(),
   ]);
+
+  const marketUnlock = progression.unlocks.find((module) => module.id === "market");
+  const confirmedCount = policies.filter((policy) => !policy.requiresReview).length;
 
   const readiness = {
     pdf: documentStats.totalDocuments > 0,
@@ -86,18 +93,55 @@ export default async function MarketPage() {
           />
         </div>
 
+        {progression.showOnboardingFocus ? (
+          <PortfolioProgressionPanel progression={progression} compact />
+        ) : null}
+
         <div className={atlasMainAside}>
           <div className={atlasMainColumn}>
-            <SectionCard title="Benchmark assicurativo">
-              <PlaceholderModule
-                icon={<IconMarket className="h-6 w-6" />}
-                title="Confronto mercato in preparazione"
-                description="Quando avrai piu polizze verificate, Atlas confrontera premi e coperture con medie di mercato svizzere."
-                statusLabel="In arrivo"
-                actionLabel="Vai alle polizze"
-                actionHref="/policies"
+            {marketUnlock?.unlocked ? (
+              <SectionCard title="Benchmark assicurativo">
+                <div className="rounded-xl border border-dashed border-border bg-card-muted/40 px-6 py-10 text-center">
+                  <IconMarket className="mx-auto h-8 w-8 text-accent" />
+                  <p className="mt-3 text-[14px] font-semibold text-foreground">
+                    Benchmark in preparazione
+                  </p>
+                  <p className="mt-2 text-[12px] text-muted">
+                    Hai {confirmedCount} polizze confermate. Il confronto mercato userà
+                    solo i premi estratti dai tuoi documenti — nessuna simulazione.
+                  </p>
+                </div>
+              </SectionCard>
+            ) : (
+              <PremiumOnboardingEmpty
+                icon={<IconMarket className="h-7 w-7" />}
+                title="Sblocca il confronto mercato"
+                description={`Conferma almeno 3 polizze per preparare il benchmark (${confirmedCount}/3). Più dati verificati migliorano la qualità del confronto.`}
+                actionLabel={marketUnlock?.ctaLabel ?? "Completa portafoglio"}
+                actionHref={marketUnlock?.ctaHref ?? "/policies"}
+                secondaryActionLabel="Carica PDF"
+                secondaryActionHref="/documents"
+                progression={progression}
+                steps={[
+                  {
+                    step: "1",
+                    title: "Conferma",
+                    text: "Verifica bozze AI su premio e coperture.",
+                  },
+                  {
+                    step: "2",
+                    title: "Amplia",
+                    text: "Aggiungi categorie assicurative diverse.",
+                  },
+                  {
+                    step: "3",
+                    title: "Benchmark",
+                    text: "Confronto su premi reali, senza stime inventate.",
+                  },
+                ]}
               />
-            </SectionCard>
+            )}
+            <ModuleUnlockGrid unlocks={progression.unlocks} />
           </div>
 
           <aside className={atlasAsideColumn}>

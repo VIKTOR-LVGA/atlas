@@ -1,7 +1,8 @@
 import { ClipboardCheck, Plus, Sparkles } from "lucide-react";
 import { PolicyPortfolioWorkspace } from "@/components/policies/PolicyPortfolioWorkspace";
 import { IconPolicies } from "@/components/icons";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { PremiumOnboardingEmpty } from "@/components/onboarding/PremiumOnboardingEmpty";
+import { PortfolioProgressionPanel } from "@/components/onboarding/PortfolioProgressionPanel";
 import { MetricCard } from "@/components/ui/MetricCard";
 import { PageHeader, PrimaryButton } from "@/components/ui/PageHeader";
 import { PageShell } from "@/components/ui/PageShell";
@@ -10,11 +11,15 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { RevealStagger } from "@/components/motion/RevealStagger";
 import { atlasKpiRow } from "@/lib/atlas-ui";
 import { getCurrentUserPolicies } from "@/lib/policies";
+import { getPortfolioProgression } from "@/lib/portfolio-progression";
 
 export const metadata = { title: "Polizze" };
 
 export default async function PoliciesPage() {
-  const policies = await getCurrentUserPolicies();
+  const [policies, progression] = await Promise.all([
+    getCurrentUserPolicies(),
+    getPortfolioProgression(),
+  ]);
   const pendingReview = policies.filter((policy) => policy.requiresReview);
   const aiDrafts = policies.filter((policy) => policy.source === "ai_draft");
   const confirmedAiDrafts = aiDrafts.filter((policy) => !policy.requiresReview);
@@ -82,20 +87,44 @@ export default async function PoliciesPage() {
         />
       ) : null}
 
-      {policies.length > 0 ? (
-        <PolicyPortfolioWorkspace policies={policies} />
-      ) : (
-        <div className="atlas-surface-card p-6">
-          <EmptyState
-            icon={<IconPolicies className="h-6 w-6" />}
-            title="Nessuna polizza ancora"
-            description="Carica un PDF assicurativo e avvia l'analisi, oppure crea una scheda manuale."
+      {policies.length === 0 ? (
+        <>
+          <PortfolioProgressionPanel progression={progression} compact />
+          <PremiumOnboardingEmpty
+            icon={<IconPolicies className="h-7 w-7" />}
+            title="Carica la tua prima polizza"
+            description="Atlas costruirà progressivamente il tuo ecosistema assicurativo: PDF, estrazione AI e scheda strutturata."
             actionLabel="Vai ai documenti"
             actionHref="/documents"
             secondaryActionLabel="Crea manualmente"
             secondaryActionHref="/policies/new"
+            progression={progression}
+            steps={[
+              {
+                step: "1",
+                title: "PDF",
+                text: "Carica polizza, condizioni o attestato.",
+              },
+              {
+                step: "2",
+                title: "Bozza AI",
+                text: "Rivedi premio, persone e coperture estratte.",
+              },
+              {
+                step: "3",
+                title: "Conferma",
+                text: "Sblocca alert e raccomandazioni verificate.",
+              },
+            ]}
           />
-        </div>
+        </>
+      ) : (
+        <>
+          {progression.showOnboardingFocus ? (
+            <PortfolioProgressionPanel progression={progression} compact />
+          ) : null}
+          <PolicyPortfolioWorkspace policies={policies} />
+        </>
       )}
       </RevealStagger>
     </PageShell>

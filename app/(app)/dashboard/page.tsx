@@ -37,8 +37,12 @@ import {
   atlasMainColumn,
   atlasSpace,
 } from "@/lib/atlas-ui";
+import { ModuleUnlockGrid } from "@/components/onboarding/ModuleUnlockGrid";
+import { PortfolioCompletenessGrid } from "@/components/onboarding/PortfolioCompletenessGrid";
+import { PortfolioProgressionPanel } from "@/components/onboarding/PortfolioProgressionPanel";
 import { getDashboardIntelligence } from "@/lib/dashboard-intelligence";
 import { getDashboardStats, getRecentDocuments } from "@/lib/dashboard";
+import { getPortfolioProgression } from "@/lib/portfolio-progression";
 import { getProfileShortName } from "@/lib/profile-display";
 import { getCurrentProfile } from "@/lib/profiles";
 import { getCurrentUserPolicies } from "@/lib/policies";
@@ -66,12 +70,14 @@ export default async function DashboardPage() {
     recentDocuments,
     policies,
     intelligence,
+    progression,
   ] = await Promise.all([
     getCurrentProfile(),
     getDashboardStats(),
     getRecentDocuments(5),
     getCurrentUserPolicies(),
     getDashboardIntelligence(),
+    getPortfolioProgression(),
   ]);
 
   const { kpis, healthScore, alerts, workflowSteps } = intelligence;
@@ -83,8 +89,14 @@ export default async function DashboardPage() {
     (value) => `${Math.round(value)}%`
   );
 
-  const nextAction =
-    pendingReviewPolicies.length > 0
+  const progressionNext = progression.nextStep;
+  const nextAction = progressionNext
+    ? {
+        label: progressionNext.label,
+        href: progressionNext.ctaHref ?? "/documents",
+        description: progressionNext.description,
+      }
+    : pendingReviewPolicies.length > 0
       ? {
           label: "Rivedi bozza AI",
           href: `/policies/${pendingReviewPolicies[0].id}/edit`,
@@ -108,7 +120,6 @@ export default async function DashboardPage() {
               description: "Consulta le schede strutturate nel tuo portafoglio.",
             };
 
-  const marketReady = intelligence.marketPrerequisiteCount >= 3;
   const highAlerts = alerts.filter((alert) => alert.severity === "high").length;
 
   return (
@@ -123,6 +134,16 @@ export default async function DashboardPage() {
           </PrimaryButton>
         }
       />
+
+      {progression.showOnboardingFocus ? (
+        <PortfolioProgressionPanel progression={progression} />
+      ) : (
+        <PortfolioProgressionPanel progression={progression} compact />
+      )}
+
+      {progression.maturity !== "advanced" ? (
+        <PortfolioCompletenessGrid metrics={progression.completeness} />
+      ) : null}
 
       <div className="atlas-action-strip flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
@@ -358,56 +379,35 @@ export default async function DashboardPage() {
           </SectionCard>
 
           <SectionCard
-            title="Moduli intelligence"
+            title="Sblocco moduli"
             tone="support"
             padding="sm"
             bodyClassName={atlasSpace.tight}
           >
-            <InsightCard
-              icon={<Sparkles className="h-3.5 w-3.5" />}
-              title="Analisi coperture"
-              description={
-                kpis.confirmedPolicies > 0
-                  ? "Gap e duplicati con più polizze verificate."
-                  : "Servono polizze confermate per avviare l'analisi."
-              }
-              statusLabel={
-                kpis.confirmedPolicies > 0 ? "In sviluppo" : "Serve polizza"
-              }
-              statusVariant={kpis.confirmedPolicies > 0 ? "processing" : "neutral"}
-              href="/analysis"
-              hrefLabel="Apri analisi"
-            />
-            <InsightCard
-              icon={<IconClock className="h-3.5 w-3.5" />}
-              title="Confronto mercato"
-              description={
-                marketReady
-                  ? "Benchmark in preparazione sui premi confermati."
-                  : `Benchmark in preparazione (${intelligence.marketPrerequisiteCount}/3 polizze confermate).`
-              }
-              statusLabel="In preparazione"
-              statusVariant="neutral"
-              href="/market"
-              hrefLabel="Vedi modulo"
-            />
-            <InsightCard
-              icon={<Users className="h-3.5 w-3.5" />}
-              title="Raccomandazioni"
-              description={
-                intelligence.recommendationsAvailable
-                  ? "Suggerimenti deterministici dal portafoglio."
-                  : "Servono più dati verificati."
-              }
-              statusLabel={
-                intelligence.recommendationsAvailable
-                  ? "Disponibile"
-                  : "Servono più dati"
-              }
-              statusVariant="neutral"
-              href="/recommendations"
-              hrefLabel="Apri modulo"
-            />
+            {progression.unlocks.map((module) => (
+              <InsightCard
+                key={module.id}
+                icon={
+                  module.id === "analysis" ? (
+                    <Sparkles className="h-3.5 w-3.5" />
+                  ) : module.id === "market" ? (
+                    <IconClock className="h-3.5 w-3.5" />
+                  ) : (
+                    <Users className="h-3.5 w-3.5" />
+                  )
+                }
+                title={module.label}
+                description={
+                  module.unlocked
+                    ? module.progressDetail
+                    : module.requirement
+                }
+                statusLabel={module.unlocked ? "Attivo" : "Bloccato"}
+                statusVariant={module.unlocked ? "processing" : "neutral"}
+                href={module.ctaHref}
+                hrefLabel={module.ctaLabel}
+              />
+            ))}
           </SectionCard>
 
           {kpis.failedDocuments > 0 ? (
@@ -444,6 +444,10 @@ export default async function DashboardPage() {
           </div>
         </aside>
       </div>
+      {progression.showOnboardingFocus ? (
+        <ModuleUnlockGrid unlocks={progression.unlocks} />
+      ) : null}
+
       </RevealStagger>
     </PageShell>
   );
