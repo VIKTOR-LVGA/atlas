@@ -2,13 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useCurrentProfile } from "@/components/profile/ProfileProvider";
 import { getProfileDisplayName, getProfileInitials } from "@/lib/profile-display";
 import {
   IconLogo,
-  IconMenu,
   IconDashboard,
   IconPolicies,
   IconAnalysis,
@@ -31,6 +29,11 @@ const navItems = [
   { href: "/settings", label: "Impostazioni", icon: IconSettings },
 ];
 
+interface SidebarProps {
+  mobileOpen: boolean;
+  onMobileClose: () => void;
+}
+
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const profile = useCurrentProfile();
@@ -42,17 +45,19 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <>
-      <div className="flex h-[60px] items-center gap-2.5 px-5">
+      <div className="flex h-14 items-center gap-2.5 border-b border-sidebar-border px-4">
         <Link href="/dashboard" className="flex items-center gap-2.5" onClick={onNavigate}>
-          <IconLogo className="h-9 w-9 shrink-0" />
+          <IconLogo className="h-8 w-8 shrink-0" />
           <div className="min-w-0">
-            <p className="text-[15px] font-semibold leading-tight text-foreground">Atlas</p>
-            <p className="text-[11px] leading-tight text-muted">Analisi indipendente</p>
+            <p className="text-[14px] font-semibold leading-tight tracking-tight text-foreground">
+              Atlas
+            </p>
+            <p className="text-[10px] leading-tight text-muted">Analisi indipendente</p>
           </div>
         </Link>
       </div>
 
-      <nav className="flex-1 space-y-0.5 px-3 py-2">
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5 py-2">
         {navItems.map((item) => {
           const active = isActive(item.href);
           const Icon = item.icon;
@@ -62,34 +67,34 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                "relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors",
+                "relative flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[12px] font-medium transition-colors",
                 active
-                  ? "bg-[var(--nav-active-bg)] text-[var(--nav-active-text)]"
-                  : "text-muted hover:bg-card-muted hover:text-foreground"
+                  ? "bg-[var(--nav-active-bg)] text-[var(--nav-active-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                  : "text-muted-foreground hover:bg-card-muted/80 hover:text-foreground"
               )}
             >
               {active && (
-                <span className="absolute -left-3 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-r-full bg-accent" />
+                <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-accent" />
               )}
               <Icon
                 className={cn(
-                  "h-[18px] w-[18px] shrink-0",
+                  "h-[17px] w-[17px] shrink-0",
                   active ? "text-[var(--nav-active-icon)]" : "text-muted"
                 )}
               />
-              {item.label}
+              <span className="truncate">{item.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      <div className="p-4">
-        <div className="mb-3 flex min-w-0 items-center gap-2.5 rounded-xl border border-border bg-card px-3 py-2 shadow-[var(--shadow-card)]">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-[11px] font-semibold text-accent-foreground">
+      <div className="border-t border-sidebar-border p-3">
+        <div className="mb-2.5 flex min-w-0 items-center gap-2 rounded-lg border border-border/80 bg-card/60 px-2.5 py-2">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-[10px] font-semibold text-accent-foreground">
             {getProfileInitials(profile)}
           </span>
           <div className="min-w-0">
-            <p className="truncate text-[12px] font-medium text-foreground">
+            <p className="truncate text-[11px] font-medium text-foreground">
               {getProfileDisplayName(profile)}
             </p>
             <p className="truncate text-[10px] text-muted">
@@ -97,17 +102,17 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             </p>
           </div>
         </div>
-        <div className="rounded-2xl border border-border bg-accent-soft p-4">
-          <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-card shadow-[var(--shadow-card)]">
-            <IconShield className="h-[18px] w-[18px] text-accent" />
+        <div className="atlas-sidebar-promo rounded-xl border border-border/80 p-3">
+          <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-[10px] bg-card shadow-[var(--shadow-card)] ring-1 ring-border/60">
+            <IconShield className="h-4 w-4 text-accent" />
           </div>
-          <p className="text-[12px] font-semibold leading-snug text-foreground">
+          <p className="text-[11px] font-semibold leading-snug text-foreground">
             Le tue polizze. La tua sicurezza. La nostra indipendenza.
           </p>
           <Link
             href="/"
             onClick={onNavigate}
-            className="atlas-btn-secondary mt-3 w-full"
+            className="atlas-btn-secondary mt-2.5 w-full py-2 text-[11px]"
           >
             Scopri come funziona
           </Link>
@@ -117,42 +122,24 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-export function Sidebar() {
-  const [mobileOpen, setMobileOpen] = useState(false);
-
+export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
   return (
     <>
-      <div className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-sidebar-border bg-card px-4 lg:hidden">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <IconLogo className="h-8 w-8" />
-          <span className="text-sm font-semibold text-foreground">Atlas</span>
-        </Link>
-        <button
-          type="button"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="rounded-lg p-2 text-muted hover:bg-card-muted hover:text-foreground"
-          aria-label="Menu"
-          aria-expanded={mobileOpen}
-        >
-          <IconMenu />
-        </button>
-      </div>
-
-      {mobileOpen && (
+      {mobileOpen ? (
         <div
           className="fixed inset-0 z-40 bg-overlay lg:hidden"
-          onClick={() => setMobileOpen(false)}
+          onClick={onMobileClose}
           aria-hidden
         />
-      )}
+      ) : null}
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[min(100vw-3rem,250px)] flex-col border-r border-sidebar-border bg-sidebar transition-transform lg:static lg:w-[250px] lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 flex w-[min(100vw-3rem,252px)] max-w-[calc(100vw-3rem)] flex-col border-r border-sidebar-border bg-sidebar transition-transform lg:static lg:w-[252px] lg:max-w-none lg:shrink-0 lg:translate-x-0",
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
-        <SidebarContent onNavigate={() => setMobileOpen(false)} />
+        <SidebarContent onNavigate={onMobileClose} />
       </aside>
     </>
   );

@@ -1,15 +1,17 @@
 import Link from "next/link";
-import { ClipboardCheck, Sparkles } from "lucide-react";
 import {
-  PageHeader,
-  PrimaryButton,
-} from "@/components/ui/PageHeader";
-import { MetricCard } from "@/components/ui/MetricCard";
-import { SectionCard } from "@/components/ui/SectionCard";
-import { LinkAction } from "@/components/ui/LinkAction";
-import { PageShell } from "@/components/ui/PageShell";
-import { InsightCard } from "@/components/ui/InsightCard";
-import { PolicyListCard } from "@/components/policies/PolicyListCard";
+  Activity,
+  AlertTriangle,
+  ClipboardCheck,
+  FileText,
+  Shield,
+  Sparkles,
+  Users,
+} from "lucide-react";
+import { DashboardAlertList } from "@/components/dashboard/DashboardAlertList";
+import { DashboardHealthScoreCard } from "@/components/dashboard/DashboardHealthScoreCard";
+import { formatKpiValue } from "@/components/dashboard/DashboardKpiValue";
+import { DashboardWorkflowSteps } from "@/components/dashboard/DashboardWorkflowSteps";
 import { DocumentStatusBadge } from "@/components/documents/DocumentStatusBadge";
 import {
   IconChevronRight,
@@ -19,14 +21,19 @@ import {
   IconPolicies,
   IconUpload,
 } from "@/components/icons";
+import { PolicyListCard } from "@/components/policies/PolicyListCard";
+import { InsightCard } from "@/components/ui/InsightCard";
+import { LinkAction } from "@/components/ui/LinkAction";
+import { MetricCard } from "@/components/ui/MetricCard";
+import { PageHeader, PrimaryButton } from "@/components/ui/PageHeader";
+import { PageShell } from "@/components/ui/PageShell";
+import { SectionCard } from "@/components/ui/SectionCard";
+import { getDashboardIntelligence } from "@/lib/dashboard-intelligence";
 import { getDashboardStats, getRecentDocuments } from "@/lib/dashboard";
 import { getProfileShortName } from "@/lib/profile-display";
 import { getCurrentProfile } from "@/lib/profiles";
-import {
-  formatFileSize,
-  formatRelativeTime,
-} from "@/lib/utils";
 import { getCurrentUserPolicies } from "@/lib/policies";
+import { formatCHF, formatFileSize, formatRelativeTime } from "@/lib/utils";
 
 export const metadata = { title: "Dashboard" };
 
@@ -44,18 +51,34 @@ function getActivityCopy(status: string) {
 }
 
 export default async function DashboardPage() {
-  const [profile, documentStats, recentDocuments, policies] = await Promise.all([
+  const [
+    profile,
+    documentStats,
+    recentDocuments,
+    policies,
+    intelligence,
+  ] = await Promise.all([
     getCurrentProfile(),
     getDashboardStats(),
     getRecentDocuments(5),
     getCurrentUserPolicies(),
+    getDashboardIntelligence(),
   ]);
+
+  const { kpis, healthScore, alerts, workflowSteps } = intelligence;
   const pendingReviewPolicies = policies.filter((policy) => policy.requiresReview);
+  const monthlyPremium = formatKpiValue(kpis.totalMonthlyPremium, formatCHF);
+  const annualPremium = formatKpiValue(kpis.totalAnnualPremium, formatCHF);
+  const avgConfidence = formatKpiValue(
+    kpis.averageExtractionConfidence,
+    (value) => `${Math.round(value)}%`
+  );
+
   const nextAction =
     pendingReviewPolicies.length > 0
       ? {
           label: "Rivedi bozza AI",
-          href: `/policies/${pendingReviewPolicies[0].id}`,
+          href: `/policies/${pendingReviewPolicies[0].id}/edit`,
           description: `${pendingReviewPolicies.length} polizza${pendingReviewPolicies.length === 1 ? "" : "e"} in attesa di conferma.`,
         }
       : documentStats.totalDocuments === 0
@@ -73,14 +96,17 @@ export default async function DashboardPage() {
           : {
               label: "Esplora le polizze",
               href: "/policies",
-              description: "Consulta le schede strutturate nel tuo archivio.",
+              description: "Consulta le schede strutturate nel tuo portafoglio.",
             };
+
+  const marketReady = intelligence.marketPrerequisiteCount >= 3;
+  const highAlerts = alerts.filter((alert) => alert.severity === "high").length;
 
   return (
     <PageShell>
       <PageHeader
         title={`Ciao ${getProfileShortName(profile)}`}
-        description="Panoramica del tuo archivio assicurativo e delle prossime azioni."
+        description="Centro di comando Atlas: intelligence assicurativa basata sui tuoi dati reali."
         action={
           <PrimaryButton href="/documents" icon={<IconUpload className="h-4 w-4" />}>
             Carica PDF
@@ -88,185 +114,315 @@ export default async function DashboardPage() {
         }
       />
 
-      {nextAction ? (
-        <div className="flex flex-col gap-3 rounded-2xl border border-border bg-accent-soft p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-[11px] font-medium uppercase tracking-wide text-accent">
-              Prossima azione
-            </p>
-            <p className="mt-1 text-[14px] font-semibold text-foreground">
-              {nextAction.label}
-            </p>
-            <p className="mt-0.5 text-[12px] text-muted">{nextAction.description}</p>
-          </div>
-          <Link
-            href={nextAction.href}
-            className="atlas-btn-primary shrink-0 py-2.5 text-[13px]"
-          >
-            Continua
-          </Link>
+      <div className="atlas-action-strip flex flex-col gap-2.5 p-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <p className="atlas-section-eyebrow text-accent">Prossima azione</p>
+          <p className="mt-0.5 text-[13px] font-semibold text-foreground">
+            {nextAction.label}
+          </p>
+          <p className="mt-px text-[11px] text-muted-foreground">
+            {nextAction.description}
+          </p>
         </div>
-      ) : null}
+        <Link
+          href={nextAction.href}
+          className="atlas-btn-primary shrink-0 px-4 py-2 text-[12px]"
+        >
+          Continua
+        </Link>
+      </div>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <MetricCard
-          label="Documenti"
-          value={String(documentStats.totalDocuments)}
-          subtext={`${documentStats.analyzedDocuments} analizzati`}
-          variant="blue"
-          icon={<IconDocuments className="h-[18px] w-[18px]" />}
-        />
+      <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           label="Polizze"
-          value={String(policies.length)}
-          subtext={`${pendingReviewPolicies.length} da rivedere`}
+          value={String(kpis.totalPolicies)}
+          subtext={`${kpis.confirmedPolicies} confermate`}
           variant="indigo"
-          icon={<IconPolicies className="h-[18px] w-[18px]" />}
+          icon={<IconPolicies className="h-4 w-4" />}
         />
         <MetricCard
-          label="Upload mese"
-          value={String(documentStats.documentsUploadedThisMonth)}
-          subtext="Questo mese"
-          variant="green"
-          icon={<IconUpload className="h-[18px] w-[18px]" />}
+          label="Documenti"
+          value={String(kpis.totalDocuments)}
+          subtext={`${kpis.analyzedDocuments} analizzati`}
+          variant="blue"
+          icon={<IconDocuments className="h-4 w-4" />}
         />
         <MetricCard
-          label="Storage"
-          value={formatFileSize(documentStats.totalStorageUsed)}
-          subtext="Archivio privato"
-          variant="yellow"
-          icon={<IconFolder className="h-[18px] w-[18px]" />}
+          label="Da rivedere"
+          value={String(kpis.policiesRequiringReview)}
+          subtext={
+            kpis.policiesRequiringReview > 0 ? "Bozze AI in coda" : "Nessuna bozza"
+          }
+          variant={kpis.policiesRequiringReview > 0 ? "yellow" : "green"}
+          icon={<ClipboardCheck className="h-4 w-4" />}
+        />
+        <MetricCard
+          label="Premio mensile"
+          value={monthlyPremium.display}
+          subtext={
+            annualPremium.unavailable
+              ? "Solo polizze confermate"
+              : `${annualPremium.display} / anno stimato`
+          }
+          variant="purple"
+          unavailableValue={monthlyPremium.unavailable}
+          icon={<Activity className="h-4 w-4" />}
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="space-y-4 lg:col-span-2">
+      <div className="grid gap-2.5 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <DashboardHealthScoreCard healthScore={healthScore} />
+        </div>
+        <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-1">
+          <MetricCard
+            label="Coperture"
+            value={String(kpis.coverageCount)}
+            subtext={
+              kpis.unassignedCoverageCount > 0
+                ? `${kpis.insuredPeopleCount} persone · ${kpis.unassignedCoverageCount} da assegnare`
+                : `${kpis.insuredPeopleCount} persone · tutte assegnate`
+            }
+            variant="green"
+            icon={<Shield className="h-4 w-4" />}
+          />
+          <MetricCard
+            label="Confidenza media"
+            value={avgConfidence.display}
+            subtext="Estrazione AI"
+            variant="blue"
+            unavailableValue={avgConfidence.unavailable}
+            icon={<Sparkles className="h-4 w-4" />}
+          />
+        </div>
+      </div>
+
+      <div>
+        <p className="atlas-section-eyebrow mb-2">Pipeline documenti</p>
+        <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+          <MetricCard
+            label="Upload mese"
+            value={String(documentStats.documentsUploadedThisMonth)}
+            subtext="Questo mese"
+            variant="green"
+            icon={<IconUpload className="h-4 w-4" />}
+          />
+          <MetricCard
+            label="In elaborazione"
+            value={String(kpis.processingDocuments)}
+            subtext={`${kpis.uploadedDocumentsAwaitingAnalysis} in attesa`}
+            variant="yellow"
+            icon={<FileText className="h-4 w-4" />}
+          />
+          <MetricCard
+            label="Analizzati"
+            value={String(kpis.analyzedDocuments)}
+            subtext={`${kpis.failedDocuments} falliti`}
+            variant="indigo"
+            icon={<IconDocuments className="h-4 w-4" />}
+          />
+          <MetricCard
+            label="Storage"
+            value={formatFileSize(documentStats.totalStorageUsed)}
+            subtext="Archivio privato"
+            variant="purple"
+            icon={<IconFolder className="h-4 w-4" />}
+          />
+        </div>
+      </div>
+
+      <div className="grid gap-2.5 xl:grid-cols-3">
+        <div className="space-y-2.5 xl:col-span-2">
           <SectionCard
-            title="Upload recenti"
-            description="I tuoi PDF nell'archivio privato."
-            action={<LinkAction href="/documents">Tutti i documenti</LinkAction>}
-            padding="none"
+            title="Alert center"
+            description={
+              alerts.length > 0
+                ? `${alerts.length} segnalazioni${highAlerts > 0 ? ` · ${highAlerts} prioritarie` : ""}`
+                : "Nessuna criticità sui dati attuali."
+            }
+            padding="sm"
+            bodyClassName="px-3.5"
           >
-            {recentDocuments.length > 0 ? (
-              <div className="divide-y divide-border-subtle">
-                {recentDocuments.map((document) => (
-                  <Link
-                    key={document.id}
-                    href={`/documents/${document.id}`}
-                    className="flex items-center gap-3 px-4 py-3 transition hover:bg-card-muted sm:px-5"
-                  >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--danger-bg)] text-[var(--danger-text)]">
-                      <IconDocuments className="h-4 w-4" />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[13px] font-medium text-foreground">
-                        {document.fileName}
-                      </span>
-                      <span className="mt-0.5 block text-[11px] text-muted">
-                        {getActivityCopy(document.status)} ·{" "}
-                        {formatRelativeTime(document.createdAt)}
-                      </span>
-                    </span>
-                    <DocumentStatusBadge status={document.status} />
-                    <IconChevronRight className="hidden h-4 w-4 text-muted sm:block" />
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <div className="px-6 py-10 text-center">
-                <p className="text-[13px] font-medium text-foreground">
-                  Nessun documento caricato
-                </p>
-                <p className="mt-1 text-[12px] text-muted">
-                  Carica un PDF per avviare l&apos;estrazione.
-                </p>
-                <PrimaryButton href="/documents" className="mt-4">
-                  Vai ai documenti
-                </PrimaryButton>
-              </div>
-            )}
+            <DashboardAlertList alerts={alerts} />
           </SectionCard>
 
           <SectionCard
-            title="Polizze recenti"
-            description="Schede create dall'analisi AI o manualmente."
+            title="Polizze da rivedere"
+            description="Bozze AI in attesa di conferma."
             action={
-              policies.length > 0 ? (
-                <LinkAction href="/policies">Archivio completo</LinkAction>
+              pendingReviewPolicies.length > 0 ? (
+                <LinkAction href="/policies">Vedi tutte</LinkAction>
               ) : undefined
             }
             padding="none"
           >
-            {policies.length > 0 ? (
-              <div className="grid gap-3 p-4 md:grid-cols-2">
-                {policies.slice(0, 4).map((policy) => (
+            {pendingReviewPolicies.length > 0 ? (
+              <div className="grid gap-2.5 p-3 md:grid-cols-2">
+                {pendingReviewPolicies.slice(0, 4).map((policy) => (
                   <PolicyListCard key={policy.id} policy={policy} />
                 ))}
               </div>
             ) : (
-              <div className="px-6 py-10 text-center">
-                <p className="text-[13px] font-medium text-foreground">
-                  Nessuna polizza strutturata
+              <div className="px-4 py-6 text-center">
+                <p className="text-[12px] font-medium text-foreground">
+                  Nessuna revisione in sospeso
                 </p>
-                <p className="mt-1 text-[12px] text-muted">
-                  Analizza un PDF per generare la prima bozza.
+                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  Le bozze confermate alimentano score e alert.
                 </p>
               </div>
             )}
           </SectionCard>
+
+          <div className="grid gap-2.5 lg:grid-cols-2">
+            <SectionCard
+              title="Documenti recenti"
+              description="Ultimi PDF nell'archivio."
+              action={<LinkAction href="/documents">Tutti</LinkAction>}
+              padding="none"
+            >
+              {recentDocuments.length > 0 ? (
+                <div className="divide-y divide-border-subtle">
+                  {recentDocuments.map((document) => (
+                    <Link
+                      key={document.id}
+                      href={`/documents/${document.id}`}
+                      className="flex items-center gap-2.5 px-3.5 py-2.5 transition hover:bg-card-muted/50"
+                    >
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-[var(--danger-bg)] text-[var(--danger-text)] ring-1 ring-[var(--danger-border)]">
+                        <IconDocuments className="h-3.5 w-3.5" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[12px] font-medium text-foreground">
+                          {document.fileName}
+                        </span>
+                        <span className="mt-px block text-[10px] text-muted-foreground">
+                          {getActivityCopy(document.status)} ·{" "}
+                          {formatRelativeTime(document.createdAt)}
+                        </span>
+                      </span>
+                      <DocumentStatusBadge status={document.status} />
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="px-4 py-6 text-center text-[11px] text-muted">
+                  Nessun documento caricato.
+                </div>
+              )}
+            </SectionCard>
+
+            <SectionCard
+              title="Polizze recenti"
+              description="Schede da estrazione AI o inserimento manuale."
+              action={
+                policies.length > 0 ? (
+                  <LinkAction href="/policies">Archivio</LinkAction>
+                ) : undefined
+              }
+              padding="none"
+            >
+              {policies.length > 0 ? (
+                <div className="grid gap-2.5 p-3">
+                  {policies.slice(0, 3).map((policy) => (
+                    <PolicyListCard key={policy.id} policy={policy} />
+                  ))}
+                </div>
+              ) : (
+                <div className="px-4 py-6 text-center text-[11px] text-muted">
+                  Nessuna polizza strutturata.
+                </div>
+              )}
+            </SectionCard>
+          </div>
         </div>
 
-        <div className="space-y-4">
-          {pendingReviewPolicies.length > 0 ? (
-            <SectionCard title="Revisione" padding="sm">
-              <div className="flex items-start gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--warning-bg)] text-[var(--warning-text)]">
-                  <ClipboardCheck className="h-5 w-5" />
+        <div className="space-y-2.5">
+          <SectionCard
+            title="Workflow Atlas"
+            description="Da documento a intelligence verificata."
+            padding="sm"
+          >
+            <DashboardWorkflowSteps steps={workflowSteps} />
+          </SectionCard>
+
+          <SectionCard title="Moduli intelligence" padding="sm" bodyClassName="space-y-2">
+            <InsightCard
+              icon={<Sparkles className="h-3.5 w-3.5" />}
+              title="Analisi coperture"
+              description={
+                kpis.confirmedPolicies > 0
+                  ? "Gap e duplicati con più polizze verificate."
+                  : "Servono polizze confermate per avviare l'analisi."
+              }
+              statusLabel={
+                kpis.confirmedPolicies > 0 ? "In sviluppo" : "Serve polizza"
+              }
+              statusVariant={kpis.confirmedPolicies > 0 ? "processing" : "neutral"}
+              href="/analysis"
+              hrefLabel="Apri analisi"
+            />
+            <InsightCard
+              icon={<IconClock className="h-3.5 w-3.5" />}
+              title="Confronto mercato"
+              description={
+                marketReady
+                  ? "Benchmark in preparazione sui premi confermati."
+                  : `Benchmark in preparazione (${intelligence.marketPrerequisiteCount}/3 polizze confermate).`
+              }
+              statusLabel="In preparazione"
+              statusVariant="neutral"
+              href="/market"
+              hrefLabel="Vedi modulo"
+            />
+            <InsightCard
+              icon={<Users className="h-3.5 w-3.5" />}
+              title="Raccomandazioni"
+              description={
+                intelligence.recommendationsAvailable
+                  ? "Suggerimenti deterministici dal portafoglio."
+                  : "Servono più dati verificati."
+              }
+              statusLabel={
+                intelligence.recommendationsAvailable
+                  ? "Disponibile"
+                  : "Servono più dati"
+              }
+              statusVariant="neutral"
+              href="/recommendations"
+              hrefLabel="Apri modulo"
+            />
+          </SectionCard>
+
+          {kpis.failedDocuments > 0 ? (
+            <SectionCard title="Attenzione documenti" padding="sm">
+              <div className="flex items-start gap-2.5">
+                <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[var(--danger-bg)] text-[var(--danger-text)] ring-1 ring-[var(--danger-border)]">
+                  <AlertTriangle className="h-4 w-4" />
                 </span>
                 <div>
-                  <p className="text-[13px] font-semibold text-foreground">
-                    {pendingReviewPolicies.length} bozze AI
+                  <p className="text-[12px] font-semibold text-foreground">
+                    {kpis.failedDocuments} analisi fallita
+                    {kpis.failedDocuments === 1 ? "" : "e"}
                   </p>
-                  <p className="mt-1 text-[12px] leading-relaxed text-muted">
-                    Conferma i dati estratti prima di usarli come riferimento.
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    Controlla i PDF con errore OCR o estrazione.
                   </p>
                   <Link
-                    href={`/policies/${pendingReviewPolicies[0].id}/edit`}
-                    className="mt-3 inline-flex text-[12px] font-medium text-accent hover:text-accent"
+                    href="/documents"
+                    className="mt-1.5 inline-flex items-center gap-0.5 text-[11px] font-medium text-accent"
                   >
-                    Inizia revisione
+                    Vai ai documenti
+                    <IconChevronRight className="h-3 w-3" />
                   </Link>
                 </div>
               </div>
             </SectionCard>
           ) : null}
 
-          <SectionCard title="Moduli Atlas" padding="sm">
-            <div className="space-y-3">
-              <InsightCard
-                icon={<Sparkles className="h-4 w-4" />}
-                title="Analisi coperture"
-                description="Score, duplicati e gap saranno disponibili con più polizze verificate."
-                statusLabel={policies.length > 0 ? "In sviluppo" : "Serve polizza"}
-                statusVariant={policies.length > 0 ? "processing" : "neutral"}
-                href="/analysis"
-                hrefLabel="Apri analisi"
-              />
-              <InsightCard
-                icon={<IconClock className="h-4 w-4" />}
-                title="Confronto mercato"
-                description="Benchmark su premi reali estratti dai tuoi documenti."
-                statusLabel="In arrivo"
-                statusVariant="neutral"
-                href="/market"
-                hrefLabel="Vedi modulo"
-              />
-            </div>
-          </SectionCard>
-
-          <div className="rounded-2xl border border-border bg-accent-soft px-4 py-3 text-[12px] leading-relaxed text-muted">
-            Atlas e indipendente: non vendiamo polizze ne riceviamo commissioni da
-            assicuratori.
+          <div className="rounded-lg border border-border/80 bg-card-muted/40 px-3.5 py-2.5 text-[11px] leading-relaxed text-muted-foreground">
+            Atlas è indipendente: nessun dato demo. Ogni cifra deriva dai tuoi PDF
+            e dalle schede confermate.
           </div>
         </div>
       </div>

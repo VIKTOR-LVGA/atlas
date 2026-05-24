@@ -26,26 +26,28 @@ export function InsightCard({
   return (
     <div
       className={cn(
-        "flex flex-col rounded-2xl border border-border bg-card p-4 shadow-sm",
+        "atlas-surface-card-interactive flex flex-col rounded-lg border border-border bg-card/80 p-3",
         className
       )}
     >
       <div className="flex items-start justify-between gap-2">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-card-muted text-muted">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-accent-soft text-accent ring-1 ring-accent/10">
           {icon}
         </span>
         <StatusBadge variant={statusVariant} label={statusLabel} />
       </div>
-      <p className="mt-3 text-[13px] font-semibold text-foreground">{title}</p>
-      <p className="mt-1 flex-1 text-[12px] leading-relaxed text-muted">
+      <p className="mt-2 text-[12px] font-semibold leading-snug text-foreground">
+        {title}
+      </p>
+      <p className="mt-0.5 flex-1 text-[11px] leading-relaxed text-muted-foreground">
         {description}
       </p>
       {href && hrefLabel ? (
         <Link
           href={href}
-          className="mt-3 text-[12px] font-medium text-accent hover:text-accent"
+          className="mt-2 text-[11px] font-medium text-accent hover:text-accent-hover"
         >
-          {hrefLabel}
+          {hrefLabel} →
         </Link>
       ) : null}
     </div>

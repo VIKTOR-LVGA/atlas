@@ -19,9 +19,13 @@ export function PageHeader({
   return (
     <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between", className)}>
       <div>
-        <h1 className="text-[22px] font-semibold tracking-tight text-foreground">{title}</h1>
+        <h1 className="text-[1.5rem] font-semibold leading-tight tracking-[-0.02em] text-foreground sm:text-[1.625rem]">
+          {title}
+        </h1>
         {description && (
-          <p className="mt-1 text-[13px] text-muted">{description}</p>
+          <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
+            {description}
+          </p>
         )}
       </div>
       <div className="flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:items-center">

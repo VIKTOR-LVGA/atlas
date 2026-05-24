@@ -20,26 +20,28 @@ export function SectionCard({
   padding = "md",
 }: SectionCardProps) {
   const paddingClass =
-    padding === "none" ? "" : padding === "sm" ? "p-4" : "p-5";
+    padding === "none" ? "" : padding === "sm" ? "p-3.5" : "p-4";
 
   return (
     <section
       className={cn(
-        "rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]",
+        "atlas-surface-card overflow-hidden",
         className
       )}
     >
       {(title || action) && (
-        <div className="flex items-center justify-between gap-3 border-b border-border-subtle px-5 py-3.5">
-          <div>
+        <div className="flex items-center justify-between gap-3 border-b border-border-subtle px-4 py-2.5">
+          <div className="min-w-0">
             {title && (
-              <h2 className="text-[13px] font-semibold text-foreground">{title}</h2>
+              <h2 className="text-[13px] font-semibold tracking-tight text-foreground">
+                {title}
+              </h2>
             )}
             {description && (
-              <p className="mt-0.5 text-[11px] text-muted">{description}</p>
+              <p className="mt-0.5 text-[11px] leading-snug text-muted">{description}</p>
             )}
           </div>
-          {action}
+          {action ? <div className="shrink-0">{action}</div> : null}
         </div>
       )}
       <div className={cn(paddingClass, bodyClassName)}>{children}</div>

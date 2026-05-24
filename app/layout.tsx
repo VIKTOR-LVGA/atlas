@@ -26,8 +26,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="it" className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
-      <body className="min-h-full bg-background text-foreground">
+    <html lang="it" className={`${inter.variable} h-full overflow-x-hidden antialiased`} suppressHydrationWarning>
+      <body className="min-h-full max-w-[100vw] overflow-x-hidden bg-background text-foreground">
         <script
           dangerouslySetInnerHTML={{ __html: themeInitScript }}
           suppressHydrationWarning
