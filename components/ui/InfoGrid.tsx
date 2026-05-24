@@ -4,6 +4,7 @@ export interface InfoGridItem {
   label: string;
   value: React.ReactNode;
   span?: 1 | 2;
+  badge?: React.ReactNode;
 }
 
 interface InfoGridProps {
@@ -33,8 +34,9 @@ export function InfoGrid({
           key={item.label}
           className={cn(item.span === 2 && "sm:col-span-2", compact && "min-w-0")}
         >
-          <dt className="text-[10px] font-medium uppercase tracking-wide text-muted">
-            {item.label}
+          <dt className="flex items-center justify-between gap-2 text-[10px] font-medium uppercase tracking-wide text-muted">
+            <span>{item.label}</span>
+            {item.badge ? <span className="normal-case tracking-normal">{item.badge}</span> : null}
           </dt>
           <dd
             className={cn(

@@ -3,7 +3,12 @@ import { PolicyCoverageIntelligence } from "@/components/policies/detail/PolicyC
 import { PolicyDetailFactsCard } from "@/components/policies/detail/PolicyDetailFactsCard";
 import { PolicyDetailKpiStrip } from "@/components/policies/detail/PolicyDetailKpiStrip";
 import { PolicyDetailSidebar } from "@/components/policies/detail/PolicyDetailSidebar";
+import { PolicyDocumentIntelligencePanel } from "@/components/policies/detail/PolicyDocumentIntelligencePanel";
+import { PolicyExtractionHighlights } from "@/components/policies/detail/PolicyExtractionHighlights";
+import { PolicyExtractionSummaryHero } from "@/components/policies/detail/PolicyExtractionSummaryHero";
 import { PolicyExecutiveHeader } from "@/components/policies/detail/PolicyExecutiveHeader";
+import { PolicyPartialExtractionBanner } from "@/components/policies/detail/PolicyPartialExtractionBanner";
+import { PolicyRevealGroup } from "@/components/policies/detail/PolicyRevealGroup";
 import { PolicyFlatCoveragesGrid } from "@/components/policies/detail/PolicyFlatCoveragesGrid";
 import { PolicyInsuredPeopleIntelligence } from "@/components/policies/detail/PolicyInsuredPeopleIntelligence";
 import { PolicyReviewCenter } from "@/components/policies/detail/PolicyReviewCenter";
@@ -31,6 +36,12 @@ import {
   buildPolicyReviewCenterItems,
   buildPolicyTimelineSteps,
 } from "@/lib/policy-detail-display";
+import {
+  buildExtractionHighlights,
+  countMissingKeyFields,
+  isPartialExtraction,
+  shouldShowExtractionReveal,
+} from "@/lib/policy-extraction-reveal";
 import {
   getHealthPolicyGroupedView,
   getPolicyCoveragesForDisplay,
@@ -162,6 +173,21 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
   const flatCoverages =
     !showGroupedHealth && coverages.length > 0 ? coverages : [];
 
+  const showExtractionReveal = shouldShowExtractionReveal(policy);
+  const partialExtraction = isPartialExtraction({
+    policy,
+    uncertainFieldCount: uncertainFields.length,
+    coverageSummary,
+  });
+  const missingKeyFieldCount = countMissingKeyFields(policy);
+  const extractionHighlights = buildExtractionHighlights({
+    policy,
+    insuredCount: displayInsuredCount,
+    coverageCount: displayCoverageCount,
+    coverageSummary,
+    uncertainFieldCount: uncertainFields.length,
+  });
+
   return (
     <PageShell backHref="/policies" backLabel="Torna alle polizze">
       <RevealStagger>
@@ -189,15 +215,36 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
           </StatusFlash>
         ) : null}
 
-        <PolicyDetailKpiStrip
-          premiumAmount={policy.premiumAmount}
-          premiumFrequency={policy.premiumFrequency}
-          insuredCount={displayInsuredCount}
-          coverageCount={displayCoverageCount}
-          extractionConfidence={policy.extractionConfidence}
-          requiresReview={policy.requiresReview}
-          completenessPercent={coverageSummary.completenessPercent}
-        />
+        {showExtractionReveal ? (
+          <>
+            <PolicyExtractionSummaryHero
+              policy={policy}
+              insuredCount={displayInsuredCount}
+              coverageCount={displayCoverageCount}
+              completenessPercent={coverageSummary.completenessPercent}
+            />
+            <PolicyExtractionHighlights highlights={extractionHighlights} />
+          </>
+        ) : (
+          <PolicyDetailKpiStrip
+            premiumAmount={policy.premiumAmount}
+            premiumFrequency={policy.premiumFrequency}
+            insuredCount={displayInsuredCount}
+            coverageCount={displayCoverageCount}
+            extractionConfidence={policy.extractionConfidence}
+            requiresReview={policy.requiresReview}
+            completenessPercent={coverageSummary.completenessPercent}
+          />
+        )}
+
+        {showExtractionReveal && partialExtraction ? (
+          <PolicyPartialExtractionBanner
+            policyId={policy.id}
+            uncertainFieldCount={uncertainFields.length}
+            unassignedCount={groupedForDisplay?.unassignedCoverages.length ?? 0}
+            missingFieldCount={missingKeyFieldCount}
+          />
+        ) : null}
 
         {policy.requiresReview ? (
           <ReviewBanner
@@ -212,38 +259,43 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
 
         <div className={atlasMainAside}>
           <div className={atlasMainColumn}>
-            {groupedForDisplay && (groupedForDisplay.people.length > 0 || showGroupedHealth) ? (
-              <PolicyInsuredPeopleIntelligence grouped={groupedForDisplay} />
-            ) : null}
+            <PolicyRevealGroup>
+              {groupedForDisplay && (groupedForDisplay.people.length > 0 || showGroupedHealth) ? (
+                <PolicyInsuredPeopleIntelligence grouped={groupedForDisplay} />
+              ) : null}
 
-            {showGroupedHealth && groupedForDisplay ? (
-              <PolicyUnassignedCoveragesSection
-                policyId={policy.id}
-                items={unassignedAssignItems}
-                people={assignPeople}
+              {showGroupedHealth && groupedForDisplay ? (
+                <PolicyUnassignedCoveragesSection
+                  policyId={policy.id}
+                  items={unassignedAssignItems}
+                  people={assignPeople}
+                />
+              ) : null}
+
+              <PolicyCoverageIntelligence summary={coverageSummary} />
+
+              {showGroupedHealth &&
+              groupedForDisplay &&
+              coveragesForDisplay.length > 0 ? (
+                <PolicyGlobalCoveragesSection coverages={coveragesForDisplay} />
+              ) : null}
+
+              {flatCoverages.length > 0 ? (
+                <PolicyFlatCoveragesGrid coverages={flatCoverages} />
+              ) : null}
+
+              <PolicyDetailFactsCard
+                policy={policy}
+                policyTypeLabel={policyTypeLabel}
+                detailRows={detailRows.map((row) => ({
+                  label: row.label,
+                  value: row.value,
+                }))}
+                fieldConfidenceRows={
+                  fieldConfidenceRows.length > 0 ? fieldConfidenceRows : undefined
+                }
               />
-            ) : null}
-
-            <PolicyCoverageIntelligence summary={coverageSummary} />
-
-            {showGroupedHealth &&
-            groupedForDisplay &&
-            coveragesForDisplay.length > 0 ? (
-              <PolicyGlobalCoveragesSection coverages={coveragesForDisplay} />
-            ) : null}
-
-            {flatCoverages.length > 0 ? (
-              <PolicyFlatCoveragesGrid coverages={flatCoverages} />
-            ) : null}
-
-            <PolicyDetailFactsCard
-              policy={policy}
-              policyTypeLabel={policyTypeLabel}
-              detailRows={detailRows.map((row) => ({
-                label: row.label,
-                value: row.value,
-              }))}
-            />
+            </PolicyRevealGroup>
 
             {fieldConfidenceRows.length > 0 ? (
               <CollapsibleSection
@@ -265,6 +317,9 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
           </div>
 
           <aside className={atlasAsideColumn}>
+            {showExtractionReveal ? (
+              <PolicyDocumentIntelligencePanel policy={policy} />
+            ) : null}
             <PolicyReviewCenter
               policyId={policy.id}
               requiresReview={policy.requiresReview}
@@ -273,7 +328,11 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
               items={reviewCenterItems}
             />
             <PolicyStructureTimeline steps={timelineSteps} />
-            <PolicyDetailSidebar policy={policy} />
+            <PolicyDetailSidebar
+              policy={policy}
+              hideDocument={showExtractionReveal}
+              hideTimestamps={showExtractionReveal}
+            />
           </aside>
         </div>
       </RevealStagger>

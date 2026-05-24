@@ -5,6 +5,11 @@ import { PolicyConfidenceRing } from "@/components/policies/PolicyConfidenceRing
 import { LinkAction } from "@/components/ui/LinkAction";
 import { SectionCard } from "@/components/ui/SectionCard";
 import type { PolicyReviewCenterItem } from "@/lib/policy-detail-display";
+import {
+  getExtractionConfidenceDescription,
+  getExtractionConfidenceLabel,
+  getExtractionConfidenceTier,
+} from "@/lib/policy-extraction-reveal";
 import { cn } from "@/lib/utils";
 
 interface PolicyReviewCenterProps {
@@ -44,6 +49,9 @@ export function PolicyReviewCenter({
   uncertainFieldCount,
   items,
 }: PolicyReviewCenterProps) {
+  const confidenceTier = getExtractionConfidenceTier(extractionConfidence);
+  const confidenceLabel = getExtractionConfidenceLabel(confidenceTier);
+
   return (
     <SectionCard
       title="Centro revisione"
@@ -56,9 +64,20 @@ export function PolicyReviewCenter({
           <p className="text-[10px] font-medium uppercase tracking-wide text-muted">
             Qualità estrazione
           </p>
-          <p className="mt-0.5 text-[12px] font-medium text-foreground">
-            {requiresReview ? "Revisione richiesta" : "Stato verificato"}
+          <p className="mt-0.5 text-[12px] font-semibold text-foreground">
+            {confidenceLabel}
           </p>
+          <p className="mt-0.5 text-[11px] text-muted">
+            {getExtractionConfidenceDescription(
+              confidenceTier,
+              extractionConfidence
+            )}
+          </p>
+          {requiresReview ? (
+            <p className="mt-1 text-[10px] font-medium text-[var(--warning-text)]">
+              Revisione richiesta
+            </p>
+          ) : null}
         </div>
         <PolicyConfidenceRing confidence={extractionConfidence} size="md" />
       </div>

@@ -1,5 +1,7 @@
+import { ConfidenceBadge } from "@/components/ui/ConfidenceBadge";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { InfoGrid } from "@/components/ui/InfoGrid";
+import type { PolicyFieldConfidenceRow } from "@/lib/policy-types";
 import { formatCHF, formatDate } from "@/lib/utils";
 import type { PolicyPremiumFrequency, UserPolicy } from "@/lib/types";
 
@@ -14,6 +16,7 @@ interface PolicyDetailFactsCardProps {
   policy: UserPolicy;
   policyTypeLabel: string;
   detailRows: Array<{ label: string; value: string }>;
+  fieldConfidenceRows?: PolicyFieldConfidenceRow[];
 }
 
 function displayValue(value: string | null | undefined, fallback = "Non disponibile") {
@@ -23,24 +26,48 @@ function displayValue(value: string | null | undefined, fallback = "Non disponib
   return value;
 }
 
+function confidenceBadgeForKey(
+  rows: PolicyFieldConfidenceRow[] | undefined,
+  key: string
+) {
+  const row = rows?.find((item) => item.key === key);
+  if (!row) {
+    return undefined;
+  }
+
+  return (
+    <ConfidenceBadge confidence={row.confidence} uncertain={row.uncertain} />
+  );
+}
+
 export function PolicyDetailFactsCard({
   policy,
   policyTypeLabel,
   detailRows,
+  fieldConfidenceRows,
 }: PolicyDetailFactsCardProps) {
   return (
     <SectionCard
       title="Dati contrattuali"
-      description="Informazioni principali della polizza"
+      description="Campi estratti con indicatori di verifica"
       bodyClassName="space-y-4"
     >
       <InfoGrid
         items={[
-          { label: "Compagnia", value: displayValue(policy.provider) },
-          { label: "Categoria", value: policyTypeLabel },
+          {
+            label: "Compagnia",
+            value: displayValue(policy.provider),
+            badge: confidenceBadgeForKey(fieldConfidenceRows, "provider"),
+          },
+          {
+            label: "Categoria",
+            value: policyTypeLabel,
+            badge: confidenceBadgeForKey(fieldConfidenceRows, "policy_type"),
+          },
           {
             label: "Numero polizza",
             value: displayValue(policy.policyNumber, "Da verificare"),
+            badge: confidenceBadgeForKey(fieldConfidenceRows, "policy_number"),
           },
           {
             label: "Premio",
@@ -48,10 +75,12 @@ export function PolicyDetailFactsCard({
               policy.premiumAmount === null
                 ? "Non disponibile"
                 : formatCHF(policy.premiumAmount),
+            badge: confidenceBadgeForKey(fieldConfidenceRows, "premium_amount"),
           },
           {
             label: "Frequenza",
             value: premiumFrequencyLabels[policy.premiumFrequency],
+            badge: confidenceBadgeForKey(fieldConfidenceRows, "premium_frequency"),
           },
           { label: "Valuta", value: policy.currency || "CHF" },
           {
@@ -60,6 +89,7 @@ export function PolicyDetailFactsCard({
               policy.deductible === null
                 ? "Non disponibile"
                 : formatCHF(policy.deductible),
+            badge: confidenceBadgeForKey(fieldConfidenceRows, "deductible"),
           },
           {
             label: "Somma copertura",
@@ -67,18 +97,22 @@ export function PolicyDetailFactsCard({
               policy.coverageAmount === null
                 ? "Non disponibile"
                 : formatCHF(policy.coverageAmount),
+            badge: confidenceBadgeForKey(fieldConfidenceRows, "coverage_amount"),
           },
           {
             label: "Inizio",
             value: policy.startDate ? formatDate(policy.startDate) : "Non disponibile",
+            badge: confidenceBadgeForKey(fieldConfidenceRows, "start_date"),
           },
           {
             label: "Fine",
             value: policy.endDate ? formatDate(policy.endDate) : "Non disponibile",
+            badge: confidenceBadgeForKey(fieldConfidenceRows, "end_date"),
           },
           {
             label: "Rinnovo",
             value: policy.renewalDate ? formatDate(policy.renewalDate) : "Non disponibile",
+            badge: confidenceBadgeForKey(fieldConfidenceRows, "renewal_date"),
           },
         ]}
       />
