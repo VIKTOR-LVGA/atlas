@@ -10,7 +10,8 @@ import {
 } from "lucide-react";
 import { DashboardAlertList } from "@/components/dashboard/DashboardAlertList";
 import { DashboardHealthScoreCard } from "@/components/dashboard/DashboardHealthScoreCard";
-import { formatKpiValue } from "@/components/dashboard/DashboardKpiValue";
+import { RevealStagger } from "@/components/motion/RevealStagger";
+import { formatKpiValue } from "@/lib/motion";
 import { DashboardWorkflowSteps } from "@/components/dashboard/DashboardWorkflowSteps";
 import { DocumentStatusBadge } from "@/components/documents/DocumentStatusBadge";
 import {
@@ -28,6 +29,14 @@ import { MetricCard } from "@/components/ui/MetricCard";
 import { PageHeader, PrimaryButton } from "@/components/ui/PageHeader";
 import { PageShell } from "@/components/ui/PageShell";
 import { SectionCard } from "@/components/ui/SectionCard";
+import {
+  atlasAsideColumn,
+  atlasCard,
+  atlasKpiRow,
+  atlasMainAside,
+  atlasMainColumn,
+  atlasSpace,
+} from "@/lib/atlas-ui";
 import { getDashboardIntelligence } from "@/lib/dashboard-intelligence";
 import { getDashboardStats, getRecentDocuments } from "@/lib/dashboard";
 import { getProfileShortName } from "@/lib/profile-display";
@@ -104,6 +113,7 @@ export default async function DashboardPage() {
 
   return (
     <PageShell>
+      <RevealStagger>
       <PageHeader
         title={`Ciao ${getProfileShortName(profile)}`}
         description="Centro di comando Atlas: intelligence assicurativa basata sui tuoi dati reali."
@@ -114,13 +124,13 @@ export default async function DashboardPage() {
         }
       />
 
-      <div className="atlas-action-strip flex flex-col gap-2.5 p-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="atlas-action-strip flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <p className="atlas-section-eyebrow text-accent">Prossima azione</p>
-          <p className="mt-0.5 text-[13px] font-semibold text-foreground">
+          <p className="mt-1 text-[13px] font-semibold text-foreground">
             {nextAction.label}
           </p>
-          <p className="mt-px text-[11px] text-muted-foreground">
+          <p className="mt-0.5 text-[11px] text-muted">
             {nextAction.description}
           </p>
         </div>
@@ -132,7 +142,7 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
-      <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className={atlasKpiRow}>
         <MetricCard
           label="Polizze"
           value={String(kpis.totalPolicies)}
@@ -170,11 +180,11 @@ export default async function DashboardPage() {
         />
       </div>
 
-      <div className="grid gap-2.5 lg:grid-cols-3">
+      <div className={`${atlasSpace.contentGrid} lg:grid-cols-3`}>
         <div className="lg:col-span-2">
           <DashboardHealthScoreCard healthScore={healthScore} />
         </div>
-        <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-1">
+        <div className={`${atlasSpace.kpiGrid} sm:grid-cols-2 lg:grid-cols-1`}>
           <MetricCard
             label="Coperture"
             value={String(kpis.coverageCount)}
@@ -197,9 +207,9 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <div>
-        <p className="atlas-section-eyebrow mb-2">Pipeline documenti</p>
-        <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+      <section className={atlasSpace.block}>
+        <p className="atlas-section-eyebrow">Pipeline documenti</p>
+        <div className={`${atlasKpiRow} grid-cols-2`}>
           <MetricCard
             label="Upload mese"
             value={String(documentStats.documentsUploadedThisMonth)}
@@ -229,12 +239,13 @@ export default async function DashboardPage() {
             icon={<IconFolder className="h-4 w-4" />}
           />
         </div>
-      </div>
+      </section>
 
-      <div className="grid gap-2.5 xl:grid-cols-3">
-        <div className="space-y-2.5 xl:col-span-2">
+      <div className={atlasMainAside}>
+        <div className={atlasMainColumn}>
           <SectionCard
             title="Alert center"
+            tone="primary"
             description={
               alerts.length > 0
                 ? `${alerts.length} segnalazioni${highAlerts > 0 ? ` · ${highAlerts} prioritarie` : ""}`
@@ -257,7 +268,7 @@ export default async function DashboardPage() {
             padding="none"
           >
             {pendingReviewPolicies.length > 0 ? (
-              <div className="grid gap-2.5 p-3 md:grid-cols-2">
+              <div className={`${atlasSpace.cardGrid} p-4 md:grid-cols-2`}>
                 {pendingReviewPolicies.slice(0, 4).map((policy) => (
                   <PolicyListCard key={policy.id} policy={policy} />
                 ))}
@@ -274,7 +285,7 @@ export default async function DashboardPage() {
             )}
           </SectionCard>
 
-          <div className="grid gap-2.5 lg:grid-cols-2">
+          <div className={`${atlasSpace.cardGrid} lg:grid-cols-2`}>
             <SectionCard
               title="Documenti recenti"
               description="Ultimi PDF nell'archivio."
@@ -287,7 +298,7 @@ export default async function DashboardPage() {
                     <Link
                       key={document.id}
                       href={`/documents/${document.id}`}
-                      className="flex items-center gap-2.5 px-3.5 py-2.5 transition hover:bg-card-muted/50"
+                      className="atlas-row-interactive flex items-center gap-2.5 px-3.5 py-2.5"
                     >
                       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-[var(--danger-bg)] text-[var(--danger-text)] ring-1 ring-[var(--danger-border)]">
                         <IconDocuments className="h-3.5 w-3.5" />
@@ -296,7 +307,7 @@ export default async function DashboardPage() {
                         <span className="block truncate text-[12px] font-medium text-foreground">
                           {document.fileName}
                         </span>
-                        <span className="mt-px block text-[10px] text-muted-foreground">
+                        <span className="mt-px block text-[10px] text-muted">
                           {getActivityCopy(document.status)} ·{" "}
                           {formatRelativeTime(document.createdAt)}
                         </span>
@@ -323,7 +334,7 @@ export default async function DashboardPage() {
               padding="none"
             >
               {policies.length > 0 ? (
-                <div className="grid gap-2.5 p-3">
+                <div className={`${atlasSpace.tight} p-4`}>
                   {policies.slice(0, 3).map((policy) => (
                     <PolicyListCard key={policy.id} policy={policy} />
                   ))}
@@ -337,7 +348,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="space-y-2.5">
+        <aside className={atlasAsideColumn}>
           <SectionCard
             title="Workflow Atlas"
             description="Da documento a intelligence verificata."
@@ -346,7 +357,12 @@ export default async function DashboardPage() {
             <DashboardWorkflowSteps steps={workflowSteps} />
           </SectionCard>
 
-          <SectionCard title="Moduli intelligence" padding="sm" bodyClassName="space-y-2">
+          <SectionCard
+            title="Moduli intelligence"
+            tone="support"
+            padding="sm"
+            bodyClassName={atlasSpace.tight}
+          >
             <InsightCard
               icon={<Sparkles className="h-3.5 w-3.5" />}
               title="Analisi coperture"
@@ -405,7 +421,7 @@ export default async function DashboardPage() {
                     {kpis.failedDocuments} analisi fallita
                     {kpis.failedDocuments === 1 ? "" : "e"}
                   </p>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  <p className="mt-0.5 text-[11px] text-muted">
                     Controlla i PDF con errore OCR o estrazione.
                   </p>
                   <Link
@@ -420,12 +436,15 @@ export default async function DashboardPage() {
             </SectionCard>
           ) : null}
 
-          <div className="rounded-lg border border-border/80 bg-card-muted/40 px-3.5 py-2.5 text-[11px] leading-relaxed text-muted-foreground">
+          <div
+            className={`${atlasCard.support} px-4 py-3 text-[11px] leading-relaxed text-muted`}
+          >
             Atlas è indipendente: nessun dato demo. Ogni cifra deriva dai tuoi PDF
             e dalle schede confermate.
           </div>
-        </div>
+        </aside>
       </div>
+      </RevealStagger>
     </PageShell>
   );
 }

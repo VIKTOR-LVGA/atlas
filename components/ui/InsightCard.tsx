@@ -26,7 +26,7 @@ export function InsightCard({
   return (
     <div
       className={cn(
-        "atlas-surface-card-interactive flex flex-col rounded-lg border border-border bg-card/80 p-3",
+        "atlas-card-support atlas-surface-card-interactive flex flex-col p-3.5",
         className
       )}
     >

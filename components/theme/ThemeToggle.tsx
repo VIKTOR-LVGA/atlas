@@ -45,7 +45,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       type="button"
       onClick={() => setTheme(isDark ? "light" : "dark")}
       className={cn(
-        "flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-muted transition",
+        "atlas-icon-button flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-muted",
         "hover:bg-accent-soft hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
         className
       )}

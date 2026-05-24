@@ -2,6 +2,7 @@ import { ClipboardCheck, FileText, Link2, Shield, Sparkles } from "lucide-react"
 import { DashboardHealthScoreCard } from "@/components/dashboard/DashboardHealthScoreCard";
 import { MetricCard } from "@/components/ui/MetricCard";
 import type { AnalysisExecutiveOverview as ExecutiveData } from "@/lib/analysis-intelligence";
+import { atlasKpiRowWide, atlasSpace } from "@/lib/atlas-ui";
 import { formatCHF } from "@/lib/utils";
 
 interface AnalysisExecutiveOverviewProps {
@@ -17,10 +18,10 @@ function formatPercent(value: number | null, suffix = "%") {
 
 export function AnalysisExecutiveOverview({ executive }: AnalysisExecutiveOverviewProps) {
   return (
-    <div className="space-y-2.5">
+    <div className={atlasSpace.block}>
       <DashboardHealthScoreCard healthScore={executive.healthScore} />
 
-      <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4 xl:grid-cols-6">
+      <div className={atlasKpiRowWide}>
         <MetricCard
           label="Polizze analizzate"
           value={String(executive.policiesAnalyzed)}
@@ -74,8 +75,8 @@ export function AnalysisExecutiveOverview({ executive }: AnalysisExecutiveOvervi
       </div>
 
       {executive.annualPremiumTotal !== null ? (
-        <div className="atlas-surface-card flex flex-wrap items-center justify-between gap-2 px-3.5 py-2.5">
-          <p className="text-[11px] text-muted-foreground">
+        <div className="atlas-card-secondary flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+          <p className="text-[11px] text-muted">
             Premio annuo stimato (polizze confermate)
           </p>
           <p className="text-[14px] font-semibold tabular-nums text-foreground">

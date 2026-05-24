@@ -1,3 +1,4 @@
+import { MetricAnimatedValue } from "@/components/motion/MetricAnimatedValue";
 import { cn } from "@/lib/utils";
 
 type PastelVariant = "blue" | "green" | "yellow" | "purple" | "red" | "indigo";
@@ -40,11 +41,11 @@ export function StatCard({
   unavailableValue = false,
 }: StatCardProps) {
   return (
-    <div className={cn("atlas-kpi-card atlas-surface-card-interactive p-3", className)}>
-      <div className="flex items-start gap-2.5">
+    <div className={cn("atlas-kpi-card atlas-surface-card-interactive p-3.5", className)}>
+      <div className="flex items-start gap-3">
         <div
           className={cn(
-            "flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px]",
+            "atlas-icon-well flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px]",
             iconBg[variant]
           )}
         >
@@ -52,22 +53,16 @@ export function StatCard({
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-1">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.06em] text-muted">
+            <p className="text-[10px] font-medium uppercase tracking-[0.06em] text-muted">
               {label}
             </p>
             {badge}
           </div>
-          <p
-            className={cn(
-              "mt-0.5 tabular-nums tracking-tight text-foreground",
-              unavailableValue
-                ? "text-[13px] font-medium text-muted"
-                : "text-[1.125rem] font-semibold leading-tight",
-              valueClassName
-            )}
-          >
-            {value}
-          </p>
+          <MetricAnimatedValue
+            value={value}
+            unavailable={unavailableValue}
+            className={cn("mt-0.5", valueClassName)}
+          />
           {subtext ? (
             <p
               className={cn(

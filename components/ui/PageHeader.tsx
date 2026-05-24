@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { atlasText } from "@/lib/atlas-ui";
 
 interface PageHeaderProps {
   title: string;
@@ -17,21 +18,22 @@ export function PageHeader({
   className,
 }: PageHeaderProps) {
   return (
-    <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between", className)}>
-      <div>
-        <h1 className="text-[1.5rem] font-semibold leading-tight tracking-[-0.02em] text-foreground sm:text-[1.625rem]">
-          {title}
-        </h1>
-        {description && (
-          <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
-            {description}
-          </p>
-        )}
+    <div
+      className={cn(
+        "flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between",
+        className
+      )}
+    >
+      <div className="min-w-0">
+        <h1 className={atlasText.pageTitle}>{title}</h1>
+        {description ? <p className={atlasText.pageDesc}>{description}</p> : null}
       </div>
-      <div className="flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:items-center">
-        {meta}
-        {action}
-      </div>
+      {(meta || action) && (
+        <div className="flex shrink-0 flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+          {meta}
+          {action}
+        </div>
+      )}
     </div>
   );
 }

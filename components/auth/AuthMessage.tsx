@@ -21,7 +21,7 @@ export function AuthMessage({ variant, message, className }: AuthMessageProps) {
     <div
       role="alert"
       className={cn(
-        "rounded-xl border px-4 py-3 text-[13px] leading-relaxed",
+        "atlas-message-enter rounded-xl border px-4 py-3 text-[13px] leading-relaxed",
         styles[variant],
         className
       )}

@@ -1,3 +1,4 @@
+import { HealthScoreRing } from "@/components/motion/HealthScoreRing";
 import { cn } from "@/lib/utils";
 import type { DashboardHealthScore } from "@/lib/dashboard-intelligence";
 
@@ -5,22 +6,12 @@ interface DashboardHealthScoreCardProps {
   healthScore: DashboardHealthScore;
 }
 
-function scoreRingColor(score: number) {
-  if (score >= 75) {
-    return "border-emerald-500/35 text-emerald-600 dark:text-emerald-400";
-  }
-  if (score >= 50) {
-    return "border-amber-500/35 text-amber-600 dark:text-amber-400";
-  }
-  return "border-red-500/35 text-red-600 dark:text-red-400";
-}
-
 export function DashboardHealthScoreCard({
   healthScore,
 }: DashboardHealthScoreCardProps) {
   return (
-    <section className="atlas-surface-card h-full p-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <section className="atlas-card-primary atlas-surface-card-interactive h-full p-4 sm:p-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <p className="atlas-section-eyebrow">Salute del portafoglio</p>
           <h2 className="mt-1 text-[14px] font-semibold tracking-tight text-foreground">
@@ -34,17 +25,7 @@ export function DashboardHealthScoreCard({
         <div className="flex shrink-0 items-center gap-3">
           {healthScore.available && healthScore.score !== null ? (
             <>
-              <div
-                className={cn(
-                  "flex h-[4.25rem] w-[4.25rem] items-center justify-center rounded-full border-[3px] bg-card-muted/80",
-                  scoreRingColor(healthScore.score)
-                )}
-                aria-label={`Score ${healthScore.score} su 100`}
-              >
-                <span className="text-[1.375rem] font-semibold tabular-nums">
-                  {healthScore.score}
-                </span>
-              </div>
+              <HealthScoreRing score={healthScore.score} />
               <div>
                 <p className="text-[13px] font-semibold text-foreground">
                   {healthScore.label}

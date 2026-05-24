@@ -12,6 +12,14 @@ import { MetricCard } from "@/components/ui/MetricCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PageShell } from "@/components/ui/PageShell";
 import { SectionCard } from "@/components/ui/SectionCard";
+import { RevealStagger } from "@/components/motion/RevealStagger";
+import {
+  atlasAsideColumn,
+  atlasCard,
+  atlasKpiRow,
+  atlasMainAside,
+  atlasMainColumn,
+} from "@/lib/atlas-ui";
 import { getCurrentUserDocuments } from "@/lib/documents";
 import { formatDate, formatFileSize } from "@/lib/utils";
 
@@ -26,12 +34,13 @@ export default async function DocumentsPage() {
 
   return (
     <PageShell>
+      <RevealStagger>
       <PageHeader
         title="Documenti"
         description="Carica PDF assicurativi, analizzali con AI e collega le polizze estratte."
       />
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className={atlasKpiRow}>
         <MetricCard
           label="Archivio"
           value={String(documents.length)}
@@ -62,8 +71,8 @@ export default async function DocumentsPage() {
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+      <div className={atlasMainAside}>
+        <div className={atlasMainColumn}>
           <SectionCard
             title="I tuoi documenti"
             description="Clicca una riga per aprire dettagli, analisi e download."
@@ -73,7 +82,7 @@ export default async function DocumentsPage() {
           </SectionCard>
         </div>
 
-        <div className="space-y-4">
+        <aside className={atlasAsideColumn}>
           <SectionCard title="Carica PDF" padding="md">
             <DocumentUploadForm />
           </SectionCard>
@@ -102,10 +111,12 @@ export default async function DocumentsPage() {
               </ul>
             </SectionCard>
           ) : null}
-        </div>
+        </aside>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+      <div
+        className={`${atlasCard.secondary} flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between`}
+      >
         <div className="flex items-start gap-3">
           <Shield className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
           <div>
@@ -124,6 +135,7 @@ export default async function DocumentsPage() {
           Impostazioni account
         </Link>
       </div>
+      </RevealStagger>
     </PageShell>
   );
 }

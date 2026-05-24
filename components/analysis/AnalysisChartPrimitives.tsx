@@ -1,3 +1,4 @@
+import { AnimatedProgressBar } from "@/components/motion/AnimatedProgressBar";
 import { cn } from "@/lib/utils";
 import type { AnalysisDistributionSegment } from "@/lib/analysis-intelligence";
 
@@ -237,7 +238,7 @@ export function AnalysisHorizontalBars({
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-card-muted">
               <div
-                className={cn("h-full rounded-full transition-all", colors.bar)}
+                className={cn("atlas-bar-grow h-full rounded-full", colors.bar)}
                 style={{ width: `${width}%` }}
               />
             </div>
@@ -267,12 +268,7 @@ export function AnalysisCompletenessBars({ items }: AnalysisCompletenessBarsProp
                 {item.total === 0 ? "N/D" : `${item.value}/${item.total} (${percent}%)`}
               </span>
             </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-card-muted">
-              <div
-                className="h-full rounded-full bg-accent/70"
-                style={{ width: item.total > 0 ? `${percent}%` : "0%" }}
-              />
-            </div>
+            <AnimatedProgressBar percent={percent} />
           </li>
         );
       })}

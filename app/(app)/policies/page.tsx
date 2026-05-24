@@ -7,6 +7,8 @@ import { PageHeader, PrimaryButton } from "@/components/ui/PageHeader";
 import { PageShell } from "@/components/ui/PageShell";
 import { ReviewBanner } from "@/components/ui/ReviewBanner";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { RevealStagger } from "@/components/motion/RevealStagger";
+import { atlasKpiRow } from "@/lib/atlas-ui";
 import { getCurrentUserPolicies } from "@/lib/policies";
 
 export const metadata = { title: "Polizze" };
@@ -19,6 +21,7 @@ export default async function PoliciesPage() {
 
   return (
     <PageShell>
+      <RevealStagger>
       <PageHeader
         title="Le mie polizze"
         description="Portafoglio assicurativo strutturato dai tuoi PDF e dalle schede confermate."
@@ -29,7 +32,7 @@ export default async function PoliciesPage() {
         }
       />
 
-      <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+      <div className={atlasKpiRow}>
         <MetricCard
           label="Totale polizze"
           value={String(policies.length)}
@@ -94,6 +97,7 @@ export default async function PoliciesPage() {
           />
         </div>
       )}
+      </RevealStagger>
     </PageShell>
   );
 }

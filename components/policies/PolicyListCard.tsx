@@ -167,7 +167,7 @@ export function PolicyListCard({ policy, compact = false }: PolicyListCardProps)
                 className="inline-flex items-center gap-0.5 text-[10px] font-medium text-muted-foreground hover:text-accent"
               >
                 Dettagli
-                <ChevronRight className="h-3 w-3" />
+                <ChevronRight className="atlas-link-chevron h-3 w-3" />
               </Link>
             </div>
           </div>

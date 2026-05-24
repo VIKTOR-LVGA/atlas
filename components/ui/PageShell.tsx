@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { atlasSpace } from "@/lib/atlas-ui";
 import { BackLink } from "@/components/ui/BackLink";
 
 interface PageShellProps {
@@ -15,11 +16,13 @@ export function PageShell({
   className,
 }: PageShellProps) {
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn(className)}>
       {backHref && backLabel ? (
-        <BackLink href={backHref} label={backLabel} />
+        <div className="mb-6">
+          <BackLink href={backHref} label={backLabel} />
+        </div>
       ) : null}
-      {children}
+      <div className={atlasSpace.page}>{children}</div>
     </div>
   );
 }

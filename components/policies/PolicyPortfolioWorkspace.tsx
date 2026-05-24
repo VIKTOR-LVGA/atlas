@@ -110,7 +110,7 @@ function PolicyTableRow({ policy }: { policy: UserPolicy }) {
   const renewalRelative = formatRenewalRelative(renewalDays);
 
   return (
-    <tr className="group border-b border-border-subtle transition hover:bg-card-muted/40">
+    <tr className="atlas-row-interactive group border-b border-border-subtle">
       <td className="px-3 py-2.5">
         <Link href={`/policies/${policy.id}`} className="flex min-w-0 items-center gap-2.5">
           <span
@@ -193,7 +193,7 @@ export function PolicyPortfolioWorkspace({ policies }: PolicyPortfolioWorkspaceP
   );
 
   return (
-    <div className="space-y-2.5">
+    <div className="atlas-stack-block">
       <div className="atlas-surface-card p-3">
         <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
           <label className="relative min-w-0 flex-1">

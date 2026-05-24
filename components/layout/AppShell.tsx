@@ -24,7 +24,7 @@ export function AppShell({ profile, children }: AppShellProps) {
         <div className="flex w-full min-w-0 max-w-full flex-1 flex-col">
           <TopBar onMenuOpen={() => setMobileOpen(true)} />
           <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
-            <div className="mx-auto w-full max-w-full px-4 py-4 sm:max-w-[1240px] sm:px-5 sm:py-6">
+            <div className="mx-auto w-full max-w-full px-4 py-5 sm:max-w-[1280px] sm:px-6 sm:py-8">
               {children}
             </div>
           </main>

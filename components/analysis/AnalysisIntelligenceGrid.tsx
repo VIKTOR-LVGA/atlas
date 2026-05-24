@@ -11,6 +11,7 @@ import { DashboardWorkflowSteps } from "@/components/dashboard/DashboardWorkflow
 import { SectionCard } from "@/components/ui/SectionCard";
 import type { AnalysisIntelligence } from "@/lib/analysis-intelligence";
 import { formatCHF, formatDate } from "@/lib/utils";
+import { atlasAsideColumn, atlasMainAside, atlasMainColumn, atlasSpace } from "@/lib/atlas-ui";
 import { cn } from "@/lib/utils";
 
 interface AnalysisIntelligenceGridProps {
@@ -62,9 +63,9 @@ export function AnalysisIntelligenceGrid({ intelligence }: AnalysisIntelligenceG
   ];
 
   return (
-    <div className="grid gap-2.5 xl:grid-cols-3">
-      <div className="space-y-2.5 xl:col-span-2">
-        <div className="grid gap-2.5 md:grid-cols-2">
+    <div className={atlasMainAside}>
+      <div className={atlasMainColumn}>
+        <div className={`${atlasSpace.cardGrid} md:grid-cols-2`}>
           <SectionCard
             title="Pipeline documenti"
             description="Stato reale dell'archivio PDF."
@@ -108,7 +109,7 @@ export function AnalysisIntelligenceGrid({ intelligence }: AnalysisIntelligenceG
           </SectionCard>
         </div>
 
-        <div className="grid gap-2.5 md:grid-cols-2">
+        <div className={`${atlasSpace.cardGrid} md:grid-cols-2`}>
           <SectionCard
             title="Premio per categoria"
             description="Solo polizze confermate con premio disponibile."
@@ -133,7 +134,7 @@ export function AnalysisIntelligenceGrid({ intelligence }: AnalysisIntelligenceG
           </SectionCard>
         </div>
 
-        <div className="grid gap-2.5 md:grid-cols-2">
+        <div className={`${atlasSpace.cardGrid} md:grid-cols-2`}>
           <SectionCard
             title="Stato revisione"
             description="Origine e conferma delle schede."
@@ -170,7 +171,7 @@ export function AnalysisIntelligenceGrid({ intelligence }: AnalysisIntelligenceG
           description="Panoramica familiare dal portafoglio estratto."
           padding="sm"
         >
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-3">
             {[
               {
                 label: "Persone",
@@ -205,7 +206,7 @@ export function AnalysisIntelligenceGrid({ intelligence }: AnalysisIntelligenceG
             ))}
           </div>
           {familyOverview.insuredPeople === 0 && familyOverview.coverages === 0 ? (
-            <p className="mt-3 text-center text-[11px] text-muted-foreground">
+            <p className="mt-3 text-center text-[11px] text-muted">
               Nessuna persona o copertura estratta ancora.
             </p>
           ) : null}
@@ -217,7 +218,7 @@ export function AnalysisIntelligenceGrid({ intelligence }: AnalysisIntelligenceG
           padding="sm"
         >
           {renewalTimeline.length > 0 ? (
-            <ul className="space-y-2">
+            <ul className={atlasSpace.tight}>
               {renewalTimeline.map((item) => (
                 <li key={item.policyId}>
                   <Link
@@ -228,7 +229,7 @@ export function AnalysisIntelligenceGrid({ intelligence }: AnalysisIntelligenceG
                       <span className="block truncate text-[12px] font-medium text-foreground">
                         {item.label}
                       </span>
-                      <span className="text-[10px] text-muted-foreground">
+                      <span className="text-[10px] text-muted">
                         {formatDate(item.renewalDate)}
                       </span>
                     </span>
@@ -237,7 +238,7 @@ export function AnalysisIntelligenceGrid({ intelligence }: AnalysisIntelligenceG
                         "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium",
                         item.daysUntil <= 30
                           ? "bg-[var(--warning-bg)] text-[var(--warning-text)]"
-                          : "bg-card-muted text-muted-foreground"
+                          : "bg-card-muted text-muted"
                       )}
                     >
                       {item.daysUntil < 0
@@ -256,7 +257,7 @@ export function AnalysisIntelligenceGrid({ intelligence }: AnalysisIntelligenceG
         </SectionCard>
       </div>
 
-      <div className="space-y-2.5">
+      <aside className={atlasAsideColumn}>
         <SectionCard
           title="Workflow analisi"
           description="Upload → OCR → Estrazione → Revisione → Intelligence."
@@ -275,14 +276,14 @@ export function AnalysisIntelligenceGrid({ intelligence }: AnalysisIntelligenceG
         </SectionCard>
 
         {!intelligence.hasConfirmedPortfolio && intelligence.hasPortfolio ? (
-          <div className="atlas-action-strip p-3">
+          <div className="atlas-action-strip">
             <div className="flex items-start gap-2.5">
               <Users className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
               <div>
                 <p className="text-[12px] font-semibold text-foreground">
                   Conferma le bozze per sbloccare l&apos;analisi
                 </p>
-                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                <p className="mt-0.5 text-[11px] text-muted">
                   Moduli premium e distribuzione premi richiedono polizze verificate.
                 </p>
                 <Link href="/policies" className="mt-2 inline-flex text-[11px] font-medium text-accent">
@@ -293,12 +294,12 @@ export function AnalysisIntelligenceGrid({ intelligence }: AnalysisIntelligenceG
           </div>
         ) : null}
 
-        <div className="rounded-lg border border-border/80 bg-card-muted/40 px-3.5 py-2.5 text-[11px] leading-relaxed text-muted-foreground">
+        <div className="atlas-card-support px-4 py-3 text-[11px] leading-relaxed text-muted">
           Benchmark di mercato, risparmi stimati e score predittivi restano in
           preparazione. Questa pagina mostra solo metriche calcolate dai dati
           caricati.
         </div>
-      </div>
+      </aside>
     </div>
   );
 }

@@ -64,7 +64,7 @@ export function DashboardAlertList({
           <li key={alert.id}>
             <Link
               href={alert.ctaHref}
-              className="group flex items-center gap-2.5 py-2.5 transition-colors hover:bg-card-muted/50"
+              className="atlas-row-interactive group flex items-center gap-2.5 py-2.5"
             >
               <span
                 className={cn(

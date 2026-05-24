@@ -43,11 +43,12 @@ export function DocumentUploadForm() {
         }}
       />
       <div
+        data-dragging={dragging ? "true" : "false"}
         className={cn(
-          "flex flex-col items-center rounded-2xl border-2 border-dashed bg-card-muted px-4 py-10 text-center transition",
+          "atlas-upload-zone flex flex-col items-center rounded-2xl border-2 border-dashed bg-card-muted px-4 py-10 text-center",
           dragging
             ? "border-accent bg-accent-soft shadow-sm ring-4 ring-accent/20"
-            : "border-border hover:border-border hover:bg-card-muted"
+            : "border-border"
         )}
         onDragEnter={(event) => {
           event.preventDefault();
@@ -107,7 +108,7 @@ export function DocumentUploadForm() {
       {pending && (
         <div className="space-y-1.5" role="progressbar" aria-label="Upload in corso">
           <div className="h-1.5 overflow-hidden rounded-full bg-accent-soft">
-            <span className="block h-full w-2/3 animate-pulse rounded-full bg-accent-soft0" />
+            <span className="atlas-bar-grow block h-full w-2/3 rounded-full bg-accent" />
           </div>
           <p className="text-[11px] text-muted">Salvataggio nel tuo archivio privato.</p>
         </div>

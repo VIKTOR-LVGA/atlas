@@ -168,7 +168,7 @@ export function DocumentList({ documents }: { documents: UserDocument[] }) {
                   role="link"
                   tabIndex={0}
                   aria-label={`Apri ${document.fileName}`}
-                  className="group cursor-pointer border-b border-border-subtle outline-none transition hover:bg-accent-soft focus-visible:bg-accent-soft"
+                  className="atlas-row-interactive group cursor-pointer border-b border-border-subtle outline-none focus-visible:bg-accent-soft"
                   onClick={openDocument}
                   onKeyDown={(event) => openDocumentFromKeyboard(event, openDocument)}
                 >
@@ -228,7 +228,7 @@ export function DocumentList({ documents }: { documents: UserDocument[] }) {
               role="link"
               tabIndex={0}
               aria-label={`Apri ${document.fileName}`}
-              className="group cursor-pointer px-4 py-4 outline-none transition hover:bg-accent-soft focus-visible:bg-accent-soft"
+              className="atlas-row-interactive group cursor-pointer px-4 py-4 outline-none focus-visible:bg-accent-soft"
               onClick={openDocument}
               onKeyDown={(event) => openDocumentFromKeyboard(event, openDocument)}
             >
@@ -246,7 +246,7 @@ export function DocumentList({ documents }: { documents: UserDocument[] }) {
                         {formatFileSize(document.fileSize)} / {formatDate(document.createdAt)}
                       </p>
                     </div>
-                    <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-muted transition group-hover:text-accent" />
+                    <ChevronRight className="atlas-link-chevron mt-1 h-4 w-4 shrink-0 text-muted group-hover:text-accent" />
                   </div>
                   <div className="mt-2">
                     <DocumentStatusBadge status={document.status} />

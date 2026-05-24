@@ -20,7 +20,7 @@ export function TopBar({ onMenuOpen }: TopBarProps) {
         <button
           type="button"
           onClick={onMenuOpen}
-          className="shrink-0 rounded-lg p-2 text-muted hover:bg-card-muted hover:text-foreground"
+          className="atlas-icon-button shrink-0 rounded-lg p-2 text-muted hover:bg-card-muted hover:text-foreground"
           aria-label="Apri menu"
         >
           <IconMenu />
@@ -35,14 +35,14 @@ export function TopBar({ onMenuOpen }: TopBarProps) {
         <ThemeToggle />
         <button
           type="button"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted transition hover:bg-card-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+          className="atlas-icon-button flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-card-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
           aria-label="Notifiche"
         >
           <IconBell className="h-[18px] w-[18px]" />
         </button>
         <button
           type="button"
-          className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted transition hover:bg-card-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 sm:flex"
+          className="atlas-icon-button hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-card-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 sm:flex"
           aria-label="Aiuto"
         >
           <IconHelp className="h-[18px] w-[18px]" />

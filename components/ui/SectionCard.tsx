@@ -1,4 +1,7 @@
 import { cn } from "@/lib/utils";
+import { atlasCard, atlasText } from "@/lib/atlas-ui";
+
+type SectionCardTone = "primary" | "secondary" | "support";
 
 interface SectionCardProps {
   title?: string;
@@ -8,7 +11,20 @@ interface SectionCardProps {
   className?: string;
   bodyClassName?: string;
   padding?: "none" | "sm" | "md";
+  tone?: SectionCardTone;
 }
+
+const toneClasses: Record<SectionCardTone, string> = {
+  primary: atlasCard.primary,
+  secondary: atlasCard.secondary,
+  support: atlasCard.support,
+};
+
+const headerPadding: Record<SectionCardTone, string> = {
+  primary: "px-4 py-3 sm:px-5",
+  secondary: "px-4 py-2.5",
+  support: "px-4 py-2.5",
+};
 
 export function SectionCard({
   title,
@@ -18,28 +34,31 @@ export function SectionCard({
   className,
   bodyClassName,
   padding = "md",
+  tone = "secondary",
 }: SectionCardProps) {
   const paddingClass =
-    padding === "none" ? "" : padding === "sm" ? "p-3.5" : "p-4";
+    padding === "none"
+      ? ""
+      : padding === "sm"
+        ? "p-3.5 sm:p-4"
+        : tone === "primary"
+          ? "p-4 sm:p-5"
+          : "p-4";
 
   return (
-    <section
-      className={cn(
-        "atlas-surface-card overflow-hidden",
-        className
-      )}
-    >
+    <section className={cn(toneClasses[tone], "overflow-hidden", className)}>
       {(title || action) && (
-        <div className="flex items-center justify-between gap-3 border-b border-border-subtle px-4 py-2.5">
+        <div
+          className={cn(
+            "flex items-center justify-between gap-3 border-b border-border-subtle",
+            headerPadding[tone]
+          )}
+        >
           <div className="min-w-0">
-            {title && (
-              <h2 className="text-[13px] font-semibold tracking-tight text-foreground">
-                {title}
-              </h2>
-            )}
-            {description && (
-              <p className="mt-0.5 text-[11px] leading-snug text-muted">{description}</p>
-            )}
+            {title ? <h2 className={atlasText.sectionTitle}>{title}</h2> : null}
+            {description ? (
+              <p className={cn("mt-1", atlasText.sectionDesc)}>{description}</p>
+            ) : null}
           </div>
           {action ? <div className="shrink-0">{action}</div> : null}
         </div>

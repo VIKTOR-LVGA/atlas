@@ -5,6 +5,7 @@ import { AnalysisExecutiveOverview } from "@/components/analysis/AnalysisExecuti
 import { AnalysisIntelligenceGrid } from "@/components/analysis/AnalysisIntelligenceGrid";
 import { PageHeader, PrimaryButton } from "@/components/ui/PageHeader";
 import { PageShell } from "@/components/ui/PageShell";
+import { RevealStagger } from "@/components/motion/RevealStagger";
 import { getAnalysisIntelligence } from "@/lib/analysis-intelligence";
 
 export const metadata = { title: "Analisi" };
@@ -14,6 +15,7 @@ export default async function AnalysisPage() {
 
   return (
     <PageShell>
+      <RevealStagger>
       <PageHeader
         title="Analisi"
         description="Centro intelligence Atlas: diagnostica del portafoglio basata su dati estratti e verificati."
@@ -39,6 +41,7 @@ export default async function AnalysisPage() {
       ) : (
         <AnalysisEmptyPortfolio />
       )}
+      </RevealStagger>
     </PageShell>
   );
 }

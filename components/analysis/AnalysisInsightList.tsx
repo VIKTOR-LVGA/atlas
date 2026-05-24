@@ -86,7 +86,7 @@ export function AnalysisInsightList({ insights }: AnalysisInsightListProps) {
             {insight.ctaHref ? (
               <Link
                 href={insight.ctaHref}
-                className="group flex items-start gap-2.5 py-2.5 transition hover:bg-card-muted/50"
+                className="atlas-row-interactive group flex items-start gap-2.5 py-2.5"
               >
                 {content}
               </Link>

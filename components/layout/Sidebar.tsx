@@ -57,7 +57,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         </Link>
       </div>
 
-      <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5 py-2">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
         {navItems.map((item) => {
           const active = isActive(item.href);
           const Icon = item.icon;
@@ -67,7 +67,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                "relative flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[12px] font-medium transition-colors",
+                "atlas-nav-link relative flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-[12px] font-medium",
                 active
                   ? "bg-[var(--nav-active-bg)] text-[var(--nav-active-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
                   : "text-muted-foreground hover:bg-card-muted/80 hover:text-foreground"
@@ -88,8 +88,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         })}
       </nav>
 
-      <div className="border-t border-sidebar-border p-3">
-        <div className="mb-2.5 flex min-w-0 items-center gap-2 rounded-lg border border-border/80 bg-card/60 px-2.5 py-2">
+      <div className="space-y-4 border-t border-sidebar-border p-4">
+        <div className="flex min-w-0 items-center gap-2.5 rounded-lg border border-border/80 bg-card/60 px-3 py-2.5">
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-[10px] font-semibold text-accent-foreground">
             {getProfileInitials(profile)}
           </span>
@@ -102,8 +102,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             </p>
           </div>
         </div>
-        <div className="atlas-sidebar-promo rounded-xl border border-border/80 p-3">
-          <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-[10px] bg-card shadow-[var(--shadow-card)] ring-1 ring-border/60">
+        <div className="atlas-sidebar-promo rounded-xl border border-border/80 p-4">
+          <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-[10px] bg-card shadow-[var(--shadow-card)] ring-1 ring-border/60">
             <IconShield className="h-4 w-4 text-accent" />
           </div>
           <p className="text-[11px] font-semibold leading-snug text-foreground">
@@ -112,7 +112,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <Link
             href="/"
             onClick={onNavigate}
-            className="atlas-btn-secondary mt-2.5 w-full py-2 text-[11px]"
+            className="atlas-btn-secondary mt-3 w-full py-2 text-[11px]"
           >
             Scopri come funziona
           </Link>
