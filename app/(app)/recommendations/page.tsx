@@ -1,84 +1,82 @@
+import Link from "next/link";
+import { RefreshCw } from "lucide-react";
+import { RecommendationsEmptyState } from "@/components/recommendations/RecommendationsEmptyState";
+import { RecommendationsExecutiveOverview } from "@/components/recommendations/RecommendationsExecutiveOverview";
+import { RecommendationsGroupedList } from "@/components/recommendations/RecommendationsGroupedList";
+import { RecommendationsSidebar } from "@/components/recommendations/RecommendationsSidebar";
+import { RevealStagger } from "@/components/motion/RevealStagger";
 import { PageHeader, PrimaryButton } from "@/components/ui/PageHeader";
 import { PageShell } from "@/components/ui/PageShell";
-import { MetricCard } from "@/components/ui/MetricCard";
-import { SectionCard } from "@/components/ui/SectionCard";
-import { PlaceholderModule } from "@/components/ui/PlaceholderModule";
-import { RevealStagger } from "@/components/motion/RevealStagger";
 import {
-  IconAlert,
-  IconDocuments,
-  IconPiggy,
-  IconRecommendations,
-} from "@/components/icons";
-import { atlasKpiRow } from "@/lib/atlas-ui";
-import { getDashboardStats } from "@/lib/dashboard";
-import { getCurrentUserPolicies } from "@/lib/policies";
+  atlasAsideColumn,
+  atlasCard,
+  atlasMainAside,
+  atlasMainColumn,
+} from "@/lib/atlas-ui";
+import { getRecommendationsIntelligence } from "@/lib/recommendations-intelligence";
 
 export const metadata = { title: "Raccomandazioni" };
 
 export default async function RecommendationsPage() {
-  const [documentStats, policies] = await Promise.all([
-    getDashboardStats(),
-    getCurrentUserPolicies(),
-  ]);
+  const intelligence = await getRecommendationsIntelligence();
+  const {
+    executive,
+    groups,
+    priorityActions,
+    upcomingRenewals,
+    workflowSteps,
+    hasPortfolio,
+    hasActionableRecommendations,
+    readinessLabel,
+  } = intelligence;
 
   return (
     <PageShell>
       <RevealStagger>
         <PageHeader
           title="Raccomandazioni"
-          description="Suggerimenti personalizzati basati sulle tue polizze reali."
-          action={<PrimaryButton href="/policies">Vedi polizze</PrimaryButton>}
+          description="Prossime azioni sul portafoglio basate su dati estratti e regole verificabili — non simulazioni AI."
+          action={
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href="/recommendations"
+                className="atlas-btn-secondary inline-flex items-center gap-1.5 px-3 py-2 text-[12px]"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+                Aggiorna
+              </Link>
+              <PrimaryButton href="/policies">Vedi polizze</PrimaryButton>
+            </div>
+          }
         />
 
-        <div className={atlasKpiRow}>
-          <MetricCard
-            label="Documenti"
-            value={String(documentStats.totalDocuments)}
-            variant="blue"
-            icon={<IconDocuments className="h-[18px] w-[18px]" />}
-          />
-          <MetricCard
-            label="Polizze"
-            value={String(policies.length)}
-            subtext="Base per suggerimenti"
-            variant="indigo"
-            icon={<IconRecommendations className="h-[18px] w-[18px]" />}
-          />
-          <MetricCard
-            label="Priorita alta"
-            value="—"
-            subtext="In arrivo"
-            variant="yellow"
-            icon={<IconAlert className="h-[18px] w-[18px]" />}
-          />
-          <MetricCard
-            label="Risparmio potenziale"
-            value="—"
-            subtext="Non stimato"
-            variant="green"
-            icon={<IconPiggy className="h-[18px] w-[18px]" />}
-          />
+        <div className={`${atlasCard.support} px-4 py-3 text-[12px] text-muted`}>
+          Atlas non mostra risparmi stimati né benchmark di mercato finché non sono
+          calcolati da dati reali confermati. Ogni voce indica cosa correggere e perché.
         </div>
 
-        <SectionCard title="Raccomandazioni AI" tone="primary">
-          <PlaceholderModule
-            icon={<IconRecommendations className="h-6 w-6" />}
-            title={
-              policies.length > 0
-                ? "Suggerimenti in preparazione"
-                : "Serve almeno una polizza"
-            }
-            description={
-              policies.length > 0
-                ? "Atlas analizzera gap, sovrapposizioni e opportunita quando il motore raccomandazioni sara collegato alle tue schede."
-                : "Carica e analizza un PDF per costruire la base delle raccomandazioni."
-            }
-            statusLabel={policies.length > 0 ? `${policies.length} polizze` : "In attesa"}
-            actionLabel="Carica PDF"
-            actionHref="/documents"
-          />
-        </SectionCard>
+        <RecommendationsExecutiveOverview
+          executive={executive}
+          readinessLabel={readinessLabel}
+        />
+
+        {!hasActionableRecommendations ? (
+          <RecommendationsEmptyState hasPortfolio={hasPortfolio} />
+        ) : (
+          <div className={atlasMainAside}>
+            <div className={atlasMainColumn}>
+              <RecommendationsGroupedList groups={groups} />
+            </div>
+            <aside className={atlasAsideColumn}>
+              <RecommendationsSidebar
+                executive={executive}
+                priorityActions={priorityActions}
+                upcomingRenewals={upcomingRenewals}
+                workflowSteps={workflowSteps}
+              />
+            </aside>
+          </div>
+        )}
       </RevealStagger>
     </PageShell>
   );
