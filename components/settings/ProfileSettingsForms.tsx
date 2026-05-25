@@ -43,10 +43,13 @@ function SaveMessage({ state }: { state: ProfileSettingsActionState }) {
 
   return (
     <p
+      role="status"
       aria-live="polite"
       className={cn(
-        "text-[12px]",
-        state.status === "success" ? "text-emerald-700" : "text-red-600"
+        "rounded-lg px-3 py-2 text-[12px] font-medium",
+        state.status === "success"
+          ? "border border-[var(--success-border)] bg-[var(--success-bg)] text-[var(--success-text)]"
+          : "border border-[var(--danger-border)] bg-[var(--danger-bg)] text-[var(--danger-text)]"
       )}
     >
       {state.message}
@@ -55,7 +58,9 @@ function SaveMessage({ state }: { state: ProfileSettingsActionState }) {
 }
 
 function FieldError({ children }: { children?: string }) {
-  return children ? <p className="mt-1 text-[11px] text-red-600">{children}</p> : null;
+  return children ? (
+    <p className="mt-1 text-[11px] text-[var(--danger-text)]">{children}</p>
+  ) : null;
 }
 
 function NotificationHiddenInputs({
@@ -103,9 +108,14 @@ export function ProfileSettingsPanels({ profile }: { profile: CurrentProfile | n
     <form
       action={formAction}
       onReset={() => setLanguage(values.language)}
-      className="grid gap-4 lg:grid-cols-2"
+      className="space-y-4"
     >
       <NotificationHiddenInputs profile={values} />
+      <p className="text-[12px] leading-relaxed text-muted">
+        Queste informazioni aiutano Atlas a personalizzare il tuo spazio assicurativo. I campi
+        contrassegnati come salvati vengono scritti sul tuo profilo Supabase.
+      </p>
+      <div className="grid gap-4 lg:grid-cols-2">
       <SectionCard title="Informazioni profilo">
         <div className="flex flex-col gap-6 sm:flex-row">
           <div className="text-center sm:text-left">
@@ -189,6 +199,10 @@ export function ProfileSettingsPanels({ profile }: { profile: CurrentProfile | n
               ))}
             </select>
             <FieldError>{state.fieldErrors?.language}</FieldError>
+            <p className="mt-1.5 text-[10px] leading-snug text-muted">
+              Preferenza salvata nel profilo. Localizzazione completa dell&apos;interfaccia in
+              preparazione.
+            </p>
           </div>
           <div>
             <label htmlFor="settings-currency" className="text-[11px] font-medium text-muted">
@@ -221,22 +235,26 @@ export function ProfileSettingsPanels({ profile }: { profile: CurrentProfile | n
           </div>
         </div>
 
-        <div className="mt-5 flex flex-col gap-3 border-t border-border-subtle pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-5 flex flex-col gap-3 border-t border-border-subtle pt-4">
           <SaveMessage state={state} />
-          <div className="flex justify-end gap-2">
-            <button type="reset" className="rounded-lg px-4 py-2 text-[13px] text-muted hover:bg-card-muted">
+          <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <button
+              type="reset"
+              className="w-full rounded-lg border border-border px-4 py-2.5 text-[13px] font-medium text-muted-foreground transition hover:bg-card-muted sm:w-auto"
+            >
               Annulla
             </button>
             <button
               type="submit"
               disabled={pending}
-              className="atlas-btn-primary px-4 py-2 text-[13px] disabled:cursor-wait disabled:opacity-60"
+              className="atlas-btn-primary w-full px-4 py-2.5 text-[13px] disabled:cursor-wait disabled:opacity-60 sm:w-auto"
             >
               {pending ? "Salvataggio..." : "Salva modifiche"}
             </button>
           </div>
         </div>
       </SectionCard>
+      </div>
     </form>
   );
 }
@@ -273,20 +291,27 @@ export function NotificationSettingsForm({
   ];
 
   return (
-    <SectionCard title="Preferenze notifiche">
+    <SectionCard
+      title="Preferenze notifiche"
+      description="Salvate sul profilo — l'invio effettivo dipende dai canali attivi"
+    >
       <form action={formAction}>
         <ProfileHiddenInputs profile={values} />
+        <p className="mb-3 text-[11px] leading-relaxed text-muted">
+          Le preferenze vengono memorizzate subito. Email è il canale principale oggi; push e SMS
+          seguiranno quando i servizi di notifica saranno collegati.
+        </p>
         <div className="divide-y divide-border-subtle">
           {notificationChannels.map((channel) => (
             <label
               key={channel.name}
               className="flex cursor-pointer items-center justify-between gap-4 py-3 first:pt-0"
             >
-              <span>
+              <span className="min-w-0">
                 <span className="block text-[13px] font-medium text-foreground">
                   {channel.label}
                 </span>
-                <span className="mt-0.5 block text-[11px] text-muted">
+                <span className="mt-0.5 block text-[11px] leading-relaxed text-muted">
                   {channel.description}
                 </span>
               </span>
@@ -294,21 +319,19 @@ export function NotificationSettingsForm({
                 name={channel.name}
                 type="checkbox"
                 defaultChecked={channel.checked}
-                className="h-4 w-4 rounded border-border text-accent"
+                className="h-4 w-4 shrink-0 rounded border-border text-accent"
               />
             </label>
           ))}
         </div>
 
-        <div className="mt-4 flex flex-col gap-3 border-t border-border-subtle pt-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <SaveMessage state={state} />
-            <FieldError>{state.fieldErrors?.fullName}</FieldError>
-          </div>
+        <div className="mt-4 space-y-3 border-t border-border-subtle pt-4">
+          <SaveMessage state={state} />
+          <FieldError>{state.fieldErrors?.fullName}</FieldError>
           <button
             type="submit"
             disabled={pending}
-            className="atlas-btn-primary px-4 py-2 text-[13px] disabled:cursor-wait disabled:opacity-60"
+            className="atlas-btn-primary w-full px-4 py-2.5 text-[13px] disabled:cursor-wait disabled:opacity-60 sm:w-auto"
           >
             {pending ? "Salvataggio..." : "Salva notifiche"}
           </button>

@@ -1,157 +1,143 @@
 "use client";
 
 import { useState } from "react";
+import { Palette, Shield } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PageShell } from "@/components/ui/PageShell";
 import { SectionCard } from "@/components/ui/SectionCard";
-import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useCurrentProfile } from "@/components/profile/ProfileProvider";
 import {
   NotificationSettingsForm,
   ProfileSettingsPanels,
 } from "@/components/settings/ProfileSettingsForms";
-import { cn } from "@/lib/utils";
-import { IconShield } from "@/components/icons";
+import { SettingsCapabilitiesStrip } from "@/components/settings/SettingsCapabilitiesStrip";
+import { SettingsLockedModulesGrid } from "@/components/settings/SettingsLockedModulesGrid";
+import { SettingsAccountManagement } from "@/components/settings/SettingsAccountManagement";
+import { SettingsTrustCenter } from "@/components/settings/SettingsTrustCenter";
+import { RevealStagger } from "@/components/motion/RevealStagger";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { settingsLockedModules } from "@/lib/settings-display";
+import {
+  atlasAsideColumn,
+  atlasCard,
+  atlasMainAside,
+  atlasMainColumn,
+  atlasSpace,
+} from "@/lib/atlas-ui";
+import { cn } from "@/lib/utils";
 
-const tabs = [
+const sections = [
   { id: "profilo", label: "Profilo" },
   { id: "notifiche", label: "Notifiche" },
-  { id: "sicurezza", label: "Sicurezza" },
-  { id: "preferenze", label: "Preferenze" },
-  { id: "fatturazione", label: "Fatturazione" },
-  { id: "integrazioni", label: "Integrazioni" },
-];
+  { id: "preferenze", label: "Aspetto" },
+  { id: "avanzate", label: "Avanzate" },
+  { id: "account", label: "Gestione account" },
+] as const;
+
+type SettingsSectionId = (typeof sections)[number]["id"];
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState("profilo");
+  const [activeSection, setActiveSection] = useState<SettingsSectionId>("profilo");
   const profile = useCurrentProfile();
 
   return (
     <PageShell>
-      <PageHeader
-        title="Impostazioni"
-        description="Gestisci il tuo account, le preferenze e la sicurezza."
-      />
+      <RevealStagger>
+        <PageHeader
+          title="Account e impostazioni"
+          description="Centro fiducia Atlas: solo funzioni reali o chiaramente in preparazione."
+        />
 
-      <nav className="flex gap-1 overflow-x-auto border-b border-border">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => setActiveTab(tab.id)}
+        <div className={`${atlasCard.support} px-4 py-3 text-[12px] leading-relaxed text-muted`}>
+          Nessun abbonamento, metodo di pagamento, sessione o integrazione simulata. Le sezioni
+          bloccate indicano funzionalità future senza valori inventati.
+        </div>
+
+        <SettingsCapabilitiesStrip />
+
+        <SettingsTrustCenter profile={profile} />
+
+        <div className={atlasMainAside}>
+          <nav
             className={cn(
-              "shrink-0 border-b-2 px-4 py-2.5 text-[13px] font-medium transition",
-              activeTab === tab.id
-                ? "border-accent text-accent"
-                : "border-transparent text-muted hover:text-foreground"
+              atlasAsideColumn,
+              "flex flex-row gap-1 overflow-x-auto border-b border-border pb-0 lg:flex-col lg:overflow-visible lg:border-b-0 lg:pb-0"
             )}
+            aria-label="Sezioni impostazioni"
           >
-            {tab.label}
-          </button>
-        ))}
-      </nav>
+            {sections.map((section) => (
+              <button
+                key={section.id}
+                type="button"
+                onClick={() => setActiveSection(section.id)}
+                className={cn(
+                  "shrink-0 rounded-lg px-3 py-2.5 text-left text-[13px] font-medium transition lg:w-full",
+                  activeSection === section.id
+                    ? "bg-accent-soft text-accent"
+                    : "text-muted-foreground hover:bg-card-muted hover:text-foreground"
+                )}
+              >
+                {section.label}
+              </button>
+            ))}
+          </nav>
 
-      {activeTab === "profilo" && <ProfileSettingsPanels profile={profile} />}
+          <div className={cn(atlasMainColumn, atlasSpace.block)}>
+            {activeSection === "profilo" && (
+              <ProfileSettingsPanels profile={profile} />
+            )}
 
-      {activeTab === "notifiche" && <NotificationSettingsForm profile={profile} />}
+            {activeSection === "notifiche" && (
+              <NotificationSettingsForm profile={profile} />
+            )}
 
-      {activeTab === "sicurezza" && (
-        <SectionCard
-          title="Sicurezza account"
-          action={<StatusBadge variant="neutral" label="In preparazione" />}
-        >
-          <div className="rounded-xl border border-border bg-card-muted p-4">
-            <p className="text-[13px] font-semibold text-foreground">
-              Stato sicurezza non ancora esposto
-            </p>
-            <p className="mt-1 max-w-xl text-[12px] leading-relaxed text-muted">
-              Atlas non mostra 2FA, sessioni o cronologia password finche quei dati non sono
-              collegati all&apos;account reale.
-            </p>
-          </div>
-        </SectionCard>
-      )}
+            {activeSection === "preferenze" && (
+              <SectionCard title="Aspetto" description="Preferenza locale su questo dispositivo">
+                <div className="flex flex-col gap-4 rounded-xl border border-border-subtle bg-card-muted/40 p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="flex items-center gap-2 text-[13px] font-semibold text-foreground">
+                      <Palette className="h-4 w-4 text-accent" />
+                      Tema Giorno / Notte
+                    </p>
+                    <p className="mt-1 text-[12px] leading-relaxed text-muted">
+                      La scelta non passa dal profilo cloud: resta salvata nel browser per
+                      coerenza visiva immediata.
+                    </p>
+                  </div>
+                  <ThemeToggle />
+                </div>
+              </SectionCard>
+            )}
 
-      {activeTab === "fatturazione" && (
-        <SectionCard
-          title="Fatturazione e abbonamento"
-          action={<StatusBadge variant="neutral" label="Non disponibile" />}
-        >
-          <div className="rounded-xl border border-border bg-card-muted p-4">
-            <p className="text-[13px] font-semibold text-foreground">
-              Fatturazione non ancora collegata
-            </p>
-            <p className="mt-1 text-[12px] leading-relaxed text-muted">
-              Nessun piano, carta o pagamento demo viene mostrato nelle impostazioni del tuo account.
-            </p>
-          </div>
-        </SectionCard>
-      )}
+            {activeSection === "avanzate" && (
+              <SettingsLockedModulesGrid modules={settingsLockedModules} />
+            )}
 
-      {activeTab === "integrazioni" && (
-        <SectionCard
-          title="Integrazioni"
-          action={<StatusBadge variant="neutral" label="In preparazione" />}
-        >
-          <div className="rounded-xl border border-border bg-card-muted p-4">
-            <p className="text-[13px] font-semibold text-foreground">
-              Nessuna integrazione attiva
-            </p>
-            <p className="mt-1 text-[12px] leading-relaxed text-muted">
-              Le connessioni esterne appariranno qui solo quando saranno abilitate per il tuo account.
-            </p>
-          </div>
-        </SectionCard>
-      )}
-
-      {activeTab === "preferenze" && (
-        <SectionCard title="Aspetto">
-          <div className="flex flex-col gap-4 rounded-xl border border-border bg-card-muted p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-[13px] font-semibold text-foreground">Tema visivo</p>
-              <p className="mt-1 text-[12px] leading-relaxed text-muted">
-                Scegli tra modalità Giorno e Notte. La preferenza viene salvata su questo
-                dispositivo.
-              </p>
-            </div>
-            <ThemeToggle />
-          </div>
-        </SectionCard>
-      )}
-
-      <div className="flex flex-col gap-3 rounded-2xl border border-border bg-accent-soft p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <IconShield className="h-5 w-5 text-accent" />
-          <p className="text-[12px] text-muted-foreground">
-            I tuoi dati sono protetti con crittografia e hosting in Svizzera.
-          </p>
-        </div>
-        <StatusBadge variant="neutral" label="Dettagli in preparazione" />
-      </div>
-
-      <SectionCard title="Dati e account">
-        <div className="space-y-3">
-          <div className="flex flex-col gap-3 rounded-xl border border-border p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-[13px] font-medium text-foreground">Esporta i tuoi dati</p>
-              <p className="text-[11px] text-muted">
-                Esportazione non ancora disponibile.
-              </p>
-            </div>
-            <StatusBadge variant="neutral" label="In preparazione" />
-          </div>
-          <div className="flex flex-col gap-3 rounded-xl border atlas-alert-danger p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-[13px] font-medium">Elimina account</p>
-              <p className="text-[11px] opacity-90">
-                Flusso eliminazione non ancora disponibile.
-              </p>
-            </div>
-            <StatusBadge variant="neutral" label="In preparazione" />
+            {activeSection === "account" && (
+              <SettingsAccountManagement profile={profile} />
+            )}
           </div>
         </div>
-      </SectionCard>
+
+        <div
+          className={`${atlasCard.secondary} flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between`}
+        >
+          <div className="flex items-start gap-3">
+            <Shield className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
+            <p className="text-[12px] leading-relaxed text-muted-foreground">
+              Per dati portfolio o chiusura profilo apri{" "}
+              <button
+                type="button"
+                onClick={() => setActiveSection("account")}
+                className="font-medium text-accent underline-offset-2 hover:underline"
+              >
+                Gestione account
+              </button>
+              . Il supporto consulenza resta in preparazione.
+            </p>
+          </div>
+        </div>
+      </RevealStagger>
     </PageShell>
   );
 }
