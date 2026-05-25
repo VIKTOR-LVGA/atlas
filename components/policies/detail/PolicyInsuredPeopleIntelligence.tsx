@@ -247,7 +247,7 @@ export function PolicyInsuredPeopleIntelligence({
 }) {
   if (grouped.people.length === 0) {
     return (
-      <SectionCard title="Persone assicurate" description="Intelligence per persona">
+      <SectionCard title="Persone assicurate" description="Riepilogo per persona assicurata">
         <div className="flex flex-col items-center gap-2 py-8 text-center">
           <UserRound className="h-8 w-8 text-muted" />
           <p className="text-[13px] font-medium text-foreground">Nessuna persona rilevata</p>

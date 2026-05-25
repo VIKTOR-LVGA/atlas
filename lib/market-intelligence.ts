@@ -628,7 +628,7 @@ export const marketFutureModules: MarketFutureModule[] = [
     id: "coverage-opt",
     label: "Ottimizzazione coperture",
     description: "Suggerimenti su gap e ridondanze basati sul portafoglio reale.",
-    requirement: "Intelligence coperture completa",
+    requirement: "Coperture documentate",
   },
   {
     id: "lamal",

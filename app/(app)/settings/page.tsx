@@ -45,19 +45,19 @@ export default function SettingsPage() {
       <RevealStagger>
         <PageHeader
           title="Account e impostazioni"
-          description="Centro fiducia Atlas: solo funzioni reali o chiaramente in preparazione."
+          description="Gestisci profilo, preferenze e dati del tuo portafoglio assicurativo."
         />
 
         <div className={`${atlasCard.support} px-4 py-3 text-[12px] leading-relaxed text-muted`}>
-          Nessun abbonamento, metodo di pagamento, sessione o integrazione simulata. Le sezioni
-          bloccate indicano funzionalità future senza valori inventati.
+          Le funzioni in preparazione saranno attivate quando disponibili. I dati mostrati
+          provengono solo dal tuo account.
         </div>
 
         <SettingsCapabilitiesStrip />
 
         <SettingsTrustCenter profile={profile} />
 
-        <div className={atlasMainAside}>
+        <div className={cn(atlasMainAside, "min-w-0")}>
           <nav
             className={cn(
               atlasAsideColumn,

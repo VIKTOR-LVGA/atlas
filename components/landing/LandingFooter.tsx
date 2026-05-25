@@ -75,8 +75,8 @@ export function LandingFooter() {
                 Legale
               </p>
               <ul className="mt-4 space-y-2.5 text-[var(--landing-muted)]">
-                <li>Privacy</li>
-                <li>Termini</li>
+                <li className="opacity-80">Privacy · In arrivo</li>
+                <li className="opacity-80">Termini · In arrivo</li>
               </ul>
             </div>
           </div>

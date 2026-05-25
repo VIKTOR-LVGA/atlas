@@ -56,7 +56,7 @@ export default async function DocumentsPage() {
           <MetricCard
             label="Archivio"
             value={String(documents.length)}
-            subtext="PDF in intelligence workspace"
+            subtext="PDF nel tuo archivio"
             variant="blue"
             icon={<IconFolder className="h-[18px] w-[18px]" />}
           />
@@ -90,8 +90,8 @@ export default async function DocumentsPage() {
         <div className={atlasMainAside}>
           <div className={atlasMainColumn}>
             <SectionCard
-              title="Intelligence archive"
-              description="Ogni riga mostra stato workflow, indicatori reali e prossima azione."
+              title="Archivio documenti"
+              description="Ogni riga mostra stato, indicatori e prossima azione."
               padding="none"
             >
               <DocumentIntelligenceArchive views={views} filterCounts={filterCounts} />

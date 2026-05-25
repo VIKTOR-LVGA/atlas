@@ -11,7 +11,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Atlas — Insurance Intelligence",
+    default: "Atlas — Gestione assicurativa",
     template: "%s | Atlas",
   },
   description:

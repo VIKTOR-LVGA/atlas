@@ -20,7 +20,7 @@ export function PolicyExtractionMetadataPanel({
 
   const sections = [
     {
-      label: "Keyword",
+      label: "Parole chiave",
       value: metadata.matched_keywords?.join(", "),
     },
     {
@@ -43,8 +43,8 @@ export function PolicyExtractionMetadataPanel({
 
   return (
     <CollapsibleSection
-      title="Dettagli tecnici estrazione"
-      description="Metadati per revisione avanzata"
+      title="Dettagli estrazione"
+      description="Informazioni aggiuntive per la revisione"
       badge={
         metadata.warnings?.length ? (
           <span className="rounded-full bg-[var(--warning-bg)] px-2 py-0.5 text-[10px] font-medium text-[var(--warning-text)]">
@@ -62,7 +62,7 @@ export function PolicyExtractionMetadataPanel({
         ))}
         {metadata.warnings?.length ? (
           <div className="rounded-lg border border-[var(--warning-border)] bg-[var(--warning-bg)] p-3">
-            <p className="font-medium text-amber-900">Avvisi interni</p>
+            <p className="font-medium text-amber-900">Avvertenze</p>
             <ul className="mt-1 space-y-1 text-amber-800">
               {metadata.warnings.map((warning) => (
                 <li key={warning}>{warning}</li>

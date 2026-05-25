@@ -264,7 +264,7 @@ function buildWorkflowSteps(
     },
     {
       id: "analyze",
-      label: "Analisi OCR / AI",
+      label: "Analisi documenti",
       status: analyzeStatus,
       detail: hasAnalyzedDocument
         ? `${documents.filter((doc) => doc.status === "analyzed").length} documenti analizzati`
@@ -289,7 +289,7 @@ function buildWorkflowSteps(
     },
     {
       id: "intelligence",
-      label: "Intelligence attiva",
+      label: "Analisi attiva",
       status: readyStatus,
       detail: hasConfirmedPolicy
         ? "KPI e alert basati su dati reali"

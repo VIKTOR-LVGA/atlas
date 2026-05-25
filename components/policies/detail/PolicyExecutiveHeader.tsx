@@ -51,7 +51,7 @@ export function PolicyExecutiveHeader({
               <TypedPolicyIcon policyType={policy.policyType} className="h-5 w-5 sm:h-6 sm:w-6" />
             </span>
             <div className="min-w-0">
-              <p className="atlas-section-eyebrow text-accent">Intelligence polizza</p>
+              <p className="atlas-section-eyebrow text-accent">Sintesi polizza</p>
               <div className="mt-1 flex flex-wrap items-center gap-1.5">
                 <StatusBadge variant={displayStatus.variant} label={displayStatus.label} />
                 <StatusBadge variant={reviewStatus.variant} label={reviewStatus.label} />

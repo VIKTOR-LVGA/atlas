@@ -102,7 +102,7 @@ export function ProfileSettingsPanels({ profile }: { profile: CurrentProfile | n
   const [language, setLanguage] = useState<ProfileLanguage>(values.language);
   const memberSince = profile?.createdAt
     ? `Membro dal ${formatDate(profile.createdAt)}`
-    : "Profilo creato da Supabase Auth";
+    : "Profilo attivo";
 
   return (
     <form
@@ -113,7 +113,7 @@ export function ProfileSettingsPanels({ profile }: { profile: CurrentProfile | n
       <NotificationHiddenInputs profile={values} />
       <p className="text-[12px] leading-relaxed text-muted">
         Queste informazioni aiutano Atlas a personalizzare il tuo spazio assicurativo. I campi
-        contrassegnati come salvati vengono scritti sul tuo profilo Supabase.
+        contrassegnati come salvati vengono memorizzati sul tuo profilo Atlas.
       </p>
       <div className="grid gap-4 lg:grid-cols-2">
       <SectionCard title="Informazioni profilo">

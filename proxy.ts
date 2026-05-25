@@ -66,7 +66,14 @@ export async function proxy(request: NextRequest) {
     return redirectWithAuthCookies(request, "/login", authResponse);
   }
 
-  if (user && (pathname === "/login" || pathname === "/register")) {
+  const authEntryRoutes = [
+    "/login",
+    "/register",
+    "/forgot-password",
+    "/reset-password",
+  ];
+
+  if (user && authEntryRoutes.includes(pathname)) {
     return redirectWithAuthCookies(request, "/dashboard", authResponse);
   }
 
@@ -85,5 +92,7 @@ export const config = {
     "/settings/:path*",
     "/login",
     "/register",
+    "/forgot-password",
+    "/reset-password",
   ],
 };

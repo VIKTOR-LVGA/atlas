@@ -287,7 +287,7 @@ function getMockAdvancedDetails(
         insured_person_name: null,
         confidence: confidence.details,
         uncertain: true,
-        notes: "Copertura generata dal fallback mock, da verificare.",
+        notes: "Copertura da verificare: non derivata dal contenuto del PDF.",
       },
     ],
     field_confidence: {
@@ -307,34 +307,34 @@ function getMockAdvancedDetails(
         value: premiumAmount,
         confidence: confidence.premiumAmount,
         uncertain: true,
-        evidence: "Fallback mock basato sul nome file.",
+        evidence: "Stima basata sul nome file.",
       },
       deductible: {
         value: deductible,
         confidence: confidence.deductible,
         uncertain: true,
-        evidence: "Fallback mock basato sul nome file.",
+        evidence: "Stima basata sul nome file.",
       },
       renewal_date: {
         value: getMockRenewalDate(seed),
         confidence: confidence.renewalDate,
         uncertain: true,
-        evidence: "Data simulata.",
+        evidence: "Data stimata.",
       },
       details: {
-        value: "mock",
+        value: "stima",
         confidence: confidence.details,
         uncertain: true,
-        evidence: "Fallback mock.",
+        evidence: "Valore stimato.",
       },
     },
     extraction_metadata: {
       matched_keywords: template.keywords.filter((keyword) =>
         document.fileName.toLowerCase().includes(keyword)
       ),
-      inferred_sections: ["fallback mock"],
+      inferred_sections: ["bozza stimata"],
       warnings: [
-        "Fallback mock usato: i dettagli non derivano dal contenuto reale del PDF.",
+        "Il PDF non contiene testo leggibile: i valori sono stime da verificare manualmente.",
       ],
       provider_raw: template.provider,
       normalized_provider: template.provider,
@@ -362,7 +362,7 @@ export const mockPolicyDocumentExtractor: PolicyDocumentExtractor = {
 
     if (document.fileName.toLowerCase().includes("illeggibile")) {
       throw new DocumentAnalysisError(
-        "Estrazione simulata non riuscita per questo PDF. Riprova o crea la polizza manualmente."
+        "Analisi automatica non riuscita per questo PDF. Riprova o crea la polizza manualmente."
       );
     }
 
@@ -409,9 +409,9 @@ function getExtractionNotes(
 
   if (extraction.usedFallback) {
     return [
-      "Fallback mock usato perche il PDF non contiene testo leggibile senza OCR o ha qualita insufficiente.",
-      `Documento sorgente: ${document.fileName}.`,
-      "La bozza e plausibile ma non deriva da lettura reale del contenuto.",
+      "Il PDF non contiene testo leggibile o la qualità non è sufficiente per un'estrazione affidabile.",
+      `Documento: ${document.fileName}.`,
+      "I valori proposti sono stime da confermare o correggere prima dell'uso.",
     ].join("\n");
   }
 
@@ -523,6 +523,14 @@ export async function analyzeCurrentUserDocument(
     await clearCurrentUserDocumentAnalysisError(processingDocument.id);
 
     const extraction = await extractor.extract(processingDocument);
+    const rawConfidence =
+      extraction.draft.extractionConfidence ??
+      getOverallConfidence(extraction.draft.confidence) ??
+      0;
+    const extractionConfidence = extraction.usedFallback
+      ? Math.min(35, rawConfidence)
+      : rawConfidence;
+
     const policy = await createPolicy(
       {
         documentId: processingDocument.id,
@@ -544,9 +552,7 @@ export async function analyzeCurrentUserDocument(
       {
         source: "ai_draft",
         requiresReview: true,
-        extractionConfidence:
-          extraction.draft.extractionConfidence ??
-          getOverallConfidence(extraction.draft.confidence),
+        extractionConfidence,
         extractionNotes: getExtractionNotes(processingDocument, extraction),
       }
     );

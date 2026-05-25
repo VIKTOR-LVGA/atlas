@@ -406,7 +406,7 @@ const maturityLabels: Record<PortfolioMaturity, string> = {
   starting: "Configurazione in corso",
   building: "Portafoglio in crescita",
   verified: "Dati verificati",
-  advanced: "Intelligence attiva",
+  advanced: "Analisi attiva",
 };
 
 export function computePortfolioProgression(

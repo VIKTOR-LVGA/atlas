@@ -15,7 +15,7 @@ export function PolicyCoverageIntelligence({
   if (summary.totalCoverages === 0) {
     return (
       <SectionCard
-        title="Intelligence coperture"
+        title="Coperture"
         description="Segmentazione e completezza"
       >
         <div className="flex flex-col items-center gap-2 py-6 text-center">
@@ -34,7 +34,7 @@ export function PolicyCoverageIntelligence({
 
   return (
     <SectionCard
-      title="Intelligence coperture"
+      title="Coperture"
       description="Completezza, assegnazioni e segmentazione per categoria"
       bodyClassName="space-y-3 p-3.5 sm:p-4"
       padding="none"

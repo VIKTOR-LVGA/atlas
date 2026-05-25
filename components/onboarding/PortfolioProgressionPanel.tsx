@@ -93,7 +93,7 @@ export function PortfolioProgressionPanel({
                 Portafoglio {portfolioReadinessPercent}%
               </span>
               <span className="rounded-full border border-border-subtle bg-card-muted/60 px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
-                Intelligence {intelligenceReadinessPercent}%
+                Analisi {intelligenceReadinessPercent}%
               </span>
               <span className="rounded-full border border-border-subtle bg-card-muted/60 px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
                 {completedMilestones}/{totalMilestones} passi

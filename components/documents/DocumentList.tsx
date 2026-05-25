@@ -197,7 +197,7 @@ export function DocumentList({ views }: { views: DocumentIntelligenceView[] }) {
           <thead>
             <tr className="border-b border-border-subtle text-[10px] uppercase text-muted">
               <th className="px-5 py-2 text-left">Documento</th>
-              <th className="px-3 py-2 text-left">Intelligence</th>
+              <th className="px-3 py-2 text-left">Indicatori</th>
               <th className="px-3 py-2 text-left">Workflow</th>
               <th className="px-3 py-2 text-left">Prossima azione</th>
               <th className="px-5 py-2 text-right">Azioni</th>

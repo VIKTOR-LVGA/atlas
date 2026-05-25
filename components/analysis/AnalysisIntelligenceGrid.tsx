@@ -260,7 +260,7 @@ export function AnalysisIntelligenceGrid({ intelligence }: AnalysisIntelligenceG
       <aside className={atlasAsideColumn}>
         <SectionCard
           title="Workflow analisi"
-          description="Upload → OCR → Estrazione → Revisione → Intelligence."
+          description="Caricamento → Analisi → Revisione → Portafoglio aggiornato."
           padding="sm"
         >
           <DashboardWorkflowSteps steps={workflowSteps} />

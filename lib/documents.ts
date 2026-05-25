@@ -181,7 +181,7 @@ export async function uploadUserDocument(file: File): Promise<UserDocument> {
 
   if (storageError) {
     throw new DocumentUploadError(
-      "Upload non riuscito. Verifica bucket e policy Supabase, poi riprova."
+      "Caricamento non riuscito. Riprova tra poco o contatta il supporto se il problema persiste."
     );
   }
 

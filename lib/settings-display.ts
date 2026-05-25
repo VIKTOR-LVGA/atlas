@@ -56,7 +56,7 @@ export const settingsCapabilities: SettingsCapability[] = [
     id: "locale",
     label: "Lingua, valuta e date",
     status: "saved",
-    detail: "Salvati su Supabase — CHF e formati data",
+    detail: "Salvati sul profilo — CHF e formati data",
   },
   {
     id: "notifications",

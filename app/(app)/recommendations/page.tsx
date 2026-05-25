@@ -1,6 +1,5 @@
-import Link from "next/link";
-import { RefreshCw } from "lucide-react";
 import { PortfolioProgressionPanel } from "@/components/onboarding/PortfolioProgressionPanel";
+import { RecommendationsRefreshButton } from "@/components/recommendations/RecommendationsRefreshButton";
 import { RecommendationsEmptyState } from "@/components/recommendations/RecommendationsEmptyState";
 import { RecommendationsExecutiveOverview } from "@/components/recommendations/RecommendationsExecutiveOverview";
 import { RecommendationsGroupedList } from "@/components/recommendations/RecommendationsGroupedList";
@@ -43,13 +42,7 @@ export default async function RecommendationsPage() {
           description="Prossime azioni sul portafoglio basate su dati estratti e regole verificabili — non simulazioni AI."
           action={
             <div className="flex flex-wrap items-center gap-2">
-              <Link
-                href="/recommendations"
-                className="atlas-btn-secondary inline-flex items-center gap-1.5 px-3 py-2 text-[12px]"
-              >
-                <RefreshCw className="h-3.5 w-3.5" />
-                Aggiorna
-              </Link>
+              <RecommendationsRefreshButton />
               <PrimaryButton href="/policies">Vedi polizze</PrimaryButton>
             </div>
           }

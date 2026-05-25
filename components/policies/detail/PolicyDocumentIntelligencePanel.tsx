@@ -21,7 +21,7 @@ export function PolicyDocumentIntelligencePanel({
     policy.source === "ai_draft" || policy.extractionConfidence !== null;
 
   return (
-    <SectionCard title="Intelligence documento" padding="sm" tone="support">
+    <SectionCard title="Documento collegato" padding="sm" tone="support">
       <ul className="space-y-2.5 text-[12px]">
         <li className="flex items-start justify-between gap-3">
           <span className="text-muted">PDF sorgente</span>

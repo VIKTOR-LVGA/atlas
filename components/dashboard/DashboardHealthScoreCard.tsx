@@ -15,7 +15,7 @@ export function DashboardHealthScoreCard({
         <div className="min-w-0">
           <p className="atlas-section-eyebrow">Salute del portafoglio</p>
           <h2 className="mt-1 text-[14px] font-semibold tracking-tight text-foreground">
-            Insurance Health Score
+            Indice salute assicurativa
           </h2>
           <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
             {healthScore.disclaimer}

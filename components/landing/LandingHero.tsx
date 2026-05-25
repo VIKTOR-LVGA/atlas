@@ -51,7 +51,7 @@ export function LandingHero() {
             </li>
             <li className="flex items-center gap-2">
               <Lock className="h-3.5 w-3.5 text-[var(--landing-accent-bright)]" />
-              Crittografia end-to-end
+              Dati protetti in Svizzera
             </li>
             <li className="flex items-center gap-2">
               <UserRound className="h-3.5 w-3.5 text-[var(--landing-accent-bright)]" />

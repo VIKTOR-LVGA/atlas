@@ -31,7 +31,7 @@ export default async function MarketPage() {
     <PageShell>
       <RevealStagger>
         <PageHeader
-          title="Intelligence di mercato"
+          title="Confronto di mercato"
           description="Atlas prepara il portafoglio per futuri confronti — readiness deterministica su dati reali, senza benchmark simulati."
           action={
             <div className="flex flex-wrap items-center gap-2">
