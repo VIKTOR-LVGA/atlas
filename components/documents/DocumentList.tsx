@@ -4,38 +4,48 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { KeyboardEvent, SyntheticEvent } from "react";
 import {
+  ArrowRight,
   ChevronRight,
   Download,
   ExternalLink,
   FileText,
   MoreVertical,
+  Sparkles,
 } from "lucide-react";
 import { DocumentDeleteForm } from "@/components/documents/DocumentDeleteForm";
 import { DocumentAnalysisForm } from "@/components/documents/DocumentAnalysisForm";
 import { DocumentStatusBadge } from "@/components/documents/DocumentStatusBadge";
-import type { UserDocument } from "@/lib/types";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { IconUpload } from "@/components/icons";
+import { DocumentWorkflowStrip } from "@/components/documents/DocumentWorkflowStrip";
+import type { DocumentIntelligenceView } from "@/lib/document-intelligence";
 import { cn, formatDate, formatFileSize } from "@/lib/utils";
 
-function getDocumentHref(document: UserDocument) {
-  return `/documents/${document.id}`;
+function getDocumentHref(documentId: string) {
+  return `/documents/${documentId}`;
 }
 
-function getDownloadHref(document: UserDocument) {
-  return `/documents/${document.id}/download`;
+function getDownloadHref(documentId: string) {
+  return `/documents/${documentId}/download`;
 }
 
 function stopRowNavigation(event: SyntheticEvent) {
   event.stopPropagation();
 }
 
+const indicatorToneClass = {
+  success: "border-emerald-500/20 bg-emerald-500/[0.06] text-[var(--success-text)]",
+  warning: "border-amber-500/25 bg-amber-500/[0.06] text-[var(--warning-text)]",
+  neutral: "border-border-subtle bg-card-muted/60 text-muted-foreground",
+  danger: "border-[var(--danger-border)] bg-[var(--danger-bg)] text-[var(--danger-text)]",
+} as const;
+
 function DocumentButtonLink({
-  document,
+  documentId,
+  fileName,
   kind,
   className,
 }: {
-  document: UserDocument;
+  documentId: string;
+  fileName: string;
   kind: "detail" | "download";
   className?: string;
 }) {
@@ -47,9 +57,9 @@ function DocumentButtonLink({
   if (kind === "detail") {
     return (
       <Link
-        href={getDocumentHref(document)}
+        href={getDocumentHref(documentId)}
         title="Apri dettagli"
-        aria-label={`Apri dettagli di ${document.fileName}`}
+        aria-label={`Apri dettagli di ${fileName}`}
         className={sharedClassName}
         onClick={stopRowNavigation}
       >
@@ -60,9 +70,9 @@ function DocumentButtonLink({
 
   return (
     <a
-      href={getDownloadHref(document)}
+      href={getDownloadHref(documentId)}
       title="Scarica PDF"
-      aria-label={`Scarica ${document.fileName}`}
+      aria-label={`Scarica ${fileName}`}
       className={sharedClassName}
       onClick={stopRowNavigation}
     >
@@ -71,7 +81,9 @@ function DocumentButtonLink({
   );
 }
 
-function MobileActionMenu({ document }: { document: UserDocument }) {
+function MobileActionMenu({ view }: { view: DocumentIntelligenceView }) {
+  const { document } = view;
+
   return (
     <details className="relative">
       <summary
@@ -87,14 +99,14 @@ function MobileActionMenu({ document }: { document: UserDocument }) {
         onClick={stopRowNavigation}
       >
         <Link
-          href={getDocumentHref(document)}
+          href={getDocumentHref(document.id)}
           className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-[12px] font-medium text-muted-foreground transition hover:bg-accent-soft hover:text-accent"
         >
           <ExternalLink className="h-3.5 w-3.5" />
           Apri dettagli
         </Link>
         <a
-          href={getDownloadHref(document)}
+          href={getDownloadHref(document.id)}
           className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-[12px] font-medium text-muted-foreground transition hover:bg-accent-soft hover:text-accent"
         >
           <Download className="h-3.5 w-3.5" />
@@ -125,42 +137,76 @@ function openDocumentFromKeyboard(
   }
 }
 
-function DocumentEmptyState() {
-  return (
-    <div className="p-4 sm:p-6">
-      <EmptyState
-        icon={<IconUpload className="h-6 w-6" />}
-        title="Nessun PDF in archivio"
-        description="Carica la prima polizza per analizzarla con AI e creare una bozza strutturata."
-        className="border-none bg-transparent py-8"
-      />
-    </div>
-  );
-}
+function DocumentNextActionLink({ view }: { view: DocumentIntelligenceView }) {
+  const { nextAction } = view;
 
-export function DocumentList({ documents }: { documents: UserDocument[] }) {
-  const router = useRouter();
-
-  if (documents.length === 0) {
-    return <DocumentEmptyState />;
+  if (nextAction.kind === "wait" || !nextAction.href) {
+    return (
+      <span className="text-[11px] font-medium text-muted">{nextAction.label}</span>
+    );
   }
 
   return (
+    <Link
+      href={nextAction.href}
+      onClick={stopRowNavigation}
+      className={cn(
+        "inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-semibold transition",
+        nextAction.priority === "primary"
+          ? "bg-accent-soft text-accent hover:bg-accent/15"
+          : "border border-border-subtle text-muted-foreground hover:bg-card-muted"
+      )}
+    >
+      {nextAction.label}
+      <ArrowRight className="h-3 w-3" />
+    </Link>
+  );
+}
+
+function DocumentIntelligenceIndicators({ view }: { view: DocumentIntelligenceView }) {
+  const visible = view.indicators.slice(0, 4);
+
+  if (visible.length === 0) {
+    return null;
+  }
+
+  return (
+    <ul className="mt-2 flex flex-wrap gap-1">
+      {visible.map((indicator) => (
+        <li
+          key={indicator.id}
+          className={cn(
+            "rounded-full border px-2 py-0.5 text-[9px] font-medium sm:text-[10px]",
+            indicatorToneClass[indicator.tone]
+          )}
+        >
+          {indicator.label}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export function DocumentList({ views }: { views: DocumentIntelligenceView[] }) {
+  const router = useRouter();
+
+  return (
     <>
-      <div className="hidden overflow-x-auto md:block">
-        <table className="w-full min-w-[680px] text-[12px]">
+      <div className="hidden overflow-x-auto lg:block">
+        <table className="w-full min-w-[760px] text-[12px]">
           <thead>
             <tr className="border-b border-border-subtle text-[10px] uppercase text-muted">
-              <th className="px-5 py-2 text-left">Nome documento</th>
-              <th className="px-3 py-2 text-left">Dimensione</th>
-              <th className="px-3 py-2 text-left">Data</th>
-              <th className="px-3 py-2 text-left">Stato</th>
+              <th className="px-5 py-2 text-left">Documento</th>
+              <th className="px-3 py-2 text-left">Intelligence</th>
+              <th className="px-3 py-2 text-left">Workflow</th>
+              <th className="px-3 py-2 text-left">Prossima azione</th>
               <th className="px-5 py-2 text-right">Azioni</th>
             </tr>
           </thead>
           <tbody>
-            {documents.map((document) => {
-              const openDocument = () => router.push(getDocumentHref(document));
+            {views.map((view) => {
+              const { document } = view;
+              const openDocument = () => router.push(getDocumentHref(document.id));
 
               return (
                 <tr
@@ -172,37 +218,49 @@ export function DocumentList({ documents }: { documents: UserDocument[] }) {
                   onClick={openDocument}
                   onKeyDown={(event) => openDocumentFromKeyboard(event, openDocument)}
                 >
-                  <td className="px-5 py-3.5">
-                    <div className="flex min-w-0 items-center gap-2.5">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--danger-bg)] text-[var(--danger-text)] transition group-hover:bg-card">
+                  <td className="px-5 py-3.5 align-top">
+                    <div className="flex min-w-0 items-start gap-2.5">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent transition group-hover:bg-card">
                         <FileText className="h-4 w-4" />
                       </span>
                       <div className="min-w-0">
-                        <p className="truncate font-medium text-foreground">
+                        <p className="truncate font-semibold text-foreground">
                           {document.fileName}
                         </p>
-                        <p className="truncate text-[10px] text-muted">
-                          {document.mimeType ?? "application/pdf"}
+                        <p className="mt-0.5 truncate text-[10px] text-muted">
+                          {formatFileSize(document.fileSize)} · {formatDate(document.createdAt)}
                         </p>
+                        <DocumentStatusBadge status={document.status} />
                       </div>
                     </div>
                   </td>
-                  <td className="px-3 py-3.5 text-muted">
-                    {formatFileSize(document.fileSize)}
+                  <td className="px-3 py-3.5 align-top">
+                    <DocumentIntelligenceIndicators view={view} />
                   </td>
-                  <td className="px-3 py-3.5 text-muted">
-                    {formatDate(document.createdAt)}
+                  <td className="min-w-[140px] px-3 py-3.5 align-top">
+                    <DocumentWorkflowStrip stage={view.workflowStage} compact />
                   </td>
-                  <td className="px-3 py-3.5">
-                    <DocumentStatusBadge status={document.status} />
+                  <td className="px-3 py-3.5 align-top">
+                    <DocumentNextActionLink view={view} />
+                    <p className="mt-1 max-w-[180px] text-[10px] leading-snug text-muted">
+                      {view.nextAction.description}
+                    </p>
                   </td>
-                  <td className="px-5 py-3.5">
+                  <td className="px-5 py-3.5 align-top">
                     <div
                       className="flex items-center justify-end gap-1.5"
                       onClick={stopRowNavigation}
                     >
-                      <DocumentButtonLink document={document} kind="detail" />
-                      <DocumentButtonLink document={document} kind="download" />
+                      <DocumentButtonLink
+                        documentId={document.id}
+                        fileName={document.fileName}
+                        kind="detail"
+                      />
+                      <DocumentButtonLink
+                        documentId={document.id}
+                        fileName={document.fileName}
+                        kind="download"
+                      />
                       <DocumentAnalysisForm
                         documentId={document.id}
                         documentStatus={document.status}
@@ -218,9 +276,10 @@ export function DocumentList({ documents }: { documents: UserDocument[] }) {
         </table>
       </div>
 
-      <div className="divide-y divide-border-subtle md:hidden">
-        {documents.map((document) => {
-          const openDocument = () => router.push(getDocumentHref(document));
+      <div className="divide-y divide-border-subtle lg:hidden">
+        {views.map((view) => {
+          const { document } = view;
+          const openDocument = () => router.push(getDocumentHref(document.id));
 
           return (
             <article
@@ -233,7 +292,7 @@ export function DocumentList({ documents }: { documents: UserDocument[] }) {
               onKeyDown={(event) => openDocumentFromKeyboard(event, openDocument)}
             >
               <div className="flex items-start gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--danger-bg)] text-[var(--danger-text)] transition group-hover:bg-card">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent">
                   <FileText className="h-5 w-5" />
                 </span>
                 <div className="min-w-0 flex-1">
@@ -243,13 +302,26 @@ export function DocumentList({ documents }: { documents: UserDocument[] }) {
                         {document.fileName}
                       </p>
                       <p className="mt-0.5 truncate text-[11px] text-muted">
-                        {formatFileSize(document.fileSize)} / {formatDate(document.createdAt)}
+                        {formatFileSize(document.fileSize)} · {formatDate(document.createdAt)}
                       </p>
                     </div>
                     <ChevronRight className="atlas-link-chevron mt-1 h-4 w-4 shrink-0 text-muted group-hover:text-accent" />
                   </div>
-                  <div className="mt-2">
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
                     <DocumentStatusBadge status={document.status} />
+                    {view.linkedPolicy ? (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-accent/20 bg-accent-soft px-2 py-0.5 text-[10px] font-medium text-accent">
+                        <Sparkles className="h-3 w-3" />
+                        Polizza collegata
+                      </span>
+                    ) : null}
+                  </div>
+                  <DocumentIntelligenceIndicators view={view} />
+                  <div className="mt-3">
+                    <DocumentWorkflowStrip stage={view.workflowStage} compact />
+                  </div>
+                  <div className="mt-3 flex items-center justify-between gap-2">
+                    <DocumentNextActionLink view={view} />
                   </div>
                 </div>
               </div>
@@ -258,8 +330,16 @@ export function DocumentList({ documents }: { documents: UserDocument[] }) {
                 onClick={stopRowNavigation}
               >
                 <div className="flex items-center gap-1.5">
-                  <DocumentButtonLink document={document} kind="detail" />
-                  <DocumentButtonLink document={document} kind="download" />
+                  <DocumentButtonLink
+                    documentId={document.id}
+                    fileName={document.fileName}
+                    kind="detail"
+                  />
+                  <DocumentButtonLink
+                    documentId={document.id}
+                    fileName={document.fileName}
+                    kind="download"
+                  />
                   <DocumentAnalysisForm
                     documentId={document.id}
                     documentStatus={document.status}
@@ -267,7 +347,7 @@ export function DocumentList({ documents }: { documents: UserDocument[] }) {
                   />
                   <DocumentDeleteForm documentId={document.id} variant="icon" />
                 </div>
-                <MobileActionMenu document={document} />
+                <MobileActionMenu view={view} />
               </div>
             </article>
           );
