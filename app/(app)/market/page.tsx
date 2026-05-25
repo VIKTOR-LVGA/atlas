@@ -1,174 +1,139 @@
+import Link from "next/link";
+import { BarChart3, Shield } from "lucide-react";
+import { MarketCategoryMap } from "@/components/market/MarketCategoryMap";
+import { MarketComparisonReadiness } from "@/components/market/MarketComparisonReadiness";
+import { MarketEmptyState } from "@/components/market/MarketEmptyState";
+import { MarketFutureModulesGrid } from "@/components/market/MarketFutureModulesGrid";
+import { MarketIntelligenceOverview } from "@/components/market/MarketIntelligenceOverview";
+import { MarketReadinessHero } from "@/components/market/MarketReadinessHero";
+import { MarketUnlockSteps } from "@/components/market/MarketUnlockSteps";
+import { PortfolioProgressionPanel } from "@/components/onboarding/PortfolioProgressionPanel";
 import { PageHeader, PrimaryButton } from "@/components/ui/PageHeader";
 import { PageShell } from "@/components/ui/PageShell";
-import { MetricCard } from "@/components/ui/MetricCard";
 import { SectionCard } from "@/components/ui/SectionCard";
-import { ModuleUnlockGrid } from "@/components/onboarding/ModuleUnlockGrid";
-import { PremiumOnboardingEmpty } from "@/components/onboarding/PremiumOnboardingEmpty";
-import { PortfolioProgressionPanel } from "@/components/onboarding/PortfolioProgressionPanel";
-import { StatusBadge } from "@/components/ui/StatusBadge";
-import {
-  IconClock,
-  IconDocuments,
-  IconMarket,
-  IconPiggy,
-  IconPolicies,
-} from "@/components/icons";
 import { RevealStagger } from "@/components/motion/RevealStagger";
-import { getDashboardStats } from "@/lib/dashboard";
 import {
   atlasAsideColumn,
-  atlasKpiRow,
+  atlasCard,
   atlasMainAside,
   atlasMainColumn,
   atlasSpace,
 } from "@/lib/atlas-ui";
-import { getCurrentUserPolicies } from "@/lib/policies";
-import { getPortfolioProgression } from "@/lib/portfolio-progression";
+import { getMarketIntelligence } from "@/lib/market-intelligence";
 
 export const metadata = { title: "Confronto mercato" };
 
-const prerequisites = [
-  { item: "PDF caricato", key: "pdf" as const },
-  { item: "Polizza estratta", key: "policy" as const },
-  { item: "Bozza verificata", key: "review" as const },
-];
-
 export default async function MarketPage() {
-  const [documentStats, policies, progression] = await Promise.all([
-    getDashboardStats(),
-    getCurrentUserPolicies(),
-    getPortfolioProgression(),
-  ]);
-
-  const marketUnlock = progression.unlocks.find((module) => module.id === "market");
-  const confirmedCount = policies.filter((policy) => !policy.requiresReview).length;
-
-  const readiness = {
-    pdf: documentStats.totalDocuments > 0,
-    policy: policies.length > 0,
-    review: policies.some((policy) => !policy.requiresReview),
-  };
+  const intelligence = await getMarketIntelligence();
+  const { readiness, progression, hasInsufficientData } = intelligence;
 
   return (
     <PageShell>
       <RevealStagger>
         <PageHeader
-          title="Confronto mercato"
-          description="Benchmark sui tuoi premi reali — disponibile dopo polizze verificate."
-          action={<PrimaryButton href="/documents">Carica PDF</PrimaryButton>}
+          title="Intelligence di mercato"
+          description="Atlas prepara il portafoglio per futuri confronti — readiness deterministica su dati reali, senza benchmark simulati."
+          action={
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href="/policies"
+                className="atlas-btn-secondary inline-flex items-center gap-1.5 px-3 py-2 text-[12px]"
+              >
+                Vedi polizze
+              </Link>
+              <PrimaryButton href="/documents" icon={<BarChart3 className="h-4 w-4" />}>
+                Carica PDF
+              </PrimaryButton>
+            </div>
+          }
         />
 
-        <div className="atlas-card-support px-4 py-3 text-[12px] text-muted">
-          Nessun premio o risparmio simulato: i confronti useranno solo dati estratti dai
-          tuoi documenti.
+        <div className={`${atlasCard.support} px-4 py-3 text-[12px] text-muted`}>
+          Nessun premio di mercato, risparmio stimato o media svizzera simulata. I moduli
+          benchmark restano bloccati finché non esiste un dataset CH verificato collegato al
+          portafoglio.
         </div>
 
-        <div className={atlasKpiRow}>
-          <MetricCard
-            label="PDF in archivio"
-            value={String(documentStats.totalDocuments)}
-            variant="blue"
-            icon={<IconDocuments className="h-[18px] w-[18px]" />}
-          />
-          <MetricCard
-            label="Polizze"
-            value={String(policies.length)}
-            subtext="Per benchmark futuro"
-            variant="yellow"
-            icon={<IconPolicies className="h-[18px] w-[18px]" />}
-          />
-          <MetricCard
-            label="Risparmio stimato"
-            value="—"
-            subtext="Non disponibile"
-            variant="green"
-            icon={<IconPiggy className="h-[18px] w-[18px]" />}
-          />
-          <MetricCard
-            label="Benchmark"
-            value="—"
-            subtext="In arrivo"
-            variant="indigo"
-            icon={<IconMarket className="h-[18px] w-[18px]" />}
-          />
-        </div>
+        <MarketReadinessHero readiness={readiness} />
 
-        {progression.showOnboardingFocus ? (
+        {!hasInsufficientData ? (
+          <MarketIntelligenceOverview signals={intelligence.overview} />
+        ) : null}
+
+        {progression.showOnboardingFocus && hasInsufficientData ? (
           <PortfolioProgressionPanel progression={progression} compact />
         ) : null}
 
-        <div className={atlasMainAside}>
-          <div className={atlasMainColumn}>
-            {marketUnlock?.unlocked ? (
-              <SectionCard title="Benchmark assicurativo">
-                <div className="rounded-xl border border-dashed border-border bg-card-muted/40 px-6 py-10 text-center">
-                  <IconMarket className="mx-auto h-8 w-8 text-accent" />
-                  <p className="mt-3 text-[14px] font-semibold text-foreground">
-                    Benchmark in preparazione
-                  </p>
-                  <p className="mt-2 text-[12px] text-muted">
-                    Hai {confirmedCount} polizze confermate. Il confronto mercato userà
-                    solo i premi estratti dai tuoi documenti — nessuna simulazione.
-                  </p>
-                </div>
-              </SectionCard>
-            ) : (
-              <PremiumOnboardingEmpty
-                icon={<IconMarket className="h-7 w-7" />}
-                title="Sblocca il confronto mercato"
-                description={`Conferma almeno 3 polizze per preparare il benchmark (${confirmedCount}/3). Più dati verificati migliorano la qualità del confronto.`}
-                actionLabel={marketUnlock?.ctaLabel ?? "Completa portafoglio"}
-                actionHref={marketUnlock?.ctaHref ?? "/policies"}
-                secondaryActionLabel="Carica PDF"
-                secondaryActionHref="/documents"
-                progression={progression}
-                steps={[
-                  {
-                    step: "1",
-                    title: "Conferma",
-                    text: "Verifica bozze AI su premio e coperture.",
-                  },
-                  {
-                    step: "2",
-                    title: "Amplia",
-                    text: "Aggiungi categorie assicurative diverse.",
-                  },
-                  {
-                    step: "3",
-                    title: "Benchmark",
-                    text: "Confronto su premi reali, senza stime inventate.",
-                  },
-                ]}
+        {hasInsufficientData ? (
+          <MarketEmptyState intelligence={intelligence} />
+        ) : (
+          <div className={atlasMainAside}>
+            <div className={`${atlasMainColumn} ${atlasSpace.block}`}>
+              <MarketComparisonReadiness blockers={readiness.blockers} />
+              <MarketCategoryMap
+                categories={intelligence.categories}
+                missingCount={intelligence.missingCategoryCount}
               />
-            )}
-            <ModuleUnlockGrid unlocks={progression.unlocks} />
-          </div>
+              <MarketFutureModulesGrid modules={intelligence.futureModules} />
 
-          <aside className={atlasAsideColumn}>
-            <SectionCard title="Prerequisiti" padding="sm" tone="support">
-              <div className={atlasSpace.tight}>
-                {prerequisites.map(({ item, key }) => {
-                  const ready = readiness[key];
-                  return (
-                    <div
-                      key={key}
-                      className="flex items-center justify-between gap-2 rounded-xl border border-border p-3"
-                    >
-                      <p className="text-[12px] font-medium text-foreground">{item}</p>
-                      <StatusBadge
-                        variant={ready ? "ok" : "neutral"}
-                        label={ready ? "Pronto" : "In attesa"}
-                      />
-                    </div>
-                  );
-                })}
-                <p className="flex items-center gap-2 text-[11px] text-muted">
-                  <IconClock className="h-4 w-4" />
-                  Aggiornamenti automatici quando il modulo sara attivo.
-                </p>
-              </div>
-            </SectionCard>
-          </aside>
+              <SectionCard title="Segnali portafoglio" padding="sm" tone="support">
+                <ul className="grid gap-2 sm:grid-cols-2">
+                  {intelligence.overview
+                    .filter((signal) =>
+                      ["coverages", "confirmed", "pdfs", "confidence"].includes(signal.id)
+                    )
+                    .map((signal) => (
+                      <li
+                        key={signal.id}
+                        className="rounded-lg border border-border-subtle bg-card-muted/40 px-3 py-2.5"
+                      >
+                        <p className="text-[10px] font-medium uppercase tracking-wide text-muted">
+                          {signal.label}
+                        </p>
+                        <p className="mt-0.5 text-[14px] font-semibold tabular-nums text-foreground">
+                          {signal.available ? signal.value : "—"}
+                        </p>
+                        <p className="mt-0.5 text-[10px] text-muted">{signal.subtext}</p>
+                      </li>
+                    ))}
+                </ul>
+              </SectionCard>
+            </div>
+
+            <aside className={atlasAsideColumn}>
+              <MarketUnlockSteps steps={readiness.unlockSteps} />
+              {progression.showOnboardingFocus ? (
+                <PortfolioProgressionPanel progression={progression} compact />
+              ) : null}
+            </aside>
+          </div>
+        )}
+
+        <div
+          className={`${atlasCard.secondary} flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between`}
+        >
+          <div className="flex items-start gap-3">
+            <Shield className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
+            <div>
+              <p className="text-[13px] font-semibold text-foreground">
+                Preparazione, non simulazione
+              </p>
+              <p className="text-[12px] text-muted">
+                {intelligence.comparisonEligibleCount} polizza
+                {intelligence.comparisonEligibleCount === 1 ? "" : "e"} idonea
+                {intelligence.comparisonEligibleCount === 1 ? "" : "e"} per confronti futuri.
+                {intelligence.providersIdentified.length > 0
+                  ? ` ${intelligence.providersIdentified.length} compagnia${intelligence.providersIdentified.length === 1 ? "" : "e"} identificata${intelligence.providersIdentified.length === 1 ? "" : "e"}.`
+                  : ""}
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/documents"
+            className="shrink-0 rounded-lg border border-border px-4 py-2 text-[12px] font-medium text-muted-foreground hover:bg-card-muted"
+          >
+            Arricchisci archivio
+          </Link>
         </div>
       </RevealStagger>
     </PageShell>
