@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Palette, Shield } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PageShell } from "@/components/ui/PageShell";
@@ -13,6 +13,8 @@ import {
 import { SettingsCapabilitiesStrip } from "@/components/settings/SettingsCapabilitiesStrip";
 import { SettingsLockedModulesGrid } from "@/components/settings/SettingsLockedModulesGrid";
 import { SettingsAccountManagement } from "@/components/settings/SettingsAccountManagement";
+import { SettingsDataControl } from "@/components/settings/SettingsDataControl";
+import { SettingsDataExport } from "@/components/settings/SettingsDataExport";
 import { SettingsTrustCenter } from "@/components/settings/SettingsTrustCenter";
 import { RevealStagger } from "@/components/motion/RevealStagger";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
@@ -39,6 +41,14 @@ type SettingsSectionId = (typeof sections)[number]["id"];
 export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState<SettingsSectionId>("profilo");
   const profile = useCurrentProfile();
+  const exportSectionRef = useRef<HTMLDivElement>(null);
+
+  const scrollToExport = useCallback(() => {
+    setActiveSection("avanzate");
+    requestAnimationFrame(() => {
+      exportSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, []);
 
   return (
     <PageShell>
@@ -49,8 +59,8 @@ export default function SettingsPage() {
         />
 
         <div className={`${atlasCard.support} px-4 py-3 text-[12px] leading-relaxed text-muted`}>
-          Le funzioni in preparazione saranno attivate quando disponibili. I dati mostrati
-          provengono solo dal tuo account.
+          Esportazione e controllo dati sono attivi in Avanzate. Billing, sessioni e
+          integrazioni restano in preparazione. I dati mostrati provengono solo dal tuo account.
         </div>
 
         <SettingsCapabilitiesStrip />
@@ -110,7 +120,16 @@ export default function SettingsPage() {
             )}
 
             {activeSection === "avanzate" && (
-              <SettingsLockedModulesGrid modules={settingsLockedModules} />
+              <div className={cn(atlasSpace.block)}>
+                <SettingsDataControl
+                  onGoToAccount={() => setActiveSection("account")}
+                  onGoToExport={scrollToExport}
+                />
+                <div ref={exportSectionRef} id="settings-data-export">
+                  <SettingsDataExport />
+                </div>
+                <SettingsLockedModulesGrid modules={settingsLockedModules} />
+              </div>
             )}
 
             {activeSection === "account" && (
@@ -125,7 +144,15 @@ export default function SettingsPage() {
           <div className="flex items-start gap-3">
             <Shield className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
             <p className="text-[12px] leading-relaxed text-muted-foreground">
-              Per dati portfolio o chiusura profilo apri{" "}
+              Per esportare i dati apri{" "}
+              <button
+                type="button"
+                onClick={() => setActiveSection("avanzate")}
+                className="font-medium text-accent underline-offset-2 hover:underline"
+              >
+                Avanzate
+              </button>
+              . Per eliminare portfolio o richiedere chiusura profilo apri{" "}
               <button
                 type="button"
                 onClick={() => setActiveSection("account")}
@@ -133,7 +160,7 @@ export default function SettingsPage() {
               >
                 Gestione account
               </button>
-              . Il supporto consulenza resta in preparazione.
+              .
             </p>
           </div>
         </div>

@@ -19,22 +19,10 @@ export const settingsLockedModules: SettingsLockedModule[] = [
     futureDetail: "Cronologia sessioni reale, non simulata.",
   },
   {
-    id: "export",
-    label: "Esportazione dati",
-    description: "Scarica polizze e documenti in formato strutturato.",
-    futureDetail: "Export su richiesta quando il flusso sarà disponibile.",
-  },
-  {
     id: "integrations",
     label: "Integrazioni",
     description: "Connessioni con servizi esterni autorizzati.",
     futureDetail: "Solo integrazioni realmente abilitate per il tuo account.",
-  },
-  {
-    id: "privacy-advanced",
-    label: "Privacy avanzata",
-    description: "Preferenze granulari su conservazione e condivisione.",
-    futureDetail: "Controlli aggiuntivi oltre al profilo base.",
   },
 ];
 
@@ -69,5 +57,17 @@ export const settingsCapabilities: SettingsCapability[] = [
     label: "Tema Giorno / Notte",
     status: "local",
     detail: "Salvato su questo dispositivo",
+  },
+  {
+    id: "export",
+    label: "Esportazione dati",
+    status: "active",
+    detail: "JSON strutturato e CSV polizze dal tuo account",
+  },
+  {
+    id: "data-control",
+    label: "Controllo dati",
+    status: "active",
+    detail: "Export, rimozione portfolio e richiesta chiusura profilo",
   },
 ];
