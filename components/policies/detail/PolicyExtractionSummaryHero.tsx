@@ -4,9 +4,17 @@ import {
   getExtractionConfidenceDescription,
   getExtractionConfidenceLabel,
   getExtractionConfidenceTier,
+  type ExtractionSummaryMetric,
 } from "@/lib/policy-extraction-reveal";
 import type { UserPolicy } from "@/lib/types";
 import { cn } from "@/lib/utils";
+
+const PLACEHOLDER_METRIC_VALUES = new Set(["—", "–", "-"]);
+
+function isVisibleSummaryMetric(metric: ExtractionSummaryMetric) {
+  const value = metric.value?.trim() ?? "";
+  return value.length > 0 && !PLACEHOLDER_METRIC_VALUES.has(value);
+}
 
 type PolicyExtractionSummaryHeroProps = {
   policy: UserPolicy;
@@ -28,12 +36,12 @@ export function PolicyExtractionSummaryHero({
   coverageCount,
   completenessPercent,
 }: PolicyExtractionSummaryHeroProps) {
-  const metrics = buildExtractionSummaryMetrics({
+  const visibleMetrics = buildExtractionSummaryMetrics({
     policy,
     insuredCount,
     coverageCount,
     completenessPercent,
-  });
+  }).filter(isVisibleSummaryMetric);
   const confidenceTier = getExtractionConfidenceTier(policy.extractionConfidence);
 
   return (
@@ -59,26 +67,33 @@ export function PolicyExtractionSummaryHero({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-px bg-border-subtle sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
-        {metrics.map((metric) => (
-          <div key={metric.id} className="min-w-0 bg-card px-3 py-3 sm:px-3.5">
-            <p className="text-[10px] font-medium uppercase tracking-wide text-muted">
-              {metric.label}
-            </p>
-            <p
-              className={cn(
-                "mt-0.5 truncate text-[14px] font-semibold tabular-nums",
-                emphasisClasses[metric.emphasis ?? "default"]
-              )}
-            >
-              {metric.value}
-            </p>
-            <p className="mt-0.5 truncate text-[10px] text-muted-foreground">
-              {metric.subtext}
-            </p>
-          </div>
-        ))}
-      </div>
+      {visibleMetrics.length > 0 ? (
+        <div className="p-3.5 sm:p-5">
+          <ul className="grid list-none gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,10.5rem),1fr))]">
+            {visibleMetrics.map((metric) => (
+              <li
+                key={metric.id}
+                className="min-w-0 rounded-lg border border-border-subtle bg-card px-3 py-3 sm:px-3.5"
+              >
+                <p className="text-[10px] font-medium uppercase tracking-wide text-muted">
+                  {metric.label}
+                </p>
+                <p
+                  className={cn(
+                    "mt-0.5 truncate text-[14px] font-semibold tabular-nums",
+                    emphasisClasses[metric.emphasis ?? "default"]
+                  )}
+                >
+                  {metric.value}
+                </p>
+                <p className="mt-0.5 truncate text-[10px] text-muted-foreground">
+                  {metric.subtext}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </section>
   );
 }

@@ -13,6 +13,7 @@ import {
   openAIPolicyDocumentExtractor,
 } from "@/lib/openai-policy-extraction";
 import { PdfTextExtractionError } from "@/lib/pdf-text";
+import { elapsedMs, logAnalysisTiming } from "@/lib/analysis-timing";
 import {
   getInternalFailureReason,
   logPolicyAnalysisError,
@@ -496,6 +497,8 @@ export async function analyzeCurrentUserDocument(
   id: string,
   extractor: PolicyDocumentExtractor = { extract: extractPolicyWithFallback }
 ): Promise<UserPolicy> {
+  const totalStartedAt = performance.now();
+
   const document = await getCurrentUserDocumentById(id);
 
   if (!document) {
@@ -522,7 +525,9 @@ export async function analyzeCurrentUserDocument(
   try {
     await clearCurrentUserDocumentAnalysisError(processingDocument.id);
 
+    const extractStartedAt = performance.now();
     const extraction = await extractor.extract(processingDocument);
+    const extractMs = elapsedMs(extractStartedAt);
     const rawConfidence =
       extraction.draft.extractionConfidence ??
       getOverallConfidence(extraction.draft.confidence) ??
@@ -531,6 +536,7 @@ export async function analyzeCurrentUserDocument(
       ? Math.min(35, rawConfidence)
       : rawConfidence;
 
+    const dbStartedAt = performance.now();
     const policy = await createPolicy(
       {
         documentId: processingDocument.id,
@@ -567,6 +573,16 @@ export async function analyzeCurrentUserDocument(
     } else {
       await clearCurrentUserDocumentAnalysisError(processingDocument.id);
     }
+    const dbMs = elapsedMs(dbStartedAt);
+
+    logAnalysisTiming({
+      documentId: processingDocument.id,
+      totalMs: elapsedMs(totalStartedAt),
+      extractMs,
+      dbMs,
+      usedFallback: extraction.usedFallback ?? false,
+      outcome: "success",
+    });
 
     return policy;
   } catch (error) {
@@ -576,6 +592,12 @@ export async function analyzeCurrentUserDocument(
       documentId: processingDocument.id,
       fileName: processingDocument.fileName,
       reason: internalFailureReason,
+    });
+
+    logAnalysisTiming({
+      documentId: processingDocument.id,
+      totalMs: elapsedMs(totalStartedAt),
+      outcome: "error",
     });
 
     await markCurrentUserDocumentAnalysisFailed(

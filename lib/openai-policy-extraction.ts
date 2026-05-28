@@ -1,7 +1,9 @@
 import "server-only";
 
 import { downloadCurrentUserDocumentFile } from "@/lib/documents";
+import { compactExtractionText } from "@/lib/extraction-text-compaction";
 import { extractReadableTextFromPdf } from "@/lib/pdf-text";
+import { elapsedMs, logAnalysisTiming } from "@/lib/analysis-timing";
 import {
   getInternalFailureReason,
   logPolicyAnalysisError,
@@ -33,7 +35,36 @@ import type {
 } from "@/lib/document-analysis";
 
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
-const DEFAULT_OPENAI_EXTRACTION_MODEL = "gpt-5.2";
+const DEFAULT_STRONG_EXTRACTION_MODEL = "gpt-5.2";
+const DEFAULT_FAST_EXTRACTION_MODEL = "gpt-4.1-mini";
+const DEFAULT_CONFIDENCE_FALLBACK_THRESHOLD = 42;
+const PARTIAL_EXTRACTION_NOTE =
+  "Estrazione parziale: verifica manuale consigliata.";
+
+export type ExtractionFallbackMode =
+  | "hard_failure_only"
+  | "quality_gate"
+  | "disabled";
+
+export type OpenAIFallbackReason =
+  | "api_error"
+  | "invalid_json"
+  | "empty_response"
+  | "model_refusal"
+  | "quality_gate_low_confidence"
+  | "quality_gate_sparse";
+
+const EXTRACTION_INSTRUCTIONS = [
+  "Extract Swiss insurance policy data from readable PDF text. Return JSON only per schema.",
+  "policy_type is one of health, liability, household, car, legal, other; use policy_subtype for Swiss specifics.",
+  "Do not invent policy numbers, dates, premiums, franchises, persons, or coverages; prefer null and uncertain field_confidence.",
+  "Build details.insured_people[] per person with section_id, source_order, nested coverages[], franchise, model, and premium totals.",
+  "Mirror lines in details.coverages[] with insured_person_name, insured_number, ownership_confidence, source_page, source_order.",
+  "Per line capture name, Swiss kind (LAMal/KVG, LCA/VVG, hospital, legal, travel, accident, Telmed, HMO), premium_gross, discounts[], premium_final (= premium_amount).",
+  "Put contract/family payable total in premium_amount and premium_summary.final_monthly, not as a person line premium.",
+  "Assign ownership via nearest section anchor and insured number; if unclear keep insured_person_name null and ownership_confidence low.",
+  "Populate field_confidence on important fields and extraction_metadata warnings. Dates: YYYY-MM-DD. Currency usually CHF.",
+].join(" ");
 const premiumFrequencies = [
   "monthly",
   "quarterly",
@@ -86,11 +117,138 @@ function getOpenAIAPIKey() {
   return apiKey;
 }
 
-function getOpenAIExtractionModel() {
+function getStrongExtractionModel() {
   return (
+    process.env.OPENAI_POLICY_EXTRACTION_MODEL_STRONG?.trim() ||
     process.env.OPENAI_POLICY_EXTRACTION_MODEL?.trim() ||
-    DEFAULT_OPENAI_EXTRACTION_MODEL
+    DEFAULT_STRONG_EXTRACTION_MODEL
   );
+}
+
+function getFastExtractionModel() {
+  const configuredFast = process.env.OPENAI_POLICY_EXTRACTION_MODEL_FAST?.trim();
+
+  if (configuredFast) {
+    return configuredFast;
+  }
+
+  return DEFAULT_FAST_EXTRACTION_MODEL;
+}
+
+function getExtractionFallbackMode(): ExtractionFallbackMode {
+  const configured = process.env.OPENAI_POLICY_EXTRACTION_FALLBACK_MODE
+    ?.trim()
+    .toLowerCase();
+
+  if (configured === "quality_gate" || configured === "disabled") {
+    return configured;
+  }
+
+  return "hard_failure_only";
+}
+
+function getConfidenceFallbackThreshold() {
+  const configured = Number(
+    process.env.OPENAI_POLICY_EXTRACTION_CONFIDENCE_FALLBACK
+  );
+
+  if (Number.isFinite(configured) && configured >= 0 && configured <= 100) {
+    return Math.round(configured);
+  }
+
+  return DEFAULT_CONFIDENCE_FALLBACK_THRESHOLD;
+}
+
+function getQualityGateFallbackReason(
+  payload: OpenAIPolicyExtractionPayload
+): OpenAIFallbackReason | null {
+  const provider = normalizeNullableString(payload.provider);
+  const policyNumber = normalizeNullableString(payload.policy_number);
+  const premiumAmount = normalizeNullableNumber(payload.premium_amount);
+  const policyType = normalizePolicyType(payload.policy_type);
+  const confidence = normalizeConfidence(payload.extraction_confidence);
+  const threshold = getConfidenceFallbackThreshold();
+
+  if (
+    threshold > 0 &&
+    confidence !== null &&
+    confidence < threshold
+  ) {
+    return "quality_gate_low_confidence";
+  }
+
+  if (!provider && !policyNumber && premiumAmount === null && policyType === "other") {
+    return "quality_gate_sparse";
+  }
+
+  return null;
+}
+
+function isPartialExtractionPayload(payload: OpenAIPolicyExtractionPayload) {
+  return getQualityGateFallbackReason(payload) !== null;
+}
+
+function getHardFailureFallbackReason(error: unknown): OpenAIFallbackReason {
+  if (!(error instanceof OpenAIPolicyExtractionError)) {
+    return "api_error";
+  }
+
+  const message = error.internalMessage.toLowerCase();
+
+  if (message.includes("refusal")) {
+    return "model_refusal";
+  }
+
+  if (
+    message.includes("structured output parse failed") ||
+    message.includes("response json parse failed")
+  ) {
+    return "invalid_json";
+  }
+
+  if (message.includes("did not contain output_text")) {
+    return "empty_response";
+  }
+
+  return "api_error";
+}
+
+function annotatePartialExtractionPayload(payload: OpenAIPolicyExtractionPayload) {
+  if (!isPartialExtractionPayload(payload)) {
+    return payload;
+  }
+
+  const existingNotes = normalizeNullableString(payload.extraction_notes);
+  const confidence = normalizeConfidence(payload.extraction_confidence);
+  const partialConfidence =
+    confidence === null ? 35 : Math.min(confidence, 45);
+
+  return {
+    ...payload,
+    extraction_confidence: partialConfidence,
+    extraction_notes: existingNotes
+      ? `${existingNotes}\n${PARTIAL_EXTRACTION_NOTE}`
+      : PARTIAL_EXTRACTION_NOTE,
+  };
+}
+
+function logOpenAIFallbackTriggered(details: {
+  documentId: string;
+  reason: OpenAIFallbackReason;
+  fastModel: string;
+  strongModel: string;
+  fallbackMode: ExtractionFallbackMode;
+}) {
+  logPolicyAnalysisInfo("openai_fallback_triggered", details);
+}
+
+function logOpenAIFallbackSkipped(details: {
+  documentId: string;
+  reason: string;
+  confidence: number | null;
+  fallbackMode: ExtractionFallbackMode;
+}) {
+  logPolicyAnalysisInfo("openai_fallback_skipped", details);
 }
 
 function normalizeNullableString(value: unknown) {
@@ -827,9 +985,10 @@ function normalizeOpenAIExtraction(
 
 async function callOpenAIForPolicyExtraction(
   document: UserDocument,
-  text: string
+  text: string,
+  model: string,
+  pass: "fast" | "strong"
 ) {
-  const model = getOpenAIExtractionModel();
   const hasOpenAIAPIKey = Boolean(process.env.OPENAI_API_KEY);
 
   logPolicyAnalysisInfo("openai_request_start", {
@@ -837,6 +996,7 @@ async function callOpenAIForPolicyExtraction(
     fileName: document.fileName,
     hasOpenAIAPIKey,
     model,
+    pass,
     extractedTextLength: text.length,
   });
 
@@ -853,21 +1013,7 @@ async function callOpenAIForPolicyExtraction(
       },
       body: JSON.stringify({
         model,
-        instructions:
-          [
-            "Extract Swiss insurance policy data from readable PDF text. Return JSON only using the schema.",
-            "You are Swiss-insurance-aware: recognize LAMal/KVG base insurance, LCA/VVG complementary insurance, hospital coverage, dental, accident, household, private liability, car, casco partial/full, legal protection, travel, life, income protection, business insurance, and other.",
-            "Use policy_type only as the broad Atlas category: health, liability, household, car, legal, other. Use policy_subtype for the specific Swiss category.",
-            "Normalize provider names when obvious, but keep uncertain fields null. Do not invent policy numbers, dates, premiums, franchises, persons, or coverages.",
-            "Swiss insurance PDFs often repeat blocks per insured person. Treat headings with person name, birth date, insured number (n. d'assicurato / Versichertennummer), customer number, contract or policy number as section anchors. Preserve PDF source order using source_order (increasing integers in reading order) and source_page when visible.",
-            "For each insured person create details.insured_people[] with section_id, source_order, coverages[] nested under that person, per-person totals (total_monthly_premium, base_premium, complementary_premium), franchise, model. Also mirror lines in details.coverages[] with ownership fields when clear.",
-            "For each product/coverage line extract: name, Swiss kind (LAMal/KVG base, LCA/VVG complementary, hospital, legal protection, travel/foreign, accident, Telmed, HMO, family doctor model), premium_gross, discounts[] (label+amount for reductions), premium_final (payable), premium_amount same as premium_final, insured_person_name, insured_number, section_id, source_order, ownership_confidence (0-100, null if unknown).",
-            "Distinguish gross premium, discounts/reductions, final payable premium, per-person total, and family/contract total. Put contract/family payable total in premium_amount and premium_summary.final_monthly; never use family total as a person line premium.",
-            "Assign ownership using nearest section anchor and insured number. If ownership is unclear set insured_person_name null, ownership_confidence low, uncertain true. Prefer null over guessing.",
-            "One primary draft per PDF. For health fill hospital_coverage, telemedicine, family_doctor_model, base_insurance, premium_summary (gross_monthly, discounts_total, final_monthly), collective_contract, canton_or_premium_region, cancellation_deadline, travel_coverage, legal_protection when explicit.",
-            "Every important field needs field_confidence with value, confidence 0-100, uncertain true when the evidence is weak, and a short evidence snippet. Use null and uncertainty instead of hallucinating.",
-            "Add extraction_metadata.matched_keywords, inferred_sections, and warnings for ambiguous or missing information. Dates must be YYYY-MM-DD. Currency should usually be CHF.",
-          ].join(" "),
+        instructions: EXTRACTION_INSTRUCTIONS,
         input: [
           {
             role: "user",
@@ -996,13 +1142,150 @@ async function callOpenAIForPolicyExtraction(
   }
 }
 
+async function runExtractionModelPass(
+  document: UserDocument,
+  compactedText: string,
+  model: string,
+  pass: "fast" | "strong"
+) {
+  return callOpenAIForPolicyExtraction(document, compactedText, model, pass);
+}
+
+async function extractPolicyPayloadWithModelStrategy(
+  document: UserDocument,
+  rawText: string
+) {
+  const compaction = compactExtractionText(rawText);
+  const fastModel = getFastExtractionModel();
+  const strongModel = getStrongExtractionModel();
+  const modelsDiffer = fastModel !== strongModel;
+  const fallbackMode = getExtractionFallbackMode();
+  const allowStrongRetry =
+    modelsDiffer && fallbackMode !== "disabled";
+
+  logPolicyAnalysisInfo("openai_text_compaction", {
+    documentId: document.id,
+    originalTextLength: compaction.originalTextLength,
+    compactedTextLength: compaction.compactedTextLength,
+    reductionPercent: compaction.reductionPercent,
+    wasTruncated: compaction.wasTruncated,
+    fallbackMode,
+    fastModel,
+    strongModel,
+  });
+
+  let fallbackUsed = false;
+  let modelUsed = fastModel;
+  let openaiMs = 0;
+  let payload: OpenAIPolicyExtractionPayload;
+
+  const runPass = async (model: string, pass: "fast" | "strong") => {
+    const startedAt = performance.now();
+    const result = await runExtractionModelPass(
+      document,
+      compaction.text,
+      model,
+      pass
+    );
+    openaiMs += elapsedMs(startedAt);
+    return result;
+  };
+
+  const retryWithStrong = async (reason: OpenAIFallbackReason) => {
+    if (!allowStrongRetry) {
+      throw new OpenAIPolicyExtractionError(
+        `Fast extraction failed (${reason}) and strong fallback is disabled.`
+      );
+    }
+
+    logOpenAIFallbackTriggered({
+      documentId: document.id,
+      reason,
+      fastModel,
+      strongModel,
+      fallbackMode,
+    });
+
+    fallbackUsed = true;
+    modelUsed = strongModel;
+    return runPass(strongModel, "strong");
+  };
+
+  try {
+    payload = await runPass(fastModel, "fast");
+  } catch (error) {
+    if (fallbackMode === "disabled" || !allowStrongRetry) {
+      throw error;
+    }
+
+    payload = await retryWithStrong(getHardFailureFallbackReason(error));
+  }
+
+  if (modelUsed === fastModel && fallbackMode === "quality_gate" && allowStrongRetry) {
+    const qualityReason = getQualityGateFallbackReason(payload);
+
+    if (qualityReason) {
+      payload = await retryWithStrong(qualityReason);
+    }
+  }
+
+  if (modelUsed === fastModel && isPartialExtractionPayload(payload)) {
+    logOpenAIFallbackSkipped({
+      documentId: document.id,
+      reason: "partial_extraction_allowed_as_review",
+      confidence: normalizeConfidence(payload.extraction_confidence),
+      fallbackMode,
+    });
+    payload = annotatePartialExtractionPayload(payload);
+  }
+
+  return {
+    payload,
+    compaction,
+    modelUsed,
+    fallbackUsed,
+    openaiMs,
+    fastModel,
+    strongModel,
+    fallbackMode,
+  };
+}
+
 export const openAIPolicyDocumentExtractor: PolicyDocumentExtractor = {
   async extract(document) {
+    const extractStartedAt = performance.now();
+    const pdfStartedAt = performance.now();
     const pdf = await downloadCurrentUserDocumentFile(document);
     const text = await extractReadableTextFromPdf(pdf);
-    const extraction = await callOpenAIForPolicyExtraction(document, text);
-    const normalized = normalizeOpenAIExtraction(extraction, document, text);
+    const pdfMs = elapsedMs(pdfStartedAt);
 
-    return enrichSwissPolicyExtraction(normalized, document, text);
+    const {
+      payload,
+      compaction,
+      modelUsed,
+      fallbackUsed,
+      openaiMs,
+    } = await extractPolicyPayloadWithModelStrategy(document, text);
+
+    const normalizeStartedAt = performance.now();
+    const normalized = normalizeOpenAIExtraction(payload, document, text);
+    const enriched = enrichSwissPolicyExtraction(normalized, document, text);
+    const normalizeMs = elapsedMs(normalizeStartedAt);
+
+    logAnalysisTiming({
+      documentId: document.id,
+      extractMs: elapsedMs(extractStartedAt),
+      pdfMs,
+      openaiMs,
+      normalizeMs,
+      modelUsed,
+      fallbackUsed,
+      originalTextLength: compaction.originalTextLength,
+      compactedTextLength: compaction.compactedTextLength,
+      reductionPercent: compaction.reductionPercent,
+      outcome: "success",
+    });
+
+    return enriched;
   },
 };

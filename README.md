@@ -13,7 +13,18 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 
 OPENAI_API_KEY=your-openai-api-key
 OPENAI_POLICY_EXTRACTION_MODEL=gpt-5.2
+OPENAI_POLICY_EXTRACTION_MODEL_FAST=gpt-4.1-mini
+OPENAI_POLICY_EXTRACTION_MODEL_STRONG=gpt-5.2
+OPENAI_POLICY_EXTRACTION_FALLBACK_MODE=hard_failure_only
+OPENAI_POLICY_EXTRACTION_MAX_INPUT_CHARS=32000
+OPENAI_POLICY_EXTRACTION_CONFIDENCE_FALLBACK=42
 ```
+
+`OPENAI_POLICY_EXTRACTION_MODEL` remains supported as the strong-model fallback.
+First-pass extraction uses `OPENAI_POLICY_EXTRACTION_MODEL_FAST`.
+`OPENAI_POLICY_EXTRACTION_FALLBACK_MODE` defaults to `hard_failure_only` (retry strong only on API/parse/refusal failures).
+Set `quality_gate` to also retry on sparse/low-confidence fast results.
+`OPENAI_POLICY_EXTRACTION_CONFIDENCE_FALLBACK` applies only in `quality_gate` mode.
 
 `OPENAI_API_KEY` is server-only. Never prefix it with `NEXT_PUBLIC_`.
 

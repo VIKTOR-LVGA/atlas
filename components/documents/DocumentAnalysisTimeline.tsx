@@ -12,39 +12,71 @@ export const ANALYSIS_PROCESSING_STEPS = [
   "Preparazione bozza",
 ] as const;
 
-export const ANALYSIS_PENDING_MESSAGES = [
-  "Atlas sta leggendo la polizza…",
-  "Identificazione di premi, coperture e persone assicurate…",
-  "Preparazione della bozza da rivedere…",
+/** Headline shown above the progress bar for each visual step. */
+export const ANALYSIS_STEP_HEADLINES = [
+  "Documento ricevuto",
+  "Estrazione del testo dal PDF…",
+  "Analisi di premi, coperture e condizioni…",
+  "Identificazione persone assicurate…",
+  "Strutturazione della bozza polizza…",
+  "Preparazione della revisione…",
 ] as const;
+
+export const ANALYSIS_FINALIZATION_MESSAGES = [
+  "Finalizzazione analisi…",
+  "Preparazione della bozza…",
+  "Verifica dei dati estratti…",
+] as const;
+
+const ANALYSIS_PROGRESS_CAP_PERCENT = 92;
+
+export function getAnalysisProgressPercent(
+  activeStepIndex: number,
+  awaitingCompletion: boolean
+) {
+  const stepCount = ANALYSIS_PROCESSING_STEPS.length;
+  const clampedActive = Math.min(Math.max(activeStepIndex, 0), stepCount - 1);
+
+  if (awaitingCompletion) {
+    return ANALYSIS_PROGRESS_CAP_PERCENT;
+  }
+
+  return Math.min(
+    ANALYSIS_PROGRESS_CAP_PERCENT,
+    ((clampedActive + 1) / stepCount) * ANALYSIS_PROGRESS_CAP_PERCENT
+  );
+}
 
 type DocumentAnalysisTimelineProps = {
   activeStepIndex: number;
   compact?: boolean;
   className?: string;
+  /** When true and on the last step, show finalization copy until the action resolves. */
+  awaitingCompletion?: boolean;
+  /** Rotating finalization headline while awaiting server completion. */
+  finalizationMessage?: string;
 };
-
-function getPendingMessage(activeStepIndex: number) {
-  if (activeStepIndex <= 1) {
-    return ANALYSIS_PENDING_MESSAGES[0];
-  }
-  if (activeStepIndex <= 4) {
-    return ANALYSIS_PENDING_MESSAGES[1];
-  }
-  return ANALYSIS_PENDING_MESSAGES[2];
-}
 
 export function DocumentAnalysisTimeline({
   activeStepIndex,
   compact = false,
   className,
+  awaitingCompletion = false,
+  finalizationMessage,
 }: DocumentAnalysisTimelineProps) {
   const clampedActive = Math.min(
     Math.max(activeStepIndex, 0),
     ANALYSIS_PROCESSING_STEPS.length - 1
   );
-  const pendingMessage = getPendingMessage(clampedActive);
   const onFinalStep = clampedActive >= ANALYSIS_PROCESSING_STEPS.length - 1;
+  const progressPercent = getAnalysisProgressPercent(
+    clampedActive,
+    awaitingCompletion && onFinalStep
+  );
+  const pendingMessage =
+    awaitingCompletion && onFinalStep
+      ? (finalizationMessage ?? ANALYSIS_FINALIZATION_MESSAGES[0])
+      : ANALYSIS_STEP_HEADLINES[clampedActive];
 
   return (
     <div
@@ -61,7 +93,7 @@ export function DocumentAnalysisTimeline({
           Analisi AI in corso
         </p>
         <p className="text-[13px] font-medium text-foreground">{pendingMessage}</p>
-        {onFinalStep ? (
+        {awaitingCompletion && onFinalStep ? (
           <p className="text-[11px] text-muted">
             Apertura della bozza polizza al completamento…
           </p>
@@ -77,7 +109,7 @@ export function DocumentAnalysisTimeline({
         <span
           className="atlas-analysis-progress block h-full rounded-full bg-accent"
           style={{
-            width: `${((clampedActive + 1) / ANALYSIS_PROCESSING_STEPS.length) * 100}%`,
+            width: `${progressPercent}%`,
           }}
         />
       </div>
@@ -111,7 +143,7 @@ export function DocumentAnalysisTimeline({
                   </span>
                 ) : active ? (
                   <span className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-accent bg-card">
-                    <LoaderCircle className="h-3 w-3 animate-spin text-accent" />
+                    <LoaderCircle className="atlas-analysis-step-spinner h-3 w-3 animate-spin text-accent" />
                   </span>
                 ) : (
                   <Circle className="h-5 w-5 text-border" strokeWidth={1.5} />

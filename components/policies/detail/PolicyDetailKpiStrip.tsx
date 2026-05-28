@@ -1,6 +1,6 @@
 import { ClipboardCheck, Layers3, Shield, Sparkles, Users } from "lucide-react";
 import { MetricCard } from "@/components/ui/MetricCard";
-import { formatCHF } from "@/lib/utils";
+import { cn, formatCHF } from "@/lib/utils";
 import type { PolicyPremiumFrequency } from "@/lib/types";
 
 const premiumFrequencyLabels: Record<PolicyPremiumFrequency, string> = {
@@ -20,6 +20,22 @@ interface PolicyDetailKpiStripProps {
   completenessPercent: number | null;
 }
 
+function getKpiGridClass(count: number) {
+  if (count <= 2) {
+    return "grid-cols-2";
+  }
+
+  if (count === 3) {
+    return "grid-cols-2 sm:grid-cols-3";
+  }
+
+  if (count === 4) {
+    return "grid-cols-2 lg:grid-cols-4";
+  }
+
+  return "grid-cols-2 lg:grid-cols-5";
+}
+
 export function PolicyDetailKpiStrip({
   premiumAmount,
   premiumFrequency,
@@ -29,17 +45,18 @@ export function PolicyDetailKpiStrip({
   requiresReview,
   completenessPercent,
 }: PolicyDetailKpiStripProps) {
-  return (
-    <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-5">
-      <MetricCard
+  const cards = [
+    <MetricCard
+      key="premium"
         label="Premio contratto"
         value={premiumAmount === null ? "N/D" : formatCHF(premiumAmount)}
         subtext={premiumFrequencyLabels[premiumFrequency]}
         unavailableValue={premiumAmount === null}
         variant="blue"
         icon={<Shield className="h-4 w-4" />}
-      />
-      <MetricCard
+    />,
+    <MetricCard
+      key="people"
         label="Persone"
         value={insuredCount > 0 ? String(insuredCount) : "N/D"}
         subtext={
@@ -52,16 +69,18 @@ export function PolicyDetailKpiStrip({
         unavailableValue={insuredCount === 0}
         variant="green"
         icon={<Users className="h-4 w-4" />}
-      />
-      <MetricCard
+    />,
+    <MetricCard
+      key="coverages"
         label="Coperture"
         value={coverageCount > 0 ? String(coverageCount) : "N/D"}
         subtext="raggruppate nel documento"
         unavailableValue={coverageCount === 0}
         variant="purple"
         icon={<Layers3 className="h-4 w-4" />}
-      />
-      <MetricCard
+    />,
+    <MetricCard
+      key="confidence"
         label="Confidenza AI"
         value={
           extractionConfidence === null ? "N/D" : `${extractionConfidence}%`
@@ -74,8 +93,9 @@ export function PolicyDetailKpiStrip({
         unavailableValue={extractionConfidence === null}
         variant="indigo"
         icon={<Sparkles className="h-4 w-4" />}
-      />
-      <MetricCard
+    />,
+    <MetricCard
+      key="review"
         label="Revisione"
         value={requiresReview ? "Da fare" : "Ok"}
         subtext={
@@ -85,8 +105,23 @@ export function PolicyDetailKpiStrip({
         }
         variant={requiresReview ? "yellow" : "green"}
         icon={<ClipboardCheck className="h-4 w-4" />}
-        className="col-span-2 lg:col-span-1"
-      />
+    />,
+  ];
+
+  return (
+    <div className={cn("grid gap-2.5", getKpiGridClass(cards.length))}>
+      {cards.map((card, index) => (
+        <div
+          key={card.key ?? index}
+          className={cn(
+            cards.length % 2 === 1 &&
+              index === cards.length - 1 &&
+              "col-span-2 lg:col-span-1"
+          )}
+        >
+          {card}
+        </div>
+      ))}
     </div>
   );
 }

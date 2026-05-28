@@ -4,6 +4,7 @@ import "server-only";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { elapsedMs, logAnalysisTiming } from "@/lib/analysis-timing";
 import {
   analyzeCurrentUserDocument,
   DocumentAnalysisError,
@@ -107,12 +108,18 @@ export async function analyzeDocumentAction(
 ): Promise<AnalyzeDocumentActionState> {
   void formData;
 
+  const actionStartedAt = performance.now();
   let policyId: string;
 
   try {
     const policy = await analyzeCurrentUserDocument(id);
     policyId = policy.id;
   } catch (error) {
+    logAnalysisTiming({
+      documentId: id,
+      totalMs: elapsedMs(actionStartedAt),
+      outcome: "error",
+    });
     revalidatePath("/documents");
     revalidatePath("/dashboard");
     revalidatePath(`/documents/${id}`);
@@ -127,9 +134,19 @@ export async function analyzeDocumentAction(
     };
   }
 
+  const handoffStartedAt = performance.now();
   revalidatePath("/documents");
   revalidatePath("/dashboard");
   revalidatePath("/policies");
   revalidatePath(`/documents/${id}`);
+  const handoffMs = elapsedMs(handoffStartedAt);
+
+  logAnalysisTiming({
+    documentId: id,
+    totalMs: elapsedMs(actionStartedAt),
+    handoffMs,
+    outcome: "success",
+  });
+
   redirect(`/policies/${policyId}`);
 }

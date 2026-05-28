@@ -102,56 +102,119 @@ export function PolicyExecutiveHeader({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-px bg-border-subtle sm:grid-cols-3 lg:grid-cols-5">
-        <HeaderStat
-          label="Premio"
-          value={getPolicyPremiumLabel(policy)}
-          sub={
-            annualPremium !== null
-              ? `${formatCHF(annualPremium)} stimato / anno`
-              : "Da verificare"
-          }
-        />
-        <HeaderStat
-          label="Rinnovo"
-          value={
-            policy.renewalDate
-              ? new Date(`${policy.renewalDate}T12:00:00`).toLocaleDateString("it-CH")
-              : "Non disponibile"
-          }
-          sub={renewalRelative ?? "Data non indicata"}
-          highlight={renewalDays !== null && renewalDays >= 0 && renewalDays <= 30}
-        />
-        <HeaderStat
-          label="Persone"
-          value={insuredCount > 0 ? String(insuredCount) : "—"}
-          sub={insuredCount === 1 ? "assicurata" : "assicurate"}
-        />
-        <HeaderStat
-          label="Coperture"
-          value={coverageCount > 0 ? String(coverageCount) : "—"}
-          sub="nel documento"
-        />
-        <HeaderStat
-          label="PDF sorgente"
-          value={policy.document ? "Collegato" : "Assente"}
-          sub={
-            policy.document ? (
+      <PolicySummaryStatGrid
+        stats={[
+          {
+            id: "premium",
+            label: "Premio",
+            value: getPolicyPremiumLabel(policy),
+            sub:
+              annualPremium !== null
+                ? `${formatCHF(annualPremium)} stimato / anno`
+                : "Da verificare",
+          },
+          {
+            id: "renewal",
+            label: "Rinnovo",
+            value: policy.renewalDate
+              ? new Date(`${policy.renewalDate}T12:00:00`).toLocaleDateString(
+                  "it-CH"
+                )
+              : "Non disponibile",
+            sub: renewalRelative ?? "Data non indicata",
+            highlight:
+              renewalDays !== null && renewalDays >= 0 && renewalDays <= 30,
+          },
+          {
+            id: "people",
+            label: "Persone",
+            value: insuredCount > 0 ? String(insuredCount) : "Non disponibile",
+            sub:
+              insuredCount > 0
+                ? insuredCount === 1
+                  ? "assicurata"
+                  : "assicurate"
+                : "Nessuna persona rilevata",
+          },
+          {
+            id: "coverages",
+            label: "Coperture",
+            value: coverageCount > 0 ? String(coverageCount) : "Non disponibile",
+            sub:
+              coverageCount > 0 ? "nel documento" : "Nessuna copertura rilevata",
+          },
+          {
+            id: "document",
+            label: "PDF sorgente",
+            value: policy.document ? "Collegato" : "Non disponibile",
+            sub: policy.document ? (
               <Link
                 href={`/documents/${policy.document.id}`}
-                className="atlas-link-action inline-flex items-center gap-0.5 text-accent"
+                className="atlas-link-action inline-flex min-w-0 items-center gap-0.5 text-accent"
               >
-                <FileText className="h-3 w-3" />
+                <FileText className="h-3 w-3 shrink-0" />
                 <span className="truncate">{policy.document.fileName}</span>
               </Link>
             ) : (
-              "Nessun documento"
-            )
-          }
-          className="col-span-2 sm:col-span-1"
-        />
-      </div>
+              "Nessun documento collegato"
+            ),
+          },
+        ]}
+      />
     </header>
+  );
+}
+
+type PolicySummaryStat = {
+  id: string;
+  label: string;
+  value: string;
+  sub: React.ReactNode;
+  highlight?: boolean;
+};
+
+function getSummaryGridClass(count: number) {
+  if (count <= 1) {
+    return "grid-cols-1";
+  }
+
+  if (count === 2) {
+    return "grid-cols-2";
+  }
+
+  if (count === 3) {
+    return "grid-cols-2 sm:grid-cols-3";
+  }
+
+  if (count === 4) {
+    return "grid-cols-2 lg:grid-cols-4";
+  }
+
+  return "grid-cols-2 lg:grid-cols-5";
+}
+
+function PolicySummaryStatGrid({ stats }: { stats: PolicySummaryStat[] }) {
+  const gridClass = getSummaryGridClass(stats.length);
+  const spanLastOnTwoCol =
+    stats.length % 2 === 1 && stats.length !== 3;
+
+  return (
+    <div className={cn("grid gap-px bg-border-subtle", gridClass)}>
+      {stats.map((stat, index) => (
+        <HeaderStat
+          key={stat.id}
+          label={stat.label}
+          value={stat.value}
+          sub={stat.sub}
+          highlight={stat.highlight}
+          className={cn(
+            spanLastOnTwoCol &&
+              index === stats.length - 1 &&
+              "col-span-2 lg:col-span-1"
+          )}
+        />
+      ))}
+    </div>
   );
 }
 

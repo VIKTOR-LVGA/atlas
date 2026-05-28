@@ -1,15 +1,12 @@
 "use client";
 
-import { useActionState, useRef, useSyncExternalStore } from "react";
+import { useActionState } from "react";
 import { AlertCircle, CheckCircle2, LoaderCircle, WandSparkles } from "lucide-react";
 import {
   analyzeDocumentAction,
   type AnalyzeDocumentActionState,
 } from "@/app/(app)/documents/actions";
-import {
-  ANALYSIS_PROCESSING_STEPS,
-  DocumentAnalysisTimeline,
-} from "@/components/documents/DocumentAnalysisTimeline";
+import { DocumentAnalysisPendingTimeline } from "@/components/documents/DocumentAnalysisPendingTimeline";
 import type { DocumentStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -18,48 +15,12 @@ const initialState: AnalyzeDocumentActionState = {
   message: "",
 };
 
-const STEP_INTERVAL_MS = 2200;
-
 type DocumentAnalysisFormVariant = "button" | "icon" | "menu";
 
 interface DocumentAnalysisFormProps {
   documentId: string;
   documentStatus: DocumentStatus;
   variant?: DocumentAnalysisFormVariant;
-}
-
-function getStepSnapshot(busy: boolean, tick: number) {
-  if (!busy) {
-    return 0;
-  }
-  return Math.min(tick, ANALYSIS_PROCESSING_STEPS.length - 1);
-}
-
-function getServerStepSnapshot() {
-  return 0;
-}
-
-function useAnalysisVisualStep(busy: boolean) {
-  const tickRef = useRef(0);
-
-  return useSyncExternalStore(
-    (onStoreChange) => {
-      if (!busy) {
-        tickRef.current = 0;
-        return () => {};
-      }
-
-      tickRef.current = 0;
-      const intervalId = window.setInterval(() => {
-        tickRef.current += 1;
-        onStoreChange();
-      }, STEP_INTERVAL_MS);
-
-      return () => window.clearInterval(intervalId);
-    },
-    () => getStepSnapshot(busy, tickRef.current),
-    getServerStepSnapshot
-  );
 }
 
 function getAnalysisLabel(status: DocumentStatus, pending: boolean) {
@@ -100,13 +61,7 @@ function AnalysisIcon({
   return <WandSparkles className={className} />;
 }
 
-function AnalysisProcessingOverlay({
-  activeStepIndex,
-  compact,
-}: {
-  activeStepIndex: number;
-  compact: boolean;
-}) {
+function AnalysisProcessingOverlay({ compact }: { compact: boolean }) {
   return (
     <div
       className="fixed inset-0 z-[120] flex items-end justify-center bg-background/75 p-4 backdrop-blur-sm sm:items-center"
@@ -115,10 +70,7 @@ function AnalysisProcessingOverlay({
       aria-label="Analisi documento in corso"
     >
       <div className="atlas-surface-card max-h-[min(85vh,calc(100dvh-2rem))] w-full max-w-md overflow-y-auto rounded-2xl border border-border p-4 shadow-xl sm:p-5">
-        <DocumentAnalysisTimeline
-          activeStepIndex={activeStepIndex}
-          compact={compact}
-        />
+        <DocumentAnalysisPendingTimeline compact={compact} />
       </div>
     </div>
   );
@@ -139,7 +91,6 @@ export function DocumentAnalysisForm({
     documentStatus === "analyzed";
   const busy = pending || documentStatus === "processing";
   const label = getAnalysisLabel(documentStatus, pending);
-  const visualStep = useAnalysisVisualStep(busy);
   const showInlineTimeline = busy && variant === "button";
   const showOverlayTimeline = busy && variant !== "button";
 
@@ -176,7 +127,7 @@ export function DocumentAnalysisForm({
 
         {showInlineTimeline ? (
           <div className="atlas-surface-card rounded-xl border border-border-subtle p-4">
-            <DocumentAnalysisTimeline activeStepIndex={visualStep} />
+            <DocumentAnalysisPendingTimeline />
           </div>
         ) : null}
 
@@ -209,10 +160,7 @@ export function DocumentAnalysisForm({
       </form>
 
       {showOverlayTimeline ? (
-        <AnalysisProcessingOverlay
-          activeStepIndex={visualStep}
-          compact={variant === "menu"}
-        />
+        <AnalysisProcessingOverlay compact={variant === "menu"} />
       ) : null}
     </>
   );
