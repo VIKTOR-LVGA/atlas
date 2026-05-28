@@ -674,7 +674,7 @@ export function computeMarketIntelligence(
 
   let headline = "Atlas prepara il tuo portafoglio per l'intelligence di mercato";
   let subheadline =
-    "Nessun benchmark svizzero simulato: la readiness misura solo dati reali verificati.";
+    "La readiness misura la completezza del portafoglio verificato.";
 
   if (readinessLabel === "not_ready") {
     headline = "Portafoglio non ancora pronto per confronti";

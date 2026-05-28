@@ -10,13 +10,13 @@ export const settingsLockedModules: SettingsLockedModule[] = [
     id: "billing",
     label: "Abbonamento e fatturazione",
     description: "Gestione piano, fatture e metodi di pagamento.",
-    futureDetail: "Nessun piano o carta demo — attivo quando il billing sarà collegato.",
+    futureDetail: "Attivo quando il billing sarà collegato.",
   },
   {
     id: "sessions",
     label: "Sessioni attive",
     description: "Dispositivi collegati e revoca accessi.",
-    futureDetail: "Cronologia sessioni reale, non simulata.",
+    futureDetail: "Cronologia sessioni e dispositivi collegati.",
   },
   {
     id: "integrations",

@@ -11,7 +11,7 @@ type SettingsLockedModulesGridProps = {
 export function SettingsLockedModulesGrid({
   modules,
   title = "Funzioni avanzate — in preparazione",
-  description = "Nessun valore demo: ogni modulo si attiverà solo quando sarà realmente disponibile",
+  description = "Ogni modulo si attiverà quando sarà disponibile per il tuo account",
 }: SettingsLockedModulesGridProps) {
   return (
     <SectionCard title={title} description={description} bodyClassName="space-y-3">

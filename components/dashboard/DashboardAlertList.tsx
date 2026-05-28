@@ -49,7 +49,7 @@ export function DashboardAlertList({
       <div className="rounded-lg border border-dashed border-border bg-card-muted/40 px-3 py-6 text-center">
         <p className="text-[12px] font-medium text-foreground">Nessun alert attivo</p>
         <p className="mt-0.5 text-[11px] text-muted">
-          Gli avvisi compaiono solo quando i dati reali lo richiedono.
+          Gli avvisi compaiono quando il portafoglio richiede un&apos;azione.
         </p>
       </div>
     );

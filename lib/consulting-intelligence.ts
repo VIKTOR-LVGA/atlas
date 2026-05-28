@@ -579,7 +579,7 @@ export const consultingFutureModules: ConsultingFutureModule[] = [
     label: "Second opinion indipendente",
     description:
       "Valutazione esterna delle scelte assicurative documentate in Atlas.",
-    requirement: "Review readiness · nessun conflitto interessi simulato",
+    requirement: "Review readiness · revisione indipendente",
   },
   {
     id: "household-audit",
@@ -652,7 +652,7 @@ export function computeConsultingIntelligence(
 
   let headline = "Atlas prepara il tuo dossier per una revisione umana";
   let subheadline =
-    "Nessun consulente, appuntamento o prezzo simulato — solo readiness su dati reali del portafoglio.";
+    "Il servizio consulenza è in preparazione — readiness basata sul portafoglio verificato.";
 
   if (readinessLabel === "not_ready") {
     headline = "Dossier non ancora pronto per revisione";

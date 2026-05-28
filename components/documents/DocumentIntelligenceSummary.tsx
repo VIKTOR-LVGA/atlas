@@ -32,7 +32,7 @@ export function DocumentIntelligenceSummary({ view }: DocumentIntelligenceSummar
   return (
     <SectionCard
       title="Riepilogo estrazione"
-      description="Solo dati reali dalla polizza collegata"
+      description="Riepilogo dalla polizza collegata"
       tone="primary"
       padding="sm"
     >

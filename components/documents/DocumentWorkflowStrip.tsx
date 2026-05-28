@@ -57,7 +57,7 @@ export function DocumentWorkflowStrip({
   }
 
   return (
-    <div className={cn("space-y-2", compact && "space-y-1.5")}>
+    <div className={cn("min-w-0 max-w-full space-y-2", compact && "space-y-1.5")}>
       <div className="flex items-center justify-between gap-2 text-[10px]">
         <span className="font-medium uppercase tracking-wide text-muted">Workflow</span>
         <span className="font-medium text-foreground">{getWorkflowStageLabel(stage)}</span>
@@ -70,7 +70,7 @@ export function DocumentWorkflowStrip({
       </div>
       <ol
         className={cn(
-          "flex flex-wrap gap-1",
+          "flex max-w-full flex-wrap gap-1",
           compact ? "gap-0.5" : "gap-1"
         )}
         aria-label="Stato workflow documento"
@@ -83,7 +83,7 @@ export function DocumentWorkflowStrip({
             <li
               key={step.stage}
               className={cn(
-                "rounded-full border px-2 py-0.5 text-[9px] font-medium sm:text-[10px]",
+                "max-w-full rounded-full border px-2 py-0.5 text-[9px] font-medium leading-snug sm:text-[10px]",
                 isActive &&
                   "border-accent/30 bg-accent-soft text-accent",
                 isPast &&

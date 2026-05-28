@@ -127,7 +127,7 @@ export default async function DashboardPage() {
       <RevealStagger>
       <PageHeader
         title={`Ciao ${getProfileShortName(profile)}`}
-        description="Centro di comando Atlas: intelligence assicurativa basata sui tuoi dati reali."
+        description="Centro di comando Atlas: panoramica del tuo portafoglio assicurativo."
         action={
           <PrimaryButton href="/documents" icon={<IconUpload className="h-4 w-4" />}>
             Carica PDF
@@ -439,8 +439,8 @@ export default async function DashboardPage() {
           <div
             className={`${atlasCard.support} px-4 py-3 text-[11px] leading-relaxed text-muted`}
           >
-            Atlas è indipendente: nessun dato demo. Ogni cifra deriva dai tuoi PDF
-            e dalle schede confermate.
+            Atlas è indipendente: ogni cifra deriva dai tuoi PDF e dalle schede
+            confermate nel portafoglio.
           </div>
         </aside>
       </div>

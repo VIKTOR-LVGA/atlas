@@ -292,7 +292,7 @@ function buildWorkflowSteps(
       label: "Analisi attiva",
       status: readyStatus,
       detail: hasConfirmedPolicy
-        ? "KPI e alert basati su dati reali"
+        ? "KPI e alert dal portafoglio"
         : "Servono polizze confermate",
     },
   ];

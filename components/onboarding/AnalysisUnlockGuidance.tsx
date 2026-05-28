@@ -26,7 +26,7 @@ export function AnalysisUnlockGuidance({
             <p className="mt-2 text-[13px] leading-relaxed text-muted">
               Atlas ha già strutturato dati dal tuo portafoglio. L&apos;intelligence
               diagnostica (health score, mappa rischi, trend) si attiva solo su polizze
-              verificate — senza metriche simulate.
+              verificate per sbloccare analisi e raccomandazioni.
             </p>
             <ul className="mt-4 space-y-2 text-[12px] text-muted-foreground">
               <li className="flex items-start gap-2">

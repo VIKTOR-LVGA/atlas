@@ -75,7 +75,7 @@ export function RecommendationsSidebar({
             <p className="mt-0.5 text-[11px] text-muted">
               {executive.highPriorityCount > 0
                 ? `${executive.highPriorityCount} con priorità alta`
-                : "Atlas non propone risparmi simulati: solo dati verificabili."}
+                : "Le stime di risparmio saranno disponibili con il confronto mercato."}
             </p>
           </div>
         </div>
@@ -117,7 +117,7 @@ export function RecommendationsSidebar({
 
       <div className="atlas-card-support px-4 py-3 text-[11px] leading-relaxed text-muted">
         Le raccomandazioni derivano da regole deterministiche sui tuoi PDF e
-        polizze. Nessun risparmio o benchmark di mercato simulato.
+        polizze. I benchmark di mercato saranno disponibili quando attivi.
       </div>
     </>
   );

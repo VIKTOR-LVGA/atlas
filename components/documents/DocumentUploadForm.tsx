@@ -162,7 +162,7 @@ export function DocumentUploadForm() {
               visualState === "uploading" &&
                 "border-accent/40 bg-card-muted pointer-events-none",
               visualState === "error" &&
-                "border-amber-500/35 bg-amber-500/[0.04]",
+                "border-[var(--warning-border)] bg-[var(--warning-bg)]",
               visualState === "idle" && "border-border bg-card-muted/60"
             )}
             onDragEnter={(event) => {
@@ -221,10 +221,10 @@ export function DocumentUploadForm() {
                 ? "Rilascia il PDF qui"
                 : "Carica una polizza PDF"}
             </p>
-            <p className="mt-1.5 max-w-[16rem] text-[12px] leading-relaxed text-muted sm:max-w-xs">
+            <p className="mt-1.5 w-full max-w-full px-1 text-[12px] leading-relaxed text-muted sm:max-w-xs">
               Atlas preparerà il documento per l&apos;analisi AI.
             </p>
-            <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
+            <p className="mt-2 w-full max-w-full px-1 text-[11px] leading-snug text-muted-foreground">
               Dopo il caricamento potrai avviare l&apos;analisi e creare una bozza
               polizza.
             </p>
@@ -302,7 +302,7 @@ export function DocumentUploadForm() {
         <div
           role="alert"
           aria-live="polite"
-          className="atlas-message-enter flex gap-2.5 rounded-xl border border-amber-500/25 bg-amber-500/[0.06] px-3.5 py-3 dark:border-amber-400/20 dark:bg-amber-950/25"
+          className="atlas-message-enter atlas-alert-warning flex gap-2.5 px-3.5 py-3"
         >
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
           <div className="min-w-0">

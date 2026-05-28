@@ -11,7 +11,7 @@ type PortfolioCompletenessGridProps = {
 export function PortfolioCompletenessGrid({
   metrics,
   title = "Completezza portafoglio",
-  description = "Metriche deterministiche sui tuoi dati reali — nessun punteggio AI simulato.",
+  description = "Completezza del portafoglio in base a documenti e polizze strutturate.",
 }: PortfolioCompletenessGridProps) {
   const applicable = metrics.filter((metric) => metric.percent !== null);
 

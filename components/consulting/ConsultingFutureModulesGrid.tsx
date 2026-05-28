@@ -12,7 +12,7 @@ export function ConsultingFutureModulesGrid({
   return (
     <SectionCard
       title="Servizi consulenza — in preparazione"
-      description="Nessun prezzo, slot o profilo consulente simulato"
+      description="Prezzi, slot e profili consulente in preparazione"
       bodyClassName="space-y-3"
     >
       <div className="rounded-lg border border-dashed border-border bg-card-muted/40 px-3 py-2.5">

@@ -35,6 +35,7 @@
   --warning-bg: rgba(245, 158, 11, 0.12);
   --warning-border: rgba(245, 158, 11, 0.28);
   --warning-text: #b45309;
+  --warning-body: #92400e;
   --danger-bg: rgba(239, 68, 68, 0.1);
   --danger-border: rgba(239, 68, 68, 0.25);
   --danger-text: #b91c1c;
@@ -73,9 +74,10 @@
   --success-bg: rgba(52, 211, 153, 0.12);
   --success-border: rgba(52, 211, 153, 0.25);
   --success-text: #6ee7b7;
-  --warning-bg: rgba(251, 191, 36, 0.12);
-  --warning-border: rgba(251, 191, 36, 0.25);
-  --warning-text: #fcd34d;
+  --warning-bg: rgba(251, 191, 36, 0.14);
+  --warning-border: rgba(251, 191, 36, 0.32);
+  --warning-text: #fde68a;
+  --warning-body: #fcd34d;
   --danger-bg: rgba(248, 113, 113, 0.12);
   --danger-border: rgba(248, 113, 113, 0.25);
   --danger-text: #fca5a5;
@@ -1114,4 +1116,70 @@ body {
   max-width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+.atlas-contained {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.atlas-safe-bottom {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+}
+
+.atlas-form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 640px) {
+  .atlas-form-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 0;
+  }
+}
+
+@media (max-width: 639px) {
+  .atlas-form-actions > a,
+  .atlas-form-actions > button {
+    width: 100%;
+    justify-content: center;
+    min-height: 2.75rem;
+  }
+}
+
+.atlas-alert-warning {
+  border-radius: 0.75rem;
+  border: 1px solid var(--warning-border);
+  background: var(--warning-bg);
+}
+
+.atlas-alert-warning-title {
+  font-weight: 600;
+  color: var(--warning-text);
+}
+
+.atlas-alert-warning-body {
+  color: var(--warning-body, var(--muted-foreground));
+}
+
+.atlas-alert-danger {
+  border-radius: 0.75rem;
+  border: 1px solid var(--danger-border);
+  background: var(--danger-bg);
+}
+
+.atlas-alert-danger-title {
+  font-weight: 600;
+  color: var(--danger-text);
+}
+
+.atlas-alert-danger-body {
+  color: color-mix(in srgb, var(--danger-text) 75%, var(--muted));
 }

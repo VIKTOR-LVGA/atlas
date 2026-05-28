@@ -21,7 +21,7 @@ export function MarketEmptyState({ intelligence }: MarketEmptyStateProps) {
           </h2>
           <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted">
             Atlas sta costruendo la base dati per futuri confronti svizzeri. Carica e
-            verifica le polizze — nessun benchmark o risparmio viene simulato.
+            verifica le polizze — i benchmark saranno disponibili con il modulo mercato.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <PrimaryButton href="/documents" icon={<Upload className="h-4 w-4" />}>

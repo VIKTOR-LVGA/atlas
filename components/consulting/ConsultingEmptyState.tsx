@@ -22,7 +22,7 @@ export function ConsultingEmptyState({ intelligence }: ConsultingEmptyStateProps
           <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted">
             Atlas organizza i tuoi PDF e le polizze strutturate. Quando il servizio
             consulenza sarà disponibile, un revisore potrà lavorare su dati già verificati
-            — senza appuntamenti o prezzi simulati oggi.
+            — prenotazione disponibile quando il servizio sarà attivo.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <PrimaryButton href="/documents" icon={<Upload className="h-4 w-4" />}>

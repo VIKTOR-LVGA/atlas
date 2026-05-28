@@ -27,7 +27,7 @@ import {
   countDocumentsByFilter,
 } from "@/lib/document-intelligence";
 import { getCurrentUserPolicies } from "@/lib/policies";
-import { formatDate, formatFileSize } from "@/lib/utils";
+import { cn, formatDate, formatFileSize } from "@/lib/utils";
 
 export const metadata = { title: "Documenti" };
 
@@ -87,8 +87,8 @@ export default async function DocumentsPage() {
           />
         </div>
 
-        <div className={atlasMainAside}>
-          <div className={atlasMainColumn}>
+        <div className={cn(atlasMainAside, "min-w-0 max-w-full")}>
+          <div className={cn(atlasMainColumn, "min-w-0")}>
             <SectionCard
               title="Archivio documenti"
               description="Ogni riga mostra stato, indicatori e prossima azione."
@@ -148,11 +148,10 @@ export default async function DocumentsPage() {
             <Shield className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
             <div>
               <p className="text-[13px] font-semibold text-foreground">
-                Archivio privato · dati reali
+                Archivio privato
               </p>
               <p className="text-[12px] text-muted">
-                Indicatori e riepiloghi derivano solo da PDF caricati e polizze collegate.
-                Nessuna stima o insight inventato.
+                Documenti, polizze e riepiloghi restano organizzati nel tuo spazio Atlas.
               </p>
             </div>
           </div>

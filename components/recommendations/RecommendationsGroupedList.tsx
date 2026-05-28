@@ -20,7 +20,7 @@ export function RecommendationsGroupedList({
         <SectionCard
           key={group.category}
           title={group.label}
-          description={`${group.items.length} azione${group.items.length === 1 ? "" : "i"} · dati reali del portafoglio`}
+          description={`${group.items.length} azione${group.items.length === 1 ? "" : "i"} sul portafoglio`}
           padding="sm"
           bodyClassName={atlasSpace.tight}
         >

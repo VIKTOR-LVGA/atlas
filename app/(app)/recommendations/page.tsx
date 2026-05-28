@@ -39,7 +39,7 @@ export default async function RecommendationsPage() {
       <RevealStagger>
         <PageHeader
           title="Raccomandazioni"
-          description="Prossime azioni sul portafoglio basate su dati estratti e regole verificabili — non simulazioni AI."
+          description="Prossime azioni sul portafoglio basate su dati estratti e regole verificabili."
           action={
             <div className="flex flex-wrap items-center gap-2">
               <RecommendationsRefreshButton />
@@ -49,8 +49,8 @@ export default async function RecommendationsPage() {
         />
 
         <div className={`${atlasCard.support} px-4 py-3 text-[12px] text-muted`}>
-          Atlas non mostra risparmi stimati né benchmark di mercato finché non sono
-          calcolati da dati reali confermati. Ogni voce indica cosa correggere e perché.
+          Ogni voce indica cosa correggere nel portafoglio e perché, in base alle
+          polizze e ai documenti caricati.
         </div>
 
         <RecommendationsExecutiveOverview

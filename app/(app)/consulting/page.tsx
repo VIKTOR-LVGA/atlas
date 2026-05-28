@@ -31,7 +31,7 @@ export default async function ConsultingPage() {
       <RevealStagger>
         <PageHeader
           title="Revisione umana"
-          description="Atlas prepara il tuo portafoglio per una futura revisione con esperto — readiness deterministica, senza prenotazioni simulate."
+          description="Atlas prepara il tuo portafoglio per una futura revisione con esperto."
           action={
             <div className="flex flex-wrap items-center gap-2">
               <Link
@@ -48,8 +48,8 @@ export default async function ConsultingPage() {
         />
 
         <div className={`${atlasCard.support} px-4 py-3 text-[12px] text-muted`}>
-          Nessun consulente, calendario, prezzo o messaggio simulato. I controlli descrivono
-          cosa un revisore potrà analizzare quando il servizio sarà disponibile.
+          Il servizio di revisione con esperto è in preparazione. I controlli descrivono
+          cosa un revisore potrà analizzare quando sarà disponibile.
         </div>
 
         <ConsultingReadinessHero readiness={readiness} />

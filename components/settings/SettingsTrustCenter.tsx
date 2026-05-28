@@ -17,7 +17,7 @@ export function SettingsTrustCenter({ profile }: SettingsTrustCenterProps) {
   return (
     <SectionCard
       title="Centro fiducia account"
-      description="Informazioni reali sul tuo accesso — nessuna sessione o fattura simulata"
+      description="Informazioni sul tuo accesso e sul profilo Atlas"
       tone="primary"
       padding="sm"
       bodyClassName="space-y-3"

@@ -573,20 +573,20 @@ export function PolicyForm({
         />
       </div>
 
-      <div className="flex flex-col gap-3 border-t border-border-subtle pt-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="border-t border-border-subtle pt-4">
         <p
           aria-live="polite"
           className={cn(
-            "text-[12px]",
-            state.status === "error" ? "text-red-600" : "text-muted"
+            "mb-3 text-[12px]",
+            state.status === "error" ? "text-[var(--danger-text)]" : "text-muted"
           )}
         >
           {state.message || "I campi opzionali possono restare vuoti."}
         </p>
-        <div className="flex flex-wrap justify-end gap-2">
+        <div className="atlas-form-actions">
           <Link
             href={policy ? `/policies/${policy.id}` : "/policies"}
-            className="rounded-lg border border-border bg-card px-4 py-2 text-[13px] font-medium text-muted-foreground hover:bg-card-muted"
+            className="rounded-lg border border-border bg-card px-4 py-2 text-center text-[13px] font-medium text-muted-foreground hover:bg-card-muted"
           >
             Annulla
           </Link>

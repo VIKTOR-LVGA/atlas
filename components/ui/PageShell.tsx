@@ -22,7 +22,7 @@ export function PageShell({
           <BackLink href={backHref} label={backLabel} />
         </div>
       ) : null}
-      <div className={atlasSpace.page}>{children}</div>
+      <div className={cn(atlasSpace.page, "min-w-0 max-w-full")}>{children}</div>
     </div>
   );
 }

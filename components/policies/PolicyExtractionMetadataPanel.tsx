@@ -61,9 +61,9 @@ export function PolicyExtractionMetadataPanel({
           </div>
         ))}
         {metadata.warnings?.length ? (
-          <div className="rounded-lg border border-[var(--warning-border)] bg-[var(--warning-bg)] p-3">
-            <p className="font-medium text-amber-900">Avvertenze</p>
-            <ul className="mt-1 space-y-1 text-amber-800">
+          <div className="atlas-alert-warning p-3">
+            <p className="atlas-alert-warning-title text-[12px]">Avvertenze</p>
+            <ul className="atlas-alert-warning-body mt-1 space-y-1 text-[11px]">
               {metadata.warnings.map((warning) => (
                 <li key={warning}>{warning}</li>
               ))}

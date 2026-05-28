@@ -54,7 +54,7 @@ export function PolicyExtractionHighlights({
   return (
     <SectionCard
       title="Atlas ha identificato"
-      description="Elementi estratti dal PDF — solo dati reali"
+      description="Elementi estratti dal PDF"
       tone="primary"
       padding="sm"
       bodyClassName="space-y-3"
@@ -68,7 +68,7 @@ export function PolicyExtractionHighlights({
               item.tone === "success" &&
                 "border-emerald-500/20 bg-emerald-500/[0.05] dark:border-emerald-900/35 dark:bg-emerald-950/15",
               item.tone === "warning" &&
-                "border-amber-500/25 bg-amber-500/[0.06] dark:border-amber-900/35 dark:bg-amber-950/20",
+                "atlas-alert-warning",
               item.tone === "neutral" && "border-border-subtle bg-card-muted/40"
             )}
           >

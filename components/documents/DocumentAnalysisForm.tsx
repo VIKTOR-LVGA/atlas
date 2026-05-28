@@ -193,7 +193,7 @@ export function DocumentAnalysisForm({
           <div
             role="alert"
             aria-live="polite"
-            className="atlas-message-enter flex gap-2.5 rounded-xl border border-amber-500/25 bg-amber-500/[0.06] px-3.5 py-3 dark:border-amber-400/20 dark:bg-amber-950/25"
+            className="atlas-message-enter atlas-alert-warning flex gap-2.5 px-3.5 py-3"
           >
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
             <div className="min-w-0">

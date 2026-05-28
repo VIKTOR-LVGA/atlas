@@ -137,8 +137,8 @@ function CoverageEditor({
           </p>
         ) : null}
 
-        <div className="flex flex-wrap items-end gap-2">
-          <label className="min-w-0 flex-1 basis-full sm:basis-auto sm:min-w-[10rem]">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-end">
+          <label className="min-w-0 w-full sm:flex-1 sm:min-w-[10rem]">
             <span className="text-[10px] font-medium text-muted">Persona</span>
             <select
               value={assignTo}
@@ -165,7 +165,7 @@ function CoverageEditor({
               onAssign(assignTo);
               setAssignTo("");
             }}
-            className="atlas-btn-primary inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] disabled:opacity-50"
+            className="atlas-btn-primary inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 px-3 py-2 text-[11px] disabled:opacity-50 sm:w-auto sm:py-1.5"
           >
             <UserPlus className="h-3.5 w-3.5" />
             {assignLabel}
@@ -173,7 +173,7 @@ function CoverageEditor({
           <button
             type="button"
             onClick={onRemove}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-[11px] font-medium text-muted hover:bg-card-muted"
+            className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-[11px] font-medium text-muted hover:bg-card-muted sm:w-auto sm:py-1.5"
           >
             {removeLabel === "unassign" ? (
               <UserMinus className="h-3.5 w-3.5" />
@@ -346,11 +346,11 @@ export function PolicyHealthReviewWorkspace({
     <div className="space-y-4">
       <input type="hidden" name="health_review_json" value={serialized} readOnly />
 
-      <div className="rounded-xl border atlas-alert-warning px-3 py-2.5">
-        <p className="text-[12px] font-medium text-amber-900">
+      <div className="atlas-alert-warning px-3 py-2.5">
+        <p className="atlas-alert-warning-title text-[12px]">
           Revisione struttura estratta
         </p>
-        <p className="mt-0.5 text-[11px] text-amber-800/90">
+        <p className="atlas-alert-warning-body mt-0.5 text-[11px]">
           Puoi assegnare ogni copertura a qualsiasi persona assicurata. Il
           suggerimento AI è solo un aiuto, non un vincolo.
         </p>
@@ -475,11 +475,11 @@ export function PolicyHealthReviewWorkspace({
         </article>
       ))}
 
-      <section className="rounded-2xl border atlas-alert-warning p-4">
-        <h3 className="text-[12px] font-semibold text-amber-900">
+      <section className="atlas-alert-warning p-4">
+        <h3 className="atlas-alert-warning-title text-[12px]">
           Coperture da verificare ({state.unassigned.length})
         </h3>
-        <p className="mt-0.5 text-[11px] text-amber-800/80">
+        <p className="atlas-alert-warning-body mt-0.5 text-[11px]">
           Assegna ogni riga alla persona corretta, oppure rimuovila se non è valida.
         </p>
         {state.unassigned.length > 0 ? (

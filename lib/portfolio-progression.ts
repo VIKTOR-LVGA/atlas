@@ -122,6 +122,21 @@ function countEntities(policies: UserPolicy[]) {
   return { insuredPeople, coverages, unassigned };
 }
 
+/** True only when the portfolio has coverages and none remain unassigned. */
+function areCoverageAssignmentsComplete(policies: UserPolicy[]): boolean {
+  if (policies.length === 0) {
+    return false;
+  }
+
+  const { coverages, unassigned } = countEntities(policies);
+
+  if (coverages === 0) {
+    return false;
+  }
+
+  return unassigned === 0;
+}
+
 function policyHasPremium(policy: UserPolicy): boolean {
   if (
     policy.premiumAmount !== null &&
@@ -341,10 +356,7 @@ function buildMilestones(
     },
     {
       id: "assign",
-      done: (() => {
-        const { coverages, unassigned } = countEntities(policies);
-        return coverages === 0 || unassigned === 0;
-      })(),
+      done: areCoverageAssignmentsComplete(policies),
       label: "Completa le assegnazioni",
       description: "Collega ogni copertura alla persona assicurata corretta.",
       ctaLabel: "Rivedi coperture",
@@ -448,7 +460,7 @@ export function computePortfolioProgression(
                 kpis.coverageCount - kpis.unassignedCoverageCount,
                 kpis.coverageCount
               )
-            : 100,
+            : null,
         ]);
 
   const analysisReadinessPercent =

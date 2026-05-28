@@ -21,7 +21,7 @@ export function MarketComparisonReadiness({ blockers }: MarketComparisonReadines
             </p>
             <p className="mt-1 text-[12px] leading-relaxed text-muted">
               I moduli benchmark restano in preparazione fino all&apos;integrazione di un
-              dataset svizzero verificato. Nessun confronto simulato è mostrato.
+              dataset svizzero verificato. I confronti saranno disponibili quando attivi.
             </p>
           </div>
         </div>

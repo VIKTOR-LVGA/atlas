@@ -17,7 +17,7 @@ export function MarketFutureModulesGrid({ modules }: MarketFutureModulesGridProp
       <div className="rounded-lg border border-dashed border-border bg-card-muted/40 px-3 py-2.5">
         <p className="flex items-center gap-2 text-[11px] text-muted">
           <Sparkles className="h-3.5 w-3.5 shrink-0 text-accent" />
-          Atlas non mostra risparmi, medie CH o ranking assicuratori simulati.
+          I moduli benchmark e confronto premio saranno disponibili quando attivi.
         </p>
       </div>
       <ul className="grid gap-2 sm:grid-cols-2">

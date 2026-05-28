@@ -287,7 +287,7 @@ export function DocumentList({ views }: { views: DocumentIntelligenceView[] }) {
               role="link"
               tabIndex={0}
               aria-label={`Apri ${document.fileName}`}
-              className="atlas-row-interactive group cursor-pointer px-4 py-4 outline-none focus-visible:bg-accent-soft"
+              className="atlas-row-interactive group min-w-0 max-w-full cursor-pointer overflow-hidden px-4 py-4 outline-none focus-visible:bg-accent-soft"
               onClick={openDocument}
               onKeyDown={(event) => openDocumentFromKeyboard(event, openDocument)}
             >
@@ -326,10 +326,10 @@ export function DocumentList({ views }: { views: DocumentIntelligenceView[] }) {
                 </div>
               </div>
               <div
-                className="mt-3 flex items-center justify-between gap-2 pl-[52px]"
+                className="mt-3 flex flex-col gap-2 border-t border-border-subtle pt-3 sm:flex-row sm:items-center sm:justify-between"
                 onClick={stopRowNavigation}
               >
-                <div className="flex items-center gap-1.5">
+                <div className="flex flex-wrap items-center gap-1.5">
                   <DocumentButtonLink
                     documentId={document.id}
                     fileName={document.fileName}

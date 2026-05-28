@@ -52,7 +52,7 @@ export function DocumentsArchiveEmpty() {
               I tuoi documenti restano privati
             </p>
             <p className="mt-1 text-[12px] leading-relaxed text-muted">
-              Nessun dato inventato: Atlas mostra solo ciò che estrae realmente dal PDF.
+              Carica un PDF per avviare l&apos;analisi e strutturare la prima polizza.
               Usa il pannello di caricamento a destra per iniziare.
             </p>
           </div>

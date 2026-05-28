@@ -32,7 +32,7 @@ export default async function MarketPage() {
       <RevealStagger>
         <PageHeader
           title="Confronto di mercato"
-          description="Atlas prepara il portafoglio per futuri confronti — readiness deterministica su dati reali, senza benchmark simulati."
+          description="Atlas prepara il portafoglio per futuri confronti di mercato."
           action={
             <div className="flex flex-wrap items-center gap-2">
               <Link
@@ -49,7 +49,7 @@ export default async function MarketPage() {
         />
 
         <div className={`${atlasCard.support} px-4 py-3 text-[12px] text-muted`}>
-          Nessun premio di mercato, risparmio stimato o media svizzera simulata. I moduli
+          I confronti di premio e benchmark svizzeri saranno disponibili quando attivi. I moduli
           benchmark restano bloccati finché non esiste un dataset CH verificato collegato al
           portafoglio.
         </div>
