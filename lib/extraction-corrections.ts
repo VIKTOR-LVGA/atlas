@@ -1,5 +1,10 @@
 import "server-only";
 
+import {
+  saveCorrectionSignal,
+  saveCorrectionSignals,
+  type CorrectionSignalInput,
+} from "@/lib/correction-learning";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import type { TypedPolicyType } from "@/lib/types";
 
@@ -25,6 +30,7 @@ type ExtractionCorrectionRow = {
   policy_id: string | null;
   document_id: string | null;
   correction_type: string;
+  correction_kind: string | null;
   provider: string | null;
   policy_type: string | null;
   coverage_name: string | null;
@@ -36,26 +42,29 @@ type ExtractionCorrectionRow = {
   created_at: string;
 };
 
-export class ExtractionCorrectionError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "ExtractionCorrectionError";
-  }
-}
+export {
+  saveCorrectionSignal,
+  saveCorrectionSignals,
+  type CorrectionSignalInput,
+};
 
+/** @deprecated Prefer saveCorrectionSignal — kept for compatibility; best-effort. */
 export async function saveExtractionCorrection(
   userId: string,
   input: CoveragePersonAssignmentCorrection
 ) {
-  const supabase = await getSupabaseServerClient();
-
-  const { error } = await supabase.from("extraction_corrections").insert({
-    user_id: userId,
+  return saveCorrectionSignal(userId, {
     policy_id: input.policy_id,
     document_id: input.document_id,
-    correction_type: input.correction_type,
     provider: input.provider,
     policy_type: input.policy_type,
+    correction_type: input.correction_type,
+    correction_kind: "assigned",
+    correction_source: "assignment",
+    field_name: "coverage_assignment",
+    field_path: "coverage.assignment",
+    ai_value_before: input.previous_assignment,
+    corrected_value_after: input.corrected_assignment,
     coverage_name: input.coverage_name,
     coverage_kind: input.coverage_kind,
     coverage_stable_key: input.coverage_stable_key,
@@ -63,16 +72,10 @@ export async function saveExtractionCorrection(
     corrected_assignment: input.corrected_assignment,
     source_context: input.source_context,
   });
-
-  if (error) {
-    throw new ExtractionCorrectionError(
-      "Salvataggio correzione non riuscito. Riprova tra poco."
-    );
-  }
 }
 
 /**
- * Loads past corrections for prompt enrichment (patterns only — no PII in OpenAI yet).
+ * Loads past assignment corrections for future internal use (not sent to OpenAI).
  */
 export async function getRelevantExtractionCorrections(
   userId: string,
@@ -85,10 +88,12 @@ export async function getRelevantExtractionCorrections(
   let query = supabase
     .from("extraction_corrections")
     .select(
-      "id, user_id, policy_id, document_id, correction_type, provider, policy_type, coverage_name, coverage_kind, coverage_stable_key, previous_assignment, corrected_assignment, source_context, created_at"
+      "id, user_id, policy_id, document_id, correction_type, correction_kind, provider, policy_type, coverage_name, coverage_kind, coverage_stable_key, previous_assignment, corrected_assignment, source_context, created_at"
     )
     .eq("user_id", userId)
-    .eq("correction_type", "coverage_person_assignment")
+    .or(
+      "correction_type.eq.coverage_person_assignment,correction_kind.eq.assigned"
+    )
     .order("created_at", { ascending: false })
     .limit(limit);
 
@@ -109,7 +114,7 @@ export async function getRelevantExtractionCorrections(
   return data as ExtractionCorrectionRow[];
 }
 
-/** Lightweight hook for future prompt tuning — logs aggregate count only. */
+/** Aggregate counts for internal diagnostics only. */
 export async function reportExtractionCorrectionCount(
   userId: string,
   provider: string | null,

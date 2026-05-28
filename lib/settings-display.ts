@@ -7,6 +7,14 @@ export type SettingsLockedModule = {
 
 export const settingsLockedModules: SettingsLockedModule[] = [
   {
+    id: "atlas-improvement",
+    label: "Aiuta a migliorare Atlas",
+    description:
+      "In futuro potrai scegliere se contribuire con correzioni anonimizzate.",
+    futureDetail:
+      "In preparazione — per ora le correzioni restano nel tuo account.",
+  },
+  {
     id: "billing",
     label: "Abbonamento e fatturazione",
     description: "Gestione piano, fatture e metodi di pagamento.",

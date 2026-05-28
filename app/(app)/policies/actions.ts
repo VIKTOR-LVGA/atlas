@@ -10,10 +10,11 @@ import {
 } from "@/lib/coverage-assignment";
 import { buildPersonStableKey } from "@/lib/coverage-stable-keys";
 import {
-  ExtractionCorrectionError,
-  reportExtractionCorrectionCount,
-  saveExtractionCorrection,
-} from "@/lib/extraction-corrections";
+  buildCoverageAssignmentCorrectionSignal,
+  buildPolicyConfirmationSignal,
+  buildPolicyUpdateCorrectionSignals,
+} from "@/lib/correction-diff";
+import { saveCorrectionSignals } from "@/lib/correction-learning";
 import {
   confirmPolicyReview,
   createPolicy,
@@ -340,6 +341,34 @@ function revalidatePolicyViews(id?: string, documentId?: string | null) {
   }
 }
 
+async function persistPolicyCorrectionSignals(
+  userId: string,
+  existing: UserPolicy,
+  input: PolicyInput,
+  updatedPolicy: UserPolicy,
+  options?: { includeConfirmation?: boolean; reviewedAt?: string }
+) {
+  const signals = buildPolicyUpdateCorrectionSignals(existing, input);
+
+  if (options?.includeConfirmation && options.reviewedAt) {
+    signals.push(
+      buildPolicyConfirmationSignal(updatedPolicy, options.reviewedAt)
+    );
+  }
+
+  await saveCorrectionSignals(userId, signals);
+}
+
+async function persistPolicyConfirmationOnly(
+  userId: string,
+  policy: UserPolicy,
+  reviewedAt: string
+) {
+  await saveCorrectionSignals(userId, [
+    buildPolicyConfirmationSignal(policy, reviewedAt),
+  ]);
+}
+
 export async function createPolicyAction(
   _previousState: PolicyActionState,
   formData: FormData
@@ -385,13 +414,21 @@ export async function updatePolicyAction(
 
   const saveMode = String(formData.get("save_mode") ?? "save");
   const confirmPolicy = saveMode === "confirm";
+  const reviewedAt = confirmPolicy ? new Date().toISOString() : null;
+  const shouldRecordConfirmation =
+    Boolean(confirmPolicy && existing?.requiresReview);
 
-  if (confirmPolicy) {
+  if (confirmPolicy && reviewedAt) {
     input.details = {
       ...input.details,
-      reviewed_at: new Date().toISOString(),
+      reviewed_at: reviewedAt,
     };
   }
+
+  const supabase = await getSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   try {
     const policy = await updatePolicy(id, input, {
@@ -403,6 +440,13 @@ export async function updatePolicyAction(
         status: "error",
         message: "Polizza non trovata.",
       };
+    }
+
+    if (user && existing) {
+      await persistPolicyCorrectionSignals(user.id, existing, input, policy, {
+        includeConfirmation: shouldRecordConfirmation,
+        reviewedAt: reviewedAt ?? undefined,
+      });
     }
 
     revalidatePolicyViews(policy.id, policy.documentId);
@@ -422,6 +466,9 @@ export async function confirmPolicyReviewAction(
 ): Promise<ConfirmPolicyReviewActionState> {
   void formData;
 
+  const existing = await getCurrentUserPolicyById(policyId);
+  const shouldRecordConfirmation = Boolean(existing?.requiresReview);
+
   try {
     const policy = await confirmPolicyReview(policyId);
 
@@ -430,6 +477,21 @@ export async function confirmPolicyReviewAction(
         status: "error",
         message: "Polizza non trovata.",
       };
+    }
+
+    if (shouldRecordConfirmation) {
+      const supabase = await getSupabaseServerClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        const reviewedAt =
+          typeof policy.details.reviewed_at === "string"
+            ? policy.details.reviewed_at
+            : new Date().toISOString();
+        await persistPolicyConfirmationOnly(user.id, policy, reviewedAt);
+      }
     }
 
     revalidatePolicyViews(policy.id, policy.documentId);
@@ -501,48 +563,41 @@ export async function assignCoverageToInsuredPerson(
       };
     }
 
-    await saveExtractionCorrection(user.id, {
-      correction_type: "coverage_person_assignment",
-      policy_id: policyId,
-      document_id: policy.documentId,
-      provider: policy.provider,
-      policy_type: policy.policyType,
-      coverage_name: result.coverage.name,
-      coverage_kind:
-        result.coverage.coverage_type ??
-        result.coverage.category_label ??
-        policy.details.coverage_kind ??
-        null,
-      coverage_stable_key: coverageKey,
-      previous_assignment: result.previousAssignment,
-      corrected_assignment: {
-        insured_person_name: result.person.name,
-        insured_number: result.person.insured_number ?? null,
-        person_stable_key: buildPersonStableKey(result.person),
-        assignment_source: "manual",
-      },
-      source_context: {
-        source_page: result.coverage.source_page ?? null,
-        source_order: result.coverage.source_order ?? null,
-        extraction_confidence: result.coverage.confidence ?? null,
-        ownership_confidence_before: result.ownershipConfidenceBefore,
-        document_filename: policy.document?.fileName ?? null,
-      },
-    });
-
-    await reportExtractionCorrectionCount(
-      user.id,
-      policy.provider,
-      policy.policyType
-    );
+    await saveCorrectionSignals(user.id, [
+      buildCoverageAssignmentCorrectionSignal({
+        policyId,
+        documentId: policy.documentId,
+        provider: policy.provider,
+        policyType: policy.policyType,
+        coverageStableKey: coverageKey,
+        coverageName: result.coverage.name,
+        coverageKind:
+          result.coverage.coverage_type ??
+          result.coverage.category_label ??
+          policy.details.coverage_kind ??
+          null,
+        previousAssignment: result.previousAssignment,
+        correctedAssignment: {
+          insured_person_name: result.person.name,
+          insured_number: result.person.insured_number ?? null,
+          person_stable_key: buildPersonStableKey(result.person),
+          assignment_source: "manual",
+        },
+        ownershipConfidenceBefore: result.ownershipConfidenceBefore,
+        sourceContext: {
+          source_page: result.coverage.source_page ?? null,
+          source_order: result.coverage.source_order ?? null,
+          extraction_confidence: result.coverage.confidence ?? null,
+          ownership_confidence_before: result.ownershipConfidenceBefore,
+          document_filename: policy.document?.fileName ?? null,
+        },
+      }),
+    ]);
 
     revalidatePolicyViews(policyId, policy.documentId);
     redirect(`/policies/${policyId}?assigned=1`);
   } catch (error) {
-    if (
-      error instanceof CoverageAssignmentError ||
-      error instanceof ExtractionCorrectionError
-    ) {
+    if (error instanceof CoverageAssignmentError) {
       return {
         status: "error",
         message: error.message,

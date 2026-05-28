@@ -35,6 +35,7 @@ export type AtlasDataExportBundle = {
   meta: {
     documentCount: number;
     policyCount: number;
+    correctionCount: number;
     includesRawPdfFiles: false;
     includesServiceSecrets: false;
   };
@@ -70,14 +71,22 @@ export type ExportedExtractionCorrection = {
   id: string;
   policyId: string | null;
   documentId: string | null;
-  correctionType: string;
+  correctionType: string | null;
+  correctionKind: string | null;
+  correctionSource: string | null;
+  fieldName: string | null;
+  fieldPath: string | null;
   provider: string | null;
   policyType: string | null;
   coverageName: string | null;
   coverageKind: string | null;
   coverageStableKey: string | null;
+  aiValueBefore: unknown;
+  correctedValueAfter: unknown;
+  confidenceBefore: number | null;
   previousAssignment: Record<string, unknown> | null;
   correctedAssignment: Record<string, unknown>;
+  reviewedAt: string | null;
   createdAt: string;
 };
 
@@ -192,7 +201,7 @@ async function getCurrentUserExtractionCorrectionsForExport(): Promise<
   const { data, error } = await supabase
     .from("extraction_corrections")
     .select(
-      "id, policy_id, document_id, correction_type, provider, policy_type, coverage_name, coverage_kind, coverage_stable_key, previous_assignment, corrected_assignment, created_at"
+      "id, policy_id, document_id, correction_type, correction_kind, correction_source, field_name, field_path, provider, policy_type, coverage_name, coverage_kind, coverage_stable_key, ai_value_before, corrected_value_after, confidence_before, previous_assignment, corrected_assignment, reviewed_at, created_at"
     )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
@@ -206,13 +215,21 @@ async function getCurrentUserExtractionCorrectionsForExport(): Promise<
     policyId: row.policy_id,
     documentId: row.document_id,
     correctionType: row.correction_type,
+    correctionKind: row.correction_kind,
+    correctionSource: row.correction_source,
+    fieldName: row.field_name,
+    fieldPath: row.field_path,
     provider: row.provider,
     policyType: row.policy_type,
     coverageName: row.coverage_name,
     coverageKind: row.coverage_kind,
     coverageStableKey: row.coverage_stable_key,
+    aiValueBefore: row.ai_value_before,
+    correctedValueAfter: row.corrected_value_after,
+    confidenceBefore: row.confidence_before,
     previousAssignment: row.previous_assignment as Record<string, unknown> | null,
     correctedAssignment: row.corrected_assignment as Record<string, unknown>,
+    reviewedAt: row.reviewed_at,
     createdAt: row.created_at,
   }));
 }
@@ -309,6 +326,7 @@ export const buildCurrentUserDataExport = cache(
       meta: {
         documentCount: documents.length,
         policyCount: policies.length,
+        correctionCount: extractionCorrections.length,
         includesRawPdfFiles: false,
         includesServiceSecrets: false,
       },

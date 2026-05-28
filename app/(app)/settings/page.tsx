@@ -15,6 +15,7 @@ import { SettingsLockedModulesGrid } from "@/components/settings/SettingsLockedM
 import { SettingsAccountManagement } from "@/components/settings/SettingsAccountManagement";
 import { SettingsDataControl } from "@/components/settings/SettingsDataControl";
 import { SettingsDataExport } from "@/components/settings/SettingsDataExport";
+import { SettingsSavedCorrections } from "@/components/settings/SettingsSavedCorrections";
 import { SettingsTrustCenter } from "@/components/settings/SettingsTrustCenter";
 import { RevealStagger } from "@/components/motion/RevealStagger";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
@@ -125,6 +126,7 @@ export default function SettingsPage() {
                   onGoToAccount={() => setActiveSection("account")}
                   onGoToExport={scrollToExport}
                 />
+                <SettingsSavedCorrections />
                 <div ref={exportSectionRef} id="settings-data-export">
                   <SettingsDataExport />
                 </div>
