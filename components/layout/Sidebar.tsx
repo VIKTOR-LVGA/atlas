@@ -108,7 +108,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             Le tue polizze. La tua sicurezza. La nostra indipendenza.
           </p>
           <Link
-            href="/"
+            href="/dashboard#workflow"
             onClick={onNavigate}
             className="atlas-btn-secondary mt-3 w-full py-2 text-[11px]"
           >

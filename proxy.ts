@@ -73,7 +73,11 @@ export async function proxy(request: NextRequest) {
     "/reset-password",
   ];
 
-  if (user && authEntryRoutes.includes(pathname)) {
+  if (
+    user &&
+    authEntryRoutes.includes(pathname) &&
+    pathname !== "/reset-password"
+  ) {
     return redirectWithAuthCookies(request, "/dashboard", authResponse);
   }
 

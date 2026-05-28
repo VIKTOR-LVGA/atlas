@@ -3,11 +3,15 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import { cache } from "react";
 import type { DocumentStatus, UserDocument } from "@/lib/types";
+import { DataFetchError } from "@/lib/data-fetch";
 import {
   getInternalFailureReason,
   logPolicyAnalysisError,
 } from "@/lib/policy-analysis-logging";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+
+const documentSelect =
+  "id, file_name, file_path, file_size, mime_type, status, analysis_error, created_at, updated_at";
 
 const POLICY_DOCUMENTS_BUCKET = "policy-documents";
 const MAX_POLICY_DOCUMENT_SIZE = 10 * 1024 * 1024;
@@ -57,6 +61,7 @@ function toUserDocument(document: {
   file_size: number | string | null;
   mime_type: string | null;
   status: string;
+  analysis_error?: string | null;
   created_at: string;
   updated_at: string;
 }): UserDocument {
@@ -68,6 +73,7 @@ function toUserDocument(document: {
       document.file_size === null ? null : Number.parseInt(String(document.file_size), 10),
     mimeType: document.mime_type,
     status: toDocumentStatus(document.status),
+    analysisError: document.analysis_error ?? null,
     createdAt: document.created_at,
     updatedAt: document.updated_at,
   };
@@ -120,11 +126,15 @@ export const getCurrentUserDocuments = cache(async (): Promise<UserDocument[]> =
 
   const { data, error } = await supabase
     .from("documents")
-    .select("id, file_name, file_path, file_size, mime_type, status, created_at, updated_at")
+    .select(documentSelect)
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
-  if (error || !data) {
+  if (error) {
+    throw new DataFetchError("documents.list", error);
+  }
+
+  if (!data) {
     return [];
   }
 
@@ -144,12 +154,16 @@ export const getCurrentUserDocumentById = cache(
 
     const { data, error } = await supabase
       .from("documents")
-      .select("id, file_name, file_path, file_size, mime_type, status, created_at, updated_at")
+      .select(documentSelect)
       .eq("id", id)
       .eq("user_id", user.id)
       .maybeSingle();
 
-    if (error || !data) {
+    if (error) {
+      throw new DataFetchError("documents.byId", error);
+    }
+
+    if (!data) {
       return null;
     }
 
@@ -194,7 +208,7 @@ export async function uploadUserDocument(file: File): Promise<UserDocument> {
       file_size: file.size,
       mime_type: "application/pdf",
     })
-    .select("id, file_name, file_path, file_size, mime_type, status, created_at, updated_at")
+    .select(documentSelect)
     .single();
 
   if (insertError || !document) {
@@ -269,7 +283,7 @@ export async function updateCurrentUserDocumentStatus(
     .update({ status })
     .eq("id", id)
     .eq("user_id", user.id)
-    .select("id, file_name, file_path, file_size, mime_type, status, created_at, updated_at")
+    .select(documentSelect)
     .maybeSingle();
 
   if (error) {
@@ -300,7 +314,7 @@ export async function markCurrentUserDocumentAnalysisFailed(
     })
     .eq("id", id)
     .eq("user_id", user.id)
-    .select("id, file_name, file_path, file_size, mime_type, status, created_at, updated_at")
+    .select(documentSelect)
     .maybeSingle();
 
   if (!error) {

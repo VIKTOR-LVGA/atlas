@@ -48,7 +48,7 @@ export function TopBarNotificationsMenu() {
         <Target className="h-3.5 w-3.5 text-accent" />
         Vai alle raccomandazioni
       </TopBarPopoverItem>
-      <TopBarPopoverItem href="/settings">
+      <TopBarPopoverItem href="/settings?section=notifiche">
         <Settings className="h-3.5 w-3.5" />
         Preferenze notifiche
       </TopBarPopoverItem>
@@ -62,7 +62,7 @@ function HelpMenuPanel() {
       <TopBarPopoverHeader>
         <span className="text-[12px] font-semibold text-foreground">Aiuto</span>
       </TopBarPopoverHeader>
-      <TopBarPopoverItem href="/">
+      <TopBarPopoverItem href="/dashboard#workflow">
         <BookOpen className="h-3.5 w-3.5" />
         Come funziona Atlas
       </TopBarPopoverItem>

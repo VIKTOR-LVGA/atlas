@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Download, FileText, PlusCircle, Sparkles } from "lucide-react";
+import { DocumentAnalysisFailureBanner } from "@/components/documents/DocumentAnalysisFailureBanner";
 import { DocumentDeleteForm } from "@/components/documents/DocumentDeleteForm";
 import { DocumentAnalysisForm } from "@/components/documents/DocumentAnalysisForm";
 import { DocumentIntelligenceSummary } from "@/components/documents/DocumentIntelligenceSummary";
@@ -89,6 +90,10 @@ export default async function DocumentDetailPage({ params }: PageProps) {
               {view.nextAction.label}
             </Link>
           </div>
+        ) : null}
+
+        {document.status === "failed" || document.analysisError ? (
+          <DocumentAnalysisFailureBanner analysisError={document.analysisError} />
         ) : null}
 
         <div className={atlasMainAside}>

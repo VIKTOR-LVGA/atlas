@@ -6,6 +6,7 @@ import {
   sanitizePolicyDetails,
   toTypedPolicyType,
 } from "@/lib/policy-types";
+import { DataFetchError } from "@/lib/data-fetch";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import type {
   PolicyCreationMetadata,
@@ -256,7 +257,11 @@ export const getCurrentUserPolicies = cache(async (): Promise<UserPolicy[]> => {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
-  if (error || !data) {
+  if (error) {
+    throw new DataFetchError("policies.list", error);
+  }
+
+  if (!data) {
     return [];
   }
 

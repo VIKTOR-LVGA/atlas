@@ -23,15 +23,13 @@ export function ConsultingInterestCta({ readinessPercent }: ConsultingInterestCt
             <FileText className="h-4 w-4" />
             Prepara il dossier
           </Link>
-          <button
-            type="button"
-            disabled
-            className="inline-flex flex-1 cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-card-muted/50 px-4 py-2.5 text-[12px] font-medium text-muted opacity-90"
+          <span
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-border bg-card-muted px-4 py-2.5 text-[12px] font-medium text-muted"
             title="Disponibile quando il servizio consulenza sarà attivato"
           >
-            <Lock className="h-4 w-4 shrink-0" />
+            <Lock className="h-4 w-4 shrink-0" aria-hidden />
             Richiedi informazioni · Prossimamente
-          </button>
+          </span>
         </div>
         <p className="flex items-center gap-2 text-[10px] text-muted">
           <Bell className="h-3.5 w-3.5 shrink-0" />

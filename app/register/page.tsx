@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { AuthFormField } from "@/components/auth/AuthFormField";
 import { AuthMessage } from "@/components/auth/AuthMessage";
+import { mapSupabaseAuthError } from "@/lib/auth-errors";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import {
   validateEmail,
@@ -66,7 +67,7 @@ export default function RegisterPage() {
       });
 
       if (authError) {
-        setError(authError.message);
+        setError(mapSupabaseAuthError(authError.message));
         return;
       }
 

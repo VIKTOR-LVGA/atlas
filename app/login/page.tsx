@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { AuthFormField } from "@/components/auth/AuthFormField";
 import { AuthMessage } from "@/components/auth/AuthMessage";
+import { mapSupabaseAuthError } from "@/lib/auth-errors";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { validateEmail, validatePassword } from "@/lib/auth-validation";
 import { cn } from "@/lib/utils";
@@ -45,11 +46,7 @@ export default function LoginPage() {
       );
 
       if (authError) {
-        setError(
-          authError.message === "Invalid login credentials"
-            ? "Email o password non corretti."
-            : authError.message
-        );
+        setError(mapSupabaseAuthError(authError.message, "login"));
         return;
       }
 

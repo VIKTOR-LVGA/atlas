@@ -81,6 +81,7 @@ export interface UserDocument {
   fileSize: number | null;
   mimeType: string | null;
   status: DocumentStatus;
+  analysisError?: string | null;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { Suspense, useCallback, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Palette, Shield } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PageShell } from "@/components/ui/PageShell";
@@ -39,8 +40,16 @@ const sections = [
 
 type SettingsSectionId = (typeof sections)[number]["id"];
 
-export default function SettingsPage() {
-  const [activeSection, setActiveSection] = useState<SettingsSectionId>("profilo");
+function isSettingsSectionId(value: string | null): value is SettingsSectionId {
+  return sections.some((section) => section.id === value);
+}
+
+function SettingsPageContent({
+  initialSection,
+}: {
+  initialSection: SettingsSectionId;
+}) {
+  const [activeSection, setActiveSection] = useState<SettingsSectionId>(initialSection);
   const profile = useCurrentProfile();
   const exportSectionRef = useRef<HTMLDivElement>(null);
 
@@ -168,5 +177,30 @@ export default function SettingsPage() {
         </div>
       </RevealStagger>
     </PageShell>
+  );
+}
+
+function SettingsPageWithSection() {
+  const searchParams = useSearchParams();
+  const sectionParam = searchParams.get("section");
+  const initialSection = isSettingsSectionId(sectionParam) ? sectionParam : "profilo";
+
+  return <SettingsPageContent key={initialSection} initialSection={initialSection} />;
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense
+      fallback={
+        <PageShell>
+          <div className="space-y-4">
+            <div className="h-8 w-48 animate-pulse rounded-lg bg-card-muted" />
+            <div className="h-24 animate-pulse rounded-xl bg-card-muted" />
+          </div>
+        </PageShell>
+      }
+    >
+      <SettingsPageWithSection />
+    </Suspense>
   );
 }

@@ -53,7 +53,8 @@ export function DocumentsArchiveEmpty() {
             </p>
             <p className="mt-1 text-[12px] leading-relaxed text-muted">
               Carica un PDF per avviare l&apos;analisi e strutturare la prima polizza.
-              Usa il pannello di caricamento a destra per iniziare.
+              Usa il pannello di caricamento in alto su mobile o nella colonna laterale
+              su desktop.
             </p>
           </div>
         </div>
