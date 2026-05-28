@@ -159,7 +159,7 @@ function InsuredPersonIntelligenceCard({
         <ConfidenceBadge confidence={person.confidence} uncertain={person.uncertain} />
       </div>
 
-      <div className="grid gap-2 border-b border-border-subtle bg-card-muted/30 px-3.5 py-2.5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-2 border-b border-border-subtle bg-card-muted/30 px-3.5 py-2.5 min-[400px]:grid-cols-2 lg:grid-cols-4">
         <PersonMeta label="Modello" value={person.model ?? "Non disponibile"} />
         <PersonMeta
           label="Franchigia"

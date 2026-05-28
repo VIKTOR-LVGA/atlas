@@ -16,7 +16,7 @@ export function PageShell({
   className,
 }: PageShellProps) {
   return (
-    <div className={cn(className)}>
+    <div className={cn("min-w-0 max-w-full", className)}>
       {backHref && backLabel ? (
         <div className="mb-6">
           <BackLink href={backHref} label={backLabel} />

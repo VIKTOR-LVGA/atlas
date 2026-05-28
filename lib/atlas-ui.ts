@@ -50,6 +50,10 @@ export const atlasKpiRowWide =
 export const atlasMainAside =
   "atlas-grid-content xl:grid-cols-3" as const;
 
-export const atlasMainColumn = "atlas-stack-block xl:col-span-2" as const;
+export const atlasMainColumn = "atlas-stack-block min-w-0 max-w-full xl:col-span-2" as const;
 
-export const atlasAsideColumn = "atlas-stack-block xl:sticky xl:top-6 xl:self-start" as const;
+export const atlasAsideColumn =
+  "atlas-stack-block min-w-0 xl:sticky xl:top-6 xl:self-start" as const;
+
+/** Page header CTA cluster — full-width stacked buttons on mobile */
+export const atlasPageActions = "atlas-page-actions" as const;

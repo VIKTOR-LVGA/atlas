@@ -32,7 +32,7 @@ export function TopBar({ onMenuOpen }: TopBarProps) {
         </Link>
       </div>
 
-      <div className="flex min-w-0 shrink items-center justify-end gap-1.5 overflow-visible sm:gap-2">
+      <div className="flex min-w-0 max-w-[55%] shrink items-center justify-end gap-0.5 overflow-visible sm:max-w-none sm:gap-2">
         <ThemeToggle />
         <TopBarHelpMenuMobile />
         <TopBarNotificationsMenu />

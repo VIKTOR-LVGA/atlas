@@ -84,7 +84,7 @@ export function PolicyListCard({ policy, compact = false }: PolicyListCardProps)
           <dl
             className={cn(
               "mt-2.5 grid gap-2",
-              compact ? "grid-cols-3" : "grid-cols-2 sm:grid-cols-4"
+              compact ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-4"
             )}
           >
             <div>

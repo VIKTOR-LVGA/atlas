@@ -138,7 +138,7 @@ function CoverageEditor({
         ) : null}
 
         <div className="flex flex-wrap items-end gap-2">
-          <label className="min-w-[160px] flex-1">
+          <label className="min-w-0 flex-1 basis-full sm:basis-auto sm:min-w-[10rem]">
             <span className="text-[10px] font-medium text-muted">Persona</span>
             <select
               value={assignTo}

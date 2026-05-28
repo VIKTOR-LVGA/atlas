@@ -37,7 +37,7 @@ export function LandingProductShowcase() {
                   <span className="landing-badge-amber">Da rivedere</span>
                 </div>
 
-                <div className="mt-4 grid grid-cols-3 gap-2">
+                <div className="mt-4 grid grid-cols-2 gap-2 min-[400px]:grid-cols-3">
                   {[
                     { label: "Persone", value: "2" },
                     { label: "Coperture", value: "7" },

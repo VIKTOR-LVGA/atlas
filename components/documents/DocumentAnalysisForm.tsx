@@ -114,7 +114,7 @@ function AnalysisProcessingOverlay({
       aria-modal="true"
       aria-label="Analisi documento in corso"
     >
-      <div className="atlas-surface-card w-full max-w-md rounded-2xl border border-border p-4 shadow-xl sm:p-5">
+      <div className="atlas-surface-card max-h-[min(85vh,calc(100dvh-2rem))] w-full max-w-md overflow-y-auto rounded-2xl border border-border p-4 shadow-xl sm:p-5">
         <DocumentAnalysisTimeline
           activeStepIndex={activeStepIndex}
           compact={compact}

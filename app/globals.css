@@ -1066,3 +1066,52 @@ body {
     transform: none;
   }
 }
+
+/* ─── Mobile layout & touch (≤639px) ─── */
+@media (max-width: 639px) {
+  .atlas-btn-primary:not(.atlas-btn-compact),
+  .atlas-btn-secondary:not(.atlas-btn-compact) {
+    min-height: 2.75rem;
+  }
+
+  .atlas-nav-link {
+    min-height: 2.75rem;
+  }
+}
+
+.atlas-page-actions {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .atlas-page-actions {
+    width: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .atlas-page-actions .atlas-btn-primary,
+  .atlas-page-actions .atlas-btn-secondary,
+  .atlas-page-actions a.atlas-btn-primary,
+  .atlas-page-actions a.atlas-btn-secondary,
+  .atlas-page-actions button.atlas-btn-primary,
+  .atlas-page-actions button.atlas-btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.atlas-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}

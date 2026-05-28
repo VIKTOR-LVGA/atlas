@@ -45,7 +45,7 @@ export function RecommendationCard({
       href={recommendation.ctaHref}
       className={cn(
         "atlas-row-interactive group flex items-start gap-3 rounded-lg border border-border-subtle bg-card/80 transition",
-        compact ? "p-2.5" : "p-3"
+        compact ? "min-h-[44px] p-2.5" : "min-h-[44px] p-3"
       )}
     >
       <span

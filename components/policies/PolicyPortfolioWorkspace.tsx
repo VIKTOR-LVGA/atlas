@@ -276,7 +276,7 @@ export function PolicyPortfolioWorkspace({ policies }: PolicyPortfolioWorkspaceP
           </div>
         ) : (
           <>
-            <div className="hidden overflow-x-auto md:block">
+            <div className="atlas-table-scroll hidden md:block">
               <table className="w-full min-w-[720px] border-collapse text-left">
                 <thead>
                   <tr className="border-b border-border-subtle bg-card-muted/40 text-[10px] font-semibold uppercase tracking-[0.06em] text-muted">

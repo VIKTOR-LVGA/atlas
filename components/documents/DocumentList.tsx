@@ -192,7 +192,7 @@ export function DocumentList({ views }: { views: DocumentIntelligenceView[] }) {
 
   return (
     <>
-      <div className="hidden overflow-x-auto lg:block">
+      <div className="atlas-table-scroll hidden lg:block">
         <table className="w-full min-w-[760px] text-[12px]">
           <thead>
             <tr className="border-b border-border-subtle text-[10px] uppercase text-muted">

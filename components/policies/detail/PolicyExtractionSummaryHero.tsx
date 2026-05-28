@@ -59,7 +59,7 @@ export function PolicyExtractionSummaryHero({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-px bg-border-subtle lg:grid-cols-4 xl:grid-cols-7">
+      <div className="grid grid-cols-2 gap-px bg-border-subtle sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
         {metrics.map((metric) => (
           <div key={metric.id} className="min-w-0 bg-card px-3 py-3 sm:px-3.5">
             <p className="text-[10px] font-medium uppercase tracking-wide text-muted">

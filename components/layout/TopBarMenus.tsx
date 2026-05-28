@@ -23,7 +23,7 @@ import { getProfileInitials, getProfileShortName } from "@/lib/profile-display";
 import { cn } from "@/lib/utils";
 
 const iconTriggerClass =
-  "atlas-icon-button flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-card-muted hover:text-foreground";
+  "atlas-icon-button flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-card-muted hover:text-foreground sm:h-9 sm:w-9";
 
 export function TopBarNotificationsMenu() {
   return (

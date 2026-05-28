@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { atlasText } from "@/lib/atlas-ui";
+import { atlasPageActions, atlasText } from "@/lib/atlas-ui";
 
 interface PageHeaderProps {
   title: string;
@@ -29,7 +29,7 @@ export function PageHeader({
         {description ? <p className={atlasText.pageDesc}>{description}</p> : null}
       </div>
       {(meta || action) && (
-        <div className="flex shrink-0 flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+        <div className={cn(atlasPageActions, "shrink-0")}>
           {meta}
           {action}
         </div>

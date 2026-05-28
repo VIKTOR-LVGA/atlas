@@ -103,7 +103,7 @@ export function PortfolioProgressionPanel({
         </div>
 
         {nextStep ? (
-          <div className="shrink-0 rounded-xl border border-border-subtle bg-card-muted/40 p-4 sm:min-w-[220px]">
+          <div className="w-full min-w-0 shrink-0 rounded-xl border border-border-subtle bg-card-muted/40 p-4 sm:w-auto sm:min-w-[220px]">
             <p className="text-[10px] font-semibold uppercase tracking-wide text-accent">
               Prossimo passo
             </p>

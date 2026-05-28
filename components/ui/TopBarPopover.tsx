@@ -25,6 +25,8 @@ type PanelPosition = {
   top: number;
   left: number;
   minWidth: number;
+  maxWidth: number;
+  maxHeight: number;
 };
 
 export function TopBarPopover({
@@ -52,17 +54,43 @@ export function TopBarPopover({
     }
 
     const rect = triggerEl.getBoundingClientRect();
-    const panelWidth = Math.min(320, window.innerWidth - 16);
+    const viewportPadding = 8;
+    const maxWidth = Math.min(320, window.innerWidth - viewportPadding * 2);
+    const minWidth = Math.min(maxWidth, Math.max(rect.width, 200));
     const gap = 8;
-    const left =
-      align === "end"
-        ? Math.max(8, rect.right - panelWidth)
-        : Math.min(window.innerWidth - panelWidth - 8, rect.left);
+    const left = Math.min(
+      Math.max(
+        viewportPadding,
+        align === "end" ? rect.right - maxWidth : rect.left
+      ),
+      window.innerWidth - maxWidth - viewportPadding
+    );
+
+    const panelHeight =
+      panelRef.current?.offsetHeight ??
+      Math.min(280, window.innerHeight - viewportPadding * 2);
+    const spaceBelow = window.innerHeight - rect.bottom - gap - viewportPadding;
+    const spaceAbove = rect.top - gap - viewportPadding;
+    let top = rect.bottom + gap;
+
+    if (spaceBelow < panelHeight && spaceAbove > spaceBelow) {
+      top = Math.max(viewportPadding, rect.top - panelHeight - gap);
+    } else {
+      top = Math.min(
+        top,
+        window.innerHeight - panelHeight - viewportPadding
+      );
+    }
 
     setPosition({
-      top: rect.bottom + gap,
+      top,
       left,
-      minWidth: Math.min(panelWidth, Math.max(rect.width, 200)),
+      minWidth,
+      maxWidth,
+      maxHeight: Math.min(
+        panelHeight,
+        window.innerHeight - viewportPadding * 2
+      ),
     });
   }, [align]);
 
@@ -131,6 +159,9 @@ export function TopBarPopover({
           top: position.top,
           left: position.left,
           minWidth: position.minWidth,
+          maxWidth: position.maxWidth,
+          maxHeight: position.maxHeight,
+          overflowY: "auto",
           zIndex: 200,
         }}
         className={cn(

@@ -67,7 +67,7 @@ export default function SettingsPage() {
 
         <SettingsTrustCenter profile={profile} />
 
-        <div className={cn(atlasMainAside, "min-w-0")}>
+        <div className={cn(atlasMainAside, "min-w-0 max-w-full")}>
           <nav
             className={cn(
               atlasAsideColumn,

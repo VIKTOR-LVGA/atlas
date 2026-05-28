@@ -171,7 +171,7 @@ export function AnalysisIntelligenceGrid({ intelligence }: AnalysisIntelligenceG
           description="Panoramica familiare dal portafoglio estratto."
           padding="sm"
         >
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-2 min-[400px]:grid-cols-3 min-[400px]:gap-3">
             {[
               {
                 label: "Persone",
