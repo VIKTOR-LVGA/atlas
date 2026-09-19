@@ -1,0 +1,6 @@
+CSS Assicurazione malattie SA
+POLIZZA ASSICURAZIONE DI BASE LAMal
+Numero di polizza SYN-SAL-004
+Persona assicurata: Giulia Esempio
+Modello HMO; franchigia annua CHF 500; aliquota percentuale secondo LAMal; infortunio escluso.
+Premio mensile CHF 401.20 dal 01.01.2026.

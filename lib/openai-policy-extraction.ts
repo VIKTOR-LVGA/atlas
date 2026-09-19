@@ -1,6 +1,9 @@
 import "server-only";
 
-import { downloadCurrentUserDocumentFile } from "@/lib/documents";
+import {
+  downloadCurrentUserDocumentFile,
+  updateCurrentUserDocumentClassification,
+} from "@/lib/documents";
 import { compactExtractionText } from "@/lib/extraction-text-compaction";
 import { extractReadableTextFromPdf } from "@/lib/pdf-text";
 import { elapsedMs, logAnalysisTiming } from "@/lib/analysis-timing";
@@ -16,8 +19,13 @@ import {
 } from "@/lib/policy-types";
 import {
   buildExtractionKnowledgeContext,
+  canPersistAsPersonalPolicy,
+  canonicalCoverageTypes,
+  classifyInsuranceDocument,
+  detectInsuranceDocumentLanguage,
   formatSwissInsuranceKnowledgePromptSection,
   isSwissKnowledgeRuleId,
+  recognizeSwissInsurer,
 } from "@/lib/insurance-knowledge";
 import { enrichSwissPolicyExtraction } from "@/lib/swiss-extraction-enrichment";
 import {
@@ -82,6 +90,7 @@ export type OpenAIFallbackReason =
 
 const EXTRACTION_INSTRUCTIONS = [
   "Extract Swiss insurance policy data from readable PDF text. Return JSON only per schema.",
+  "Only extract facts explicitly present in this customer's policy or coverage summary. General product knowledge and CGA/AVB wording may help classify terminology but must never be represented as purchased coverage.",
   "You are Swiss-insurance-aware: LAMal/KVG base, LCA/VVG complementary, hospital, dental, accident, outpatient/ambulatory, Telmed/HMO, household, liability, car, legal, travel, and other products.",
   "Use policy_type for the broad Atlas category (health, liability, household, car, legal, other). Use policy_subtype for the specific Swiss category (e.g. lamal_base, lca_complementary, hospital).",
   "Do not invent policy numbers, dates, premiums, franchises, persons, or coverages. Use null when absent. Mark field_confidence uncertain only when evidence for that field is weak — not because review may be needed later.",
@@ -92,7 +101,8 @@ const EXTRACTION_INSTRUCTIONS = [
   "- One details.insured_people[] entry per Versicherte/Person with name, birth_date, insured_number, section_id, source_order, franchise, model, accident_covered, nested coverages[], and person premium totals when shown.",
   "- Separate Person 1 vs Person 2 using headers, insured numbers, and row grouping — never merge unrelated persons.",
   "- Assign LAMal/KVG base, LCA/VVG complementari, hospital, dental, accident, outpatient, Telmed/HMO under the person block they belong to.",
-  "- For each premium/product line in details.coverages[] set name to the human-readable product label from the PDF (not an internal slug). Set coverage_type/category_label to the Swiss category token. Set insured_person_name, insured_number, ownership_confidence (75-95 when number/section/name align; low only if truly ambiguous).",
+  "- For each premium/product line in details.coverages[] preserve the exact human-readable wording in name and original_label, then map canonical_type to the closest allowed canonical token. Set provenance=explicit only when supported by document evidence; otherwise derived or unknown. Set evidence to a short local excerpt and source_page when available.",
+  "- coverage_status must distinguish included, excluded, conditional, and unknown. Never convert an exclusion, optional module, marketing description, or generic conditions clause into an included coverage.",
   "- Avoid duplicating the same product in coverages[], products[], and complementary_products[] unless the PDF clearly lists distinct products. Prefer one canonical line per product in coverages[]; use products/complementary_products only for extra bundles.",
   "- Contract/family payable total goes in premium_amount and premium_summary.final_monthly — never as a single person's line premium. Family/person totals must sum effective paid premiums only, not list/reference prices.",
   "Premium list price vs effective paid premium: if the PDF shows a list/reference price (e.g. CHF 18.80) but states premio gratuito, gratuito, 100% discount, Totale 0.00, or equivalent, set premium_gross to the list/reference amount, premium_final and premium_amount to 0, and explain in notes (e.g. Premio gratuito indicato nel PDF. Listino CHF X, premio effettivo CHF 0). Do not invent age/child/promotion reasons unless explicitly written in the PDF.",
@@ -138,6 +148,19 @@ export class OpenAIPolicyExtractionError extends Error {
     );
     this.name = "OpenAIPolicyExtractionError";
     this.internalMessage = getInternalFailureReason(internalMessage);
+  }
+}
+
+export class NonPolicyDocumentError extends OpenAIPolicyExtractionError {
+  readonly documentType: string;
+
+  constructor(documentType: string) {
+    super(
+      `non_policy_document:${documentType}`,
+      `Documento classificato come ${documentType}: archiviato, ma non trasformato in polizza.`
+    );
+    this.name = "NonPolicyDocumentError";
+    this.documentType = documentType;
   }
 }
 
@@ -565,6 +588,18 @@ function getDiscountSchema() {
 function getCoverageLineSchema(includePolicyFields: boolean) {
   const properties: Record<string, unknown> = {
     name: { type: "string" },
+    canonical_type: {
+      anyOf: [{ type: "string", enum: canonicalCoverageTypes }, { type: "null" }],
+    },
+    original_label: nullableText,
+    coverage_status: {
+      type: "string",
+      enum: ["included", "excluded", "conditional", "unknown"],
+    },
+    provenance: {
+      type: "string",
+      enum: ["explicit", "derived", "unknown"],
+    },
     coverage_type: nullablePolicySubtype,
     category_label: nullableText,
     premium_gross: nullableNumber,
@@ -588,10 +623,21 @@ function getCoverageLineSchema(includePolicyFields: boolean) {
     ownership_confidence: nullableNumber,
     uncertain: { type: "boolean" },
     notes: nullableText,
+    limit_unit: nullableText,
+    currency: nullableText,
+    deductible_unit: nullableText,
+    reimbursement_percent: nullableNumber,
+    waiting_period_days: nullableNumber,
+    territorial_scope: nullableText,
+    evidence: nullableText,
   };
 
   const required = [
     "name",
+    "canonical_type",
+    "original_label",
+    "coverage_status",
+    "provenance",
     "coverage_type",
     "category_label",
     "premium_gross",
@@ -610,6 +656,13 @@ function getCoverageLineSchema(includePolicyFields: boolean) {
     "ownership_confidence",
     "uncertain",
     "notes",
+    "limit_unit",
+    "currency",
+    "deductible_unit",
+    "reimbursement_percent",
+    "waiting_period_days",
+    "territorial_scope",
+    "evidence",
   ];
 
   if (includePolicyFields) {
@@ -1361,6 +1414,28 @@ export const openAIPolicyDocumentExtractor: PolicyDocumentExtractor = {
     const pdf = await downloadCurrentUserDocumentFile(document);
     const text = await extractReadableTextFromPdf(pdf);
     const pdfMs = elapsedMs(pdfStartedAt);
+    const classification = classifyInsuranceDocument(text);
+    const insurer = recognizeSwissInsurer(text);
+    const language = detectInsuranceDocumentLanguage(text);
+
+    await updateCurrentUserDocumentClassification(document.id, {
+      documentType: classification.type,
+      documentLanguage: language,
+      recognizedInsurer: insurer.brand,
+      confidence: classification.confidence,
+      metadata: {
+        evidence: classification.evidence,
+        insurer_id: insurer.insurerId,
+        insurer_legal_entity: insurer.legalEntity,
+        insurer_confidence: insurer.confidence,
+        insurer_signals: insurer.matchedSignals,
+        classifier: "atlas-swiss-v1",
+      },
+    });
+
+    if (!canPersistAsPersonalPolicy(classification.type)) {
+      throw new NonPolicyDocumentError(classification.type);
+    }
 
     const {
       payload,

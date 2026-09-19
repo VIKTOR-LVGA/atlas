@@ -268,6 +268,19 @@ const DETAIL_SCALAR_FIELDS: Record<
     { fieldName: "traffic_legal", key: "traffic_legal" },
     { fieldName: "coverage_region", key: "coverage_region" },
   ],
+  travel: [
+    { fieldName: "travel_coverage", key: "travel_coverage" },
+    { fieldName: "coverage_region", key: "coverage_region" },
+    { fieldName: "generic_details", key: "generic_details" },
+  ],
+  life: [{ fieldName: "generic_details", key: "generic_details" }],
+  pension: [{ fieldName: "generic_details", key: "generic_details" }],
+  building: [
+    { fieldName: "insured_sum", key: "insured_sum" },
+    { fieldName: "glass_coverage", key: "glass_coverage" },
+    { fieldName: "generic_details", key: "generic_details" },
+  ],
+  pet: [{ fieldName: "generic_details", key: "generic_details" }],
   other: [{ fieldName: "generic_details", key: "generic_details" }],
 };
 

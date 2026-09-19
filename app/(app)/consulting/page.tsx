@@ -19,11 +19,15 @@ import {
   atlasSpace,
 } from "@/lib/atlas-ui";
 import { getConsultingIntelligence } from "@/lib/consulting-intelligence";
+import { listCurrentUserConsultationRequests } from "@/lib/consultations";
 
 export const metadata = { title: "Consulenza" };
 
 export default async function ConsultingPage() {
-  const intelligence = await getConsultingIntelligence();
+  const [intelligence, consultationRequests] = await Promise.all([
+    getConsultingIntelligence(),
+    listCurrentUserConsultationRequests(),
+  ]);
   const { readiness, hasInsufficientData, progression } = intelligence;
 
   return (
@@ -31,7 +35,7 @@ export default async function ConsultingPage() {
       <RevealStagger>
         <PageHeader
           title="Revisione umana"
-          description="Atlas prepara il tuo portafoglio per una futura revisione con esperto."
+          description="Atlas prepara il tuo portafoglio per una revisione umana su richiesta."
           action={
             <div className="flex flex-wrap items-center gap-2">
               <Link
@@ -48,8 +52,8 @@ export default async function ConsultingPage() {
         />
 
         <div className={`${atlasCard.support} px-4 py-3 text-[12px] text-muted`}>
-          Il servizio di revisione con esperto è in preparazione. I controlli descrivono
-          cosa un revisore potrà analizzare quando sarà disponibile.
+          Puoi inviare una richiesta di revisione con consenso esplicito. Nessuna
+          prenotazione o assegnazione a un esperto avviene automaticamente.
         </div>
 
         <ConsultingReadinessHero readiness={readiness} />
@@ -57,6 +61,10 @@ export default async function ConsultingPage() {
         {hasInsufficientData ? (
           <>
             <ConsultingEmptyState intelligence={intelligence} />
+            <ConsultingInterestCta
+              readinessPercent={readiness.percent}
+              latestRequest={consultationRequests[0] ?? null}
+            />
             {progression.showOnboardingFocus ? (
               <PortfolioProgressionPanel progression={progression} compact />
             ) : null}
@@ -73,7 +81,10 @@ export default async function ConsultingPage() {
               </div>
 
               <aside className={atlasAsideColumn}>
-                <ConsultingInterestCta readinessPercent={readiness.percent} />
+                <ConsultingInterestCta
+                  readinessPercent={readiness.percent}
+                  latestRequest={consultationRequests[0] ?? null}
+                />
                 {progression.showOnboardingFocus ? (
                   <PortfolioProgressionPanel progression={progression} compact />
                 ) : null}
@@ -95,7 +106,7 @@ export default async function ConsultingPage() {
                 {intelligence.snapshot.confirmedPolicies} polizza
                 {intelligence.snapshot.confirmedPolicies === 1 ? "" : "e"} confermata
                 {intelligence.snapshot.confirmedPolicies === 1 ? "" : "e"} nel dossier.
-                Servizio consulenza non ancora attivo.
+                La richiesta di revisione e ora disponibile con consenso esplicito.
               </p>
             </div>
           </div>

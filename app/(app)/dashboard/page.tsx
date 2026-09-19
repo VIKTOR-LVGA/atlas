@@ -7,6 +7,7 @@ import { buildAtlasScore } from "@/lib/atlas-score";
 import { getCurrentUserDocuments } from "@/lib/documents";
 import { buildOpportunities } from "@/lib/opportunities";
 import { getCurrentUserPolicies } from "@/lib/policies";
+import { syncCurrentUserOpportunities } from "@/lib/persisted-opportunities";
 import { formatScheduleDate, getUpcomingDeadlines, greetingForZurich } from "@/lib/policy-schedule";
 import { sumPortfolioPremiums } from "@/lib/premium-totals";
 import { getPolicyStatusLabel } from "@/lib/policy-consumer-display";
@@ -29,6 +30,7 @@ export default async function DashboardPage() {
   const deadlines = getUpcomingDeadlines(policies, new Date(), 5);
   const score = buildAtlasScore({ profile, policies, documents });
   const opportunities = buildOpportunities({ policies, documents }).slice(0, 3);
+  await syncCurrentUserOpportunities({ policies, documents });
   const attentionCount = opportunities.filter((item) => item.kind !== "stale_review").length;
   const nextDeadline = deadlines[0] ?? null;
   const activeCount = policies.filter(

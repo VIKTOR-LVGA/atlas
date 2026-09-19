@@ -25,12 +25,15 @@ const policyPremiumFrequencies = [
 ] as const;
 
 const policySelect =
-  "id, user_id, document_id, provider, policy_type, policy_category_label, policy_number, premium_amount, premium_frequency, deductible, start_date, end_date, renewal_date, currency, coverage_amount, details, notes, extraction_confidence, extraction_notes, source, requires_review, status, created_at, updated_at";
+  "id, user_id, document_id, family_member_id, property_id, vehicle_id, provider, policy_type, policy_category_label, policy_number, premium_amount, premium_frequency, deductible, start_date, end_date, renewal_date, currency, coverage_amount, details, notes, extraction_confidence, extraction_notes, source, requires_review, status, created_at, updated_at";
 
 type PolicyRow = {
   id: string;
   user_id: string;
   document_id: string | null;
+  family_member_id: string | null;
+  property_id: string | null;
+  vehicle_id: string | null;
   provider: string;
   policy_type: string;
   policy_category_label: string | null;
@@ -92,6 +95,9 @@ function toUserPolicy(
     userId: policy.user_id,
     documentId: policy.document_id,
     document: policy.document_id ? documents.get(policy.document_id) ?? null : null,
+    familyMemberId: policy.family_member_id,
+    propertyId: policy.property_id,
+    vehicleId: policy.vehicle_id,
     provider: policy.provider,
     policyType,
     policyCategoryLabel:

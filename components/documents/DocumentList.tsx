@@ -115,6 +115,7 @@ function MobileActionMenu({ view }: { view: DocumentIntelligenceView }) {
         <DocumentAnalysisForm
           documentId={document.id}
           documentStatus={document.status}
+          documentType={document.documentType}
           updatedAt={document.updatedAt}
           linkedPolicyId={view.linkedPolicy?.id ?? null}
           variant="menu"
@@ -266,6 +267,7 @@ export function DocumentList({ views }: { views: DocumentIntelligenceView[] }) {
                       <DocumentAnalysisForm
                         documentId={document.id}
                         documentStatus={document.status}
+                        documentType={document.documentType}
                         updatedAt={document.updatedAt}
                         linkedPolicyId={view.linkedPolicy?.id ?? null}
                         variant="icon"
@@ -347,6 +349,7 @@ export function DocumentList({ views }: { views: DocumentIntelligenceView[] }) {
                   <DocumentAnalysisForm
                     documentId={document.id}
                     documentStatus={document.status}
+                    documentType={document.documentType}
                     updatedAt={document.updatedAt}
                     linkedPolicyId={view.linkedPolicy?.id ?? null}
                     variant="icon"

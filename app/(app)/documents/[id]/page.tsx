@@ -21,6 +21,7 @@ import {
   getPoliciesByDocumentId,
 } from "@/lib/document-intelligence";
 import { getCurrentUserPolicies } from "@/lib/policies";
+import { insuranceDocumentTypeLabels } from "@/lib/insurance-knowledge";
 import { formatDateTime, formatFileSize, formatRelativeTime } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
@@ -112,6 +113,18 @@ export default async function DocumentDetailPage({ params }: PageProps) {
                   { label: "Dimensione", value: formatFileSize(document.fileSize) },
                   { label: "Formato", value: document.mimeType ?? "application/pdf" },
                   {
+                    label: "Tipo documento",
+                    value: insuranceDocumentTypeLabels[document.documentType],
+                  },
+                  {
+                    label: "Compagnia riconosciuta",
+                    value: document.recognizedInsurer ?? "Non rilevata",
+                  },
+                  {
+                    label: "Lingua",
+                    value: document.documentLanguage?.toUpperCase() ?? "Non rilevata",
+                  },
+                  {
                     label: "Caricato",
                     value: (
                       <span>
@@ -146,6 +159,7 @@ export default async function DocumentDetailPage({ params }: PageProps) {
                 <DocumentAnalysisForm
                   documentId={document.id}
                   documentStatus={document.status}
+                  documentType={document.documentType}
                   updatedAt={document.updatedAt}
                   linkedPolicyId={linkedPolicy?.id ?? null}
                 />

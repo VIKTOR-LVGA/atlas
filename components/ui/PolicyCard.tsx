@@ -10,7 +10,11 @@ const categoryLabels: Record<PolicyCategory, string> = {
   household: "Mobilia",
   liability: "RC",
   legal: "Giuridica",
+  travel: "Viaggi",
   life: "Vita",
+  pension: "Previdenza",
+  building: "Stabile",
+  pet: "Animali",
 };
 
 const statusLabels: Record<PolicyStatus, string> = {

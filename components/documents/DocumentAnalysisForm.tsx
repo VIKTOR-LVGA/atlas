@@ -16,7 +16,8 @@ import {
 } from "@/app/(app)/documents/actions";
 import { DocumentAnalysisPendingTimeline } from "@/components/documents/DocumentAnalysisPendingTimeline";
 import { isDocumentProcessingStale } from "@/lib/document-analysis-state";
-import type { DocumentStatus } from "@/lib/types";
+import { canPersistAsPersonalPolicy } from "@/lib/insurance-knowledge";
+import type { DocumentStatus, UserDocument } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const initialState: AnalyzeDocumentActionState = {
@@ -32,6 +33,7 @@ type DocumentAnalysisFormVariant = "button" | "icon" | "menu";
 interface DocumentAnalysisFormProps {
   documentId: string;
   documentStatus: DocumentStatus;
+  documentType: UserDocument["documentType"];
   updatedAt: string;
   linkedPolicyId?: string | null;
   variant?: DocumentAnalysisFormVariant;
@@ -55,6 +57,7 @@ function AnalysisProcessingOverlay({ compact }: { compact: boolean }) {
 export function DocumentAnalysisForm({
   documentId,
   documentStatus,
+  documentType,
   updatedAt,
   linkedPolicyId = null,
   variant = "button",
@@ -71,9 +74,13 @@ export function DocumentAnalysisForm({
     documentStatus === "processing" && processingStale;
   const busy = pending || isProcessing;
   const hasLinkedPolicy = Boolean(linkedPolicyId);
+  const isArchivedReference =
+    documentStatus === "analyzed" &&
+    !hasLinkedPolicy &&
+    !canPersistAsPersonalPolicy(documentType);
   const showOpenPolicy = documentStatus === "analyzed" && hasLinkedPolicy;
   const showRecreate =
-    documentStatus === "analyzed" && !hasLinkedPolicy;
+    documentStatus === "analyzed" && !hasLinkedPolicy && !isArchivedReference;
   const showAnalyze =
     documentStatus === "uploaded" ||
     documentStatus === "failed" ||
@@ -87,6 +94,8 @@ export function DocumentAnalysisForm({
       ? "Riprendi analisi"
       : documentStatus === "failed"
         ? "Riprova analisi"
+        : isArchivedReference
+          ? "Documento archiviato"
         : showRecreate
           ? "Ricrea bozza"
           : showOpenPolicy
@@ -193,6 +202,13 @@ export function DocumentAnalysisForm({
         {showRecreate && variant !== "icon" && !pending ? (
           <p className="text-[11px] leading-relaxed text-muted">
             Analisi completata senza polizza collegata. La ricreazione richiede conferma.
+          </p>
+        ) : null}
+
+        {isArchivedReference && variant !== "icon" ? (
+          <p className="text-[11px] leading-relaxed text-muted">
+            Il tipo di documento non rappresenta una polizza personale e resta nel wallet
+            come riferimento.
           </p>
         ) : null}
 

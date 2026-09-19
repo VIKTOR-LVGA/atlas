@@ -123,6 +123,11 @@ const categoryTones: Record<TypedPolicyType, AnalysisDistributionSegment["tone"]
   household: "yellow",
   liability: "purple",
   legal: "indigo",
+  travel: "blue",
+  life: "red",
+  pension: "green",
+  building: "yellow",
+  pet: "purple",
   other: "neutral",
 };
 

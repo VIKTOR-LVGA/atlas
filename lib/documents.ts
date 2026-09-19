@@ -3,6 +3,10 @@ import "server-only";
 import { createHash, randomUUID } from "node:crypto";
 import { cache } from "react";
 import type { DocumentStatus, UserDocument } from "@/lib/types";
+import {
+  insuranceDocumentTypes,
+  type InsuranceDocumentType,
+} from "@/lib/insurance-knowledge/document-types";
 import { DataFetchError } from "@/lib/data-fetch";
 import {
   getInternalFailureReason,
@@ -18,7 +22,7 @@ import { getSupabaseServerClient } from "@/lib/supabase/server";
 export { ANALYSIS_PROCESSING_STALE_MINUTES, isDocumentProcessingStale } from "@/lib/document-analysis-state";
 
 const documentSelect =
-  "id, file_name, file_path, file_size, mime_type, status, analysis_error, file_hash, created_at, updated_at";
+  "id, file_name, file_path, file_size, mime_type, status, analysis_error, file_hash, document_type, document_language, recognized_insurer, classification_confidence, created_at, updated_at";
 
 const POLICY_DOCUMENTS_BUCKET = "policy-documents";
 const MAX_POLICY_DOCUMENT_SIZE = 10 * 1024 * 1024;
@@ -71,6 +75,12 @@ function toDocumentStatus(status: string): DocumentStatus {
   }
 }
 
+function toDocumentType(value: string | null | undefined): InsuranceDocumentType {
+  return insuranceDocumentTypes.includes(value as InsuranceDocumentType)
+    ? (value as InsuranceDocumentType)
+    : "unknown";
+}
+
 function toUserDocument(document: {
   id: string;
   file_name: string;
@@ -79,6 +89,10 @@ function toUserDocument(document: {
   mime_type: string | null;
   status: string;
   analysis_error?: string | null;
+  document_type?: string | null;
+  document_language?: string | null;
+  recognized_insurer?: string | null;
+  classification_confidence?: number | string | null;
   created_at: string;
   updated_at: string;
 }): UserDocument {
@@ -91,6 +105,18 @@ function toUserDocument(document: {
     mimeType: document.mime_type,
     status: toDocumentStatus(document.status),
     analysisError: document.analysis_error ?? null,
+    documentType: toDocumentType(document.document_type),
+    documentLanguage: ["it", "de", "fr", "other"].includes(
+      document.document_language ?? ""
+    )
+      ? (document.document_language as "it" | "de" | "fr" | "other")
+      : null,
+    recognizedInsurer: document.recognized_insurer ?? null,
+    classificationConfidence:
+      document.classification_confidence === null ||
+      document.classification_confidence === undefined
+        ? null
+        : Number(document.classification_confidence),
     createdAt: document.created_at,
     updatedAt: document.updated_at,
   };
@@ -345,6 +371,46 @@ export async function updateCurrentUserDocumentStatus(
   }
 
   return data ? toUserDocument(data) : null;
+}
+
+export async function updateCurrentUserDocumentClassification(
+  id: string,
+  classification: {
+    documentType: InsuranceDocumentType;
+    documentLanguage: "it" | "de" | "fr" | "other";
+    recognizedInsurer: string | null;
+    confidence: number;
+    metadata: Record<string, unknown>;
+  }
+) {
+  const supabase = await getSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new DocumentManagementError("Accedi di nuovo per classificare il documento.");
+  }
+
+  const { data, error } = await supabase
+    .from("documents")
+    .update({
+      document_type: classification.documentType,
+      document_language: classification.documentLanguage,
+      recognized_insurer: classification.recognizedInsurer,
+      classification_confidence: Math.min(100, Math.max(0, classification.confidence)),
+      classification_metadata: classification.metadata,
+    })
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .select(documentSelect)
+    .maybeSingle();
+
+  if (error || !data) {
+    throw new DocumentManagementError("Classificazione documento non salvata.");
+  }
+
+  return toUserDocument(data);
 }
 
 export async function claimCurrentUserDocumentForAnalysis(

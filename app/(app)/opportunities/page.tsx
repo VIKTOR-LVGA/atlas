@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { ConsultationPrepCard } from "@/components/consumer/ConsultationPrepCard";
 import { EmptyState } from "@/components/consumer/EmptyState";
+import { OpportunityActions } from "@/components/consumer/OpportunityActions";
 import { getCurrentUserDocuments } from "@/lib/documents";
-import { buildOpportunities } from "@/lib/opportunities";
 import { getCurrentUserPolicies } from "@/lib/policies";
+import { syncCurrentUserOpportunities } from "@/lib/persisted-opportunities";
 
 export const metadata = { title: "Opportunità" };
 
@@ -12,7 +13,7 @@ export default async function OpportunitiesPage() {
     getCurrentUserPolicies(),
     getCurrentUserDocuments(),
   ]);
-  const opportunities = buildOpportunities({ policies, documents });
+  const opportunities = await syncCurrentUserOpportunities({ policies, documents });
 
   return (
     <div className="space-y-6">
@@ -38,11 +39,12 @@ export default async function OpportunitiesPage() {
               <p className="text-[15px] font-semibold text-foreground">{item.title}</p>
               <p className="mt-1 text-[13px] leading-relaxed text-muted">{item.description}</p>
               <Link
-                href={item.ctaHref}
+                href={typeof item.metadata.cta_href === "string" ? item.metadata.cta_href : "/policies"}
                 className="mt-4 inline-flex min-h-10 items-center text-[13px] font-medium text-accent"
               >
-                {item.ctaLabel}
+                {typeof item.metadata.cta_label === "string" ? item.metadata.cta_label : "Controlla dati"}
               </Link>
+              <OpportunityActions id={item.id} seen={item.status === "seen"} />
             </li>
           ))}
         </ul>

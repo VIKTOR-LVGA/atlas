@@ -1,10 +1,17 @@
+import type { InsuranceDocumentType } from "@/lib/insurance-knowledge/document-types";
+import type { FactProvenance } from "@/lib/insurance-knowledge/extraction-schema";
+
 export type PolicyCategory =
   | "health"
   | "car"
   | "household"
   | "liability"
   | "legal"
-  | "life";
+  | "travel"
+  | "life"
+  | "pension"
+  | "building"
+  | "pet";
 
 export type PolicyStatus = "active" | "expiring" | "review";
 
@@ -82,6 +89,10 @@ export interface UserDocument {
   mimeType: string | null;
   status: DocumentStatus;
   analysisError?: string | null;
+  documentType: InsuranceDocumentType;
+  documentLanguage: "it" | "de" | "fr" | "other" | null;
+  recognizedInsurer: string | null;
+  classificationConfidence: number | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -98,6 +109,11 @@ export type TypedPolicyType =
   | "household"
   | "car"
   | "legal"
+  | "travel"
+  | "life"
+  | "pension"
+  | "building"
+  | "pet"
   | "other";
 
 export type PolicySource = "manual" | "ai_draft";
@@ -140,6 +156,10 @@ export type PolicyCoverageAssignmentSource = "manual" | "ai" | string;
 export interface PolicyCoverageDetail {
   name: string;
   stable_key?: string | null;
+  canonical_type?: string | null;
+  original_label?: string | null;
+  coverage_status?: "included" | "excluded" | "conditional" | "unknown";
+  provenance?: FactProvenance;
   policy_type?: TypedPolicyType | null;
   coverage_type?: string | null;
   category_label?: string | null;
@@ -151,6 +171,14 @@ export interface PolicyCoverageDetail {
   deductible?: number | null;
   franchise?: number | null;
   coverage_amount?: number | null;
+  limit_unit?: string | null;
+  currency?: string | null;
+  deductible_unit?: string | null;
+  reimbursement_percent?: number | null;
+  waiting_period_days?: number | null;
+  territorial_scope?: string | null;
+  evidence?: string | null;
+  terms?: Record<string, PolicyDetailScalar>;
   insured_person_name?: string | null;
   insured_number?: string | null;
   person_index?: number | null;
@@ -299,6 +327,9 @@ export interface UserPolicy {
   userId: string;
   documentId: string | null;
   document: UserPolicyDocument | null;
+  familyMemberId: string | null;
+  propertyId: string | null;
+  vehicleId: string | null;
   provider: string;
   policyType: TypedPolicyType;
   policyCategoryLabel: string | null;
@@ -320,6 +351,136 @@ export interface UserPolicy {
   status: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export type FamilyRelationship = "self" | "partner" | "child" | "other";
+
+export interface FamilyMember {
+  id: string;
+  firstName: string;
+  lastName: string | null;
+  relationship: FamilyRelationship;
+  birthDate: string | null;
+  gender: string | null;
+  isPolicyHolder: boolean;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InsuredProperty {
+  id: string;
+  label: string;
+  propertyType: "apartment" | "house" | "other";
+  occupancyType: "tenant" | "owner" | "other";
+  street: string | null;
+  postalCode: string | null;
+  city: string | null;
+  canton: string | null;
+  country: string;
+  householdSize: number | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Vehicle {
+  id: string;
+  label: string;
+  vehicleType: "car" | "motorcycle" | "camper" | "commercial" | "other";
+  make: string | null;
+  model: string | null;
+  year: number | null;
+  licensePlate: string | null;
+  canton: string | null;
+  ownershipType: "owned" | "leased" | "financed" | "other" | null;
+  firstRegistrationDate: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type PolicyCoverageSource = "manual" | "extracted" | "imported";
+export type PolicyCoverageStatus = "included" | "excluded" | "conditional" | "unknown";
+
+export interface PolicyCoverage {
+  id: string;
+  policyId: string;
+  canonicalType: string;
+  originalLabel: string;
+  insuranceCategory: string;
+  coverageStatus: PolicyCoverageStatus;
+  coverageLimit: number | null;
+  limitUnit: string | null;
+  currency: string | null;
+  deductible: number | null;
+  deductibleUnit: string | null;
+  reimbursementPercent: number | null;
+  waitingPeriodDays: number | null;
+  territorialScope: string | null;
+  description: string | null;
+  source: PolicyCoverageSource;
+  provenance: FactProvenance;
+  confidence: number | null;
+  sourceDocumentId: string | null;
+  sourcePage: number | null;
+  evidence: string | null;
+  familyMemberId: string | null;
+  propertyId: string | null;
+  vehicleId: string | null;
+  effectiveFrom: string | null;
+  effectiveUntil: string | null;
+  terms: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type PersistedOpportunityStatus = "new" | "seen" | "dismissed" | "resolved";
+export type PersistedOpportunityType =
+  | "upcoming_expiry"
+  | "missing_premium"
+  | "missing_document"
+  | "incomplete_policy"
+  | "periodic_review";
+
+export interface PersistedOpportunity {
+  id: string;
+  policyId: string | null;
+  opportunityType: PersistedOpportunityType;
+  title: string;
+  description: string;
+  status: PersistedOpportunityStatus;
+  source: string;
+  sourceKey: string | null;
+  detectedAt: string;
+  seenAt: string | null;
+  dismissedAt: string | null;
+  resolvedAt: string | null;
+  metadata: Record<string, unknown>;
+}
+
+export type ConsultationStatus =
+  | "submitted"
+  | "assigned"
+  | "contacted"
+  | "consultation_scheduled"
+  | "in_review"
+  | "completed"
+  | "cancelled";
+
+export interface ConsultationRequest {
+  id: string;
+  status: ConsultationStatus;
+  requestType: "portfolio_review" | "policy_review" | "general_question";
+  message: string | null;
+  preferredContactMethod: "email" | "phone" | null;
+  preferredContactTime: string | null;
+  consentGivenAt: string;
+  privacyVersion: string | null;
+  sourceOpportunityId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  closedAt: string | null;
 }
 
 export interface PolicyInput {

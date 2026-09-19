@@ -66,6 +66,45 @@ test.describe.serial("Atlas authenticated journeys", () => {
     await expect(page.getByLabel("Telefono")).toHaveValue("+41 79 000 00 00");
   });
 
+  test("household people, homes and vehicles support create and edit", async ({ page }) => {
+    await login(page);
+    await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
+    await page.goto("/settings");
+
+    await page.getByRole("button", { name: "Aggiungi persona" }).click();
+    await page.getByLabel("Nome persona", { exact: true }).fill("Giulia");
+    await page.getByLabel("Cognome persona").fill("Browser");
+    await page.getByLabel("Relazione").selectOption("partner");
+    await page.getByRole("button", { name: "Salva persona" }).click();
+    await expect(page.getByRole("status")).toContainText("Membro aggiunto");
+    await expect(page.getByText("Giulia Browser", { exact: true })).toBeVisible();
+
+    const personRow = page.locator("li").filter({ hasText: "Giulia Browser" });
+    await personRow.getByRole("button", { name: "Modifica" }).click();
+    await page.getByLabel("Cognome persona").fill("Browser Updated");
+    await page.getByRole("button", { name: "Salva persona" }).click();
+    await expect(page.getByText("Giulia Browser Updated", { exact: true })).toBeVisible();
+
+    await page.getByRole("button", { name: "Aggiungi casa" }).click();
+    await page.getByLabel("Nome abitazione", { exact: true }).fill("Casa Browser");
+    await page.getByLabel("Città abitazione").fill("Lugano");
+    await page.getByLabel("NPA abitazione").fill("6900");
+    await page.getByRole("button", { name: "Salva casa" }).click();
+    await expect(page.getByText("Casa Browser", { exact: true })).toBeVisible();
+
+    await page.getByRole("button", { name: "Aggiungi veicolo" }).click();
+    await page.getByLabel("Nome veicolo", { exact: true }).fill("Auto Browser");
+    await page.getByLabel("Marca veicolo").fill("Volvo");
+    await page.getByLabel("Targa veicolo").fill("TI 123456");
+    await page.getByRole("button", { name: "Salva veicolo" }).click();
+    await expect(page.getByText("Auto Browser", { exact: true })).toBeVisible();
+
+    await page.reload();
+    await expect(page.getByText("Giulia Browser Updated", { exact: true })).toBeVisible();
+    await expect(page.getByText("Casa Browser", { exact: true })).toBeVisible();
+    await expect(page.getByText("Auto Browser", { exact: true })).toBeVisible();
+  });
+
   test("policy can be created and read", async ({ page }) => {
     test.setTimeout(45_000);
     await login(page);
@@ -125,6 +164,10 @@ test.describe.serial("Atlas authenticated journeys", () => {
     await page.goto("/opportunities");
     await expect(page.getByRole("heading", { name: "Opportunità" })).toBeVisible();
     await expect(page.getByText("Controlla polizza").first()).toBeVisible();
+    await page.getByRole("button", { name: "Segna come vista" }).first().click();
+    await expect(page.getByRole("status").first()).toContainText("letta");
+    await page.getByRole("button", { name: "Archivia" }).first().click();
+    await expect(page.getByRole("status").first()).toContainText("archiviata");
 
     await page.goto("/documents");
     await expect(page.getByRole("heading", { name: "Wallet documenti" })).toBeVisible();
@@ -136,6 +179,23 @@ test.describe.serial("Atlas authenticated journeys", () => {
     await expect(mobileNav.getByRole("link", { name: "Polizze" })).toBeVisible();
     await expect(mobileNav.getByRole("link", { name: "Opportunità" })).toBeVisible();
     await expect(mobileNav.getByRole("link", { name: "Profilo" })).toBeVisible();
+  });
+
+  test("consultation request requires consent and persists", async ({ page }) => {
+    await login(page);
+    await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
+    await page.goto("/consulting");
+    await page.getByLabel("Modalita di contatto").selectOption("email");
+    await page.getByLabel("Messaggio facoltativo").fill("Richiesta browser E2E");
+    await page.getByLabel("Consenso alla revisione").check();
+    await page.getByRole("button", { name: "Richiedi revisione gratuita" }).click();
+    await expect(page.getByTestId("consultation-confirmation")).toContainText(
+      "Richiesta ricevuta"
+    );
+    await page.reload();
+    await expect(page.getByTestId("consultation-confirmation")).toContainText(
+      "Richiesta ricevuta"
+    );
   });
 
   test("document can be uploaded, read, and downloaded", async ({ page }) => {
@@ -189,6 +249,13 @@ test.describe.serial("Atlas authenticated journeys", () => {
     await page.goto(`/documents/${documentId}`);
     await expect(page).toHaveURL(/\/not-found|\/404|\/documents\//);
     await expect(page.getByText("Pagina non trovata", { exact: false })).toBeVisible();
+
+    await page.goto("/settings");
+    for (const label of ["Giulia Browser Updated", "Casa Browser", "Auto Browser"]) {
+      const row = page.locator("li").filter({ hasText: label });
+      await row.getByRole("button", { name: "Elimina" }).click();
+      await expect(page.getByText(label, { exact: true })).toHaveCount(0);
+    }
   });
 
   test("logout clears the session and protected routes remain blocked", async ({ page }) => {

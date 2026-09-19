@@ -15,6 +15,7 @@ import {
 } from "@/lib/policy-duplicates";
 import {
   OpenAIPolicyExtractionError,
+  NonPolicyDocumentError,
   openAIPolicyDocumentExtractor,
 } from "@/lib/openai-policy-extraction";
 import { isDevMockExtractionEnabled } from "@/lib/extraction-dev";
@@ -31,6 +32,7 @@ import {
   getCurrentUserPolicyById,
   PolicyManagementError,
 } from "@/lib/policies";
+import { syncExtractedPolicyCoverages } from "@/lib/policy-coverages";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import type {
   PolicyDetails,
@@ -640,6 +642,7 @@ export async function analyzeCurrentUserDocument(
       });
     }
 
+    await syncExtractedPolicyCoverages(policy, processingDocument.id);
     await updateCurrentUserDocumentStatus(processingDocument.id, "analyzed");
     await clearCurrentUserDocumentAnalysisError(processingDocument.id);
     const dbMs = elapsedMs(dbStartedAt);
@@ -668,10 +671,19 @@ export async function analyzeCurrentUserDocument(
       outcome: "error",
     });
 
-    await markCurrentUserDocumentAnalysisFailed(
-      processingDocument.id,
-      internalFailureReason
-    ).catch(() => null);
+    if (error instanceof NonPolicyDocumentError) {
+      await updateCurrentUserDocumentStatus(processingDocument.id, "analyzed").catch(
+        () => null
+      );
+      await clearCurrentUserDocumentAnalysisError(processingDocument.id).catch(
+        () => null
+      );
+    } else {
+      await markCurrentUserDocumentAnalysisFailed(
+        processingDocument.id,
+        internalFailureReason
+      ).catch(() => null);
+    }
 
     throw toDocumentAnalysisError(error);
   }

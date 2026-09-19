@@ -14,7 +14,11 @@ export const categoryIconBg: Record<PolicyCategory, string> = {
   household: "bg-amber-50 text-amber-600",
   liability: "bg-violet-50 text-violet-600",
   legal: "bg-indigo-50 text-indigo-600",
+  travel: "bg-sky-50 text-sky-600",
   life: "bg-rose-50 text-rose-600",
+  pension: "bg-teal-50 text-teal-600",
+  building: "bg-orange-50 text-orange-600",
+  pet: "bg-fuchsia-50 text-fuchsia-600",
 };
 
 export function PolicyCategoryIcon({
@@ -30,7 +34,11 @@ export function PolicyCategoryIcon({
     household: <IconHome className={className} />,
     liability: <IconShield className={className} />,
     legal: <IconLegal className={className} />,
+    travel: <IconLife className={className} />,
     life: <IconLife className={className} />,
+    pension: <IconLife className={className} />,
+    building: <IconHome className={className} />,
+    pet: <IconShield className={className} />,
   };
   return icons[category];
 }

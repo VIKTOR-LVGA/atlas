@@ -32,6 +32,11 @@ export const typedPolicyTypes = [
   "household",
   "car",
   "legal",
+  "travel",
+  "life",
+  "pension",
+  "building",
+  "pet",
   "other",
 ] as const;
 
@@ -41,6 +46,11 @@ export const policyTypeLabels: Record<TypedPolicyType, string> = {
   household: "Mobilia domestica",
   car: "Auto",
   legal: "Protezione giuridica",
+  travel: "Viaggio",
+  life: "Vita",
+  pension: "Previdenza",
+  building: "Stabile",
+  pet: "Animali",
   other: "Altro",
 };
 
@@ -82,6 +92,11 @@ const policyDetailKeys: Record<TypedPolicyType, Array<keyof PolicyDetails>> = {
   household: ["insured_sum", "glass_coverage", "theft_coverage"],
   car: ["plate_number", "casco", "bonus_malus", "annual_km"],
   legal: ["private_legal", "traffic_legal", "coverage_region"],
+  travel: ["travel_coverage", "coverage_region", "generic_details"],
+  life: ["generic_details"],
+  pension: ["generic_details"],
+  building: ["insured_sum", "glass_coverage", "generic_details"],
+  pet: ["generic_details"],
   other: ["generic_details"],
 };
 
@@ -308,6 +323,16 @@ function sanitizeCoverage(value: unknown): PolicyCoverageDetail | null {
   const coverage: PolicyCoverageDetail = {
     name,
     stable_key: normalizeNullableText(value.stable_key),
+    canonical_type: normalizeNullableText(value.canonical_type),
+    original_label: normalizeNullableText(value.original_label) ?? name,
+    coverage_status: ["included", "excluded", "conditional", "unknown"].includes(
+      String(value.coverage_status)
+    )
+      ? (value.coverage_status as PolicyCoverageDetail["coverage_status"])
+      : "unknown",
+    provenance: ["explicit", "derived", "unknown"].includes(String(value.provenance))
+      ? (value.provenance as PolicyCoverageDetail["provenance"])
+      : "unknown",
     policy_type: isTypedPolicyType(normalizeNullableText(value.policy_type) ?? "")
       ? (normalizeNullableText(value.policy_type) as TypedPolicyType)
       : null,
@@ -319,6 +344,22 @@ function sanitizeCoverage(value: unknown): PolicyCoverageDetail | null {
     deductible: normalizeNullableNumber(value.deductible),
     franchise: normalizeNullableNumber(value.franchise),
     coverage_amount: normalizeNullableNumber(value.coverage_amount),
+    limit_unit: normalizeNullableText(value.limit_unit),
+    currency: normalizeNullableText(value.currency)?.toUpperCase() ?? null,
+    deductible_unit: normalizeNullableText(value.deductible_unit),
+    reimbursement_percent: normalizeNullableNumber(value.reimbursement_percent),
+    waiting_period_days: normalizeNullableNumber(value.waiting_period_days),
+    territorial_scope: normalizeNullableText(value.territorial_scope),
+    evidence: normalizeNullableText(value.evidence),
+    terms: isRecord(value.terms)
+      ? Object.fromEntries(
+          Object.entries(value.terms)
+            .filter((entry): entry is [string, string | number | boolean | null] =>
+              isPolicyDetailScalar(entry[1])
+            )
+            .slice(0, 24)
+        )
+      : {},
     insured_person_name: normalizeNullableText(value.insured_person_name),
     insured_number: normalizeNullableText(value.insured_number),
     person_index: normalizeNullableNumber(value.person_index),
@@ -711,6 +752,26 @@ export function toTypedPolicyType(value: string | null | undefined): TypedPolicy
 
   if (/(giurid|legal|recht|protection juridique)/.test(normalizedValue)) {
     return "legal";
+  }
+
+  if (/(viagg|travel|reise|voyage|annullamento)/.test(normalizedValue)) {
+    return "travel";
+  }
+
+  if (/(previd|pilastro|pension|vorsorge|prevoyance|3a|3b)/.test(normalizedValue)) {
+    return "pension";
+  }
+
+  if (/(vita|life|leben|decesso|todesfall|deces)/.test(normalizedValue)) {
+    return "life";
+  }
+
+  if (/(stabil|building|gebaud|batiment|edificio)/.test(normalizedValue)) {
+    return "building";
+  }
+
+  if (/(animal|pet|tier|cane|gatto)/.test(normalizedValue)) {
+    return "pet";
   }
 
   return "other";

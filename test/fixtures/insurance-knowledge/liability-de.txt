@@ -1,0 +1,7 @@
+Zurich Insurance Company Ltd
+VERSICHERUNGSPOLICE PRIVATHAFTPFLICHT
+Policennummer SYN-RC-002
+Versicherungsnehmer: Max Muster
+Jahrespramie CHF 168.00
+Deckungssumme CHF 10'000'000
+Versichert: Privathaftpflicht, Mieterschaden und grobfahrlassige Schaden.

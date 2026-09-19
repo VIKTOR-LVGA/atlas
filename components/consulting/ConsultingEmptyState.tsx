@@ -21,8 +21,8 @@ export function ConsultingEmptyState({ intelligence }: ConsultingEmptyStateProps
           </h2>
           <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted">
             Atlas organizza i tuoi PDF e le polizze strutturate. Quando il servizio
-            consulenza sarà disponibile, un revisore potrà lavorare su dati già verificati
-            — prenotazione disponibile quando il servizio sarà attivo.
+            consulenza viene richiesta, un revisore può lavorare su dati già verificati.
+            L&apos;invio richiede sempre il tuo consenso esplicito.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <PrimaryButton href="/documents" icon={<Upload className="h-4 w-4" />}>
@@ -50,7 +50,7 @@ export function ConsultingEmptyState({ intelligence }: ConsultingEmptyStateProps
             },
             {
               icon: <UserCheck className="h-4 w-4" />,
-              title: "3. Revisione futura",
+              title: "3. Richiedi revisione",
               text: "Dossier pronto per esperto indipendente.",
             },
           ].map((step) => (

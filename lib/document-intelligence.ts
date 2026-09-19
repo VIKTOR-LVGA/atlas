@@ -7,6 +7,7 @@ import {
   getPolicyInsuredPeople,
 } from "@/lib/policy-types";
 import type { UserDocument, UserPolicy } from "@/lib/types";
+import { canPersistAsPersonalPolicy } from "@/lib/insurance-knowledge";
 
 export type DocumentWorkflowStage =
   | "uploaded"
@@ -291,6 +292,16 @@ export function buildDocumentNextAction(
   }
 
   if (document.status === "analyzed") {
+    if (!canPersistAsPersonalPolicy(document.documentType)) {
+      return {
+        kind: "open_detail",
+        label: "Apri dettaglio",
+        description:
+          "Documento classificato e archiviato; non genera una polizza personale.",
+        href: documentHref,
+        priority: "secondary",
+      };
+    }
     return {
       kind: "open_detail",
       label: "Apri dettaglio",

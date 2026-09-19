@@ -46,12 +46,43 @@ async function createUser(client, credentials) {
   return data.user;
 }
 
+async function assertCrossUserCrudIsolation(client, table, id) {
+  const { data: selected, error: selectError } = await client
+    .from(table)
+    .select("id")
+    .eq("id", id);
+  checkNoError(selectError, `${table} cross-user select`);
+  assert.deepEqual(selected, [], `${table} must hide another user's row`);
+
+  const { data: updated, error: updateError } = await client
+    .from(table)
+    .update({ updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .select("id");
+  checkNoError(updateError, `${table} cross-user update`);
+  assert.deepEqual(updated, [], `${table} must block another user's update`);
+
+  const { data: deleted, error: deleteError } = await client
+    .from(table)
+    .delete()
+    .eq("id", id)
+    .select("id");
+  checkNoError(deleteError, `${table} cross-user delete`);
+  assert.deepEqual(deleted, [], `${table} must block another user's delete`);
+}
+
 async function main() {
   const clientA = makeClient();
   const clientB = makeClient();
   let policyId = null;
   let documentId = null;
   let filePath = null;
+  let familyMemberId = null;
+  let propertyId = null;
+  let vehicleId = null;
+  let coverageId = null;
+  let opportunityId = null;
+  let consultationId = null;
 
   const userA = await createUser(clientA, users[0]);
   const userB = await createUser(clientB, users[1]);
@@ -129,6 +160,132 @@ async function main() {
   checkNoError(documentCreateError, "document metadata create");
   documentId = createdDocument.id;
 
+  const { data: familyMember, error: familyError } = await clientA
+    .from("family_members")
+    .insert({
+      user_id: userA.id,
+      first_name: "Giulia",
+      last_name: "Atlas",
+      relationship: "partner",
+      is_policy_holder: true,
+    })
+    .select("id, first_name")
+    .single();
+  checkNoError(familyError, "family member create");
+  familyMemberId = familyMember.id;
+
+  const { data: property, error: propertyError } = await clientA
+    .from("properties")
+    .insert({
+      user_id: userA.id,
+      label: "Casa E2E",
+      property_type: "apartment",
+      occupancy_type: "tenant",
+      postal_code: "6900",
+      city: "Lugano",
+    })
+    .select("id, label")
+    .single();
+  checkNoError(propertyError, "property create");
+  propertyId = property.id;
+
+  const { data: vehicle, error: vehicleError } = await clientA
+    .from("vehicles")
+    .insert({
+      user_id: userA.id,
+      label: "Auto E2E",
+      vehicle_type: "car",
+      make: "Volvo",
+      license_plate: "TI 123456",
+    })
+    .select("id, label")
+    .single();
+  checkNoError(vehicleError, "vehicle create");
+  vehicleId = vehicle.id;
+
+  const { error: policyRelationError } = await clientA
+    .from("policies")
+    .update({
+      family_member_id: familyMemberId,
+      property_id: propertyId,
+      vehicle_id: vehicleId,
+    })
+    .eq("id", policyId);
+  checkNoError(policyRelationError, "policy household relations");
+
+  const { error: policyMemberError } = await clientA.from("policy_members").insert({
+    user_id: userA.id,
+    policy_id: policyId,
+    family_member_id: familyMemberId,
+    role: "insured_person",
+  });
+  checkNoError(policyMemberError, "policy member create");
+
+  const { data: coverage, error: coverageError } = await clientA
+    .from("policy_coverages")
+    .insert({
+      user_id: userA.id,
+      policy_id: policyId,
+      canonical_type: "private_liability",
+      original_label: "Responsabilità civile privata",
+      insurance_category: "private_liability",
+      coverage_status: "included",
+      coverage_limit: 10000000,
+      currency: "CHF",
+      source: "manual",
+      provenance: "explicit",
+      confidence: 100,
+      source_document_id: documentId,
+      family_member_id: familyMemberId,
+      property_id: propertyId,
+      vehicle_id: vehicleId,
+    })
+    .select("id, canonical_type")
+    .single();
+  checkNoError(coverageError, "policy coverage create");
+  coverageId = coverage.id;
+
+  const { data: opportunity, error: opportunityError } = await clientA
+    .from("opportunities")
+    .insert({
+      user_id: userA.id,
+      policy_id: policyId,
+      opportunity_type: "periodic_review",
+      title: "Revisione E2E",
+      description: "Verifica periodica portafoglio",
+      source_key: `e2e:${runId}`,
+    })
+    .select("id, status")
+    .single();
+  checkNoError(opportunityError, "opportunity create");
+  opportunityId = opportunity.id;
+
+  const { data: consultation, error: consultationError } = await clientA
+    .from("consultation_requests")
+    .insert({
+      user_id: userA.id,
+      request_type: "portfolio_review",
+      message: "Richiesta E2E",
+      preferred_contact_method: "email",
+      consent_given_at: new Date().toISOString(),
+      privacy_version: "2026-09",
+      source_opportunity_id: opportunityId,
+    })
+    .select("id, status, assigned_broker_id")
+    .single();
+  checkNoError(consultationError, "consultation request create");
+  consultationId = consultation.id;
+  assert.equal(consultation.status, "submitted");
+  assert.equal(consultation.assigned_broker_id, null);
+
+  const { data: events, error: eventsError } = await clientA
+    .from("consultation_events")
+    .select("event_type")
+    .eq("consultation_request_id", consultationId);
+  checkNoError(eventsError, "consultation submission audit event");
+  assert.deepEqual(events.map((event) => event.event_type), ["request_submitted"]);
+  console.log("PASS household, canonical coverage, opportunity, consultation persistence");
+
   const { data: signed, error: signedError } = await clientA.storage
     .from("policy-documents")
     .createSignedUrl(filePath, 60, { download: "atlas-e2e.pdf" });
@@ -181,6 +338,82 @@ async function main() {
   assert.equal(crossDownload, null);
   assert.ok(crossDownloadError, "cross-user storage download must be denied");
 
+  for (const [table, id] of [
+    ["family_members", familyMemberId],
+    ["properties", propertyId],
+    ["vehicles", vehicleId],
+    ["policy_coverages", coverageId],
+    ["opportunities", opportunityId],
+  ]) {
+    await assertCrossUserCrudIsolation(clientB, table, id);
+  }
+
+  const { data: crossPolicyMembers, error: crossPolicyMembersError } = await clientB
+    .from("policy_members")
+    .select("policy_id")
+    .eq("policy_id", policyId);
+  checkNoError(crossPolicyMembersError, "policy_members cross-user select");
+  assert.deepEqual(crossPolicyMembers, []);
+
+  const { data: crossPolicyMemberUpdate, error: crossPolicyMemberUpdateError } = await clientB
+    .from("policy_members")
+    .update({ role: "beneficiary" })
+    .eq("policy_id", policyId)
+    .eq("family_member_id", familyMemberId)
+    .select("policy_id");
+  checkNoError(crossPolicyMemberUpdateError, "policy_members cross-user update");
+  assert.deepEqual(crossPolicyMemberUpdate, []);
+
+  const { data: crossPolicyMemberDelete, error: crossPolicyMemberDeleteError } = await clientB
+    .from("policy_members")
+    .delete()
+    .eq("policy_id", policyId)
+    .eq("family_member_id", familyMemberId)
+    .select("policy_id");
+  checkNoError(crossPolicyMemberDeleteError, "policy_members cross-user delete");
+  assert.deepEqual(crossPolicyMemberDelete, []);
+
+  const { data: crossConsultation, error: crossConsultationError } = await clientB
+    .from("consultation_requests")
+    .select("id")
+    .eq("id", consultationId);
+  checkNoError(crossConsultationError, "consultation cross-user select");
+  assert.deepEqual(crossConsultation, []);
+
+  const { error: crossConsultationUpdateError } = await clientB
+    .from("consultation_requests")
+    .update({ message: "forbidden" })
+    .eq("id", consultationId);
+  assert.ok(crossConsultationUpdateError, "consultation update must be denied to consumers");
+
+  const { error: crossConsultationDeleteError } = await clientB
+    .from("consultation_requests")
+    .delete()
+    .eq("id", consultationId);
+  assert.ok(crossConsultationDeleteError, "consultation delete must be denied to consumers");
+
+  const { data: crossEvents, error: crossEventsError } = await clientB
+    .from("consultation_events")
+    .select("id")
+    .eq("consultation_request_id", consultationId);
+  checkNoError(crossEventsError, "consultation events cross-user select");
+  assert.deepEqual(crossEvents, []);
+
+  const { error: foreignOpportunityError } = await clientB
+    .from("opportunities")
+    .insert({
+      user_id: userB.id,
+      policy_id: policyId,
+      opportunity_type: "periodic_review",
+      title: "Forbidden",
+      description: "Must fail",
+    });
+  assert.ok(foreignOpportunityError, "foreign policy opportunity insert must fail");
+
+  const { error: brokerReadError } = await clientA.from("brokers").select("id");
+  assert.ok(brokerReadError, "consumer must not read broker directory directly");
+  console.log("PASS all new-table USER_A -> USER_B RLS isolation and broker boundary");
+
   await clientB.storage.from("policy-documents").remove([filePath]);
   const { data: ownerStillReads, error: ownerStillReadsError } =
     await clientA.storage.from("policy-documents").download(filePath);
@@ -210,6 +443,14 @@ async function main() {
   checkNoError(ownerPolicyDeleteError, "owner policy delete");
   assert.equal(deletedPolicy.id, policyId);
   policyId = null;
+
+  for (const [table, id] of [
+    ["family_members", familyMemberId],
+    ["properties", propertyId],
+    ["vehicles", vehicleId],
+  ]) {
+    checkNoError((await clientA.from(table).delete().eq("id", id)).error, `${table} cleanup`);
+  }
 
   checkNoError(
     (await clientA.from("documents").delete().eq("id", documentId)).error,
