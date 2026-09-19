@@ -6,6 +6,7 @@ export const productRoutes = [
   "/recommendations",
   "/documents",
   "/consulting",
+  "/opportunities",
   "/settings",
 ] as const;
 

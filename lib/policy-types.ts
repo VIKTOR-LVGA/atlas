@@ -38,7 +38,7 @@ export const typedPolicyTypes = [
 export const policyTypeLabels: Record<TypedPolicyType, string> = {
   health: "Cassa malati",
   liability: "RC privata",
-  household: "Economia domestica",
+  household: "Mobilia domestica",
   car: "Auto",
   legal: "Protezione giuridica",
   other: "Altro",

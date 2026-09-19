@@ -1,132 +1,52 @@
-import { ClipboardCheck, Plus, Sparkles } from "lucide-react";
-import { PolicyPortfolioWorkspace } from "@/components/policies/PolicyPortfolioWorkspace";
-import { IconPolicies } from "@/components/icons";
-import { PremiumOnboardingEmpty } from "@/components/onboarding/PremiumOnboardingEmpty";
-import { PortfolioProgressionPanel } from "@/components/onboarding/PortfolioProgressionPanel";
-import { MetricCard } from "@/components/ui/MetricCard";
-import { PageHeader, PrimaryButton } from "@/components/ui/PageHeader";
-import { PageShell } from "@/components/ui/PageShell";
-import { ReviewBanner } from "@/components/ui/ReviewBanner";
-import { StatusBadge } from "@/components/ui/StatusBadge";
-import { RevealStagger } from "@/components/motion/RevealStagger";
-import { atlasKpiRow } from "@/lib/atlas-ui";
+import Link from "next/link";
+import { EmptyState } from "@/components/consumer/EmptyState";
+import { PolicyConsumerCard } from "@/components/policies/PolicyConsumerCard";
 import { getCurrentUserPolicies } from "@/lib/policies";
-import { getPortfolioProgression } from "@/lib/portfolio-progression";
+import { groupPoliciesByVisualCategory } from "@/lib/policy-visual-categories";
 
-export const metadata = { title: "Polizze" };
+export const metadata = { title: "Le mie polizze" };
 
 export default async function PoliciesPage() {
-  const [policies, progression] = await Promise.all([
-    getCurrentUserPolicies(),
-    getPortfolioProgression(),
-  ]);
-  const pendingReview = policies.filter((policy) => policy.requiresReview);
-  const aiDrafts = policies.filter((policy) => policy.source === "ai_draft");
-  const confirmedAiDrafts = aiDrafts.filter((policy) => !policy.requiresReview);
+  const policies = await getCurrentUserPolicies();
+  const groups = groupPoliciesByVisualCategory(policies);
 
   return (
-    <PageShell>
-      <RevealStagger>
-      <PageHeader
-        title="Le mie polizze"
-        description="Portafoglio assicurativo strutturato dai tuoi PDF e dalle schede confermate."
-        action={
-          <PrimaryButton href="/policies/new" icon={<Plus className="h-4 w-4" />}>
-            Nuova polizza
-          </PrimaryButton>
-        }
-      />
-
-      <div className={atlasKpiRow}>
-        <MetricCard
-          label="Totale polizze"
-          value={String(policies.length)}
-          subtext="Nel portafoglio"
-          variant="indigo"
-          icon={<IconPolicies className="h-4 w-4" />}
-        />
-        <MetricCard
-          label="Da rivedere"
-          value={String(pendingReview.length)}
-          subtext="Bozze AI in coda"
-          variant={pendingReview.length > 0 ? "yellow" : "green"}
-          icon={<ClipboardCheck className="h-4 w-4" />}
-          badge={
-            pendingReview.length > 0 ? (
-              <StatusBadge variant="attention" label="Azione" />
-            ) : undefined
-          }
-        />
-        <MetricCard
-          label="Bozze AI"
-          value={String(aiDrafts.length)}
-          subtext={
-            confirmedAiDrafts.length > 0
-              ? `${confirmedAiDrafts.length} confermate`
-              : "Estratte da PDF"
-          }
-          variant="blue"
-          icon={<Sparkles className="h-4 w-4" />}
-        />
-        <MetricCard
-          label="Manuali"
-          value={String(policies.length - aiDrafts.length)}
-          subtext="Create a mano"
-          variant="purple"
-          icon={<IconPolicies className="h-4 w-4" />}
-        />
-      </div>
-
-      {pendingReview.length > 0 ? (
-        <ReviewBanner
-          title={`${pendingReview.length} bozza${pendingReview.length === 1 ? "" : "e"} da confermare`}
-          description="L'estrazione AI ha precompilato i campi principali. Apri ogni scheda e verifica i dati critici."
-          editHref={`/policies/${pendingReview[0].id}/edit`}
-          uncertainCount={pendingReview.length}
-          className="atlas-action-strip border-0"
-        />
-      ) : null}
+    <div className="space-y-6">
+      <header className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-[24px] font-semibold tracking-tight text-foreground">Le mie polizze</h1>
+          <p className="mt-1 text-[13px] text-muted">
+            Tutte le assicurazioni, organizzate per tipo.
+          </p>
+        </div>
+        <Link href="/policies/new" className="atlas-btn-primary min-h-11 px-4 text-[13px]">
+          Aggiungi
+        </Link>
+      </header>
 
       {policies.length === 0 ? (
-        <>
-          <PortfolioProgressionPanel progression={progression} compact />
-          <PremiumOnboardingEmpty
-            icon={<IconPolicies className="h-7 w-7" />}
-            title="Carica la tua prima polizza"
-            description="Atlas costruirà progressivamente il tuo ecosistema assicurativo: PDF, estrazione AI e scheda strutturata."
-            actionLabel="Vai ai documenti"
-            actionHref="/documents"
-            secondaryActionLabel="Crea manualmente"
-            secondaryActionHref="/policies/new"
-            progression={progression}
-            steps={[
-              {
-                step: "1",
-                title: "PDF",
-                text: "Carica polizza, condizioni o attestato.",
-              },
-              {
-                step: "2",
-                title: "Bozza AI",
-                text: "Rivedi premio, persone e coperture estratte.",
-              },
-              {
-                step: "3",
-                title: "Conferma",
-                text: "Sblocca alert e raccomandazioni verificate.",
-              },
-            ]}
-          />
-        </>
+        <EmptyState
+          title="Nessuna polizza ancora"
+          description="Aggiungi la prima assicurazione per vedere premi, scadenze e documenti."
+          actionLabel="Aggiungi polizza"
+          actionHref="/policies/new"
+        />
       ) : (
-        <>
-          {progression.showOnboardingFocus ? (
-            <PortfolioProgressionPanel progression={progression} compact />
-          ) : null}
-          <PolicyPortfolioWorkspace policies={policies} />
-        </>
+        <div className="space-y-7">
+          {groups.map((group) => (
+            <section key={group.category.id}>
+              <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-[0.16em] text-muted">
+                {group.category.label}
+              </h2>
+              <div className="grid gap-3 md:grid-cols-2">
+                {group.policies.map((policy) => (
+                  <PolicyConsumerCard key={policy.id} policy={policy} />
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
       )}
-      </RevealStagger>
-    </PageShell>
+    </div>
   );
 }

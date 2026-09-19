@@ -135,7 +135,7 @@ function CheckboxField({
   );
 }
 
-function TypeDetailsFields({
+export function TypeDetailsFields({
   policyType,
   details,
 }: {

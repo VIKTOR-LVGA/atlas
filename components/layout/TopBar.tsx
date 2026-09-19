@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { AtlasBrandLogo } from "@/components/brand/AtlasBrandLogo";
-import { IconMenu } from "@/components/icons";
 import {
   TopBarHelpMenu,
   TopBarHelpMenuMobile,
@@ -11,28 +10,14 @@ import {
 } from "@/components/layout/TopBarMenus";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
-interface TopBarProps {
-  onMenuOpen?: () => void;
-}
-
-export function TopBar({ onMenuOpen }: TopBarProps) {
+export function TopBar() {
   return (
-    <header className="relative z-40 flex h-14 w-full min-w-0 shrink-0 items-center justify-between gap-2 border-b border-border bg-card/80 px-3 backdrop-blur-sm sm:gap-3 sm:px-5 lg:justify-end">
-      <div className="flex min-w-0 items-center gap-2 lg:hidden">
-        <button
-          type="button"
-          onClick={onMenuOpen}
-          className="atlas-icon-button shrink-0 rounded-lg p-2 text-muted hover:bg-card-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
-          aria-label="Apri menu"
-        >
-          <IconMenu />
-        </button>
-        <Link href="/dashboard" className="flex min-w-0 items-center">
-          <AtlasBrandLogo variant="stacked" compact />
-        </Link>
-      </div>
+    <header className="relative z-40 flex h-14 w-full min-w-0 shrink-0 items-center justify-between gap-2 border-b border-border bg-card/90 px-4 backdrop-blur-sm sm:px-5 lg:h-16 lg:justify-end">
+      <Link href="/dashboard" className="flex min-w-0 items-center lg:hidden">
+        <AtlasBrandLogo variant="stacked" compact />
+      </Link>
 
-      <div className="flex min-w-0 max-w-[55%] shrink items-center justify-end gap-0.5 overflow-visible sm:max-w-none sm:gap-2">
+      <div className="flex min-w-0 items-center justify-end gap-0.5 sm:gap-1.5">
         <ThemeToggle />
         <TopBarHelpMenuMobile />
         <TopBarNotificationsMenu />

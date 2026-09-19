@@ -3,6 +3,7 @@
 import { Suspense, useCallback, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Palette, Shield } from "lucide-react";
+import { HouseholdContextCards } from "@/components/consumer/HouseholdContextCards";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PageShell } from "@/components/ui/PageShell";
 import { SectionCard } from "@/components/ui/SectionCard";
@@ -64,8 +65,8 @@ function SettingsPageContent({
     <PageShell>
       <RevealStagger>
         <PageHeader
-          title="Account e impostazioni"
-          description="Gestisci profilo, preferenze e dati del tuo portafoglio assicurativo."
+          title="Profilo"
+          description="I tuoi dati personali e il contesto assicurativo."
         />
 
         <div className={`${atlasCard.support} px-4 py-3 text-[12px] leading-relaxed text-muted`}>
@@ -104,7 +105,12 @@ function SettingsPageContent({
 
           <div className={cn(atlasMainColumn, atlasSpace.block)}>
             {activeSection === "profilo" && (
-              <ProfileSettingsPanels profile={profile} />
+              <>
+                <ProfileSettingsPanels profile={profile} />
+                <HouseholdContextCards
+                  ownerName={profile?.fullName?.trim() || profile?.email || "Tu"}
+                />
+              </>
             )}
 
             {activeSection === "notifiche" && (

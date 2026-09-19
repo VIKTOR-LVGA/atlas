@@ -94,6 +94,7 @@ export const config = {
     "/recommendations/:path*",
     "/documents/:path*",
     "/consulting/:path*",
+    "/opportunities/:path*",
     "/settings/:path*",
     "/login",
     "/register",

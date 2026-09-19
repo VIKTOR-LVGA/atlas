@@ -8,6 +8,7 @@ async function waitForClientHydration(page: Page) {
 
 test("login next param rejects open redirects", () => {
   expect(getSafeAuthRedirect("/policies")).toBe("/policies");
+  expect(getSafeAuthRedirect("/opportunities")).toBe("/opportunities");
   expect(getSafeAuthRedirect("/documents/abc?tab=file")).toBe("/documents/abc?tab=file");
   expect(getSafeAuthRedirect("https://evil.example")).toBe("/dashboard");
   expect(getSafeAuthRedirect("//evil.example")).toBe("/dashboard");
@@ -80,6 +81,9 @@ test.describe("Atlas public journeys", () => {
     await page.goto("/policies");
     await expect(page).toHaveURL(/\/login/);
     await page.goto("/settings");
+    await expect(page).toHaveURL(/\/login/);
+
+    await page.goto("/opportunities");
     await expect(page).toHaveURL(/\/login/);
   });
 

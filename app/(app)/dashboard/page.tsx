@@ -1,436 +1,196 @@
 import Link from "next/link";
-import {
-  Activity,
-  AlertTriangle,
-  ClipboardCheck,
-  FileText,
-  Shield,
-  Sparkles,
-  Users,
-} from "lucide-react";
-import { DashboardAdvancedPanel } from "@/components/dashboard/DashboardAdvancedPanel";
-import { DashboardAlertList } from "@/components/dashboard/DashboardAlertList";
-import { DashboardAllocationMap } from "@/components/dashboard/DashboardAllocationMap";
-import { DashboardHealthHero } from "@/components/dashboard/DashboardHealthHero";
-import { DashboardHealthScoreCard } from "@/components/dashboard/DashboardHealthScoreCard";
-import { DashboardHeroSnapshot } from "@/components/dashboard/DashboardHeroSnapshot";
-import { DashboardNextAction } from "@/components/dashboard/DashboardNextAction";
-import { DashboardTopSignals } from "@/components/dashboard/DashboardTopSignals";
-import { DashboardWorkflowSteps } from "@/components/dashboard/DashboardWorkflowSteps";
-import { DocumentStatusBadge } from "@/components/documents/DocumentStatusBadge";
-import {
-  IconChevronRight,
-  IconClock,
-  IconDocuments,
-  IconFolder,
-  IconPolicies,
-  IconUpload,
-} from "@/components/icons";
-import { ModuleUnlockGrid } from "@/components/onboarding/ModuleUnlockGrid";
-import { PortfolioCompletenessGrid } from "@/components/onboarding/PortfolioCompletenessGrid";
-import { PortfolioProgressionPanel } from "@/components/onboarding/PortfolioProgressionPanel";
-import { PolicyListCard } from "@/components/policies/PolicyListCard";
-import { RevealStagger } from "@/components/motion/RevealStagger";
-import { InsightCard } from "@/components/ui/InsightCard";
-import { LinkAction } from "@/components/ui/LinkAction";
-import { MetricCard } from "@/components/ui/MetricCard";
-import { PageHeader, PrimaryButton } from "@/components/ui/PageHeader";
-import { PageShell } from "@/components/ui/PageShell";
-import { SectionCard } from "@/components/ui/SectionCard";
-import {
-  atlasAsideColumn,
-  atlasCard,
-  atlasKpiRow,
-  atlasMainAside,
-  atlasMainColumn,
-  atlasSpace,
-} from "@/lib/atlas-ui";
-import { buildDashboardViewModel } from "@/lib/dashboard-view";
-import { getDashboardStats, getRecentDocuments } from "@/lib/dashboard";
-import { getDashboardIntelligence } from "@/lib/dashboard-intelligence";
-import { formatKpiValue } from "@/lib/motion";
-import { getPortfolioProgression } from "@/lib/portfolio-progression";
+import { AtlasScoreCard } from "@/components/consumer/AtlasScoreCard";
+import { ConsultationPrepCard } from "@/components/consumer/ConsultationPrepCard";
+import { EmptyState, MetricTile, ConsumerSection } from "@/components/consumer/EmptyState";
+import { PolicyConsumerCard } from "@/components/policies/PolicyConsumerCard";
+import { buildAtlasScore } from "@/lib/atlas-score";
+import { getCurrentUserDocuments } from "@/lib/documents";
+import { buildOpportunities } from "@/lib/opportunities";
+import { getCurrentUserPolicies } from "@/lib/policies";
+import { formatScheduleDate, getUpcomingDeadlines, greetingForZurich } from "@/lib/policy-schedule";
+import { sumPortfolioPremiums } from "@/lib/premium-totals";
 import { getProfileShortName } from "@/lib/profile-display";
 import { getCurrentProfile } from "@/lib/profiles";
-import { getCurrentUserPolicies } from "@/lib/policies";
-import { getCurrentUserDocuments } from "@/lib/documents";
-import { formatCHF, formatFileSize, formatRelativeTime } from "@/lib/utils";
+import { formatCHF } from "@/lib/utils";
 
 export const metadata = { title: "Dashboard" };
 
-function getActivityCopy(status: string) {
-  switch (status) {
-    case "analyzed":
-      return "Analisi completata";
-    case "processing":
-      return "Analisi in corso";
-    case "failed":
-      return "Analisi fallita";
-    default:
-      return "Pronto per analisi";
-  }
-}
-
 export default async function DashboardPage() {
-  const [
-    profile,
-    documentStats,
-    recentDocuments,
-    allDocuments,
-    policies,
-    intelligence,
-    progression,
-  ] = await Promise.all([
+  const [profile, policies, documents] = await Promise.all([
     getCurrentProfile(),
-    getDashboardStats(),
-    getRecentDocuments(5),
-    getCurrentUserDocuments(),
     getCurrentUserPolicies(),
-    getDashboardIntelligence(),
-    getPortfolioProgression(),
+    getCurrentUserDocuments(),
   ]);
 
-  const view = buildDashboardViewModel({
-    profileName: getProfileShortName(profile),
-    intelligence,
-    policies,
-    documents: allDocuments,
-    documentStats,
-    progression,
-  });
-
-  const { kpis, healthScore, alerts, workflowSteps } = intelligence;
-  const pendingReviewPolicies = policies.filter((policy) => policy.requiresReview);
-  const monthlyPremium = formatKpiValue(kpis.totalMonthlyPremium, formatCHF);
-  const annualPremium = formatKpiValue(kpis.totalAnnualPremium, formatCHF);
-  const avgConfidence = formatKpiValue(
-    kpis.averageExtractionConfidence,
-    (value) => `${Math.round(value)}%`
-  );
-  const highAlerts = alerts.filter((alert) => alert.severity === "high").length;
+  const name = getProfileShortName(profile);
+  const greeting = greetingForZurich();
+  const premiums = sumPortfolioPremiums(policies);
+  const deadlines = getUpcomingDeadlines(policies, new Date(), 5);
+  const score = buildAtlasScore({ profile, policies, documents });
+  const opportunities = buildOpportunities({ policies, documents }).slice(0, 3);
+  const attentionCount = opportunities.filter((item) => item.kind !== "stale_review").length;
+  const nextDeadline = deadlines[0] ?? null;
+  const activeCount = policies.filter((policy) => !policy.requiresReview).length || policies.length;
 
   return (
-    <PageShell>
-      <RevealStagger>
-        <PageHeader
-          title="Dashboard"
-          description="Panoramica del portafoglio assicurativo."
-          action={
-            <PrimaryButton href="/documents" icon={<IconUpload className="h-4 w-4" />}>
-              Carica PDF
-            </PrimaryButton>
-          }
+    <div className="space-y-7">
+      <header>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">ATLAS</p>
+        <h1 className="mt-2 text-[26px] font-semibold tracking-tight text-foreground sm:text-[30px]">
+          {greeting}, {name}
+        </h1>
+        <p className="mt-1 text-[15px] text-muted-foreground">Il tuo mondo assicurativo</p>
+      </header>
+
+      {policies.length === 0 ? (
+        <EmptyState
+          title="Porta le tue assicurazioni in ATLAS."
+          description="Aggiungi la prima polizza per iniziare a vedere premi, scadenze e documenti in un unico posto."
+          actionLabel="Aggiungi polizza"
+          actionHref="/policies/new"
+          secondaryLabel="Carica un documento"
+          secondaryHref="/documents"
         />
-
-        <div className={atlasSpace.section}>
-          <DashboardHeroSnapshot hero={view.hero} />
-
-          <DashboardHealthHero
-            healthScore={healthScore}
-            presentation={view.healthPresentation}
+      ) : (
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+          <MetricTile
+            label="Premi annuali"
+            value={premiums.annual !== null ? formatCHF(premiums.annual) : "—"}
+            hint={premiums.annual === null ? "Aggiungi i premi" : "Totale dal portafoglio"}
           />
-
-          <DashboardTopSignals signals={view.signals} />
-
-          <DashboardAllocationMap segments={view.allocation} />
-
-          <DashboardNextAction action={view.nextAction} />
-
-          <DashboardAdvancedPanel alertCount={alerts.length}>
-            {progression.showOnboardingFocus ? (
-              <PortfolioProgressionPanel progression={progression} />
-            ) : (
-              <PortfolioProgressionPanel progression={progression} compact />
-            )}
-
-            {progression.maturity !== "advanced" ? (
-              <PortfolioCompletenessGrid metrics={progression.completeness} />
-            ) : null}
-
-            <div className={atlasKpiRow}>
-              <MetricCard
-                label="Polizze"
-                value={String(kpis.totalPolicies)}
-                subtext={`${kpis.confirmedPolicies} confermate`}
-                variant="indigo"
-                icon={<IconPolicies className="h-4 w-4" />}
-              />
-              <MetricCard
-                label="Documenti"
-                value={String(kpis.totalDocuments)}
-                subtext={`${kpis.analyzedDocuments} analizzati`}
-                variant="blue"
-                icon={<IconDocuments className="h-4 w-4" />}
-              />
-              <MetricCard
-                label="Da rivedere"
-                value={String(kpis.policiesRequiringReview)}
-                subtext={
-                  kpis.policiesRequiringReview > 0
-                    ? "Bozze AI in coda"
-                    : "Nessuna bozza"
-                }
-                variant={kpis.policiesRequiringReview > 0 ? "yellow" : "green"}
-                icon={<ClipboardCheck className="h-4 w-4" />}
-              />
-              <MetricCard
-                label="Premio mensile"
-                value={monthlyPremium.display}
-                subtext={
-                  annualPremium.unavailable
-                    ? "Solo polizze confermate"
-                    : `${annualPremium.display} / anno stimato`
-                }
-                variant="purple"
-                unavailableValue={monthlyPremium.unavailable}
-                icon={<Activity className="h-4 w-4" />}
-              />
-            </div>
-
-            <div className={`${atlasSpace.contentGrid} lg:grid-cols-3`}>
-              <div className="lg:col-span-2">
-                <DashboardHealthScoreCard healthScore={healthScore} />
-              </div>
-              <div className={`${atlasSpace.kpiGrid} sm:grid-cols-2 lg:grid-cols-1`}>
-                <MetricCard
-                  label="Coperture"
-                  value={String(kpis.coverageCount)}
-                  subtext={
-                    kpis.unassignedCoverageCount > 0
-                      ? `${kpis.insuredPeopleCount} persone · ${kpis.unassignedCoverageCount} da assegnare`
-                      : `${kpis.insuredPeopleCount} persone · tutte assegnate`
-                  }
-                  variant="green"
-                  icon={<Shield className="h-4 w-4" />}
-                />
-                <MetricCard
-                  label="Confidenza media"
-                  value={avgConfidence.display}
-                  subtext="Estrazione AI"
-                  variant="blue"
-                  unavailableValue={avgConfidence.unavailable}
-                  icon={<Sparkles className="h-4 w-4" />}
-                />
-              </div>
-            </div>
-
-            <section className={atlasSpace.block}>
-              <p className="atlas-section-eyebrow">Pipeline documenti</p>
-              <div className={`${atlasKpiRow} grid-cols-2`}>
-                <MetricCard
-                  label="Upload mese"
-                  value={String(documentStats.documentsUploadedThisMonth)}
-                  subtext="Questo mese"
-                  variant="green"
-                  icon={<IconUpload className="h-4 w-4" />}
-                />
-                <MetricCard
-                  label="In elaborazione"
-                  value={String(kpis.processingDocuments)}
-                  subtext={`${kpis.uploadedDocumentsAwaitingAnalysis} in attesa`}
-                  variant="yellow"
-                  icon={<FileText className="h-4 w-4" />}
-                />
-                <MetricCard
-                  label="Analizzati"
-                  value={String(kpis.analyzedDocuments)}
-                  subtext={`${kpis.failedDocuments} falliti`}
-                  variant="indigo"
-                  icon={<IconDocuments className="h-4 w-4" />}
-                />
-                <MetricCard
-                  label="Storage"
-                  value={formatFileSize(documentStats.totalStorageUsed)}
-                  subtext="Archivio privato"
-                  variant="purple"
-                  icon={<IconFolder className="h-4 w-4" />}
-                />
-              </div>
-            </section>
-
-            <div className={atlasMainAside}>
-              <div className={atlasMainColumn}>
-                <SectionCard
-                  title="Alert center"
-                  tone="primary"
-                  description={
-                    alerts.length > 0
-                      ? `${alerts.length} segnalazioni${highAlerts > 0 ? ` · ${highAlerts} prioritarie` : ""}`
-                      : "Nessuna criticità sui dati attuali."
-                  }
-                  padding="sm"
-                  bodyClassName="px-3.5"
-                >
-                  <DashboardAlertList alerts={alerts} />
-                </SectionCard>
-
-                <SectionCard
-                  title="Polizze da rivedere"
-                  description="Bozze AI in attesa di conferma."
-                  action={
-                    pendingReviewPolicies.length > 0 ? (
-                      <LinkAction href="/policies">Vedi tutte</LinkAction>
-                    ) : undefined
-                  }
-                  padding="none"
-                >
-                  {pendingReviewPolicies.length > 0 ? (
-                    <div className={`${atlasSpace.cardGrid} p-4 md:grid-cols-2`}>
-                      {pendingReviewPolicies.slice(0, 4).map((policy) => (
-                        <PolicyListCard key={policy.id} policy={policy} />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="px-4 py-6 text-center">
-                      <p className="text-[12px] font-medium text-foreground">
-                        Nessuna revisione in sospeso
-                      </p>
-                    </div>
-                  )}
-                </SectionCard>
-
-                <div className={`${atlasSpace.cardGrid} lg:grid-cols-2`}>
-                  <SectionCard
-                    title="Documenti recenti"
-                    description="Ultimi PDF nell'archivio."
-                    action={<LinkAction href="/documents">Tutti</LinkAction>}
-                    padding="none"
-                  >
-                    {recentDocuments.length > 0 ? (
-                      <div className="divide-y divide-border-subtle">
-                        {recentDocuments.map((document) => (
-                          <Link
-                            key={document.id}
-                            href={`/documents/${document.id}`}
-                            className="atlas-row-interactive flex items-center gap-2.5 px-3.5 py-2.5"
-                          >
-                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-[var(--danger-bg)] text-[var(--danger-text)] ring-1 ring-[var(--danger-border)]">
-                              <IconDocuments className="h-3.5 w-3.5" />
-                            </span>
-                            <span className="min-w-0 flex-1">
-                              <span className="block truncate text-[12px] font-medium text-foreground">
-                                {document.fileName}
-                              </span>
-                              <span className="mt-px block text-[10px] text-muted">
-                                {getActivityCopy(document.status)} ·{" "}
-                                {formatRelativeTime(document.createdAt)}
-                              </span>
-                            </span>
-                            <DocumentStatusBadge status={document.status} />
-                          </Link>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="px-4 py-6 text-center text-[11px] text-muted">
-                        Nessun documento caricato.
-                      </div>
-                    )}
-                  </SectionCard>
-
-                  <SectionCard
-                    title="Polizze recenti"
-                    description="Schede da estrazione AI o inserimento manuale."
-                    action={
-                      policies.length > 0 ? (
-                        <LinkAction href="/policies">Archivio</LinkAction>
-                      ) : undefined
-                    }
-                    padding="none"
-                  >
-                    {policies.length > 0 ? (
-                      <div className={`${atlasSpace.tight} p-4`}>
-                        {policies.slice(0, 3).map((policy) => (
-                          <PolicyListCard key={policy.id} policy={policy} />
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="px-4 py-6 text-center text-[11px] text-muted">
-                        Nessuna polizza strutturata.
-                      </div>
-                    )}
-                  </SectionCard>
-                </div>
-              </div>
-
-              <aside className={atlasAsideColumn} id="workflow">
-                <SectionCard
-                  title="Workflow Atlas"
-                  description="Da documento a intelligence verificata."
-                  padding="sm"
-                >
-                  <DashboardWorkflowSteps steps={workflowSteps} />
-                </SectionCard>
-
-                <SectionCard
-                  title="Sblocco moduli"
-                  tone="support"
-                  padding="sm"
-                  bodyClassName={atlasSpace.tight}
-                >
-                  {progression.unlocks.map((module) => (
-                    <InsightCard
-                      key={module.id}
-                      icon={
-                        module.id === "analysis" ? (
-                          <Sparkles className="h-3.5 w-3.5" />
-                        ) : module.id === "market" ? (
-                          <IconClock className="h-3.5 w-3.5" />
-                        ) : (
-                          <Users className="h-3.5 w-3.5" />
-                        )
-                      }
-                      title={module.label}
-                      description={
-                        module.unlocked
-                          ? module.progressDetail
-                          : module.requirement
-                      }
-                      statusLabel={module.unlocked ? "Attivo" : "Bloccato"}
-                      statusVariant={module.unlocked ? "processing" : "neutral"}
-                      href={module.ctaHref}
-                      hrefLabel={module.ctaLabel}
-                    />
-                  ))}
-                </SectionCard>
-
-                {kpis.failedDocuments > 0 ? (
-                  <SectionCard title="Attenzione documenti" padding="sm">
-                    <div className="flex items-start gap-2.5">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[var(--danger-bg)] text-[var(--danger-text)] ring-1 ring-[var(--danger-border)]">
-                        <AlertTriangle className="h-4 w-4" />
-                      </span>
-                      <div>
-                        <p className="text-[12px] font-semibold text-foreground">
-                          {kpis.failedDocuments} analisi fallita
-                          {kpis.failedDocuments === 1 ? "" : "e"}
-                        </p>
-                        <Link
-                          href="/documents"
-                          className="mt-1.5 inline-flex items-center gap-0.5 text-[11px] font-medium text-accent"
-                        >
-                          Vai ai documenti
-                          <IconChevronRight className="h-3 w-3" />
-                        </Link>
-                      </div>
-                    </div>
-                  </SectionCard>
-                ) : null}
-
-                <div
-                  className={`${atlasCard.support} px-4 py-3 text-[11px] leading-relaxed text-muted`}
-                >
-                  Atlas è indipendente: ogni cifra deriva dai tuoi PDF e dalle schede
-                  confermate nel portafoglio.
-                </div>
-              </aside>
-            </div>
-
-            {progression.showOnboardingFocus ? (
-              <ModuleUnlockGrid unlocks={progression.unlocks} />
-            ) : null}
-          </DashboardAdvancedPanel>
+          <MetricTile
+            label="Equivalente mensile"
+            value={premiums.monthly !== null ? formatCHF(premiums.monthly) : "—"}
+            hint={premiums.monthly === null ? "Non ancora disponibile" : "Media sul 12 mesi"}
+          />
+          <MetricTile
+            label="Polizze attive"
+            value={String(activeCount)}
+            hint={`${policies.length} in totale`}
+          />
+          <MetricTile
+            label="Documenti"
+            value={String(documents.length)}
+            hint={documents.length === 0 ? "Wallet ancora vuoto" : "Nel wallet privato"}
+          />
+          <MetricTile
+            label="Prossima scadenza"
+            value={nextDeadline ? formatScheduleDate(nextDeadline.date) : "—"}
+            hint={nextDeadline ? nextDeadline.label : "Nessuna data inserita"}
+          />
         </div>
-      </RevealStagger>
-    </PageShell>
+      )}
+
+      <AtlasScoreCard score={score} />
+
+      {policies.length > 0 ? (
+        <ConsumerSection
+          title="Prossime scadenze"
+          action={
+            <Link href="/policies" className="text-[13px] font-medium text-accent">
+              Vedi tutte
+            </Link>
+          }
+        >
+          {deadlines.length === 0 ? (
+            <p className="atlas-consumer-card px-4 py-5 text-[13px] leading-relaxed text-muted">
+              Completa le date delle tue polizze per ricevere promemoria.
+            </p>
+          ) : (
+            <ul className="atlas-consumer-card divide-y divide-border-subtle overflow-hidden">
+              {deadlines.map((item) => (
+                <li key={`${item.policyId}-${item.date}`}>
+                  <Link
+                    href={`/policies/${item.policyId}`}
+                    className="flex min-h-14 items-center justify-between gap-3 px-4 py-3"
+                  >
+                    <span>
+                      <span className="block text-[13px] font-semibold text-foreground">
+                        {formatScheduleDate(item.date)}
+                      </span>
+                      <span className="text-[12px] text-muted">{item.label}</span>
+                    </span>
+                    <span className="text-[12px] text-muted">
+                      {item.daysUntil === 0 ? "Oggi" : `${item.daysUntil} g`}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </ConsumerSection>
+      ) : null}
+
+      {policies.length > 0 ? (
+        <ConsumerSection
+          title="Richiede attenzione"
+          action={
+            <Link href="/opportunities" className="text-[13px] font-medium text-accent">
+              Opportunità
+            </Link>
+          }
+        >
+          {attentionCount === 0 ? (
+            <p className="atlas-consumer-card px-4 py-5 text-[13px] text-muted">
+              Nessun dato incompleto o scadenza imminente al momento.
+            </p>
+          ) : (
+            <ul className="space-y-2">
+              {opportunities.map((item) => (
+                <li key={item.id} className="atlas-consumer-card px-4 py-4">
+                  <p className="text-[14px] font-medium text-foreground">{item.title}</p>
+                  <p className="mt-1 text-[13px] text-muted">{item.description}</p>
+                  <Link href={item.ctaHref} className="mt-3 inline-flex text-[13px] font-medium text-accent">
+                    {item.ctaLabel}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </ConsumerSection>
+      ) : null}
+
+      {policies.length > 0 ? (
+        <ConsumerSection
+          title="Polizze recenti"
+          action={
+            <Link href="/policies" className="text-[13px] font-medium text-accent">
+              Vedi tutte
+            </Link>
+          }
+        >
+          <div className="grid gap-3 md:grid-cols-2">
+            {policies.slice(0, 4).map((policy) => (
+              <PolicyConsumerCard key={policy.id} policy={policy} />
+            ))}
+          </div>
+        </ConsumerSection>
+      ) : null}
+
+      <ConsumerSection title="Cosa puoi fare ora">
+        <div className="grid gap-2 sm:grid-cols-3">
+          <Link
+            href="/policies/new"
+            className="atlas-consumer-card atlas-consumer-press min-h-16 px-4 py-4 text-[14px] font-medium text-foreground"
+          >
+            Aggiungi una polizza
+          </Link>
+          <Link
+            href="/documents"
+            className="atlas-consumer-card atlas-consumer-press min-h-16 px-4 py-4 text-[14px] font-medium text-foreground"
+          >
+            Carica un documento
+          </Link>
+          <Link
+            href="/settings"
+            className="atlas-consumer-card atlas-consumer-press min-h-16 px-4 py-4 text-[14px] font-medium text-foreground"
+          >
+            Completa il profilo
+          </Link>
+        </div>
+      </ConsumerSection>
+
+      <ConsultationPrepCard />
+    </div>
   );
 }

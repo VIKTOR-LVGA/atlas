@@ -27,9 +27,10 @@ test.describe.serial("Atlas authenticated journeys", () => {
     await page.getByRole("button", { name: "Crea account" }).click();
 
     await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
-    await expect(
-      page.getByRole("heading", { level: 1, name: "Dashboard" })
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(
+      /Buongiorno|Buon pomeriggio|Buonasera/
+    );
+    await expect(page.getByText("Il tuo mondo assicurativo")).toBeVisible();
   });
 
   test("invalid password is rejected and valid login persists", async ({ page }) => {
@@ -66,15 +67,18 @@ test.describe.serial("Atlas authenticated journeys", () => {
   });
 
   test("policy can be created and read", async ({ page }) => {
+    test.setTimeout(45_000);
     await login(page);
     await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
     await page.goto("/policies/new");
+    await page.getByRole("button", { name: "RC privata" }).click();
+    await page.getByRole("button", { name: "Continua" }).click();
     await page.getByLabel("Compagnia").fill("Helvetia Browser E2E");
-    await page.getByLabel("Tipo polizza").selectOption("liability");
     await page.getByLabel("Numero polizza").fill(`E2E-${runId}`);
+    await page.getByRole("button", { name: "Continua" }).click();
     await page.getByLabel("Premio", { exact: true }).fill("240");
     await page.getByLabel("Frequenza premio").selectOption("annual");
-    await page.getByRole("button", { name: "Crea polizza" }).click();
+    await page.getByRole("button", { name: "Salva e completa dopo" }).click();
 
     await expect(page).toHaveURL(/\/policies\/[0-9a-f-]+$/, { timeout: 20_000 });
     policyId = new URL(page.url()).pathname.split("/").pop() ?? "";
@@ -102,6 +106,36 @@ test.describe.serial("Atlas authenticated journeys", () => {
         exact: true,
       })
     ).toBeVisible();
+  });
+
+  test("policies list, opportunities, wallet and mobile nav work", async ({ page }) => {
+    expect(policyId).not.toBe("");
+    await login(page);
+    await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
+
+    await page.goto("/policies");
+    await expect(page.getByRole("heading", { name: "Le mie polizze" })).toBeVisible();
+    await expect(page.getByText("Helvetia Browser E2E Updated", { exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Apri" }).first()).toBeVisible();
+
+    await page.goto(`/policies/${policyId}`);
+    await expect(page.getByText("Overview")).toBeVisible();
+    await expect(page.getByText("Costi")).toBeVisible();
+
+    await page.goto("/opportunities");
+    await expect(page.getByRole("heading", { name: "Opportunità" })).toBeVisible();
+    await expect(page.getByText("Controlla polizza").first()).toBeVisible();
+
+    await page.goto("/documents");
+    await expect(page.getByRole("heading", { name: "Wallet documenti" })).toBeVisible();
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/dashboard");
+    const mobileNav = page.getByRole("navigation", { name: "Navigazione principale" });
+    await expect(mobileNav.getByRole("link", { name: "Home" })).toBeVisible();
+    await expect(mobileNav.getByRole("link", { name: "Polizze" })).toBeVisible();
+    await expect(mobileNav.getByRole("link", { name: "Opportunità" })).toBeVisible();
+    await expect(mobileNav.getByRole("link", { name: "Profilo" })).toBeVisible();
   });
 
   test("document can be uploaded, read, and downloaded", async ({ page }) => {

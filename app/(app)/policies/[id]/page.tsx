@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { PolicyConsumerOverview } from "@/components/policies/detail/PolicyConsumerOverview";
 import { PolicyCoverageIntelligence } from "@/components/policies/detail/PolicyCoverageIntelligence";
 import { PolicyDetailFactsCard } from "@/components/policies/detail/PolicyDetailFactsCard";
 import { PolicyDetailKpiStrip } from "@/components/policies/detail/PolicyDetailKpiStrip";
@@ -197,6 +198,8 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
           coverageCount={displayCoverageCount}
         />
 
+        <PolicyConsumerOverview policy={policy} />
+
         {assigned === "1" ? (
           <StatusFlash tone="success">
             Copertura assegnata correttamente. Il riepilogo è aggiornato.
@@ -332,6 +335,7 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
               policy={policy}
               hideDocument={showExtractionReveal}
               hideTimestamps={showExtractionReveal}
+              hideDelete
             />
           </aside>
         </div>

@@ -4,7 +4,6 @@ import {
   Skeleton,
   SkeletonCard,
   SkeletonKpiGrid,
-  SkeletonTable,
 } from "@/components/motion/Skeleton";
 
 function LoadingHeader() {
@@ -20,20 +19,12 @@ export function DashboardLoadingSkeleton() {
   return (
     <PageShell>
       <LoadingHeader />
-      <Skeleton className="h-20 w-full rounded-xl" />
       <div className={atlasKpiRow}>
         <SkeletonKpiGrid count={4} />
       </div>
-      <div className={`${atlasSpace.contentGrid} xl:grid-cols-3`}>
-        <div className={`${atlasSpace.block} xl:col-span-2`}>
-          <SkeletonCard lines={4} />
-          <SkeletonCard lines={4} />
-        </div>
-        <div className={atlasSpace.block}>
-          <SkeletonCard lines={5} />
-          <SkeletonCard lines={3} />
-        </div>
-      </div>
+      <Skeleton className="h-40 w-full rounded-[1.25rem]" />
+      <SkeletonCard lines={4} />
+      <SkeletonCard lines={3} />
     </PageShell>
   );
 }
@@ -42,10 +33,8 @@ export function PoliciesLoadingSkeleton() {
   return (
     <PageShell>
       <LoadingHeader />
-      <SkeletonKpiGrid count={4} />
-      <Skeleton className="h-16 w-full rounded-xl" />
-      <Skeleton className="h-12 w-full rounded-xl" />
-      <SkeletonTable rows={6} />
+      <Skeleton className="h-28 w-full rounded-[1.25rem]" />
+      <Skeleton className="h-28 w-full rounded-[1.25rem]" />
     </PageShell>
   );
 }
@@ -54,11 +43,20 @@ export function DocumentsLoadingSkeleton() {
   return (
     <PageShell>
       <LoadingHeader />
-      <SkeletonKpiGrid count={4} />
-      <div className={`${atlasSpace.contentGrid} lg:grid-cols-3`}>
-        <SkeletonTable rows={8} />
-        <SkeletonCard lines={6} />
-      </div>
+      <Skeleton className="h-40 w-full rounded-[1.25rem]" />
+      <Skeleton className="h-16 w-full rounded-[1.25rem]" />
+      <Skeleton className="h-16 w-full rounded-[1.25rem]" />
+    </PageShell>
+  );
+}
+
+export function OpportunitiesLoadingSkeleton() {
+  return (
+    <PageShell>
+      <LoadingHeader />
+      <SkeletonCard lines={3} />
+      <SkeletonCard lines={3} />
+      <SkeletonCard lines={2} />
     </PageShell>
   );
 }

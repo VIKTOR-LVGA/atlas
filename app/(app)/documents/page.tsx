@@ -1,168 +1,51 @@
-import Link from "next/link";
-import { Sparkles, Shield } from "lucide-react";
-import { DocumentIntelligenceArchive } from "@/components/documents/DocumentIntelligenceArchive";
+import { EmptyState } from "@/components/consumer/EmptyState";
+import { DocumentWalletList } from "@/components/documents/DocumentWalletList";
 import { DocumentUploadForm } from "@/components/documents/DocumentUploadForm";
-import { DocumentStatusBadge } from "@/components/documents/DocumentStatusBadge";
-import { DocumentWorkflowStrip } from "@/components/documents/DocumentWorkflowStrip";
-import {
-  IconDocuments,
-  IconFolder,
-  IconUpload,
-} from "@/components/icons";
-import { MetricCard } from "@/components/ui/MetricCard";
-import { PageHeader } from "@/components/ui/PageHeader";
-import { PageShell } from "@/components/ui/PageShell";
-import { SectionCard } from "@/components/ui/SectionCard";
-import { RevealStagger } from "@/components/motion/RevealStagger";
-import {
-  atlasAsideColumn,
-  atlasCard,
-  atlasKpiRow,
-  atlasMainAside,
-  atlasMainColumn,
-} from "@/lib/atlas-ui";
 import { getCurrentUserDocuments } from "@/lib/documents";
-import {
-  buildDocumentsIntelligence,
-  countDocumentsByFilter,
-} from "@/lib/document-intelligence";
+import { getPoliciesByDocumentId } from "@/lib/document-wallet";
 import { getCurrentUserPolicies } from "@/lib/policies";
-import { cn, formatDate, formatFileSize } from "@/lib/utils";
 
-export const metadata = { title: "Documenti" };
+export const metadata = { title: "Wallet documenti" };
 
 export default async function DocumentsPage() {
   const [documents, policies] = await Promise.all([
     getCurrentUserDocuments(),
     getCurrentUserPolicies(),
   ]);
-
-  const views = buildDocumentsIntelligence(documents, policies);
-  const filterCounts = countDocumentsByFilter(views);
-  const recent = views.slice(0, 4);
-
-  const needsReviewCount = filterCounts.needs_review;
-  const confirmedCount = filterCounts.confirmed;
+  const policiesByDocumentId = getPoliciesByDocumentId(policies);
 
   return (
-    <PageShell>
-      <RevealStagger>
-        <PageHeader
-          title="Documenti"
-          description="Centro operativo per PDF assicurativi: caricamento, analisi AI e collegamento alle polizze strutturate."
+    <div className="space-y-6">
+      <header>
+        <h1 className="text-[24px] font-semibold tracking-tight text-foreground">
+          Wallet documenti
+        </h1>
+        <p className="mt-1 text-[13px] text-muted">
+          PDF privati: polizze, condizioni, fatture e comunicazioni.
+        </p>
+      </header>
+
+      <section className="atlas-consumer-card px-4 py-4 sm:px-5">
+        <h2 className="text-[15px] font-semibold text-foreground">Carica un documento</h2>
+        <p className="mt-1 text-[12px] text-muted">
+          Resta nel tuo storage privato. Puoi associarlo a una polizza in seguito.
+        </p>
+        <div className="mt-4">
+          <DocumentUploadForm />
+        </div>
+      </section>
+
+      {documents.length === 0 ? (
+        <EmptyState
+          title="Il wallet è vuoto"
+          description="Carica il primo PDF per tenere polizze, condizioni e comunicazioni nello stesso posto."
         />
-
-        <div className={atlasKpiRow}>
-          <MetricCard
-            label="Archivio"
-            value={String(documents.length)}
-            subtext="PDF nel tuo archivio"
-            variant="blue"
-            icon={<IconFolder className="h-[18px] w-[18px]" />}
-          />
-          <MetricCard
-            label="Da analizzare"
-            value={String(filterCounts.unanalyzed)}
-            subtext="Pronti per estrazione"
-            variant="yellow"
-            icon={<IconUpload className="h-[18px] w-[18px]" />}
-          />
-          <MetricCard
-            label="Analizzati"
-            value={String(filterCounts.analyzed)}
-            subtext={`${confirmedCount} confermati`}
-            variant="green"
-            icon={<IconDocuments className="h-[18px] w-[18px]" />}
-          />
-          <MetricCard
-            label="Revisione"
-            value={String(needsReviewCount)}
-            subtext={
-              filterCounts.error > 0
-                ? `${filterCounts.error} con errore`
-                : "Bozze da verificare"
-            }
-            variant={needsReviewCount > 0 || filterCounts.error > 0 ? "red" : "indigo"}
-            icon={<Sparkles className="h-[18px] w-[18px]" />}
-          />
-        </div>
-
-        <div className={cn(atlasMainAside, "min-w-0 max-w-full")}>
-          <div className={cn(atlasMainColumn, "min-w-0")}>
-            <SectionCard
-              title="Archivio documenti"
-              description="Ogni riga mostra stato, indicatori e prossima azione."
-              padding="none"
-            >
-              <DocumentIntelligenceArchive views={views} filterCounts={filterCounts} />
-            </SectionCard>
-          </div>
-
-          <aside className={atlasAsideColumn}>
-            <SectionCard
-              tone="primary"
-              title="Carica una polizza PDF"
-              description="Atlas preparerà il documento per l'analisi AI."
-              padding="md"
-            >
-              <DocumentUploadForm />
-            </SectionCard>
-
-            {recent.length > 0 ? (
-              <SectionCard title="In evidenza" padding="sm">
-                <ul className="space-y-3">
-                  {recent.map((view) => (
-                    <li key={view.document.id}>
-                      <Link
-                        href={`/documents/${view.document.id}`}
-                        className="block rounded-lg border border-border-subtle bg-card-muted/30 p-2.5 transition hover:border-border hover:bg-card-muted/60"
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <span className="min-w-0">
-                            <span className="block truncate text-[12px] font-semibold text-foreground">
-                              {view.document.fileName}
-                            </span>
-                            <span className="text-[10px] text-muted">
-                              {formatDate(view.document.createdAt)} ·{" "}
-                              {formatFileSize(view.document.fileSize)}
-                            </span>
-                          </span>
-                          <DocumentStatusBadge status={view.document.status} />
-                        </div>
-                        <div className="mt-2">
-                          <DocumentWorkflowStrip stage={view.workflowStage} compact />
-                        </div>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </SectionCard>
-            ) : null}
-          </aside>
-        </div>
-
-        <div
-          className={`${atlasCard.secondary} flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between`}
-        >
-          <div className="flex items-start gap-3">
-            <Shield className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
-            <div>
-              <p className="text-[13px] font-semibold text-foreground">
-                Archivio privato
-              </p>
-              <p className="text-[12px] text-muted">
-                Documenti, polizze e riepiloghi restano organizzati nel tuo spazio Atlas.
-              </p>
-            </div>
-          </div>
-          <Link
-            href="/settings"
-            className="shrink-0 rounded-lg border border-border px-4 py-2 text-[12px] font-medium text-muted-foreground hover:bg-card-muted"
-          >
-            Impostazioni account
-          </Link>
-        </div>
-      </RevealStagger>
-    </PageShell>
+      ) : (
+        <DocumentWalletList
+          documents={documents}
+          policiesByDocumentId={policiesByDocumentId}
+        />
+      )}
+    </div>
   );
 }

@@ -11,12 +11,14 @@ interface PolicyDetailSidebarProps {
   policy: UserPolicy;
   hideDocument?: boolean;
   hideTimestamps?: boolean;
+  hideDelete?: boolean;
 }
 
 export function PolicyDetailSidebar({
   policy,
   hideDocument = false,
   hideTimestamps = false,
+  hideDelete = false,
 }: PolicyDetailSidebarProps) {
   return (
     <>
@@ -55,7 +57,7 @@ export function PolicyDetailSidebar({
             <PencilLine className="h-4 w-4" />
             Modifica polizza
           </ActionButton>
-          <PolicyDeleteForm policyId={policy.id} />
+          {hideDelete ? null : <PolicyDeleteForm policyId={policy.id} />}
           <ActionButton href="/policies" variant="secondary">
             <IconPolicies className="h-4 w-4" />
             Portafoglio

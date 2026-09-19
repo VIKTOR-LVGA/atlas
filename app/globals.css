@@ -1187,3 +1187,41 @@ body {
 .atlas-alert-danger-body {
   color: color-mix(in srgb, var(--danger-text) 75%, var(--muted));
 }
+
+/* ─── ATLAS 2.0 consumer surfaces ─── */
+.atlas-consumer-card {
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  background: var(--card);
+  box-shadow: var(--shadow-card);
+}
+
+.atlas-consumer-press {
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease;
+}
+
+.atlas-consumer-press:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+.atlas-consumer-press:active {
+  transform: scale(0.985);
+}
+
+.atlas-consumer-press:focus-visible,
+.atlas-consumer-focus:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atlas-consumer-press,
+  .atlas-consumer-press:active {
+    transition: none;
+    transform: none;
+  }
+}

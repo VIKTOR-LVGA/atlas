@@ -5,21 +5,18 @@ import {
   CheckCircle2,
   FileText,
   LayoutDashboard,
-  LineChart,
   Shield,
   Sparkles,
   TrendingUp,
   Upload,
-  Users,
   Wallet,
 } from "lucide-react";
 
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, active: true },
   { label: "Polizze", icon: FileText, active: false },
-  { label: "Mercato", icon: LineChart, active: false },
-  { label: "Analisi", icon: Sparkles, active: false },
-  { label: "Persone", icon: Users, active: false },
+  { label: "Documenti", icon: Wallet, active: false },
+  { label: "Opportunità", icon: Sparkles, active: false },
 ];
 
 function StatCard({

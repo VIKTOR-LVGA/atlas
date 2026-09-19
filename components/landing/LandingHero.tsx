@@ -19,24 +19,21 @@ export function LandingHero() {
           </p>
 
           <h1 className="landing-hero-headline mt-7">
-            <span className="block">Atlas capisce</span>
-            <span className="block">le tue assicurazioni.</span>
+            <span className="block">Tutte le tue assicurazioni.</span>
             <span className="mt-1 block">
-              E ti aiuta a{" "}
-              <span className="landing-hero-accent">individuare dove ottimizzare.</span>
+              <span className="landing-hero-accent">Un solo posto.</span>
             </span>
           </h1>
 
           <p className="landing-hero-lead mt-6">
-            Carica le tue polizze, organizza il portfolio e prepara i dati per future
-            valutazioni. Capisci meglio premi, coperture, rinnovi e possibili aree da
-            verificare.
+            ATLAS è lo spazio gratuito dove vedi polizze, premi, scadenze e documenti
+            insieme — con chiarezza, senza un comparatore classico.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Link href="/register" className="landing-btn-gradient">
               <Upload className="h-4 w-4" />
-              Carica le tue polizze
+              Inizia gratis
             </Link>
             <a href="#how-it-works" className="landing-btn-ghost">
               <Play className="h-4 w-4" />
