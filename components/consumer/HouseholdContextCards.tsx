@@ -9,30 +9,14 @@ export function HouseholdContextCards({
         <h2 className="text-[15px] font-semibold tracking-tight text-foreground">
           Il tuo nucleo familiare
         </h2>
-        <p className="mt-1 text-[13px] text-muted">
-          I membri della famiglia potranno essere collegati alle polizze nella prossima fase.
+        <p className="mt-1 text-[13px] leading-relaxed text-muted">
+          Oggi ATLAS mostra solo il profilo con cui hai effettuato l&apos;accesso.
+          Partner, figli e altri membri arriveranno nella prossima fase.
         </p>
-        <ul className="mt-4 divide-y divide-border-subtle">
-          <li className="flex items-center justify-between py-3">
-            <span>
-              <span className="block text-[14px] font-medium text-foreground">{ownerName}</span>
-              <span className="text-[12px] text-muted">Tu</span>
-            </span>
-            <span className="text-[11px] font-medium text-muted">Profilo attuale</span>
-          </li>
-          <li className="py-3">
-            <p className="text-[14px] font-medium text-foreground">Partner</p>
-            <p className="mt-0.5 text-[12px] text-muted">
-              Non ancora disponibile. Nessun membro è stato creato.
-            </p>
-          </li>
-          <li className="py-3">
-            <p className="text-[14px] font-medium text-foreground">Figlio</p>
-            <p className="mt-0.5 text-[12px] text-muted">
-              Non ancora disponibile. Nessun membro è stato creato.
-            </p>
-          </li>
-        </ul>
+        <div className="mt-4 rounded-xl bg-card-muted px-4 py-3">
+          <p className="text-[14px] font-medium text-foreground">{ownerName}</p>
+          <p className="text-[12px] text-muted">Tu · profilo attuale</p>
+        </div>
       </section>
 
       <section className="atlas-consumer-card px-5 py-5">

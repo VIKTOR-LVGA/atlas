@@ -2,12 +2,10 @@ import { notFound } from "next/navigation";
 import { PolicyConsumerOverview } from "@/components/policies/detail/PolicyConsumerOverview";
 import { PolicyCoverageIntelligence } from "@/components/policies/detail/PolicyCoverageIntelligence";
 import { PolicyDetailFactsCard } from "@/components/policies/detail/PolicyDetailFactsCard";
-import { PolicyDetailKpiStrip } from "@/components/policies/detail/PolicyDetailKpiStrip";
 import { PolicyDetailSidebar } from "@/components/policies/detail/PolicyDetailSidebar";
 import { PolicyDocumentIntelligencePanel } from "@/components/policies/detail/PolicyDocumentIntelligencePanel";
 import { PolicyExtractionHighlights } from "@/components/policies/detail/PolicyExtractionHighlights";
 import { PolicyExtractionSummaryHero } from "@/components/policies/detail/PolicyExtractionSummaryHero";
-import { PolicyExecutiveHeader } from "@/components/policies/detail/PolicyExecutiveHeader";
 import { PolicyPartialExtractionBanner } from "@/components/policies/detail/PolicyPartialExtractionBanner";
 import { PolicyRevealGroup } from "@/components/policies/detail/PolicyRevealGroup";
 import { PolicyFlatCoveragesGrid } from "@/components/policies/detail/PolicyFlatCoveragesGrid";
@@ -192,12 +190,6 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
   return (
     <PageShell backHref="/policies" backLabel="Torna alle polizze">
       <RevealStagger>
-        <PolicyExecutiveHeader
-          policy={policy}
-          insuredCount={displayInsuredCount}
-          coverageCount={displayCoverageCount}
-        />
-
         <PolicyConsumerOverview policy={policy} />
 
         {assigned === "1" ? (
@@ -218,6 +210,8 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
           </StatusFlash>
         ) : null}
 
+        {showExtractionReveal || policy.requiresReview ? (
+          <>
         {showExtractionReveal ? (
           <>
             <PolicyExtractionSummaryHero
@@ -228,17 +222,7 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
             />
             <PolicyExtractionHighlights highlights={extractionHighlights} />
           </>
-        ) : (
-          <PolicyDetailKpiStrip
-            premiumAmount={policy.premiumAmount}
-            premiumFrequency={policy.premiumFrequency}
-            insuredCount={displayInsuredCount}
-            coverageCount={displayCoverageCount}
-            extractionConfidence={policy.extractionConfidence}
-            requiresReview={policy.requiresReview}
-            completenessPercent={coverageSummary.completenessPercent}
-          />
-        )}
+        ) : null}
 
         {showExtractionReveal && partialExtraction ? (
           <PolicyPartialExtractionBanner
@@ -339,6 +323,8 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
             />
           </aside>
         </div>
+          </>
+        ) : null}
       </RevealStagger>
     </PageShell>
   );

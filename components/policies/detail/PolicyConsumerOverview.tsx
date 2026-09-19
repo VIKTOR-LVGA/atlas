@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { PolicyDeleteForm } from "@/components/policies/PolicyDeleteForm";
-import { getPolicyCoverages } from "@/lib/policy-types";
+import { getPolicyCoverages, getPolicyDetailRows } from "@/lib/policy-types";
 import { getPolicyProductName, getPolicyStatusLabel } from "@/lib/policy-consumer-display";
 import { getVisualCategoryForPolicy } from "@/lib/policy-visual-categories";
 import {
@@ -45,10 +45,21 @@ export function PolicyConsumerOverview({ policy }: { policy: UserPolicy }) {
   const productName = getPolicyProductName(policy);
   const annual = getPolicyAnnualPremium(policy);
   const coverages = getPolicyCoverages(policy.details);
+  const detailRows = getPolicyDetailRows(policy.policyType, policy.details);
   const status = getPolicyStatusLabel(policy);
 
   return (
     <div className="space-y-3">
+      <header className="pb-1">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
+          {category.label}
+        </p>
+        <h1 className="mt-1 text-[24px] font-semibold tracking-tight text-foreground">
+          {policy.provider?.trim() || "Polizza da completare"}
+        </h1>
+        <p className="mt-1 text-[13px] text-muted">{status}</p>
+      </header>
+
       <FactList
         title="Overview"
         facts={[
@@ -103,6 +114,11 @@ export function PolicyConsumerOverview({ policy }: { policy: UserPolicy }) {
         ]}
       />
 
+      <FactList
+        title="Dettagli"
+        facts={detailRows.map((row) => ({ label: row.label, value: row.value }))}
+      />
+
       {coverages.length > 0 ? (
         <section className="atlas-consumer-card px-5 py-4">
           <h2 className="text-[12px] font-semibold uppercase tracking-[0.14em] text-muted">
@@ -149,19 +165,21 @@ export function PolicyConsumerOverview({ policy }: { policy: UserPolicy }) {
         <h2 className="text-[12px] font-semibold uppercase tracking-[0.14em] text-muted">
           Azioni
         </h2>
-        <Link
-          href={`/policies/${policy.id}/edit`}
-          className="atlas-btn-primary flex min-h-11 items-center justify-center px-4 text-[13px]"
-        >
-          Modifica
-        </Link>
-        <Link
-          href="/documents"
-          className="atlas-btn-secondary flex min-h-11 items-center justify-center px-4 text-[13px]"
-        >
-          Carica documento
-        </Link>
-        <PolicyDeleteForm policyId={policy.id} />
+        <div className="flex flex-col gap-2">
+          <Link
+            href={`/policies/${policy.id}/edit`}
+            className="atlas-btn-primary flex min-h-11 w-full items-center justify-center px-4 text-[13px]"
+          >
+            Modifica
+          </Link>
+          <Link
+            href="/documents"
+            className="atlas-btn-secondary flex min-h-11 w-full items-center justify-center px-4 text-[13px]"
+          >
+            Carica documento
+          </Link>
+          <PolicyDeleteForm policyId={policy.id} />
+        </div>
       </section>
     </div>
   );

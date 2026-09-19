@@ -11,7 +11,7 @@ import {
 } from "@/components/policies/PolicyForm";
 import { visualPolicyCategories, type VisualPolicyCategoryId } from "@/lib/policy-visual-categories";
 import { premiumFrequencyLongLabels } from "@/lib/premium-totals";
-import { policyTypeLabels } from "@/lib/policy-types";
+import { formatScheduleDateFull } from "@/lib/policy-schedule";
 import type { TypedPolicyType, UserDocument } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -82,7 +82,7 @@ export function PolicyCreateWizard({
   const canSaveDraft = provider.trim().length > 0;
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="space-y-5 pb-[calc(9.5rem+env(safe-area-inset-bottom))] lg:pb-0">
       <input type="hidden" name="policy_type" value={policyType} />
       <input type="hidden" name="policy_category_label" value={categoryLabel ?? ""} />
       <input type="hidden" name="currency" value="CHF" />
@@ -102,7 +102,7 @@ export function PolicyCreateWizard({
         </div>
       </div>
 
-      <div hidden={step !== 0} className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+      <div hidden={step !== 0} aria-hidden={step !== 0} className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {visualPolicyCategories.map((item) => {
           const selected = item.id === visualId;
           return (
@@ -139,7 +139,7 @@ export function PolicyCreateWizard({
         ) : null}
       </div>
 
-      <div hidden={step !== 1} className="space-y-4">
+      <div hidden={step !== 1} aria-hidden={step !== 1} className="space-y-4">
         <div>
           <label htmlFor="policy-provider" className="text-[12px] font-medium text-muted">
             Compagnia
@@ -169,7 +169,7 @@ export function PolicyCreateWizard({
         </div>
       </div>
 
-      <div hidden={step !== 2} className="space-y-4">
+      <div hidden={step !== 2} aria-hidden={step !== 2} className="space-y-4">
         <div>
           <label htmlFor="policy-premium" className="text-[12px] font-medium text-muted">
             Premio
@@ -209,7 +209,7 @@ export function PolicyCreateWizard({
         </div>
       </div>
 
-      <div hidden={step !== 3} className="space-y-4">
+      <div hidden={step !== 3} aria-hidden={step !== 3} className="space-y-4">
         <div>
           <label htmlFor="policy-start" className="text-[12px] font-medium text-muted">
             Data inizio
@@ -251,7 +251,7 @@ export function PolicyCreateWizard({
         </div>
       </div>
 
-      <div hidden={step !== 4} className="space-y-4">
+      <div hidden={step !== 4} aria-hidden={step !== 4} className="space-y-4">
         <div className="grid gap-3" key={policyType}>
           <TypeDetailsFields policyType={policyType} details={{}} />
         </div>
@@ -271,7 +271,7 @@ export function PolicyCreateWizard({
         </div>
       </div>
 
-      <div hidden={step !== 5} className="space-y-3">
+      <div hidden={step !== 5} aria-hidden={step !== 5} className="space-y-3">
         <p className="text-[13px] leading-relaxed text-muted">
           Puoi collegare un PDF già caricato oppure saltare e completare dopo.
         </p>
@@ -296,7 +296,7 @@ export function PolicyCreateWizard({
         </div>
       </div>
 
-      <div hidden={step !== 6} className="atlas-consumer-card space-y-3 px-4 py-4 text-[13px]">
+      <div hidden={step !== 6} aria-hidden={step !== 6} className="atlas-consumer-card space-y-3 px-4 py-4 text-[13px]">
         <SummaryRow label="Tipo" value={category.label} />
         <SummaryRow label="Compagnia" value={provider || "Da completare"} />
         <SummaryRow label="Numero" value={policyNumber || "Non indicato"} />
@@ -308,29 +308,24 @@ export function PolicyCreateWizard({
               : "Non indicato"
           }
         />
-        <SummaryRow label="Inizio" value={startDate || "Non indicato"} />
-        <SummaryRow label="Scadenza" value={endDate || "Non indicato"} />
-        <SummaryRow label="Rinnovo" value={renewalDate || "Non indicato"} />
+        <SummaryRow label="Inizio" value={startDate ? formatScheduleDateFull(startDate) : "Non indicato"} />
+        <SummaryRow label="Scadenza" value={endDate ? formatScheduleDateFull(endDate) : "Non indicato"} />
+        <SummaryRow label="Rinnovo" value={renewalDate ? formatScheduleDateFull(renewalDate) : "Non indicato"} />
         <SummaryRow
           label="Documento"
           value={
             documents.find((document) => document.id === documentId)?.fileName ?? "Non collegato"
           }
         />
-        <p className="pt-2 text-[12px] text-muted">
-          Categoria tecnica: {policyTypeLabels[policyType]}
-        </p>
       </div>
 
+      <div className="fixed inset-x-0 bottom-[calc(4.25rem+env(safe-area-inset-bottom))] z-40 space-y-2 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-md lg:static lg:inset-auto lg:z-auto lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
       {state.status === "error" ? (
         <p role="alert" className="text-[13px] text-[var(--danger-text)]">
           {state.message}
         </p>
-      ) : (
-        <p className="text-[12px] text-muted">{state.message || "Puoi lasciare i campi opzionali vuoti."}</p>
-      )}
-
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+      ) : null}
+      <div className="flex flex-row items-center gap-2">
         {step > 0 ? (
           <button
             type="button"
@@ -374,6 +369,7 @@ export function PolicyCreateWizard({
           Salva e completa dopo
         </button>
       ) : null}
+      </div>
     </form>
   );
 }

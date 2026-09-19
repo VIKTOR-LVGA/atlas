@@ -60,8 +60,7 @@ export function getPolicyAnnualPremium(policy: UserPolicy): number | null {
 }
 
 export function sumPortfolioPremiums(policies: UserPolicy[]) {
-  const countable = policies.filter((policy) => !policy.requiresReview);
-  const annualValues = countable
+  const annualValues = policies
     .map((policy) => getPolicyAnnualPremium(policy))
     .filter((value): value is number => value !== null);
 

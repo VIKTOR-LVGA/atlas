@@ -99,6 +99,8 @@ export function ProfileSettingsPanels({ profile }: { profile: CurrentProfile | n
     updateProfileSettingsAction,
     initialState
   );
+  const [fullName, setFullName] = useState(values.fullName);
+  const [phone, setPhone] = useState(values.phone);
   const [language, setLanguage] = useState<ProfileLanguage>(values.language);
   const memberSince = profile?.createdAt
     ? `Membro dal ${formatDate(profile.createdAt)}`
@@ -107,7 +109,11 @@ export function ProfileSettingsPanels({ profile }: { profile: CurrentProfile | n
   return (
     <form
       action={formAction}
-      onReset={() => setLanguage(values.language)}
+      onReset={() => {
+        setLanguage(values.language);
+        setFullName(values.fullName);
+        setPhone(values.phone);
+      }}
       className="space-y-4"
     >
       <NotificationHiddenInputs profile={values} />
@@ -143,7 +149,8 @@ export function ProfileSettingsPanels({ profile }: { profile: CurrentProfile | n
                 name="full_name"
                 type="text"
                 required
-                defaultValue={values.fullName}
+                value={fullName}
+                onChange={(event) => setFullName(event.target.value)}
                 className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-[13px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
               />
               <FieldError>{state.fieldErrors?.fullName}</FieldError>
@@ -168,7 +175,8 @@ export function ProfileSettingsPanels({ profile }: { profile: CurrentProfile | n
                 id="settings-phone"
                 name="phone"
                 type="tel"
-                defaultValue={values.phone}
+                value={phone}
+                onChange={(event) => setPhone(event.target.value)}
                 placeholder="+41 ..."
                 className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-[13px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
               />

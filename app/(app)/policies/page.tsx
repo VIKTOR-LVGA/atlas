@@ -12,14 +12,17 @@ export default async function PoliciesPage() {
 
   return (
     <div className="space-y-6">
-      <header className="flex items-start justify-between gap-3">
-        <div>
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
           <h1 className="text-[24px] font-semibold tracking-tight text-foreground">Le mie polizze</h1>
           <p className="mt-1 text-[13px] text-muted">
             Tutte le assicurazioni, organizzate per tipo.
           </p>
         </div>
-        <Link href="/policies/new" className="atlas-btn-primary min-h-11 px-4 text-[13px]">
+        <Link
+          href="/policies/new"
+          className="atlas-btn-primary min-h-11 w-full px-4 text-[13px] sm:w-auto"
+        >
           Aggiungi
         </Link>
       </header>

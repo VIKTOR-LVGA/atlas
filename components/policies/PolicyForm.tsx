@@ -340,7 +340,7 @@ export function PolicyForm({
   const details = policy?.policyType === policyType ? policy.details : {};
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="space-y-5 pb-[calc(9.5rem+env(safe-area-inset-bottom))] lg:pb-0">
       <div className="rounded-xl border border-border bg-card-muted p-4">
         <p className="text-[12px] font-semibold text-foreground">Dati comuni</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -353,7 +353,7 @@ export function PolicyForm({
               name="provider"
               required
               defaultValue={policy?.provider ?? ""}
-              placeholder="Es. Helsana"
+              placeholder="Nome della compagnia"
               className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-[13px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
             />
             <FieldError>{state.fieldErrors?.provider}</FieldError>
@@ -573,7 +573,7 @@ export function PolicyForm({
         />
       </div>
 
-      <div className="border-t border-border-subtle pt-4">
+      <div className="fixed inset-x-0 bottom-[calc(4.25rem+env(safe-area-inset-bottom))] z-40 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-md lg:static lg:inset-auto lg:z-auto lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
         <p
           aria-live="polite"
           className={cn(
@@ -581,7 +581,7 @@ export function PolicyForm({
             state.status === "error" ? "text-[var(--danger-text)]" : "text-muted"
           )}
         >
-          {state.message || "I campi opzionali possono restare vuoti."}
+          {state.status === "error" ? state.message : state.message || "I campi opzionali possono restare vuoti."}
         </p>
         <div className="atlas-form-actions">
           <Link

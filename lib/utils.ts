@@ -3,6 +3,10 @@ export function cn(...classes: (string | false | null | undefined)[]) {
 }
 
 export function formatCHF(amount: number): string {
+  if (!Number.isFinite(amount)) {
+    return "—";
+  }
+
   return new Intl.NumberFormat("de-CH", {
     style: "currency",
     currency: "CHF",
@@ -12,18 +16,30 @@ export function formatCHF(amount: number): string {
 }
 
 export function formatDate(date: string): string {
+  const timestamp = new Date(date).getTime();
+  if (!Number.isFinite(timestamp)) {
+    return "Data da completare";
+  }
+
   return new Intl.DateTimeFormat("it-CH", {
     day: "numeric",
     month: "short",
     year: "numeric",
-  }).format(new Date(date));
+    timeZone: "Europe/Zurich",
+  }).format(timestamp);
 }
 
 export function formatDateTime(date: string): string {
+  const timestamp = new Date(date).getTime();
+  if (!Number.isFinite(timestamp)) {
+    return "Data da completare";
+  }
+
   return new Intl.DateTimeFormat("it-CH", {
     dateStyle: "medium",
     timeStyle: "short",
-  }).format(new Date(date));
+    timeZone: "Europe/Zurich",
+  }).format(timestamp);
 }
 
 export function formatRelativeTime(date: string, now = new Date()): string {

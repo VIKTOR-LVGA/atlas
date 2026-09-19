@@ -71,20 +71,30 @@ export function getUpcomingDeadlines(
 }
 
 export function formatScheduleDate(date: string) {
+  const timestamp = new Date(`${date}T12:00:00`).getTime();
+  if (!Number.isFinite(timestamp)) {
+    return "Data da completare";
+  }
+
   return new Intl.DateTimeFormat("it-CH", {
     day: "numeric",
     month: "long",
     timeZone: "Europe/Zurich",
-  }).format(new Date(`${date}T12:00:00`));
+  }).format(new Date(timestamp));
 }
 
 export function formatScheduleDateFull(date: string) {
+  const timestamp = new Date(`${date}T12:00:00`).getTime();
+  if (!Number.isFinite(timestamp)) {
+    return "Data da completare";
+  }
+
   return new Intl.DateTimeFormat("it-CH", {
     day: "numeric",
     month: "long",
     year: "numeric",
     timeZone: "Europe/Zurich",
-  }).format(new Date(`${date}T12:00:00`));
+  }).format(new Date(timestamp));
 }
 
 export function greetingForZurich(now = new Date()) {

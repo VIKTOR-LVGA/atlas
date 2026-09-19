@@ -20,5 +20,10 @@ export function getPolicyStatusLabel(policy: UserPolicy) {
     return "Non attiva";
   }
 
+  const missingSchedule = !policy.startDate && !policy.endDate && !policy.renewalDate;
+  if (policy.premiumAmount === null && missingSchedule) {
+    return "Da completare";
+  }
+
   return "Attiva";
 }

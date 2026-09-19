@@ -23,14 +23,14 @@ export function EmptyState({
         {description}
       </p>
       {actionLabel && actionHref ? (
-        <div className="mt-6 flex flex-col items-center justify-center gap-2 sm:flex-row">
-          <Link href={actionHref} className="atlas-btn-primary min-h-11 px-5 text-[13px]">
+        <div className="mt-6 flex w-full flex-col items-center justify-center gap-2 sm:flex-row">
+          <Link href={actionHref} className="atlas-btn-primary min-h-11 w-full max-w-xs px-5 text-[13px] sm:w-auto">
             {actionLabel}
           </Link>
           {secondaryLabel && secondaryHref ? (
             <Link
               href={secondaryHref}
-              className="atlas-btn-secondary min-h-11 px-5 text-[13px]"
+              className="atlas-btn-secondary min-h-11 w-full max-w-xs px-5 text-[13px] sm:w-auto"
             >
               {secondaryLabel}
             </Link>

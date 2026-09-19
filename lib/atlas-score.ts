@@ -81,7 +81,7 @@ export function buildAtlasScore(input: {
 
   let headline = "Inizia ad aggiungere le tue assicurazioni.";
   if (score >= 85) {
-    headline = "Il tuo profilo assicurativo è quasi completo.";
+    headline = "I dati nel tuo account sono quasi completi.";
   } else if (score >= 55) {
     headline = "Buona base: mancano ancora alcuni dati.";
   } else if (score >= 25) {

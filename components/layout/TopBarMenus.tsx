@@ -44,10 +44,6 @@ export function TopBarNotificationsMenu() {
         Le notifiche automatiche saranno disponibili prossimamente.
       </TopBarPopoverNote>
       <TopBarPopoverDivider />
-      <TopBarPopoverItem href="/recommendations">
-        <Target className="h-3.5 w-3.5 text-accent" />
-        Vai alle raccomandazioni
-      </TopBarPopoverItem>
       <TopBarPopoverItem href="/settings?section=notifiche">
         <Settings className="h-3.5 w-3.5" />
         Preferenze notifiche
@@ -62,21 +58,21 @@ function HelpMenuPanel() {
       <TopBarPopoverHeader>
         <span className="text-[12px] font-semibold text-foreground">Aiuto</span>
       </TopBarPopoverHeader>
-      <TopBarPopoverItem href="/dashboard#workflow">
+      <TopBarPopoverItem href="/dashboard">
         <BookOpen className="h-3.5 w-3.5" />
-        Come funziona Atlas
+        Home
       </TopBarPopoverItem>
       <TopBarPopoverItem href="/documents">
         <FileText className="h-3.5 w-3.5" />
         Documenti
       </TopBarPopoverItem>
-      <TopBarPopoverItem href="/recommendations">
+      <TopBarPopoverItem href="/opportunities">
         <Target className="h-3.5 w-3.5" />
-        Raccomandazioni
+        Opportunità
       </TopBarPopoverItem>
       <TopBarPopoverItem href="/settings">
         <Settings className="h-3.5 w-3.5" />
-        Impostazioni
+        Profilo
       </TopBarPopoverItem>
       <TopBarPopoverDivider />
       <TopBarPopoverNote>Supporto diretto in preparazione.</TopBarPopoverNote>
@@ -154,15 +150,15 @@ export function TopBarProfileMenu() {
       ) : null}
       <TopBarPopoverItem href="/dashboard">
         <LayoutDashboard className="h-3.5 w-3.5" />
-        Dashboard
+        Home
       </TopBarPopoverItem>
-      <TopBarPopoverItem href="/documents">
+      <TopBarPopoverItem href="/policies">
         <FileText className="h-3.5 w-3.5" />
-        Documenti
+        Polizze
       </TopBarPopoverItem>
       <TopBarPopoverItem href="/settings">
         <Settings className="h-3.5 w-3.5" />
-        Impostazioni
+        Profilo
       </TopBarPopoverItem>
       <TopBarPopoverDivider />
       <form action={logout}>

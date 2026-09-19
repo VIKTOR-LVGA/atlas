@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function BackLink({
@@ -15,11 +14,13 @@ export function BackLink({
     <Link
       href={href}
       className={cn(
-        "inline-flex items-center gap-1 text-[12px] font-medium text-muted transition hover:text-foreground",
+        "inline-flex min-h-11 items-center gap-1 text-[13px] font-medium text-muted transition hover:text-foreground",
         className
       )}
     >
-      <ChevronLeft className="h-3.5 w-3.5" />
+      <span aria-hidden className="text-[16px] leading-none">
+        ‹
+      </span>
       {label}
     </Link>
   );

@@ -9,6 +9,7 @@ import { buildOpportunities } from "@/lib/opportunities";
 import { getCurrentUserPolicies } from "@/lib/policies";
 import { formatScheduleDate, getUpcomingDeadlines, greetingForZurich } from "@/lib/policy-schedule";
 import { sumPortfolioPremiums } from "@/lib/premium-totals";
+import { getPolicyStatusLabel } from "@/lib/policy-consumer-display";
 import { getProfileShortName } from "@/lib/profile-display";
 import { getCurrentProfile } from "@/lib/profiles";
 import { formatCHF } from "@/lib/utils";
@@ -30,13 +31,14 @@ export default async function DashboardPage() {
   const opportunities = buildOpportunities({ policies, documents }).slice(0, 3);
   const attentionCount = opportunities.filter((item) => item.kind !== "stale_review").length;
   const nextDeadline = deadlines[0] ?? null;
-  const activeCount = policies.filter((policy) => !policy.requiresReview).length || policies.length;
+  const activeCount = policies.filter(
+    (policy) => getPolicyStatusLabel(policy) === "Attiva"
+  ).length;
 
   return (
     <div className="space-y-7">
       <header>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">ATLAS</p>
-        <h1 className="mt-2 text-[26px] font-semibold tracking-tight text-foreground sm:text-[30px]">
+        <h1 className="text-[26px] font-semibold tracking-tight text-foreground sm:text-[30px]">
           {greeting}, {name}
         </h1>
         <p className="mt-1 text-[15px] text-muted-foreground">Il tuo mondo assicurativo</p>

@@ -11,7 +11,7 @@ export function AtlasScoreCard({ score }: { score: AtlasScore }) {
             id="atlas-score-title"
             className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted"
           >
-            ATLAS Score
+            Indice di completezza
           </p>
           <p className="mt-2 text-[28px] font-semibold tracking-tight text-foreground">
             {score.score}
@@ -32,6 +32,7 @@ export function AtlasScoreCard({ score }: { score: AtlasScore }) {
               fill="none"
               stroke="var(--border)"
               strokeWidth="3"
+              pathLength="100"
             />
             <circle
               cx="18"
@@ -41,6 +42,7 @@ export function AtlasScoreCard({ score }: { score: AtlasScore }) {
               stroke="var(--accent)"
               strokeWidth="3"
               strokeLinecap="round"
+              pathLength="100"
               strokeDasharray={`${percent} 100`}
             />
           </svg>
