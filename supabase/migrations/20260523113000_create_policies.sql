@@ -78,6 +78,7 @@ create policy "Users can delete their own policies"
 create or replace function public.set_policy_updated_at()
 returns trigger
 language plpgsql
+set search_path = ''
 as $$
 begin
   new.updated_at = now();

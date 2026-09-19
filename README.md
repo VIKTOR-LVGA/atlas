@@ -8,8 +8,8 @@ TypeScript, Tailwind, Supabase Auth/Storage, and AI-assisted policy extraction.
 Create a root `.env.local` file with these values:
 
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxx
 
 OPENAI_API_KEY=your-openai-api-key
 OPENAI_POLICY_EXTRACTION_MODEL=gpt-5.2

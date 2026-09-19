@@ -7,6 +7,7 @@ import { AuthLayout } from "@/components/auth/AuthLayout";
 import { AuthFormField } from "@/components/auth/AuthFormField";
 import { AuthMessage } from "@/components/auth/AuthMessage";
 import { mapSupabaseAuthError } from "@/lib/auth-errors";
+import { getSafeAuthRedirect } from "@/lib/auth-redirect";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { validateEmail, validatePassword } from "@/lib/auth-validation";
 import { cn } from "@/lib/utils";
@@ -50,7 +51,8 @@ export default function LoginPage() {
         return;
       }
 
-      router.push("/dashboard");
+      const next = new URLSearchParams(window.location.search).get("next");
+      router.push(getSafeAuthRedirect(next));
       router.refresh();
     } catch {
       setError("Impossibile connettersi al servizio di autenticazione.");

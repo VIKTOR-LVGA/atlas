@@ -35,7 +35,7 @@ export function LandingNav() {
           <ThemeToggle className="!border-[var(--landing-border)] !bg-[var(--landing-surface)] !text-[var(--landing-muted)] hover:!text-[var(--landing-text)]" />
           <Link
             href="/login"
-            className="hidden rounded-full px-3 py-2 text-sm font-medium text-[var(--landing-muted)] transition hover:text-[var(--landing-text)] sm:inline sm:px-4"
+            className="rounded-full px-3 py-2 text-sm font-medium text-[var(--landing-muted)] transition hover:text-[var(--landing-text)] sm:px-4"
           >
             Accedi
           </Link>

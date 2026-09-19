@@ -1,30 +1,17 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getSafeAuthRedirect, isProductRoute } from "@/lib/auth-redirect";
 import { getSupabaseConfig } from "@/lib/supabase/config";
-
-const productRoutes = [
-  "/dashboard",
-  "/policies",
-  "/analysis",
-  "/market",
-  "/recommendations",
-  "/documents",
-  "/consulting",
-  "/settings",
-];
-
-function isRoute(pathname: string, route: string) {
-  return pathname === route || pathname.startsWith(`${route}/`);
-}
 
 function redirectWithAuthCookies(
   request: NextRequest,
   path: string,
-  authResponse: NextResponse
+  authResponse: NextResponse,
+  search = ""
 ) {
   const url = request.nextUrl.clone();
   url.pathname = path;
-  url.search = "";
+  url.search = search;
 
   const redirectResponse = NextResponse.redirect(url);
   authResponse.cookies.getAll().forEach((cookie) => {
@@ -36,9 +23,9 @@ function redirectWithAuthCookies(
 
 export async function proxy(request: NextRequest) {
   let authResponse = NextResponse.next({ request });
-  const { url, anonKey } = getSupabaseConfig();
+  const { url, publishableKey } = getSupabaseConfig();
 
-  const supabase = createServerClient(url, anonKey, {
+  const supabase = createServerClient(url, publishableKey, {
     cookies: {
       getAll() {
         return request.cookies.getAll();
@@ -62,8 +49,10 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
   const pathname = request.nextUrl.pathname;
 
-  if (!user && productRoutes.some((route) => isRoute(pathname, route))) {
-    return redirectWithAuthCookies(request, "/login", authResponse);
+  if (!user && isProductRoute(pathname)) {
+    const nextPath = `${pathname}${request.nextUrl.search}`;
+    const search = `?next=${encodeURIComponent(nextPath)}`;
+    return redirectWithAuthCookies(request, "/login", authResponse, search);
   }
 
   const authEntryRoutes = [
@@ -78,7 +67,19 @@ export async function proxy(request: NextRequest) {
     authEntryRoutes.includes(pathname) &&
     pathname !== "/reset-password"
   ) {
-    return redirectWithAuthCookies(request, "/dashboard", authResponse);
+    const requestedNext =
+      pathname === "/login"
+        ? request.nextUrl.searchParams.get("next")
+        : null;
+    const destination = getSafeAuthRedirect(requestedNext);
+    const destUrl = new URL(destination, request.nextUrl.origin);
+
+    return redirectWithAuthCookies(
+      request,
+      destUrl.pathname,
+      authResponse,
+      destUrl.search
+    );
   }
 
   return authResponse;
