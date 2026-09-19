@@ -3,11 +3,23 @@
 project_id = "atlas"
 
 [auth]
-site_url = "http://localhost:3000"
+site_url = "https://atlas-liard-three.vercel.app"
 additional_redirect_urls = [
+  "https://atlas-liard-three.vercel.app/",
+  "https://atlas-liard-three.vercel.app/login",
+  "https://atlas-liard-three.vercel.app/register",
+  "https://atlas-liard-three.vercel.app/reset-password",
   "http://localhost:3000/**",
   "http://localhost:3001/**",
   "http://127.0.0.1:3000/**",
   "http://127.0.0.1:3001/**",
 ]
 minimum_password_length = 8
+
+[auth.email.template.recovery]
+subject = "Reimposta la password ATLAS"
+content_path = "./supabase/templates/recovery.html"
+
+[auth.email.template.confirmation]
+subject = "Conferma il tuo account ATLAS"
+content_path = "./supabase/templates/confirmation.html"
