@@ -10,6 +10,7 @@ import { getPolicyTypeLabel } from "@/lib/policy-types";
 import type { PortfolioProgression } from "@/lib/portfolio-progression";
 import type { DashboardStats } from "@/lib/dashboard";
 import type { TypedPolicyType, UserDocument, UserPolicy } from "@/lib/types";
+import { countDrafts, countPolicies, pluralIt } from "@/lib/italian-plural";
 
 export type DashboardPortfolioStatus =
   | "stable"
@@ -204,7 +205,7 @@ export function buildDashboardHeroSnapshot(input: {
   }
   if (analyzedToday > 0) {
     todayParts.push(
-      `${analyzedToday} analisi completata${analyzedToday === 1 ? "" : "e"} oggi`
+      `${analyzedToday} ${pluralIt(analyzedToday, "analisi completata", "analisi completate")} oggi`
     );
   }
   if (processingNow > 0) {
@@ -214,7 +215,7 @@ export function buildDashboardHeroSnapshot(input: {
   }
   if (kpis.policiesRequiringReview > 0) {
     todayParts.push(
-      `${kpis.policiesRequiringReview} bozza${kpis.policiesRequiringReview === 1 ? "" : "e"} da confermare`
+      `${countDrafts(kpis.policiesRequiringReview)} da confermare`
     );
   }
 
@@ -330,7 +331,7 @@ export function resolveDashboardNextAction(input: {
   if (pendingReview.length > 0) {
     return {
       label: "Conferma la bozza AI",
-      description: `${pendingReview.length} polizza${pendingReview.length === 1 ? "" : "e"} in attesa di revisione.`,
+      description: `${countPolicies(pendingReview.length)} in attesa di revisione.`,
       href: `/policies/${pendingReview[0].id}/edit`,
     };
   }

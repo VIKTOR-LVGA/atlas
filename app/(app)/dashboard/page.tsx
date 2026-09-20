@@ -5,6 +5,7 @@ import { EmptyState, MetricTile, ConsumerSection } from "@/components/consumer/E
 import { PolicyConsumerCard } from "@/components/policies/PolicyConsumerCard";
 import { buildAtlasScore } from "@/lib/atlas-score";
 import { getCurrentUserDocuments } from "@/lib/documents";
+import { listCurrentUserConsultationRequests } from "@/lib/consultations";
 import { buildOpportunities } from "@/lib/opportunities";
 import { getCurrentUserPolicies } from "@/lib/policies";
 import { syncCurrentUserOpportunities } from "@/lib/persisted-opportunities";
@@ -18,11 +19,16 @@ import { formatCHF } from "@/lib/utils";
 export const metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
-  const [profile, policies, documents] = await Promise.all([
+  const [profile, policies, documents, consultationRequests] = await Promise.all([
     getCurrentProfile(),
     getCurrentUserPolicies(),
     getCurrentUserDocuments(),
+    listCurrentUserConsultationRequests(),
   ]);
+  const activeConsultation =
+    consultationRequests.find(
+      (request) => !["won", "lost", "completed", "cancelled"].includes(request.status)
+    ) ?? null;
 
   const name = getProfileShortName(profile);
   const greeting = greetingForZurich();
@@ -194,7 +200,7 @@ export default async function DashboardPage() {
         </div>
       </ConsumerSection>
 
-      <ConsultationPrepCard />
+      <ConsultationPrepCard request={activeConsultation} />
     </div>
   );
 }

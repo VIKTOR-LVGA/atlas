@@ -2,6 +2,7 @@ import { CheckCircle2, CircleDashed } from "lucide-react";
 import { SectionCard } from "@/components/ui/SectionCard";
 import type { MarketCategorySlot } from "@/lib/market-intelligence";
 import { cn } from "@/lib/utils";
+import { countPolicies } from "@/lib/italian-plural";
 
 type MarketCategoryMapProps = {
   categories: MarketCategorySlot[];
@@ -56,7 +57,7 @@ export function MarketCategoryMap({ categories, missingCount }: MarketCategoryMa
             </div>
             <p className="mt-1 text-[10px] text-muted">
               {slot.detected
-                ? `${slot.policyCount} polizza${slot.policyCount === 1 ? "" : "e"}`
+                ? countPolicies(slot.policyCount)
                 : "Non rilevata"}
             </p>
             <p className="mt-1.5 text-[10px] leading-snug text-muted-foreground">

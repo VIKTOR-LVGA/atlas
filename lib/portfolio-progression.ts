@@ -13,6 +13,7 @@ import {
 import { getCurrentUserDocuments } from "@/lib/documents";
 import { getCurrentUserPolicies } from "@/lib/policies";
 import type { UserDocument, UserPolicy } from "@/lib/types";
+import { countDrafts, countIt, countPolicies, pluralIt } from "@/lib/italian-plural";
 
 export type PortfolioMaturity =
   | "empty"
@@ -188,8 +189,8 @@ function buildCompleteness(
       detail:
         policies.length > 0
           ? confirmed.length > 0
-            ? `${policies.length} scheda${policies.length === 1 ? "" : "e"} · ${confirmed.length} confermata${confirmed.length === 1 ? "" : "e"}`
-            : `${policies.length} bozza${policies.length === 1 ? "" : "e"} da confermare`
+            ? `${countIt(policies.length, "scheda", "schede")} · ${confirmed.length} ${pluralIt(confirmed.length, "confermata", "confermate")}`
+            : `${countDrafts(policies.length)} da confermare`
           : "In attesa di estrazione",
       status:
         policies.length === 0
@@ -219,7 +220,7 @@ function buildCompleteness(
       percent: percent(linkedPolicies.length, policies.length),
       detail:
         policies.length > 0
-          ? `${linkedPolicies.length} polizza${linkedPolicies.length === 1 ? "" : "e"} con origine`
+          ? `${countPolicies(linkedPolicies.length)} con origine`
           : "—",
       status:
         policies.length === 0
@@ -234,7 +235,7 @@ function buildCompleteness(
       percent: insuredPeople > 0 ? 100 : policies.length > 0 ? 0 : null,
       detail:
         insuredPeople > 0
-          ? `${insuredPeople} persona${insuredPeople === 1 ? "" : "e"} estratta${insuredPeople === 1 ? "" : "e"}`
+          ? `${countIt(insuredPeople, "persona", "persone")} ${pluralIt(insuredPeople, "estratta", "estratte")}`
           : policies.length > 0
             ? "Da verificare nell'estrazione"
             : "—",

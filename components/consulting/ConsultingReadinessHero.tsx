@@ -23,7 +23,7 @@ export function ConsultingReadinessHero({ readiness }: ConsultingReadinessHeroPr
       <div className="border-b border-border-subtle bg-gradient-to-r from-accent-soft/35 via-card to-card px-4 py-4 sm:px-5 sm:py-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 flex-1">
-            <p className="atlas-section-eyebrow text-accent">Review readiness</p>
+            <p className="atlas-section-eyebrow text-accent">Prontezza del dossier</p>
             <h2 className="mt-1 text-[17px] font-semibold tracking-tight text-foreground sm:text-[18px]">
               {readiness.headline}
             </h2>
@@ -84,7 +84,7 @@ export function ConsultingReadinessHero({ readiness }: ConsultingReadinessHeroPr
       ) : (
         <div className="flex items-center gap-2 border-t border-border-subtle px-4 py-3.5 text-[12px] text-muted sm:px-5">
           <UserCheck className="h-4 w-4 text-[var(--success-text)]" />
-          Checklist soddisfatta. Servizio revisione umana in preparazione.
+          Checklist soddisfatta. Il dossier è pronto da condividere con un consulente.
         </div>
       )}
     </section>

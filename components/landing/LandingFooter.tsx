@@ -75,8 +75,15 @@ export function LandingFooter() {
                 Legale
               </p>
               <ul className="mt-4 space-y-2.5 text-[var(--landing-muted)]">
-                <li className="text-[var(--landing-muted)]">
-                  Documentazione legale in preparazione
+                <li>
+                  <Link href="/privacy" className="transition hover:text-[var(--landing-text)]">
+                    Privacy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/terms" className="transition hover:text-[var(--landing-text)]">
+                    Termini
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -87,7 +94,7 @@ export function LandingFooter() {
             © {new Date().getFullYear()} Atlas · Svizzera
           </p>
           <p className="text-xs text-[var(--landing-muted)] opacity-80">
-            Documentazione legale in preparazione
+            Documentazione legale in revisione
           </p>
         </div>
       </div>

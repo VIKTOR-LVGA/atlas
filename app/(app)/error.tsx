@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { AlertTriangle, RefreshCw } from "lucide-react";
+import { reportAtlasError } from "@/lib/observability";
 
 export default function AppError({
   error,
@@ -12,7 +13,12 @@ export default function AppError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("[atlas:app-error]", error);
+    reportAtlasError({
+      code: "consumer_render_error",
+      route: typeof window !== "undefined" ? window.location.pathname : undefined,
+      digest: error.digest,
+      role: "consumer",
+    });
   }, [error]);
 
   return (

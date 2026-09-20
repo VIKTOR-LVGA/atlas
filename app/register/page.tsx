@@ -162,6 +162,18 @@ export default function RegisterPage() {
         </button>
       </form>
 
+      <p className="mt-5 text-center text-[12px] leading-relaxed text-muted">
+        Creando un account accetti i{" "}
+        <Link href="/terms" className="font-medium text-accent hover:text-accent-hover">
+          termini di utilizzo
+        </Link>{" "}
+        e l&apos;
+        <Link href="/privacy" className="font-medium text-accent hover:text-accent-hover">
+          informativa privacy
+        </Link>
+        . Nessun dato viene condiviso con un consulente senza una tua richiesta.
+      </p>
+
       <p className="mt-6 text-center text-[13px] text-muted">
         Hai già un account?{" "}
         <Link href="/login" className="font-medium text-accent hover:text-accent-hover">

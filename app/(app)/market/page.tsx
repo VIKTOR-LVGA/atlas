@@ -19,6 +19,7 @@ import {
   atlasMainColumn,
   atlasSpace,
 } from "@/lib/atlas-ui";
+import { countIt, countPolicies, pluralIt } from "@/lib/italian-plural";
 import { getMarketIntelligence } from "@/lib/market-intelligence";
 
 export const metadata = { title: "Confronto mercato" };
@@ -119,11 +120,11 @@ export default async function MarketPage() {
                 Benchmark in preparazione
               </p>
               <p className="text-[12px] text-muted">
-                {intelligence.comparisonEligibleCount} polizza
-                {intelligence.comparisonEligibleCount === 1 ? "" : "e"} idonea
-                {intelligence.comparisonEligibleCount === 1 ? "" : "e"} per confronti futuri.
+                {countPolicies(intelligence.comparisonEligibleCount)}{" "}
+                {intelligence.comparisonEligibleCount === 1 ? "idonea" : "idonee"} per confronti
+                futuri.
                 {intelligence.providersIdentified.length > 0
-                  ? ` ${intelligence.providersIdentified.length} compagnia${intelligence.providersIdentified.length === 1 ? "" : "e"} identificata${intelligence.providersIdentified.length === 1 ? "" : "e"}.`
+                  ? ` ${countIt(intelligence.providersIdentified.length, "compagnia", "compagnie")} ${pluralIt(intelligence.providersIdentified.length, "identificata", "identificate")}.`
                   : ""}
               </p>
             </div>

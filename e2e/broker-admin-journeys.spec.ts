@@ -54,7 +54,7 @@ test.describe("broker A workspace", () => {
   test("broker sees assigned lead in pipeline", async ({ page }) => {
     await page.goto("/broker/leads");
     await expect(page.getByRole("link", { name: `ATLAS consumer ${runId}` })).toBeVisible();
-    await expect(page.getByText("won", { exact: true })).toBeVisible();
+    await expect(page.getByText("Conclusa", { exact: true })).toBeVisible();
   });
 
   test("broker opens assigned lead detail", async ({ page }) => {
@@ -86,9 +86,9 @@ test.describe("broker A workspace", () => {
   test("broker detail includes operational audit trail", async ({ page }) => {
     await page.goto("/broker/leads");
     await page.getByRole("link", { name: `ATLAS consumer ${runId}` }).click();
-    await expect(page.getByText("broker_assigned", { exact: true })).toBeVisible();
-    await expect(page.getByText("contract_active", { exact: true })).toBeVisible();
-    await expect(page.getByText("commission_clawback", { exact: true })).toBeVisible();
+    await expect(page.getByText("Broker assegnato", { exact: true })).toBeVisible();
+    await expect(page.getByText("Contratto attivo", { exact: true })).toBeVisible();
+    await expect(page.getByText("Clawback registrato", { exact: true })).toBeVisible();
   });
 
   test("broker commission page exposes only broker economics", async ({ page }) => {
@@ -140,7 +140,7 @@ test.describe("admin control plane", () => {
 
   test("admin sees the assigned won request", async ({ page }) => {
     await page.goto("/admin");
-    await expect(page.locator("form").filter({ hasText: "portfolio_review" }).filter({ hasText: "won" }).first()).toBeVisible();
+    await expect(page.locator("form").filter({ hasText: "Revisione portafoglio" }).filter({ hasText: "Conclusa" }).first()).toBeVisible();
   });
 
   test("admin sees gross and ATLAS revenue metrics", async ({ page }) => {

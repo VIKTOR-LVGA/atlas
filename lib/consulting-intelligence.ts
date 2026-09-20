@@ -23,6 +23,7 @@ import { typedPolicyTypes } from "@/lib/policy-types";
 import { getCurrentUserDocuments } from "@/lib/documents";
 import { getCurrentUserPolicies } from "@/lib/policies";
 import type { TypedPolicyType, UserDocument, UserPolicy } from "@/lib/types";
+import { countIt, pluralIt } from "@/lib/italian-plural";
 
 export const CONSULTING_MIN_CONFIRMED_FOR_REVIEW = 1;
 const EXTRACTION_REVIEW_THRESHOLD = 65;
@@ -409,7 +410,7 @@ function buildPreparationChecklist(
         0,
         100 - recommendations.executive.highPriorityCount * 20
       ),
-      progressDetail: `${recommendations.executive.highPriorityCount} azione${recommendations.executive.highPriorityCount === 1 ? "" : "i"} prioritarie`,
+      progressDetail: `${countIt(recommendations.executive.highPriorityCount, "azione prioritaria", "azioni prioritarie")}`,
       ctaLabel: firstHighPriority ? firstHighPriority.ctaLabel : "Vedi raccomandazioni",
       ctaHref: firstHighPriority?.ctaHref ?? "/recommendations",
     });
@@ -511,7 +512,7 @@ function buildExpertReviewTopics(
         "Segnalazione di più polizze nella stessa categoria da chiarire con l'esperto.",
       value:
         duplicateCategories > 0
-          ? `${duplicateCategories} categoria${duplicateCategories === 1 ? "" : "e"} duplicate`
+          ? `${countIt(duplicateCategories, "categoria", "categorie")} ${pluralIt(duplicateCategories, "duplicata", "duplicate")}`
           : "Nessun doppione rilevato",
       available: confirmed.length > 0,
     },
@@ -652,7 +653,7 @@ export function computeConsultingIntelligence(
 
   let headline = "Atlas prepara il tuo dossier per una revisione umana";
   let subheadline =
-    "Il servizio consulenza è in preparazione — readiness basata sul portafoglio verificato.";
+    "Completa polizze e documenti, poi scegli cosa condividere con un consulente.";
 
   if (readinessLabel === "not_ready") {
     headline = "Dossier non ancora pronto per revisione";
@@ -661,15 +662,15 @@ export function computeConsultingIntelligence(
   } else if (readinessLabel === "incomplete") {
     headline = "Completa il dossier assicurativo";
     subheadline =
-      "Ogni voce della checklist avvicina il portafoglio a un pre-check con revisore esterno.";
+      "Ogni voce della checklist avvicina il portafoglio a una revisione con un consulente.";
   } else if (readinessLabel === "pre_check") {
     headline = "Dossier in buona preparazione";
     subheadline =
-      "Il portafoglio è strutturato; risolvi le azioni prioritarie prima di una futura revisione.";
+      "Il portafoglio è strutturato; risolvi le azioni prioritarie prima di inviare la richiesta.";
   } else {
-    headline = "Dossier ben strutturato";
+    headline = "Dossier pronto da condividere";
     subheadline =
-      "Il servizio consulenza resta in preparazione — nessuna prenotazione attiva in questa versione.";
+      "Puoi chiedere una revisione gratuita e scegliere quali polizze e documenti mostrare al consulente.";
   }
 
   const blockers = buildBlockersFromChecklist(checklist);

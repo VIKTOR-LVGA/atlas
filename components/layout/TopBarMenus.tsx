@@ -75,7 +75,9 @@ function HelpMenuPanel() {
         Profilo
       </TopBarPopoverItem>
       <TopBarPopoverDivider />
-      <TopBarPopoverNote>Supporto diretto in preparazione.</TopBarPopoverNote>
+      <TopBarPopoverNote>
+        Per una revisione del portafoglio apri Consulenza dal menu.
+      </TopBarPopoverNote>
     </>
   );
 }

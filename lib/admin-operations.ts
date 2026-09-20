@@ -27,6 +27,13 @@ export async function getAdminWorkspace() {
   for (const result of [summaryResult, requestsResult, brokersResult, contractsResult, commissionsResult]) {
     if (result.error) throw new Error("Dati amministrativi non disponibili.");
   }
+  const requests = requestsResult.data ?? [];
+  const userIds = [...new Set(requests.map((row) => String(row.user_id)))];
+  const { data: profiles, error: profileError } = userIds.length
+    ? await supabase.from("profiles").select("id, full_name, email").in("id", userIds)
+    : { data: [], error: null };
+  if (profileError) throw new Error("Dati amministrativi non disponibili.");
+  const profileById = new Map((profiles ?? []).map((row) => [String(row.id), row]));
   const raw = (summaryResult.data?.[0] ?? {}) as Record<string, unknown>;
   return {
     summary: {
@@ -40,7 +47,10 @@ export async function getAdminWorkspace() {
       contractsCount: numberValue(raw.contracts_count),
       wonClients: numberValue(raw.won_clients),
     },
-    requests: requestsResult.data ?? [],
+    requests: requests.map((request) => ({
+      ...request,
+      clientName: String(profileById.get(String(request.user_id))?.full_name ?? "Cliente ATLAS"),
+    })),
     brokers: (brokersResult.data ?? []) as AdminBrokerRow[],
     contracts: contractsResult.data ?? [],
     commissions: commissionsResult.data ?? [],

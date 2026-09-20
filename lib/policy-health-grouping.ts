@@ -6,6 +6,7 @@ import type {
   PolicyInsuredPersonDetail,
   PolicyProductDetail,
 } from "@/lib/types";
+import { countCoverages } from "@/lib/italian-plural";
 
 /** Default threshold for weak ownership signals (applies_to, person_index alone). */
 export const MIN_OWNERSHIP_CONFIDENCE = 70;
@@ -598,7 +599,7 @@ function buildOwnershipWarnings(
 
   if (ambiguous.length > 0) {
     warnings.push(
-      `${ambiguous.length} copertura${ambiguous.length === 1 ? "" : "e"} da verificare: assegnazione non certa.`
+      `${countCoverages(ambiguous.length)} da verificare: assegnazione non certa.`
     );
   }
 

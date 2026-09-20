@@ -185,7 +185,7 @@ test.describe.serial("Atlas authenticated journeys", () => {
     await login(page);
     await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
     await page.goto("/consulting");
-    await page.getByLabel("Modalita di contatto").selectOption("email");
+    await page.getByLabel("Modalità di contatto").selectOption("email");
     await page.getByLabel("Messaggio facoltativo").fill("Richiesta browser E2E");
     await page.getByLabel("Consenso alla revisione").check();
     await page.getByRole("button", { name: "Richiedi revisione gratuita" }).click();

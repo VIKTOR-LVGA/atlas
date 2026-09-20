@@ -18,6 +18,7 @@ import type {
   UserDocument,
   UserPolicy,
 } from "@/lib/types";
+import { countCoverages, countDrafts, countPolicies } from "@/lib/italian-plural";
 
 const EXTRACTION_CONFIDENCE_ALERT_THRESHOLD = 60;
 
@@ -284,7 +285,7 @@ function buildWorkflowSteps(
       status: reviewStatus,
       detail:
         pendingReview > 0
-          ? `${pendingReview} bozza${pendingReview === 1 ? "" : "e"} da confermare`
+          ? `${countDrafts(pendingReview)} da confermare`
           : "Dati verificati nel portafoglio",
     },
     {
@@ -351,7 +352,7 @@ export function computeDashboardHealthScore(
   if (requiringReview.length > 0) {
     factors.push({
       label: "Revisioni in sospeso",
-      detail: `${requiringReview.length} bozza${requiringReview.length === 1 ? "" : "e"} da rivedere (+${reviewPoints} pt)`,
+      detail: `${countDrafts(requiringReview.length)} da rivedere (+${reviewPoints} pt)`,
       impact: "negative",
     });
   } else {
@@ -397,7 +398,7 @@ export function computeDashboardHealthScore(
   score += documentPoints;
   factors.push({
     label: "Documenti collegati",
-    detail: `${withDocument} polizza${withDocument === 1 ? "" : "e"} con PDF collegato (+${documentPoints} pt)`,
+    detail: `${countPolicies(withDocument)} con PDF collegato (+${documentPoints} pt)`,
     impact: documentRatio >= 0.8 ? "positive" : "neutral",
   });
 
@@ -555,7 +556,7 @@ export function buildDashboardAlerts(
           id: `unassigned-${policy.id}`,
           title: "Coperture salute non assegnate",
           severity: "medium",
-          explanation: `${grouped.unassignedCoverages.length} copertura${grouped.unassignedCoverages.length === 1 ? "" : "e"} da assegnare su ${policyLabel}.`,
+          explanation: `${countCoverages(grouped.unassignedCoverages.length)} da assegnare su ${policyLabel}.`,
           policyId: policy.id,
           ctaLabel: "Apri revisione",
           ctaHref: `/policies/${policy.id}`,

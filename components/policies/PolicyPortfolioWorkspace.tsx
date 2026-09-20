@@ -20,6 +20,7 @@ import {
   type PolicyPortfolioCategoryFilter,
   type PolicyPortfolioStatusFilter,
 } from "@/components/policies/policy-portfolio-display";
+import { countPolicies } from "@/lib/italian-plural";
 import { TypedPolicyIcon, typedPolicyIconStyles } from "@/lib/policy-display";
 import { getPolicyTypeLabel } from "@/lib/policy-types";
 import type { UserPolicy } from "@/lib/types";
@@ -260,8 +261,7 @@ export function PolicyPortfolioWorkspace({ policies }: PolicyPortfolioWorkspaceP
         <div className="flex items-center justify-between gap-2 border-b border-border-subtle px-3.5 py-2">
           <p className="text-[12px] font-semibold text-foreground">Portafoglio polizze</p>
           <p className="text-[10px] text-muted-foreground">
-            {filteredPolicies.length} di {policies.length} polizza
-            {policies.length === 1 ? "" : "e"}
+            {filteredPolicies.length} di {countPolicies(policies.length)}
           </p>
         </div>
 

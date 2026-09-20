@@ -23,6 +23,7 @@ import {
 import { getCurrentUserDocuments } from "@/lib/documents";
 import { getCurrentUserPolicies } from "@/lib/policies";
 import type { TypedPolicyType, UserDocument, UserPolicy } from "@/lib/types";
+import { countDrafts, countIt, pluralIt } from "@/lib/italian-plural";
 
 export const MARKET_MIN_CONFIRMED_POLICIES = 3;
 const TARGET_CATEGORY_DIVERSITY = 3;
@@ -232,7 +233,7 @@ function buildComparisonBlockers(
                 100
             )
           : null,
-      progressDetail: `${pendingReview.length} bozza${pendingReview.length === 1 ? "" : "e"} in attesa`,
+      progressDetail: `${countDrafts(pendingReview.length)} in attesa`,
       ctaLabel: "Rivedi bozza AI",
       ctaHref: `/policies/${pendingReview[0].id}/edit`,
       priority: "high",
@@ -250,7 +251,7 @@ function buildComparisonBlockers(
       description:
         "Aggiungi polizze in categorie diverse (es. salute, auto, casa) per confronti più utili.",
       progressPercent: Math.round((uniqueCategories / 2) * 100),
-      progressDetail: `${uniqueCategories} categoria${uniqueCategories === 1 ? "" : "e"} rilevata`,
+      progressDetail: `${countIt(uniqueCategories, "categoria", "categorie")} ${pluralIt(uniqueCategories, "rilevata", "rilevate")}`,
       ctaLabel: "Carica PDF",
       ctaHref: "/documents",
       priority: "medium",
@@ -408,7 +409,7 @@ function buildUnlockSteps(
       done: policies.length > 0,
       detail:
         policies.length > 0
-          ? `${policies.length} scheda${policies.length === 1 ? "" : "e"}`
+          ? countIt(policies.length, "scheda", "schede")
           : "In attesa estrazione",
     },
     {

@@ -17,6 +17,7 @@ import {
 import { getCurrentUserDocuments } from "@/lib/documents";
 import { getCurrentUserPolicies } from "@/lib/policies";
 import type { UserDocument, UserPolicy } from "@/lib/types";
+import { countPolicies } from "@/lib/italian-plural";
 
 export type RecommendationPriority = "high" | "medium" | "low";
 
@@ -236,7 +237,7 @@ function buildPortfolioRecommendations(
     items.push({
       id: "confirm-portfolio",
       title: "Conferma le bozze AI",
-      explanation: `${kpis.policiesRequiringReview} polizza${kpis.policiesRequiringReview === 1 ? "" : "e"} in attesa di revisione. Le raccomandazioni avanzate si attivano dopo la conferma.`,
+      explanation: `${countPolicies(kpis.policiesRequiringReview)} in attesa di revisione. Le raccomandazioni avanzate si attivano dopo la conferma.`,
       priority: "high",
       category: "review",
       categoryLabel: categoryLabels.review,

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { AccountWipeError, wipeCurrentUserPortfolio } from "@/lib/account-portfolio-wipe";
 import { logout } from "@/app/(app)/actions";
+import { countPolicies } from "@/lib/italian-plural";
 const CONFIRMATION_PHRASE = "ELIMINA";
 
 export type AccountDangerActionState = {
@@ -31,7 +32,7 @@ export async function wipePortfolioAction(
     revalidatePath("/", "layout");
 
     const summary = [
-      `${result.policiesDeleted} polizza${result.policiesDeleted === 1 ? "" : "e"} eliminate`,
+      `${countPolicies(result.policiesDeleted)} ${result.policiesDeleted === 1 ? "eliminata" : "eliminate"}`,
       `${result.documentsDeleted} documento${result.documentsDeleted === 1 ? "" : "i"} eliminati`,
     ].join(" · ");
 

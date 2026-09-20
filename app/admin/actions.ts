@@ -1,12 +1,35 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { OperationsInputError } from "@/lib/operations-errors";
 import { requireOperationsRole } from "@/lib/operations-access";
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+const fieldLabels: Record<string, string> = {
+  auth_user_id: "Account ATLAS del broker",
+  display_name: "Nome visualizzato",
+  email: "Email",
+  request_id: "Richiesta",
+  broker_id: "Broker",
+  commission_id: "Commissione",
+  insurer: "Assicuratore",
+  category: "Categoria",
+  gross_commission: "Commissione lorda",
+  effective_from: "Valida da",
+  atlas_percentage: "Percentuale ATLAS",
+  broker_percentage: "Percentuale broker",
+  amount: "Importo",
+  reason: "Motivazione",
+  adjustment_type: "Tipo rettifica",
+};
 
 const val = (formData: FormData, key: string) => String(formData.get(key) ?? "").trim();
 const req = (formData: FormData, key: string) => {
   const result = val(formData, key);
-  if (!result) throw new Error(`Campo ${key} obbligatorio.`);
+  if (!result) {
+    throw new OperationsInputError(`Compila il campo "${fieldLabels[key] ?? key}".`);
+  }
   return result;
 };
 
@@ -17,24 +40,37 @@ export async function assignConsultationAction(formData: FormData) {
     p_broker_id: val(formData, "broker_id") || null,
     p_reason: val(formData, "reason") || null,
   });
-  if (error) throw new Error(error.message);
+  if (error) throw new OperationsInputError("Assegnazione non applicata. Ricarica e riprova.");
   revalidatePath("/admin");
 }
 
 export async function createBrokerAction(formData: FormData) {
   const { supabase } = await requireOperationsRole(["admin"]);
   const authUserId = req(formData, "auth_user_id");
+  if (!UUID_PATTERN.test(authUserId)) {
+    throw new OperationsInputError(
+      "L'identificativo account non è valido. Copia l'UUID dell'utente da Supabase Authentication."
+    );
+  }
+  const email = req(formData, "email");
   const { error } = await supabase.from("brokers").insert({
     auth_user_id: authUserId,
     display_name: req(formData, "display_name"),
     legal_name: val(formData, "legal_name") || null,
     organization_name: val(formData, "organization_name") || null,
-    email: val(formData, "email") || null,
-    active: true,
+    email,
+    phone: val(formData, "phone") || null,
+    active: val(formData, "active") !== "inactive",
   });
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new OperationsInputError(
+      error.code === "23505"
+        ? "Esiste già un broker con questa email o questo account."
+        : "Broker non registrato. Verifica i dati inseriti."
+    );
+  }
   const { error: roleError } = await supabase.rpc("set_user_role", { p_user_id: authUserId, p_role: "broker" });
-  if (roleError) throw new Error(roleError.message);
+  if (roleError) throw new OperationsInputError("Broker creato, ma il ruolo non è stato assegnato. Riprova.");
   revalidatePath("/admin");
 }
 
@@ -51,7 +87,11 @@ export async function createCommissionAgreementAction(formData: FormData) {
     insurer: val(formData, "insurer") || null,
     notes: val(formData, "notes") || null,
   });
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new OperationsInputError(
+      "Accordo non salvato. Le percentuali ATLAS e broker devono totalizzare 100."
+    );
+  }
   revalidatePath("/admin");
 }
 
@@ -74,7 +114,11 @@ export async function createCommissionAction(formData: FormData) {
     p_source: "manual",
     p_external_reference: val(formData, "external_reference") || "",
   });
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new OperationsInputError(
+      "Commissione non registrata. Serve un accordo commissionale valido alla data di maturazione."
+    );
+  }
   revalidatePath("/admin");
 }
 
@@ -87,6 +131,10 @@ export async function createCommissionAdjustmentAction(formData: FormData) {
     p_reason: req(formData, "reason"),
     p_occurred_at: new Date().toISOString(),
   });
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new OperationsInputError(
+      "Rettifica non registrata. Un clawback richiede un importo negativo entro il lordo già attribuito."
+    );
+  }
   revalidatePath("/admin");
 }

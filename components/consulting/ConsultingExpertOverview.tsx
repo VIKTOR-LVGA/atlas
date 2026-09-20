@@ -10,8 +10,8 @@ type ConsultingExpertOverviewProps = {
 export function ConsultingExpertOverview({ topics }: ConsultingExpertOverviewProps) {
   return (
     <SectionCard
-      title="Cosa potrà controllare un esperto"
-      description="Quando il servizio sarà disponibile — nessuna revisione umana è già stata effettuata"
+      title="Cosa controllerà il consulente"
+      description="Punti che un consulente partner esamina sul dossier che scegli di condividere"
       bodyClassName="space-y-3"
     >
       <div className="rounded-lg border border-dashed border-border bg-card-muted/40 px-3 py-2.5">

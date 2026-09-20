@@ -2,7 +2,6 @@ import Link from "next/link";
 import { UserCheck } from "lucide-react";
 import { ConsultingEmptyState } from "@/components/consulting/ConsultingEmptyState";
 import { ConsultingExpertOverview } from "@/components/consulting/ConsultingExpertOverview";
-import { ConsultingFutureModulesGrid } from "@/components/consulting/ConsultingFutureModulesGrid";
 import { ConsultingInterestCta } from "@/components/consulting/ConsultingInterestCta";
 import { ConsultingPortfolioSnapshot } from "@/components/consulting/ConsultingPortfolioSnapshot";
 import { ConsultingPreparationChecklist } from "@/components/consulting/ConsultingPreparationChecklist";
@@ -19,6 +18,8 @@ import {
   atlasSpace,
 } from "@/lib/atlas-ui";
 import { getConsultingIntelligence } from "@/lib/consulting-intelligence";
+import { countPolicies } from "@/lib/italian-plural";
+import { getPolicyTypeLabel } from "@/lib/policy-types";
 import { listCurrentUserConsultationRequests } from "@/lib/consultations";
 import { getCurrentUserPolicies } from "@/lib/policies";
 import { getCurrentUserDocuments } from "@/lib/documents";
@@ -36,6 +37,13 @@ export default async function ConsultingPage() {
   const activeRequest = consultationRequests.find(
     (request) => !["won", "lost", "completed", "cancelled"].includes(request.status)
   ) ?? null;
+  const resourceOptions = {
+    policies: policies.map((policy) => ({
+      id: policy.id,
+      label: `${policy.provider || "Compagnia da indicare"} · ${getPolicyTypeLabel(policy.policyType, policy.policyCategoryLabel)}`,
+    })),
+    documents: documents.map((document) => ({ id: document.id, label: document.fileName })),
+  };
 
   return (
     <PageShell>
@@ -71,10 +79,7 @@ export default async function ConsultingPage() {
             <ConsultingInterestCta
               readinessPercent={readiness.percent}
               latestRequest={activeRequest}
-              resourceOptions={{
-                policies: policies.map((policy) => ({ id: policy.id, label: `${policy.provider} · ${policy.policyType}` })),
-                documents: documents.map((document) => ({ id: document.id, label: document.fileName })),
-              }}
+              resourceOptions={resourceOptions}
             />
             {progression.showOnboardingFocus ? (
               <PortfolioProgressionPanel progression={progression} compact />
@@ -82,24 +87,21 @@ export default async function ConsultingPage() {
           </>
         ) : (
           <>
+            <ConsultingInterestCta
+              readinessPercent={readiness.percent}
+              latestRequest={activeRequest}
+              resourceOptions={resourceOptions}
+            />
+
             <ConsultingPortfolioSnapshot snapshot={intelligence.snapshot} />
 
             <div className={atlasMainAside}>
               <div className={`${atlasMainColumn} ${atlasSpace.block}`}>
                 <ConsultingPreparationChecklist items={intelligence.checklist} />
                 <ConsultingExpertOverview topics={intelligence.expertTopics} />
-                <ConsultingFutureModulesGrid modules={intelligence.futureModules} />
               </div>
 
               <aside className={atlasAsideColumn}>
-                <ConsultingInterestCta
-                  readinessPercent={readiness.percent}
-                  latestRequest={activeRequest}
-                  resourceOptions={{
-                    policies: policies.map((policy) => ({ id: policy.id, label: `${policy.provider} · ${policy.policyType}` })),
-                    documents: documents.map((document) => ({ id: document.id, label: document.fileName })),
-                  }}
-                />
                 {progression.showOnboardingFocus ? (
                   <PortfolioProgressionPanel progression={progression} compact />
                 ) : null}
@@ -115,13 +117,12 @@ export default async function ConsultingPage() {
             <UserCheck className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
             <div>
               <p className="text-[13px] font-semibold text-foreground">
-                Indipendente e in preparazione
+                Consulenza indipendente
               </p>
               <p className="text-[12px] text-muted">
-                {intelligence.snapshot.confirmedPolicies} polizza
-                {intelligence.snapshot.confirmedPolicies === 1 ? "" : "e"} confermata
-                {intelligence.snapshot.confirmedPolicies === 1 ? "" : "e"} nel dossier.
-                La richiesta di revisione e ora disponibile con consenso esplicito.
+                {countPolicies(intelligence.snapshot.confirmedPolicies)}{" "}
+                {intelligence.snapshot.confirmedPolicies === 1 ? "confermata" : "confermate"} nel
+                dossier. La richiesta di revisione richiede sempre il tuo consenso esplicito.
               </p>
             </div>
           </div>

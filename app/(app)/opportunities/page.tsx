@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ConsultationPrepCard } from "@/components/consumer/ConsultationPrepCard";
 import { EmptyState } from "@/components/consumer/EmptyState";
 import { OpportunityActions } from "@/components/consumer/OpportunityActions";
+import { listCurrentUserConsultationRequests } from "@/lib/consultations";
 import { getCurrentUserDocuments } from "@/lib/documents";
 import { getCurrentUserPolicies } from "@/lib/policies";
 import { syncCurrentUserOpportunities } from "@/lib/persisted-opportunities";
@@ -9,11 +10,16 @@ import { syncCurrentUserOpportunities } from "@/lib/persisted-opportunities";
 export const metadata = { title: "Opportunità" };
 
 export default async function OpportunitiesPage() {
-  const [policies, documents] = await Promise.all([
+  const [policies, documents, consultationRequests] = await Promise.all([
     getCurrentUserPolicies(),
     getCurrentUserDocuments(),
+    listCurrentUserConsultationRequests(),
   ]);
   const opportunities = await syncCurrentUserOpportunities({ policies, documents });
+  const activeConsultation =
+    consultationRequests.find(
+      (request) => !["won", "lost", "completed", "cancelled"].includes(request.status)
+    ) ?? null;
 
   return (
     <div className="space-y-6">
@@ -50,7 +56,7 @@ export default async function OpportunitiesPage() {
         </ul>
       )}
 
-      <ConsultationPrepCard />
+      <ConsultationPrepCard request={activeConsultation} />
     </div>
   );
 }
