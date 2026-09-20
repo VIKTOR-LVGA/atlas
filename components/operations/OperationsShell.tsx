@@ -1,15 +1,46 @@
 import Link from "next/link";
-import { BarChart3, BriefcaseBusiness, LogOut, ShieldCheck, Users } from "lucide-react";
+import {
+  BarChart3,
+  BriefcaseBusiness,
+  CalendarDays,
+  FileSignature,
+  LayoutDashboard,
+  LogOut,
+  ScrollText,
+  ShieldCheck,
+  UserRound,
+  Users,
+} from "lucide-react";
 import { logout } from "@/app/(app)/actions";
 import { AtlasBrandLogo } from "@/components/brand/AtlasBrandLogo";
 
-type NavItem = { href: string; label: string; icon: "pipeline" | "clients" | "revenue" | "admin" };
+type NavIcon =
+  | "dashboard"
+  | "pipeline"
+  | "clients"
+  | "appointments"
+  | "offers"
+  | "contracts"
+  | "revenue"
+  | "analytics"
+  | "profile"
+  | "admin"
+  | "audit";
+
+type NavItem = { href: string; label: string; icon: NavIcon };
 
 const icons = {
+  dashboard: LayoutDashboard,
   pipeline: BriefcaseBusiness,
   clients: Users,
+  appointments: CalendarDays,
+  offers: ScrollText,
+  contracts: FileSignature,
   revenue: BarChart3,
+  analytics: BarChart3,
+  profile: UserRound,
   admin: ShieldCheck,
+  audit: ScrollText,
 };
 
 export function OperationsShell({
@@ -31,19 +62,28 @@ export function OperationsShell({
           <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-accent">{title}</p>
           <p className="mt-1 text-[11px] leading-relaxed text-muted">{subtitle}</p>
         </div>
-        <nav className="mt-4 grid grid-cols-2 gap-1 sm:grid-cols-4 lg:grid-cols-1" aria-label={`${title} navigation`}>
+        <nav
+          className="mt-4 grid grid-cols-2 gap-1 sm:grid-cols-3 lg:grid-cols-1"
+          aria-label={`${title} navigation`}
+        >
           {nav.map((item) => {
             const Icon = icons[item.icon];
             return (
-              <Link key={item.href} href={item.href} className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-[12px] font-medium text-muted-foreground transition-colors hover:bg-accent-soft hover:text-accent">
-                <Icon className="h-4 w-4" />{item.label}
+              <Link
+                key={item.href}
+                href={item.href}
+                className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-[12px] font-medium text-muted-foreground transition-colors hover:bg-accent-soft hover:text-accent"
+              >
+                <Icon className="h-4 w-4" />
+                {item.label}
               </Link>
             );
           })}
         </nav>
         <form action={logout} className="mt-4 lg:absolute lg:bottom-6 lg:left-4 lg:right-4">
           <button className="flex w-full items-center gap-2 rounded-lg border border-border px-3 py-2 text-[12px] text-muted hover:bg-card">
-            <LogOut className="h-4 w-4" />Esci
+            <LogOut className="h-4 w-4" />
+            Esci
           </button>
         </form>
       </aside>

@@ -10,6 +10,18 @@ export const productRoutes = [
   "/settings",
   "/broker",
   "/admin",
+  "/partner/apply",
+  "/partner/status",
+  "/partner/dashboard",
+  "/partner/leads",
+  "/partner/clients",
+  "/partner/appointments",
+  "/partner/offers",
+  "/partner/contracts",
+  "/partner/commissions",
+  "/partner/analytics",
+  "/partner/profile",
+  "/control-center",
 ] as const;
 
 export function isProductRoute(pathname: string) {

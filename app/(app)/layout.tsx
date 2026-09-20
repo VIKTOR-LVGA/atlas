@@ -14,8 +14,8 @@ export default async function AppLayout({
     redirect("/login");
   }
 
-  if (identity.role === "broker") redirect("/broker");
-  if (identity.role === "admin") redirect("/admin");
+  if (identity.role === "broker") redirect("/partner/dashboard");
+  if (identity.role === "admin") redirect("/control-center");
 
   return <AppShell profile={profile}>{children}</AppShell>;
 }

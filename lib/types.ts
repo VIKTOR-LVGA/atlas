@@ -480,6 +480,13 @@ export interface BrokerIdentity {
   organizationName: string | null;
   email: string | null;
   active: boolean;
+  website?: string | null;
+  partnerType?: string | null;
+  primaryCanton?: string | null;
+  servedCantons?: string[];
+  languages?: string[];
+  professionalId?: string | null;
+  experienceNotes?: string | null;
 }
 
 export interface RevenueSummary {

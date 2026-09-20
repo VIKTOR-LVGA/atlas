@@ -33,6 +33,15 @@ export async function getOperationsIdentity() {
       organizationName: data.organization_name ? String(data.organization_name) : null,
       email: data.email ? String(data.email) : null,
       active: Boolean(data.active),
+      website: data.website ? String(data.website) : null,
+      partnerType: data.partner_type ? String(data.partner_type) : null,
+      primaryCanton: data.primary_canton ? String(data.primary_canton) : null,
+      servedCantons: Array.isArray(data.served_cantons)
+        ? data.served_cantons.map(String)
+        : [],
+      languages: Array.isArray(data.languages) ? data.languages.map(String) : [],
+      professionalId: data.professional_id ? String(data.professional_id) : null,
+      experienceNotes: data.experience_notes ? String(data.experience_notes) : null,
     };
   }
 
@@ -43,9 +52,18 @@ export async function requireOperationsRole(allowed: AtlasUserRole[]) {
   const identity = await getOperationsIdentity();
   if (!identity.user) redirect("/login");
   if (!identity.role || !allowed.includes(identity.role)) {
-    if (identity.role === "broker") redirect("/broker");
-    if (identity.role === "admin") redirect("/admin");
+    if (identity.role === "broker") redirect("/partner/dashboard");
+    if (identity.role === "admin") redirect("/control-center");
     redirect("/dashboard");
+  }
+  return identity;
+}
+
+/** Deny without redirect — for soft gates and tests. */
+export async function assertOperationsRole(allowed: AtlasUserRole[]) {
+  const identity = await getOperationsIdentity();
+  if (!identity.user || !identity.role || !allowed.includes(identity.role)) {
+    throw new OperationsAccessError();
   }
   return identity;
 }

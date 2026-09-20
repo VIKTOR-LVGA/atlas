@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
-export default function BrokerDashboardAlias() {
-  redirect("/broker");
+export default function BrokerDashboardRedirect() {
+  redirect("/partner/dashboard");
 }
