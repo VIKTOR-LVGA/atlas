@@ -62,6 +62,16 @@ export function HouseholdContextCards({ ownerName }: { ownerName: string }) {
     }
   }
 
+  function completeRemoval(kind: keyof HouseholdData, id: string, result: { ok: boolean; message: string }) {
+    setMessage(result.message);
+    if (!result.ok) return;
+    setData((current) => {
+      if (kind === "familyMembers") return { ...current, familyMembers: current.familyMembers.filter((item) => item.id !== id) };
+      if (kind === "properties") return { ...current, properties: current.properties.filter((item) => item.id !== id) };
+      return { ...current, vehicles: current.vehicles.filter((item) => item.id !== id) };
+    });
+  }
+
   return (
     <div className="grid gap-3" aria-busy={loading || pending}>
       {message ? <p role="status" className="rounded-lg bg-card-muted px-3 py-2 text-[12px] text-muted">{message}</p> : null}
@@ -84,7 +94,7 @@ export function HouseholdContextCards({ ownerName }: { ownerName: string }) {
               <div><p className="text-[13px] font-medium text-foreground">{member.firstName} {member.lastName}</p><p className="text-[11px] text-muted">{member.relationship}</p></div>
               <div className="flex gap-2">
                 <button type="button" onClick={() => setFamilyForm(member)} className="text-[12px] font-medium text-accent">Modifica</button>
-                <button type="button" onClick={() => startTransition(async () => complete(await removeFamilyMemberAction(member.id)))} className="text-[12px] text-muted">Elimina</button>
+                <button type="button" onClick={() => startTransition(async () => completeRemoval("familyMembers", member.id, await removeFamilyMemberAction(member.id)))} className="text-[12px] text-muted">Elimina</button>
               </div>
             </li>
           ))}
@@ -113,7 +123,7 @@ export function HouseholdContextCards({ ownerName }: { ownerName: string }) {
 
       <section className="atlas-consumer-card px-5 py-5">
         <div className="flex items-center justify-between gap-3"><div><h2 className="text-[15px] font-semibold tracking-tight text-foreground">Casa</h2><p className="mt-1 text-[12px] text-muted">Abitazioni rilevanti per le tue coperture.</p></div><button type="button" onClick={() => setPropertyForm("new")} className="atlas-btn-secondary px-3 py-2 text-[12px]">Aggiungi casa</button></div>
-        <ul className="mt-3 space-y-2">{data.properties.map((property) => <li key={property.id} className="flex items-center justify-between gap-3 rounded-xl bg-card-muted px-4 py-3"><div><p className="text-[13px] font-medium text-foreground">{property.label}</p><p className="text-[11px] text-muted">{[property.street, property.postalCode, property.city].filter(Boolean).join(", ") || `${property.propertyType} · ${property.occupancyType}`}</p></div><div className="flex gap-2"><button type="button" onClick={() => setPropertyForm(property)} className="text-[12px] font-medium text-accent">Modifica</button><button type="button" onClick={() => startTransition(async () => complete(await removePropertyAction(property.id)))} className="text-[12px] text-muted">Elimina</button></div></li>)}</ul>
+        <ul className="mt-3 space-y-2">{data.properties.map((property) => <li key={property.id} className="flex items-center justify-between gap-3 rounded-xl bg-card-muted px-4 py-3"><div><p className="text-[13px] font-medium text-foreground">{property.label}</p><p className="text-[11px] text-muted">{[property.street, property.postalCode, property.city].filter(Boolean).join(", ") || `${property.propertyType} · ${property.occupancyType}`}</p></div><div className="flex gap-2"><button type="button" onClick={() => setPropertyForm(property)} className="text-[12px] font-medium text-accent">Modifica</button><button type="button" onClick={() => startTransition(async () => completeRemoval("properties", property.id, await removePropertyAction(property.id)))} className="text-[12px] text-muted">Elimina</button></div></li>)}</ul>
         {propertyForm ? <form className="mt-4 grid gap-2 rounded-xl border border-border p-3 sm:grid-cols-2" onSubmit={(event) => {
           event.preventDefault(); const form = new FormData(event.currentTarget);
           startTransition(async () => complete(await savePropertyAction(propertyForm === "new" ? null : propertyForm.id, {
@@ -134,7 +144,7 @@ export function HouseholdContextCards({ ownerName }: { ownerName: string }) {
 
       <section className="atlas-consumer-card px-5 py-5">
         <div className="flex items-center justify-between gap-3"><div><h2 className="text-[15px] font-semibold tracking-tight text-foreground">Veicoli</h2><p className="mt-1 text-[12px] text-muted">Le vecchie targhe nei dettagli polizza restano intatte.</p></div><button type="button" onClick={() => setVehicleForm("new")} className="atlas-btn-secondary px-3 py-2 text-[12px]">Aggiungi veicolo</button></div>
-        <ul className="mt-3 space-y-2">{data.vehicles.map((vehicle) => <li key={vehicle.id} className="flex items-center justify-between gap-3 rounded-xl bg-card-muted px-4 py-3"><div><p className="text-[13px] font-medium text-foreground">{vehicle.label}</p><p className="text-[11px] text-muted">{[vehicle.make, vehicle.model, vehicle.licensePlate].filter(Boolean).join(" · ") || vehicle.vehicleType}</p></div><div className="flex gap-2"><button type="button" onClick={() => setVehicleForm(vehicle)} className="text-[12px] font-medium text-accent">Modifica</button><button type="button" onClick={() => startTransition(async () => complete(await removeVehicleAction(vehicle.id)))} className="text-[12px] text-muted">Elimina</button></div></li>)}</ul>
+        <ul className="mt-3 space-y-2">{data.vehicles.map((vehicle) => <li key={vehicle.id} className="flex items-center justify-between gap-3 rounded-xl bg-card-muted px-4 py-3"><div><p className="text-[13px] font-medium text-foreground">{vehicle.label}</p><p className="text-[11px] text-muted">{[vehicle.make, vehicle.model, vehicle.licensePlate].filter(Boolean).join(" · ") || vehicle.vehicleType}</p></div><div className="flex gap-2"><button type="button" onClick={() => setVehicleForm(vehicle)} className="text-[12px] font-medium text-accent">Modifica</button><button type="button" onClick={() => startTransition(async () => completeRemoval("vehicles", vehicle.id, await removeVehicleAction(vehicle.id)))} className="text-[12px] text-muted">Elimina</button></div></li>)}</ul>
         {vehicleForm ? <form className="mt-4 grid gap-2 rounded-xl border border-border p-3 sm:grid-cols-2" onSubmit={(event) => {
           event.preventDefault(); const form = new FormData(event.currentTarget);
           startTransition(async () => complete(await saveVehicleAction(vehicleForm === "new" ? null : vehicleForm.id, {

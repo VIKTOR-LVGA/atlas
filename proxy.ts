@@ -96,6 +96,8 @@ export const config = {
     "/consulting/:path*",
     "/opportunities/:path*",
     "/settings/:path*",
+    "/broker/:path*",
+    "/admin/:path*",
     "/login",
     "/register",
     "/forgot-password",

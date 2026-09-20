@@ -10,9 +10,13 @@ import type { ConsultationRequest } from "@/lib/types";
 type ConsultingInterestCtaProps = {
   readinessPercent: number;
   latestRequest: ConsultationRequest | null;
+  resourceOptions: {
+    policies: Array<{ id: string; label: string }>;
+    documents: Array<{ id: string; label: string }>;
+  };
 };
 
-export function ConsultingInterestCta({ readinessPercent, latestRequest }: ConsultingInterestCtaProps) {
+export function ConsultingInterestCta({ readinessPercent, latestRequest, resourceOptions }: ConsultingInterestCtaProps) {
   const [request, setRequest] = useState(latestRequest);
   const [message, setMessage] = useState("");
   const [pending, startTransition] = useTransition();
@@ -41,6 +45,10 @@ export function ConsultingInterestCta({ readinessPercent, latestRequest }: Consu
             preferredContactMethod: (String(form.get("contact_method") || "") || null) as "email" | "phone" | null,
             preferredContactTime: String(form.get("contact_time") || ""),
             consent: form.get("consent") === "on",
+            sharedResources: [
+              ...form.getAll("shared_policy").map((id) => ({ type: "policy" as const, id: String(id) })),
+              ...form.getAll("shared_document").map((id) => ({ type: "document" as const, id: String(id) })),
+            ],
           });
           setMessage(result.message);
           if (result.ok && result.data) setRequest(result.data);
@@ -50,6 +58,15 @@ export function ConsultingInterestCta({ readinessPercent, latestRequest }: Consu
         <label className="block text-[11px] font-medium text-muted">Modalita di contatto<select name="contact_method" className="mt-1 w-full rounded-lg border border-border bg-input px-3 py-2 text-[12px]"><option value="">Da concordare</option><option value="email">Email</option><option value="phone">Telefono</option></select></label>
         <label className="block text-[11px] font-medium text-muted">Orario preferito<input name="contact_time" placeholder="Es. giorni feriali, 17–19" className="mt-1 w-full rounded-lg border border-border bg-input px-3 py-2 text-[12px]" /></label>
         <label className="block text-[11px] font-medium text-muted">Messaggio facoltativo<textarea name="message" maxLength={4000} rows={3} className="mt-1 w-full rounded-lg border border-border bg-input px-3 py-2 text-[12px]" /></label>
+        <fieldset className="rounded-lg border border-border p-3">
+          <legend className="px-1 text-[11px] font-semibold text-foreground">Dati da condividere</legend>
+          <p className="mb-2 text-[10px] leading-relaxed text-muted">Il broker vedrà solo gli elementi selezionati. Nessun documento o polizza è condiviso automaticamente.</p>
+          <div className="max-h-36 space-y-2 overflow-y-auto">
+            {resourceOptions.policies.map((resource) => <label key={resource.id} className="flex items-start gap-2 text-[11px] text-muted"><input type="checkbox" name="shared_policy" value={resource.id} className="mt-0.5" /><span>Polizza · {resource.label}</span></label>)}
+            {resourceOptions.documents.map((resource) => <label key={resource.id} className="flex items-start gap-2 text-[11px] text-muted"><input type="checkbox" name="shared_document" value={resource.id} className="mt-0.5" /><span>Documento · {resource.label}</span></label>)}
+            {!resourceOptions.policies.length && !resourceOptions.documents.length ? <p className="text-[10px] text-muted">Il dossier non contiene ancora elementi condivisibili.</p> : null}
+          </div>
+        </fieldset>
         <label className="flex items-start gap-2 text-[11px] leading-relaxed text-muted"><input aria-label="Consenso alla revisione" required name="consent" type="checkbox" className="mt-0.5" />Acconsento all&apos;uso dei dati del mio dossier ATLAS per gestire questa richiesta di revisione e l&apos;eventuale contatto. Il consenso non e preselezionato.</label>
         <div className="flex flex-col gap-2 sm:flex-row">
           <Link href="/documents" className="atlas-btn-secondary inline-flex flex-1 items-center justify-center gap-2 py-2.5 text-[12px]"><FileText className="h-4 w-4" />Controlla dossier</Link>

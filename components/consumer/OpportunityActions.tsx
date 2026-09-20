@@ -6,12 +6,14 @@ import { dismissOpportunityAction, markOpportunitySeenAction } from "@/app/(app)
 export function OpportunityActions({ id, seen }: { id: string; seen: boolean }) {
   const [pending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
+  const [isSeen, setIsSeen] = useState(seen);
 
   return (
     <div className="mt-3 flex flex-wrap items-center gap-3">
-      {!seen ? <button disabled={pending} type="button" onClick={() => startTransition(async () => {
+      {!isSeen ? <button disabled={pending} type="button" onClick={() => startTransition(async () => {
         const result = await markOpportunitySeenAction(id);
         setMessage(result.message);
+        if (result.ok) setIsSeen(true);
       })} className="text-[12px] font-medium text-accent">Segna come vista</button> : null}
       <button disabled={pending} type="button" onClick={() => startTransition(async () => {
         const result = await dismissOpportunityAction(id);

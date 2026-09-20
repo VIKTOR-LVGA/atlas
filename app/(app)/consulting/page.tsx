@@ -20,15 +20,22 @@ import {
 } from "@/lib/atlas-ui";
 import { getConsultingIntelligence } from "@/lib/consulting-intelligence";
 import { listCurrentUserConsultationRequests } from "@/lib/consultations";
+import { getCurrentUserPolicies } from "@/lib/policies";
+import { getCurrentUserDocuments } from "@/lib/documents";
 
 export const metadata = { title: "Consulenza" };
 
 export default async function ConsultingPage() {
-  const [intelligence, consultationRequests] = await Promise.all([
+  const [intelligence, consultationRequests, policies, documents] = await Promise.all([
     getConsultingIntelligence(),
     listCurrentUserConsultationRequests(),
+    getCurrentUserPolicies(),
+    getCurrentUserDocuments(),
   ]);
   const { readiness, hasInsufficientData, progression } = intelligence;
+  const activeRequest = consultationRequests.find(
+    (request) => !["won", "lost", "completed", "cancelled"].includes(request.status)
+  ) ?? null;
 
   return (
     <PageShell>
@@ -63,7 +70,11 @@ export default async function ConsultingPage() {
             <ConsultingEmptyState intelligence={intelligence} />
             <ConsultingInterestCta
               readinessPercent={readiness.percent}
-              latestRequest={consultationRequests[0] ?? null}
+              latestRequest={activeRequest}
+              resourceOptions={{
+                policies: policies.map((policy) => ({ id: policy.id, label: `${policy.provider} · ${policy.policyType}` })),
+                documents: documents.map((document) => ({ id: document.id, label: document.fileName })),
+              }}
             />
             {progression.showOnboardingFocus ? (
               <PortfolioProgressionPanel progression={progression} compact />
@@ -83,7 +94,11 @@ export default async function ConsultingPage() {
               <aside className={atlasAsideColumn}>
                 <ConsultingInterestCta
                   readinessPercent={readiness.percent}
-                  latestRequest={consultationRequests[0] ?? null}
+                  latestRequest={activeRequest}
+                  resourceOptions={{
+                    policies: policies.map((policy) => ({ id: policy.id, label: `${policy.provider} · ${policy.policyType}` })),
+                    documents: documents.map((document) => ({ id: document.id, label: document.fileName })),
+                  }}
                 />
                 {progression.showOnboardingFocus ? (
                   <PortfolioProgressionPanel progression={progression} compact />

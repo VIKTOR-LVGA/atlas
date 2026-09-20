@@ -465,8 +465,34 @@ export type ConsultationStatus =
   | "contacted"
   | "consultation_scheduled"
   | "in_review"
+  | "quoted"
+  | "won"
+  | "lost"
   | "completed"
   | "cancelled";
+
+export type AtlasUserRole = "consumer" | "broker" | "admin";
+
+export interface BrokerIdentity {
+  id: string;
+  displayName: string;
+  legalName: string | null;
+  organizationName: string | null;
+  email: string | null;
+  active: boolean;
+}
+
+export interface RevenueSummary {
+  grossCommission: number;
+  atlasRevenue: number;
+  brokerRevenue: number;
+  expectedCommission: number;
+  paidCommission: number;
+  clawbacks: number;
+  netCommission: number;
+  contractsCount: number;
+  wonClients: number;
+}
 
 export interface ConsultationRequest {
   id: string;

@@ -8,6 +8,8 @@ export const productRoutes = [
   "/consulting",
   "/opportunities",
   "/settings",
+  "/broker",
+  "/admin",
 ] as const;
 
 export function isProductRoute(pathname: string) {

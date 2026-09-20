@@ -6,7 +6,6 @@ import { dismissOpportunity, markOpportunitySeen, OpportunityDataError } from "@
 export async function markOpportunitySeenAction(id: string) {
   try {
     const data = await markOpportunitySeen(id);
-    revalidatePath("/opportunities");
     revalidatePath("/dashboard");
     return { ok: true, message: "Opportunita letta.", data };
   } catch (error) {
@@ -17,7 +16,6 @@ export async function markOpportunitySeenAction(id: string) {
 export async function dismissOpportunityAction(id: string) {
   try {
     const data = await dismissOpportunity(id);
-    revalidatePath("/opportunities");
     revalidatePath("/dashboard");
     return { ok: true, message: "Opportunita archiviata.", data };
   } catch (error) {

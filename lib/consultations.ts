@@ -12,6 +12,10 @@ export type ConsultationRequestInput = {
   preferredContactTime?: string | null;
   sourceOpportunityId?: string | null;
   consent: boolean;
+  sharedResources?: Array<{
+    type: "policy" | "document" | "vehicle" | "property" | "family_member";
+    id: string;
+  }>;
 };
 
 export class ConsultationDataError extends Error {
@@ -71,7 +75,7 @@ export async function createConsultationRequest(input: ConsultationRequestInput)
     .from("consultation_requests")
     .select("id, status, request_type, message, preferred_contact_method, preferred_contact_time, consent_given_at, privacy_version, source_opportunity_id, created_at, updated_at, closed_at")
     .eq("user_id", user.id)
-    .not("status", "in", "(completed,cancelled)")
+    .not("status", "in", "(won,lost,completed,cancelled)")
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -88,5 +92,21 @@ export async function createConsultationRequest(input: ConsultationRequestInput)
     source_opportunity_id: input.sourceOpportunityId ?? null,
   }).select("id, status, request_type, message, preferred_contact_method, preferred_contact_time, consent_given_at, privacy_version, source_opportunity_id, created_at, updated_at, closed_at").single();
   if (error || !data) throw new ConsultationDataError("Richiesta non inviata.");
+  const sharedResources = (input.sharedResources ?? []).filter(
+    (resource, index, all) =>
+      /^[0-9a-f-]{36}$/i.test(resource.id) &&
+      all.findIndex((candidate) => candidate.type === resource.type && candidate.id === resource.id) === index
+  );
+  if (sharedResources.length) {
+    const { error: sharingError } = await supabase.from("consultation_shared_resources").insert(
+      sharedResources.map((resource) => ({
+        consultation_request_id: data.id,
+        user_id: user.id,
+        resource_type: resource.type,
+        resource_id: resource.id,
+      }))
+    );
+    if (sharingError) throw new ConsultationDataError("Richiesta creata, ma alcune risorse non sono state condivise. Controlla il dossier.");
+  }
   return toConsultation(data);
 }

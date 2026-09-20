@@ -170,8 +170,8 @@ export async function updateFamilyMember(id: string, input: FamilyMemberInput) {
 export async function deleteFamilyMember(id: string) {
   const { supabase, user } = await context();
   const { data, error } = await supabase.from("family_members").delete().eq("id", id).eq("user_id", user.id).select("id").maybeSingle();
-  if (error) throw new HouseholdDataError("Membro non eliminato.");
-  return Boolean(data);
+  if (error || !data) throw new HouseholdDataError("Membro non eliminato.");
+  return true;
 }
 
 export async function listProperties() {
@@ -219,8 +219,8 @@ export async function updateProperty(id: string, input: PropertyInput) {
 export async function deleteProperty(id: string) {
   const { supabase, user } = await context();
   const { data, error } = await supabase.from("properties").delete().eq("id", id).eq("user_id", user.id).select("id").maybeSingle();
-  if (error) throw new HouseholdDataError("Abitazione non eliminata.");
-  return Boolean(data);
+  if (error || !data) throw new HouseholdDataError("Abitazione non eliminata.");
+  return true;
 }
 
 export async function listVehicles() {
@@ -268,8 +268,8 @@ export async function updateVehicle(id: string, input: VehicleInput) {
 export async function deleteVehicle(id: string) {
   const { supabase, user } = await context();
   const { data, error } = await supabase.from("vehicles").delete().eq("id", id).eq("user_id", user.id).select("id").maybeSingle();
-  if (error) throw new HouseholdDataError("Veicolo non eliminato.");
-  return Boolean(data);
+  if (error || !data) throw new HouseholdDataError("Veicolo non eliminato.");
+  return true;
 }
 
 export async function getCurrentHouseholdContext() {
