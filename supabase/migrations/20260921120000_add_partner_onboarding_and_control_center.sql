@@ -24,10 +24,9 @@ create table public.partner_applications (
   consent_given_at timestamptz not null,
   terms_accepted_at timestamptz not null,
   status text not null default 'submitted',
+  -- Public-facing rejection copy only. Internal admin review data lives in
+  -- partner_application_reviews (admin-only) so applicants cannot SELECT it.
   rejection_reason text,
-  admin_notes text,
-  reviewed_at timestamptz,
-  reviewed_by uuid references auth.users(id) on delete set null,
   broker_id uuid references public.brokers(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -40,6 +39,18 @@ create table public.partner_applications (
   constraint partner_applications_email_check check (char_length(professional_email) between 3 and 254),
   constraint partner_applications_message_check check (message is null or char_length(message) <= 4000),
   constraint partner_applications_experience_check check (experience_notes is null or char_length(experience_notes) <= 4000)
+);
+
+-- Admin-only internal review metadata (RLS row isolation is not enough for columns).
+create table public.partner_application_reviews (
+  application_id uuid primary key references public.partner_applications(id) on delete cascade,
+  admin_notes text,
+  reviewed_at timestamptz not null default now(),
+  reviewed_by uuid references auth.users(id) on delete set null,
+  updated_at timestamptz not null default now(),
+  constraint partner_application_reviews_notes_check check (
+    admin_notes is null or char_length(admin_notes) <= 8000
+  )
 );
 
 create index partner_applications_status_idx
@@ -77,10 +88,15 @@ create index platform_audit_log_created_idx on public.platform_audit_log (create
 create index platform_audit_log_event_idx on public.platform_audit_log (event_type, created_at desc);
 
 alter table public.partner_applications enable row level security;
+alter table public.partner_application_reviews enable row level security;
 alter table public.platform_audit_log enable row level security;
 revoke all on table public.partner_applications from anon, authenticated;
+revoke all on table public.partner_application_reviews from anon, authenticated;
 revoke all on table public.platform_audit_log from anon, authenticated;
 grant select, insert, update on table public.partner_applications to authenticated;
+-- Reviews: admin SELECT only. Writes happen via security-definer RPC.
+grant select on table public.partner_application_reviews to authenticated;
+-- Audit log is append-only via write_platform_audit (security definer). No client writes.
 grant select on table public.platform_audit_log to authenticated;
 
 create policy "Applicants read own application, admins read all"
@@ -115,11 +131,15 @@ create policy "Admins update partner applications"
   using ((select public.current_user_role()) = 'admin')
   with check ((select public.current_user_role()) = 'admin');
 
+create policy "Admins read partner application reviews"
+  on public.partner_application_reviews for select to authenticated
+  using ((select public.current_user_role()) = 'admin');
+
 create policy "Admins read platform audit log"
   on public.platform_audit_log for select to authenticated
   using ((select public.current_user_role()) = 'admin');
 
--- Prevent applicants from writing admin-only columns via RLS trigger
+-- Prevent applicants from writing decision/admin columns (RLS is row-level only).
 create or replace function public.protect_partner_application_columns()
 returns trigger
 language plpgsql
@@ -130,11 +150,17 @@ begin
   if public.current_user_role() = 'admin' then
     return new;
   end if;
+  if tg_op = 'INSERT' then
+    -- Ignore malicious decision fields from applicants.
+    if new.status is null or new.status not in ('draft', 'submitted') then
+      new.status := 'submitted';
+    end if;
+    new.rejection_reason := null;
+    new.broker_id := null;
+    return new;
+  end if;
   if tg_op = 'UPDATE' then
-    new.admin_notes := old.admin_notes;
     new.rejection_reason := old.rejection_reason;
-    new.reviewed_at := old.reviewed_at;
-    new.reviewed_by := old.reviewed_by;
     new.broker_id := old.broker_id;
     if old.status not in ('draft', 'rejected') then
       raise exception 'application locked';
@@ -142,13 +168,6 @@ begin
     if new.status not in ('draft', 'submitted') then
       raise exception 'invalid applicant status transition';
     end if;
-  end if;
-  if tg_op = 'INSERT' then
-    new.admin_notes := null;
-    new.rejection_reason := null;
-    new.reviewed_at := null;
-    new.reviewed_by := null;
-    new.broker_id := null;
   end if;
   return new;
 end;
@@ -182,7 +201,39 @@ begin
 end;
 $$;
 
+-- Only other security-definer RPCs (owner) may write audit rows — never clients.
 revoke all on function public.write_platform_audit(text, text, uuid, jsonb) from public, anon, authenticated;
+
+create or replace function public.upsert_partner_application_review(
+  p_application_id uuid,
+  p_admin_notes text default null
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if public.current_user_role() <> 'admin' then
+    raise exception 'admin role required';
+  end if;
+  insert into public.partner_application_reviews (application_id, admin_notes, reviewed_at, reviewed_by, updated_at)
+  values (
+    p_application_id,
+    nullif(trim(coalesce(p_admin_notes, '')), ''),
+    now(),
+    auth.uid(),
+    now()
+  )
+  on conflict (application_id) do update
+    set admin_notes = excluded.admin_notes,
+        reviewed_at = excluded.reviewed_at,
+        reviewed_by = excluded.reviewed_by,
+        updated_at = now();
+end;
+$$;
+
+revoke all on function public.upsert_partner_application_review(uuid, text) from public, anon, authenticated;
 
 -- ---------------------------------------------------------------------------
 -- Canton normalization (properties / vehicles)
@@ -287,11 +338,12 @@ declare
   app_row public.partner_applications%rowtype;
   new_broker_id uuid;
   display text;
+  existing_broker_id uuid;
 begin
   if public.current_user_role() <> 'admin' then
     raise exception 'admin role required';
   end if;
-  if p_decision not in ('approve', 'reject', 'under_review', 'suspend') then
+  if p_decision not in ('approve', 'reject', 'under_review', 'suspend', 'reactivate') then
     raise exception 'invalid decision';
   end if;
 
@@ -300,11 +352,9 @@ begin
 
   if p_decision = 'under_review' then
     update public.partner_applications
-      set status = 'under_review',
-          admin_notes = nullif(trim(coalesce(p_admin_notes, '')), ''),
-          reviewed_at = now(),
-          reviewed_by = auth.uid()
+      set status = 'under_review'
     where id = p_application_id;
+    perform public.upsert_partner_application_review(p_application_id, p_admin_notes);
     perform public.write_platform_audit(
       'partner_application_under_review', 'partner_application', p_application_id,
       jsonb_build_object('user_id', app_row.user_id)
@@ -315,11 +365,9 @@ begin
   if p_decision = 'reject' then
     update public.partner_applications
       set status = 'rejected',
-          rejection_reason = coalesce(nullif(trim(coalesce(p_rejection_reason, '')), ''), 'Candidatura non approvata'),
-          admin_notes = nullif(trim(coalesce(p_admin_notes, '')), ''),
-          reviewed_at = now(),
-          reviewed_by = auth.uid()
+          rejection_reason = coalesce(nullif(trim(coalesce(p_rejection_reason, '')), ''), 'Candidatura non approvata')
     where id = p_application_id;
+    perform public.upsert_partner_application_review(p_application_id, p_admin_notes);
     perform public.write_platform_audit(
       'partner_application_rejected', 'partner_application', p_application_id,
       jsonb_build_object('user_id', app_row.user_id)
@@ -332,14 +380,12 @@ begin
       update public.brokers set active = false where id = app_row.broker_id;
     end if;
     if exists (select 1 from public.user_roles where user_id = app_row.user_id and role = 'broker') then
-      update public.user_roles set role = 'consumer' where user_id = app_row.user_id;
+      update public.user_roles set role = 'consumer', updated_at = now() where user_id = app_row.user_id;
     end if;
     update public.partner_applications
-      set status = 'suspended',
-          admin_notes = nullif(trim(coalesce(p_admin_notes, '')), ''),
-          reviewed_at = now(),
-          reviewed_by = auth.uid()
+      set status = 'suspended'
     where id = p_application_id;
+    perform public.upsert_partner_application_review(p_application_id, p_admin_notes);
     perform public.write_platform_audit(
       'partner_suspended', 'partner_application', p_application_id,
       jsonb_build_object('user_id', app_row.user_id, 'broker_id', app_row.broker_id)
@@ -347,10 +393,37 @@ begin
     return p_application_id;
   end if;
 
-  -- approve
+  if p_decision = 'reactivate' then
+    if app_row.broker_id is null then
+      raise exception 'no broker linked to application';
+    end if;
+    update public.brokers set active = true where id = app_row.broker_id;
+    insert into public.user_roles (user_id, role)
+    values (app_row.user_id, 'broker')
+    on conflict (user_id) do update set role = 'broker', updated_at = now();
+    update public.partner_applications
+      set status = 'approved',
+          rejection_reason = null
+    where id = p_application_id;
+    perform public.upsert_partner_application_review(p_application_id, p_admin_notes);
+    perform public.write_platform_audit(
+      'partner_reactivated', 'partner_application', p_application_id,
+      jsonb_build_object('user_id', app_row.user_id, 'broker_id', app_row.broker_id)
+    );
+    return app_row.broker_id;
+  end if;
+
+  -- approve (idempotent: reuse existing broker row for this user when present)
   display := trim(app_row.first_name || ' ' || app_row.last_name);
-  if app_row.broker_id is not null then
-    new_broker_id := app_row.broker_id;
+  select b.id into existing_broker_id
+  from public.brokers b
+  where b.auth_user_id = app_row.user_id
+  order by b.created_at asc
+  limit 1;
+
+  new_broker_id := coalesce(app_row.broker_id, existing_broker_id);
+
+  if new_broker_id is not null then
     update public.brokers set
       auth_user_id = app_row.user_id,
       display_name = display,
@@ -388,12 +461,10 @@ begin
   update public.partner_applications
     set status = 'approved',
         broker_id = new_broker_id,
-        admin_notes = nullif(trim(coalesce(p_admin_notes, '')), ''),
-        rejection_reason = null,
-        reviewed_at = now(),
-        reviewed_by = auth.uid()
+        rejection_reason = null
   where id = p_application_id;
 
+  perform public.upsert_partner_application_review(p_application_id, p_admin_notes);
   perform public.write_platform_audit(
     'partner_application_approved', 'partner_application', p_application_id,
     jsonb_build_object('user_id', app_row.user_id, 'broker_id', new_broker_id)

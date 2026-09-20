@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   LogOut,
   Settings,
+  ShieldCheck,
   Target,
 } from "lucide-react";
 import { logout } from "@/app/(app)/actions";
@@ -162,6 +163,12 @@ export function TopBarProfileMenu() {
         <Settings className="h-3.5 w-3.5" />
         Profilo
       </TopBarPopoverItem>
+      {profile?.role === "admin" ? (
+        <TopBarPopoverItem href="/control-center">
+          <ShieldCheck className="h-3.5 w-3.5" />
+          Control Center
+        </TopBarPopoverItem>
+      ) : null}
       <TopBarPopoverDivider />
       <form action={logout}>
         <button

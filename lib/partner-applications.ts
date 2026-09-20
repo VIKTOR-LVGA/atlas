@@ -50,7 +50,6 @@ export type PartnerApplicationPublic = {
   rejectionReason: string | null;
   createdAt: string;
   updatedAt: string;
-  reviewedAt: string | null;
 };
 
 function mapApplication(row: Record<string, unknown>): PartnerApplicationPublic {
@@ -69,7 +68,6 @@ function mapApplication(row: Record<string, unknown>): PartnerApplicationPublic 
     rejectionReason: row.rejection_reason ? String(row.rejection_reason) : null,
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
-    reviewedAt: row.reviewed_at ? String(row.reviewed_at) : null,
   };
 }
 
@@ -79,7 +77,7 @@ export async function getCurrentPartnerApplication() {
   const { data, error } = await identity.supabase
     .from("partner_applications")
     .select(
-      "id, status, first_name, last_name, organization_name, professional_email, primary_canton, served_cantons, languages, rejection_reason, created_at, updated_at, reviewed_at"
+      "id, status, first_name, last_name, organization_name, professional_email, primary_canton, served_cantons, languages, rejection_reason, created_at, updated_at"
     )
     .eq("user_id", identity.user.id)
     .maybeSingle();
@@ -147,7 +145,7 @@ export async function submitPartnerApplication(input: PartnerApplicationInput) {
       .update(payload)
       .eq("id", existing.id)
       .select(
-        "id, status, first_name, last_name, organization_name, professional_email, primary_canton, served_cantons, languages, rejection_reason, created_at, updated_at, reviewed_at"
+        "id, status, first_name, last_name, organization_name, professional_email, primary_canton, served_cantons, languages, rejection_reason, created_at, updated_at"
       )
       .single();
     if (error) throw new OperationsInputError("Impossibile aggiornare la candidatura.");
@@ -158,7 +156,7 @@ export async function submitPartnerApplication(input: PartnerApplicationInput) {
     .from("partner_applications")
     .insert(payload)
     .select(
-      "id, status, first_name, last_name, organization_name, professional_email, primary_canton, served_cantons, languages, rejection_reason, created_at, updated_at, reviewed_at"
+      "id, status, first_name, last_name, organization_name, professional_email, primary_canton, served_cantons, languages, rejection_reason, created_at, updated_at"
     )
     .single();
   if (error) {
@@ -194,7 +192,7 @@ export async function listPartnerApplicationsForAdmin() {
 
 export async function reviewPartnerApplication(input: {
   applicationId: string;
-  decision: "approve" | "reject" | "under_review" | "suspend";
+  decision: "approve" | "reject" | "under_review" | "suspend" | "reactivate";
   adminNotes?: string;
   rejectionReason?: string;
 }) {

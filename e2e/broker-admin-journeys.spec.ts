@@ -222,8 +222,12 @@ test.describe("control center", () => {
     await expect(ledger.getByText(/CHF\s*999\.95/).first()).toBeVisible();
   });
 
-  test("admin is redirected away from consumer area", async ({ page }) => {
-    await page.goto("/policies");
+  test("admin can open consumer account and Control Center link", async ({ page }) => {
+    await page.goto("/settings");
+    await expect(page).toHaveURL(/\/settings/);
+    await page.getByRole("button", { name: "Menu account" }).click();
+    await expect(page.getByRole("menuitem", { name: "Control Center" })).toBeVisible();
+    await page.getByRole("menuitem", { name: "Control Center" }).click();
     await expect(page).toHaveURL(/\/control-center/);
   });
 

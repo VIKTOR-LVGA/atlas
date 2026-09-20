@@ -14,8 +14,11 @@ export default async function AppLayout({
     redirect("/login");
   }
 
+  // Brokers stay in Partner Portal. Admins may use the normal ATLAS account UX
+  // with a discrete Control Center entry — authorization remains server-side.
   if (identity.role === "broker") redirect("/partner/dashboard");
-  if (identity.role === "admin") redirect("/control-center");
 
-  return <AppShell profile={profile}>{children}</AppShell>;
+  return (
+    <AppShell profile={{ ...profile, role: identity.role }}>{children}</AppShell>
+  );
 }

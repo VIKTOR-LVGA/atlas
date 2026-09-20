@@ -589,6 +589,8 @@ export interface CurrentProfile {
   createdAt: string | null;
   updatedAt: string | null;
   hasProfileRow: boolean;
+  /** Server-resolved role for UX only. Authorization remains server-side/RLS. */
+  role?: AtlasUserRole | null;
 }
 
 export interface CurrentProfileUpdate {
