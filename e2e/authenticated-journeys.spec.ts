@@ -59,7 +59,9 @@ test.describe.serial("Atlas authenticated journeys", () => {
     await page.getByLabel("Nome completo").fill(updatedName);
     await page.getByLabel("Telefono").fill("+41 79 000 00 00");
     await page.getByRole("button", { name: "Salva modifiche" }).click();
-    await expect(page.getByRole("status")).toContainText(/salvat/i);
+    await expect(page.getByRole("status")).toContainText(/salvat/i, {
+      timeout: 20_000,
+    });
 
     await page.reload();
     await expect(page.getByLabel("Nome completo")).toHaveValue(updatedName);
@@ -256,6 +258,29 @@ test.describe.serial("Atlas authenticated journeys", () => {
       await row.getByRole("button", { name: "Elimina" }).click();
       await expect(page.getByText(label, { exact: true })).toHaveCount(0);
     }
+  });
+
+  test("consumer submits a partner application and remains pending", async ({ page }) => {
+    await login(page);
+    await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
+    await page.goto("/partner/apply");
+    await expect(
+      page.getByRole("heading", { name: "Richiedi l'accesso al Partner Portal" })
+    ).toBeVisible();
+    await page.getByLabel("Nome", { exact: true }).fill("Atlas");
+    await page.getByLabel("Cognome", { exact: true }).fill("Browser");
+    await page.getByLabel("Email professionale").fill(account.email);
+    await page.getByLabel("Telefono").fill("+41790000000");
+    await page.getByLabel("Cantone principale").selectOption("TI");
+    await page.getByRole("checkbox", { name: "Ticino", exact: true }).check();
+    await page.getByLabel(/Acconsento al trattamento/).check();
+    await page.getByLabel(/Accetto i termini partner/).check();
+    await page.getByRole("button", { name: "Invia candidatura" }).click();
+    await expect(page).toHaveURL(/\/partner\/status$/, { timeout: 20_000 });
+    await expect(page.getByRole("heading", { name: "In revisione" })).toBeVisible();
+
+    await page.goto("/partner/dashboard");
+    await expect(page).toHaveURL(/\/partner\/status$/);
   });
 
   test("logout clears the session and protected routes remain blocked", async ({ page }) => {

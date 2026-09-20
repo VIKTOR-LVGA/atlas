@@ -204,6 +204,82 @@ $$;
 -- Only other security-definer RPCs (owner) may write audit rows — never clients.
 revoke all on function public.write_platform_audit(text, text, uuid, jsonb) from public, anon, authenticated;
 
+-- Append operational events without exposing a client-callable audit writer.
+create or replace function public.audit_partner_operation()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if tg_table_name = 'consultation_requests'
+    and tg_op = 'UPDATE'
+    and old.assigned_broker_id is distinct from new.assigned_broker_id
+  then
+    perform public.write_platform_audit(
+      'consultation_assignment_changed',
+      'consultation_request',
+      new.id,
+      jsonb_build_object(
+        'previous_broker_id', old.assigned_broker_id,
+        'broker_id', new.assigned_broker_id,
+        'user_id', new.user_id
+      )
+    );
+  elsif tg_table_name = 'broker_contracts' and tg_op = 'INSERT' then
+    perform public.write_platform_audit(
+      'broker_contract_created',
+      'broker_contract',
+      new.id,
+      jsonb_build_object('broker_id', new.broker_id, 'user_id', new.user_id)
+    );
+  elsif tg_table_name = 'commission_attributions' and tg_op = 'INSERT' then
+    perform public.write_platform_audit(
+      'commission_attribution_created',
+      'commission_attribution',
+      new.id,
+      jsonb_build_object(
+        'broker_id', new.broker_id,
+        'user_id', new.user_id,
+        'commission_type', new.commission_type
+      )
+    );
+  elsif tg_table_name = 'commission_adjustments' and tg_op = 'INSERT' then
+    perform public.write_platform_audit(
+      case when new.adjustment_type = 'clawback'
+        then 'commission_clawback_created'
+        else 'commission_adjustment_created'
+      end,
+      'commission_adjustment',
+      new.id,
+      jsonb_build_object(
+        'commission_attribution_id', new.commission_attribution_id,
+        'adjustment_type', new.adjustment_type
+      )
+    );
+  end if;
+  return new;
+end;
+$$;
+
+revoke all on function public.audit_partner_operation() from public, anon, authenticated;
+
+create trigger consultation_requests_platform_audit
+  after update of assigned_broker_id on public.consultation_requests
+  for each row execute function public.audit_partner_operation();
+
+create trigger broker_contracts_platform_audit
+  after insert on public.broker_contracts
+  for each row execute function public.audit_partner_operation();
+
+create trigger commission_attributions_platform_audit
+  after insert on public.commission_attributions
+  for each row execute function public.audit_partner_operation();
+
+create trigger commission_adjustments_platform_audit
+  after insert on public.commission_adjustments
+  for each row execute function public.audit_partner_operation();
+
 create or replace function public.upsert_partner_application_review(
   p_application_id uuid,
   p_admin_notes text default null
@@ -263,7 +339,7 @@ begin
     when normalized = 'OBWALDEN' then 'OW'
     when normalized = 'NIDWALDEN' then 'NW'
     when normalized in ('GLARUS','GLARONA') then 'GL'
-    when normalized in ('ZUG','ZUgo') then 'ZG'
+    when normalized in ('ZUG','ZUGO') then 'ZG'
     when normalized in ('FRIBOURG','FREIBURG','FRIBURGO') then 'FR'
     when normalized in ('SOLOTHURN','SOLEURE','SOLETTA') then 'SO'
     when normalized in ('BASEL-STADT','BASEL STADT','BÂLE-VILLE','BASILEA CITTÀ') then 'BS'
@@ -316,9 +392,9 @@ as $$
 $$;
 
 revoke all on function public.normalize_canton_code(text) from public, anon;
-revoke all on function public.user_primary_canton(uuid) from public, anon;
+-- Internal helper: callers must not be able to probe another user's canton.
+revoke all on function public.user_primary_canton(uuid) from public, anon, authenticated;
 grant execute on function public.normalize_canton_code(text) to authenticated;
-grant execute on function public.user_primary_canton(uuid) to authenticated;
 
 -- ---------------------------------------------------------------------------
 -- Approval / rejection / suspension RPCs
@@ -350,7 +426,26 @@ begin
   select * into app_row from public.partner_applications where id = p_application_id for update;
   if not found then raise exception 'application not found'; end if;
 
+  -- Repeating an approval is a no-op once the linked broker and role are active.
+  if p_decision = 'approve'
+    and app_row.status = 'approved'
+    and app_row.broker_id is not null
+    and exists (
+      select 1 from public.brokers b
+      where b.id = app_row.broker_id and b.active
+    )
+    and exists (
+      select 1 from public.user_roles ur
+      where ur.user_id = app_row.user_id and ur.role = 'broker'
+    )
+  then
+    return app_row.broker_id;
+  end if;
+
   if p_decision = 'under_review' then
+    if app_row.status not in ('submitted', 'under_review') then
+      raise exception 'invalid application transition';
+    end if;
     update public.partner_applications
       set status = 'under_review'
     where id = p_application_id;
@@ -363,6 +458,9 @@ begin
   end if;
 
   if p_decision = 'reject' then
+    if app_row.status not in ('submitted', 'under_review', 'rejected') then
+      raise exception 'invalid application transition';
+    end if;
     update public.partner_applications
       set status = 'rejected',
           rejection_reason = coalesce(nullif(trim(coalesce(p_rejection_reason, '')), ''), 'Candidatura non approvata')
@@ -376,6 +474,12 @@ begin
   end if;
 
   if p_decision = 'suspend' then
+    if app_row.status = 'suspended' then
+      return coalesce(app_row.broker_id, p_application_id);
+    end if;
+    if app_row.status <> 'approved' or app_row.broker_id is null then
+      raise exception 'only an approved linked partner can be suspended';
+    end if;
     if app_row.broker_id is not null then
       update public.brokers set active = false where id = app_row.broker_id;
     end if;
@@ -397,6 +501,9 @@ begin
     if app_row.broker_id is null then
       raise exception 'no broker linked to application';
     end if;
+    if app_row.status not in ('suspended', 'approved') then
+      raise exception 'invalid application transition';
+    end if;
     update public.brokers set active = true where id = app_row.broker_id;
     insert into public.user_roles (user_id, role)
     values (app_row.user_id, 'broker')
@@ -414,6 +521,9 @@ begin
   end if;
 
   -- approve (idempotent: reuse existing broker row for this user when present)
+  if app_row.status not in ('submitted', 'under_review', 'rejected', 'approved') then
+    raise exception 'invalid application transition';
+  end if;
   display := trim(app_row.first_name || ' ' || app_row.last_name);
   select b.id into existing_broker_id
   from public.brokers b
@@ -480,6 +590,92 @@ $$;
 
 revoke all on function public.review_partner_application(uuid, text, text, text) from public, anon;
 grant execute on function public.review_partner_application(uuid, text, text, text) to authenticated;
+
+-- Atomic activation for both application-created and legacy broker records.
+create or replace function public.set_broker_active(
+  p_broker_id uuid,
+  p_active boolean
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  target_user_id uuid;
+  application_id uuid;
+begin
+  if public.current_user_role() <> 'admin' then
+    raise exception 'admin role required';
+  end if;
+
+  select b.auth_user_id into target_user_id
+  from public.brokers b
+  where b.id = p_broker_id
+  for update;
+  if not found then raise exception 'broker not found'; end if;
+
+  update public.brokers set active = p_active where id = p_broker_id;
+
+  if target_user_id is not null then
+    insert into public.user_roles (user_id, role)
+    values (target_user_id, case when p_active then 'broker' else 'consumer' end)
+    on conflict (user_id) do update
+      set role = excluded.role, updated_at = now();
+  end if;
+
+  select pa.id into application_id
+  from public.partner_applications pa
+  where pa.broker_id = p_broker_id
+  order by pa.created_at desc
+  limit 1;
+
+  if application_id is not null then
+    update public.partner_applications
+    set status = case when p_active then 'approved' else 'suspended' end,
+        rejection_reason = case when p_active then null else rejection_reason end
+    where id = application_id;
+  end if;
+
+  perform public.write_platform_audit(
+    case when p_active then 'partner_reactivated' else 'partner_suspended' end,
+    'broker',
+    p_broker_id,
+    jsonb_build_object('user_id', target_user_id, 'application_id', application_id)
+  );
+end;
+$$;
+
+revoke all on function public.set_broker_active(uuid, boolean) from public, anon;
+grant execute on function public.set_broker_active(uuid, boolean) to authenticated;
+
+-- Preserve the existing role-management API while adding an immutable audit event.
+create or replace function public.set_user_role(p_user_id uuid, p_role text)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare previous_role text;
+begin
+  if public.current_user_role() <> 'admin' then raise exception 'admin role required'; end if;
+  if p_role not in ('consumer', 'broker', 'admin') then raise exception 'invalid role'; end if;
+  select ur.role into previous_role from public.user_roles ur where ur.user_id = p_user_id;
+  insert into public.user_roles (user_id, role) values (p_user_id, p_role)
+  on conflict (user_id) do update set role = excluded.role, updated_at = now();
+  if previous_role is distinct from p_role then
+    perform public.write_platform_audit(
+      'user_role_changed',
+      'user',
+      p_user_id,
+      jsonb_build_object('previous_role', previous_role, 'role', p_role)
+    );
+  end if;
+end;
+$$;
+
+revoke all on function public.set_user_role(uuid, text) from public, anon;
+grant execute on function public.set_user_role(uuid, text) to authenticated;
 
 -- ---------------------------------------------------------------------------
 -- Control-center platform summary (admin)
@@ -612,7 +808,16 @@ begin
         (
           select count(*) from public.profiles p
           where p.created_at < date_trunc('month', d) + interval '1 month'
-        ) as cumulative_users
+        ) as cumulative_users,
+        (
+          select count(*) from public.brokers b
+          where b.created_at >= date_trunc('month', d)
+            and b.created_at < date_trunc('month', d) + interval '1 month'
+        ) as new_partners,
+        (
+          select count(*) from public.brokers b
+          where b.created_at < date_trunc('month', d) + interval '1 month'
+        ) as cumulative_partners
       from generate_series(
         date_trunc('month', now()) - ((months - 1) || ' months')::interval,
         date_trunc('month', now()),
@@ -645,25 +850,107 @@ begin
   end if;
 
   return coalesce((
-    select jsonb_agg(row_to_json(x)::jsonb order by x.canton)
-    from (
-      select
-        coalesce(public.user_primary_canton(cr.user_id), 'UNKNOWN') as canton,
-        count(distinct cr.id) as leads,
-        count(distinct cr.user_id) as clients,
-        count(distinct bc.id) as contracts,
-        coalesce(sum(ca.broker_share), 0) as broker_revenue,
-        coalesce(sum(ca.gross_commission), 0) as gross_commission,
-        coalesce(sum(ca.atlas_share), 0) as atlas_revenue
+    with scoped_consultations as (
+      select cr.*
       from public.consultation_requests cr
-      left join public.broker_contracts bc
-        on bc.consultation_request_id = cr.id
-      left join public.commission_attributions ca
-        on ca.consultation_request_id = cr.id
-        and ca.status not in ('cancelled', 'reversed')
-      where (broker_uuid is null or cr.assigned_broker_id = broker_uuid)
+      where broker_uuid is null or cr.assigned_broker_id = broker_uuid
+    ),
+    scoped_contracts as (
+      select bc.*
+      from public.broker_contracts bc
+      where broker_uuid is null or bc.broker_id = broker_uuid
+    ),
+    scoped_commissions as (
+      select ca.*
+      from public.commission_attributions ca
+      where ca.status not in ('cancelled', 'reversed')
+        and (broker_uuid is null or ca.broker_id = broker_uuid)
+    ),
+    consultations_by_canton as (
+      select
+        coalesce(public.user_primary_canton(sc.user_id), 'UNKNOWN') as canton,
+        count(*) as consultations,
+        count(*) as leads,
+        count(distinct sc.user_id) as clients
+      from scoped_consultations sc
       group by 1
-    ) x
+    ),
+    contracts_by_canton as (
+      select
+        coalesce(public.user_primary_canton(sc.user_id), 'UNKNOWN') as canton,
+        count(*) as contracts
+      from scoped_contracts sc
+      group by 1
+    ),
+    commissions_by_canton as (
+      select
+        coalesce(public.user_primary_canton(sc.user_id), 'UNKNOWN') as canton,
+        coalesce(sum(sc.broker_share), 0) as broker_revenue,
+        coalesce(sum(sc.gross_commission), 0) as gross_commission,
+        coalesce(sum(sc.atlas_share), 0) as atlas_revenue
+      from scoped_commissions sc
+      group by 1
+    ),
+    users_by_canton as (
+      select
+        coalesce(public.user_primary_canton(p.id), 'UNKNOWN') as canton,
+        count(*) as users
+      from public.profiles p
+      where role = 'admin'
+        and (
+          broker_uuid is null
+          or exists (select 1 from scoped_consultations sc where sc.user_id = p.id)
+        )
+      group by 1
+    ),
+    policies_by_canton as (
+      select
+        coalesce(public.user_primary_canton(p.user_id), 'UNKNOWN') as canton,
+        count(*) as policies
+      from public.policies p
+      where role = 'admin'
+        and (
+          broker_uuid is null
+          or exists (select 1 from scoped_consultations sc where sc.user_id = p.user_id)
+        )
+      group by 1
+    ),
+    canton_codes as (
+      select canton from consultations_by_canton
+      union select canton from contracts_by_canton
+      union select canton from commissions_by_canton
+      union select canton from users_by_canton
+      union select canton from policies_by_canton
+    )
+    select jsonb_agg(
+      jsonb_build_object(
+        'canton', c.canton,
+        'users', case when role = 'admin' then coalesce(u.users, 0) else coalesce(q.clients, 0) end,
+        'policies', case when role = 'admin' then coalesce(p.policies, 0) else 0 end,
+        'consultations', coalesce(q.consultations, 0),
+        'leads', coalesce(q.leads, 0),
+        'clients', coalesce(q.clients, 0),
+        'contracts', coalesce(k.contracts, 0),
+        'broker_revenue', case
+          when role = 'broker' and coalesce(q.clients, 0) < 3 then 0
+          else coalesce(m.broker_revenue, 0)
+        end,
+        'gross_commission', case
+          when role = 'broker' and coalesce(q.clients, 0) < 3 then 0
+          else coalesce(m.gross_commission, 0)
+        end,
+        -- ATLAS economics are admin-only even when a partner can infer its own share.
+        'atlas_revenue', case when role = 'admin' then coalesce(m.atlas_revenue, 0) else 0 end,
+        'privacy_masked', role = 'broker' and coalesce(q.clients, 0) < 3
+      )
+      order by c.canton
+    )
+    from canton_codes c
+    left join consultations_by_canton q using (canton)
+    left join contracts_by_canton k using (canton)
+    left join commissions_by_canton m using (canton)
+    left join users_by_canton u using (canton)
+    left join policies_by_canton p using (canton)
   ), '[]'::jsonb);
 end;
 $$;
@@ -719,8 +1006,9 @@ grant execute on function public.get_platform_growth_series(integer) to authenti
 grant execute on function public.get_canton_aggregates(text, uuid) to authenticated;
 grant execute on function public.get_admin_user_directory() to authenticated;
 
--- Extend broker profile RPC with new columns (compatible return)
-create or replace function public.get_current_broker_profile()
+-- A new RPC preserves the return type of the production get_current_broker_profile().
+-- PostgreSQL cannot change an existing RETURNS TABLE shape with CREATE OR REPLACE.
+create or replace function public.get_current_partner_profile()
 returns table (
   id uuid, auth_user_id uuid, display_name text, legal_name text,
   organization_name text, email text, phone text, finma_reference text, active boolean,
@@ -738,3 +1026,6 @@ begin
   from public.brokers b where b.id = public.current_broker_id();
 end;
 $$;
+
+revoke all on function public.get_current_partner_profile() from public, anon;
+grant execute on function public.get_current_partner_profile() to authenticated;

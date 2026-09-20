@@ -23,7 +23,7 @@ export async function getOperationsIdentity() {
 
   let broker: BrokerIdentity | null = null;
   if (role === "broker") {
-    const { data: rows, error } = await supabase.rpc("get_current_broker_profile");
+    const { data: rows, error } = await supabase.rpc("get_current_partner_profile");
     const data = rows?.[0] ?? null;
     if (error || !data) throw new OperationsAccessError("Profilo broker non attivo.");
     broker = {

@@ -223,12 +223,16 @@ export async function getCantonAggregates(scope: "admin" | "partner", brokerId?:
   if (error) throw new Error("Aggregazioni cantonali non disponibili.");
   const rows = (Array.isArray(data) ? data : []).map((row: Record<string, unknown>) => ({
     canton: String(row.canton ?? "UNKNOWN"),
+    users: Number(row.users ?? 0),
+    policies: Number(row.policies ?? 0),
+    consultations: Number(row.consultations ?? 0),
     leads: Number(row.leads ?? 0),
     clients: Number(row.clients ?? 0),
     contracts: Number(row.contracts ?? 0),
     brokerRevenue: Number(row.broker_revenue ?? 0),
     grossCommission: Number(row.gross_commission ?? 0),
     atlasRevenue: Number(row.atlas_revenue ?? 0),
+    privacyMasked: row.privacy_masked === true ? true : undefined,
   }));
   return scope === "partner" ? applyPartnerGeoPrivacy(rows) : rows;
 }

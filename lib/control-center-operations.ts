@@ -78,10 +78,12 @@ export async function getControlCenterDashboard(period: AnalyticsPeriod = "30d")
     growth:
       !growthResult.error && Array.isArray(growthResult.data)
         ? (growthResult.data as Array<{
-            month: string;
-            new_users: number;
-            cumulative_users: number;
-          }>)
+          month: string;
+          new_users: number;
+          cumulative_users: number;
+          new_partners: number;
+          cumulative_partners: number;
+        }>)
         : [],
     workspace,
     cantons,

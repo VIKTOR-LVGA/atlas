@@ -49,7 +49,9 @@ test("partner geo privacy masks revenue under threshold", () => {
   assert.equal(masked[0].brokerRevenue, 0);
   assert.equal(masked[1].privacyMasked, undefined);
   assert.equal(masked[1].brokerRevenue, 500);
-  assert.equal(masked[2].privacyMasked, undefined);
+  assert.equal(masked[1].atlasRevenue, 0);
+  assert.equal(masked[2].privacyMasked, true);
+  assert.equal(masked[2].brokerRevenue, 0);
 });
 
 test("analytics helpers avoid NaN", () => {

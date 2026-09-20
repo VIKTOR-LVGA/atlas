@@ -72,6 +72,7 @@ export function SwitzerlandChoropleth({
 }) {
   const [selected, setSelected] = useState<SwissCantonCode | "UNKNOWN" | null>(null);
   const [hover, setHover] = useState<SwissCantonCode | null>(null);
+  const [activeMetric, setActiveMetric] = useState<MapMetricKey>(metric);
 
   const byCanton = useMemo(() => {
     const map = new Map<string, MapDatum>();
@@ -82,10 +83,10 @@ export function SwitzerlandChoropleth({
   const max = useMemo(() => {
     let m = 0;
     for (const code of SWISS_CANTON_CODES) {
-      m = Math.max(m, valueOf(byCanton.get(code), metric));
+      m = Math.max(m, valueOf(byCanton.get(code), activeMetric));
     }
     return m || 1;
-  }, [byCanton, metric]);
+  }, [activeMetric, byCanton]);
 
   const activeCode = hover ?? (selected && selected !== "UNKNOWN" ? selected : null);
   const active = activeCode ? byCanton.get(activeCode) : null;
@@ -100,11 +101,15 @@ export function SwitzerlandChoropleth({
             Solo aggregazioni cantonali. Nessun indirizzo o pin individuale.
           </p>
         </div>
-        {onMetricChange ? (
+        {metrics.length > 1 ? (
           <select
             className="rounded-lg border border-border bg-input px-3 py-2 text-[12px]"
-            value={metric}
-            onChange={(event) => onMetricChange(event.target.value as MapMetricKey)}
+            value={activeMetric}
+            onChange={(event) => {
+              const nextMetric = event.target.value as MapMetricKey;
+              setActiveMetric(nextMetric);
+              onMetricChange?.(nextMetric);
+            }}
             aria-label="Metrica mappa"
           >
             {metrics.map((key) => (
@@ -125,7 +130,7 @@ export function SwitzerlandChoropleth({
         >
           <rect width="640" height="400" fill="transparent" />
           {SWISS_CANTON_CODES.map((code) => {
-            const value = valueOf(byCanton.get(code), metric);
+            const value = valueOf(byCanton.get(code), activeMetric);
             const intensity = value / max;
             const fill =
               value <= 0
@@ -169,11 +174,11 @@ export function SwitzerlandChoropleth({
           ) : activeCode ? (
             <dl className="mt-3 space-y-2">
               <div className="flex justify-between gap-3">
-                <dt className="text-muted">{METRIC_LABELS[metric]}</dt>
+                <dt className="text-muted">{METRIC_LABELS[activeMetric]}</dt>
                 <dd className="font-semibold tabular-nums">
-                  {metric.includes("Revenue") || metric.includes("Commission") || metric === "brokerRevenue" || metric === "grossCommission" || metric === "atlasRevenue"
-                    ? formatChfMoney(valueOf(active, metric))
-                    : valueOf(active, metric)}
+                  {activeMetric === "brokerRevenue" || activeMetric === "grossCommission" || activeMetric === "atlasRevenue"
+                    ? formatChfMoney(valueOf(active, activeMetric))
+                    : valueOf(active, activeMetric)}
                 </dd>
               </div>
               <div className="flex justify-between gap-3">

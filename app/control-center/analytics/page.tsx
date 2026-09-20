@@ -58,6 +58,16 @@ export default async function ControlCenterAnalyticsPage() {
               values: dashboard.growth.map((r) => Number(r.cumulative_users ?? 0)),
               color: "var(--muted-foreground)",
             },
+            {
+              label: "Nuovi partner",
+              values: dashboard.growth.map((r) => Number(r.new_partners ?? 0)),
+              color: "var(--accent-strong)",
+            },
+            {
+              label: "Partner cumulativi",
+              values: dashboard.growth.map((r) => Number(r.cumulative_partners ?? 0)),
+              color: "var(--foreground)",
+            },
           ]}
         />
         <SimpleFunnel
@@ -89,7 +99,14 @@ export default async function ControlCenterAnalyticsPage() {
           title="Geography"
           data={dashboard.cantons}
           metric="grossCommission"
-          metrics={["leads", "clients", "contracts", "grossCommission", "atlasRevenue"]}
+          metrics={[
+            "users",
+            "policies",
+            "consultations",
+            "contracts",
+            "grossCommission",
+            "atlasRevenue",
+          ]}
           showAtlasShare
         />
       </div>

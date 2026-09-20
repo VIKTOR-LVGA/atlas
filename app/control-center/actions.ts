@@ -185,35 +185,10 @@ export async function setBrokerActiveAction(formData: FormData) {
   const { supabase } = await requireOperationsRole(["admin"]);
   const brokerId = req(formData, "broker_id");
   const active = val(formData, "active") === "true";
-  const { data: broker, error: brokerError } = await supabase
-    .from("brokers")
-    .select("id, auth_user_id, active")
-    .eq("id", brokerId)
-    .maybeSingle();
-  if (brokerError || !broker) {
-    throw new OperationsInputError("Partner non trovato.");
-  }
-  const { error } = await supabase.from("brokers").update({ active }).eq("id", brokerId);
+  const { error } = await supabase.rpc("set_broker_active", {
+    p_broker_id: brokerId,
+    p_active: active,
+  });
   if (error) throw new OperationsInputError("Stato partner non aggiornato.");
-
-  if (broker.auth_user_id) {
-    if (active) {
-      const { error: roleError } = await supabase.rpc("set_user_role", {
-        p_user_id: broker.auth_user_id,
-        p_role: "broker",
-      });
-      if (roleError) {
-        throw new OperationsInputError("Partner riattivato, ma il ruolo broker non è stato ripristinato.");
-      }
-    } else {
-      const { error: roleError } = await supabase.rpc("set_user_role", {
-        p_user_id: broker.auth_user_id,
-        p_role: "consumer",
-      });
-      if (roleError) {
-        throw new OperationsInputError("Partner sospeso, ma il ruolo non è stato revocato.");
-      }
-    }
-  }
   revalidateControlCenter();
 }

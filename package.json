@@ -12,7 +12,8 @@
     "test:knowledge": "tsx test/insurance-knowledge.test.ts && tsx lib/insurance-knowledge-regression.ts",
     "test:supabase-live": "node --env-file=.env.local scripts/supabase-live-validation.mjs",
     "test:financial": "tsx test/commission-math.test.ts",
-    "test:broker-live": "node --env-file=.env.local scripts/broker-live-validation.mjs"
+    "test:broker-live": "node --env-file=.env.local scripts/broker-live-validation.mjs",
+    "test:partner-lifecycle": "node --env-file=.env.local scripts/partner-lifecycle-validation.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",

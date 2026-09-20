@@ -127,6 +127,11 @@ export default async function ControlCenterDashboard({
               values: data.growth.map((row) => Number(row.cumulative_users ?? 0)),
               color: "var(--muted-foreground)",
             },
+            {
+              label: "Nuovi partner",
+              values: data.growth.map((row) => Number(row.new_partners ?? 0)),
+              color: "var(--accent-strong)",
+            },
           ]}
         />
       </div>
@@ -136,7 +141,14 @@ export default async function ControlCenterDashboard({
           title="Svizzera · aggregazioni piattaforma"
           data={data.cantons}
           metric="leads"
-          metrics={["leads", "clients", "contracts", "grossCommission", "atlasRevenue"]}
+          metrics={[
+            "users",
+            "policies",
+            "consultations",
+            "contracts",
+            "grossCommission",
+            "atlasRevenue",
+          ]}
           showAtlasShare
         />
       </div>

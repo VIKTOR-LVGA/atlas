@@ -155,6 +155,39 @@ test.describe("broker A partner portal", () => {
     await page.goto("/control-center");
     await expect(page).toHaveURL(/\/partner\/dashboard/, { timeout: 20_000 });
   });
+
+  test("all partner modules, analytics and canton controls render", async ({ page }) => {
+    test.setTimeout(90_000);
+    await page.setViewportSize({ width: 1024, height: 900 });
+    const modules = [
+      ["/partner/leads", "Lead assegnati"],
+      ["/partner/clients", "Clienti"],
+      ["/partner/appointments", "Appuntamenti"],
+      ["/partner/offers", "Offerte"],
+      ["/partner/contracts", "Contratti"],
+      ["/partner/commissions", "Commissioni"],
+      ["/partner/analytics", "Analytics partner"],
+      ["/partner/profile", "Broker A Live"],
+    ] as const;
+    for (const [route, heading] of modules) {
+      await page.goto(route);
+      await expect(page.getByRole("heading", { name: heading }).first()).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+    }
+
+    await page.goto("/partner/analytics");
+    const metric = page.getByLabel("Metrica mappa");
+    await expect(metric).toBeVisible();
+    await expect(metric.locator('option[value="atlasRevenue"]')).toHaveCount(0);
+    for (const code of ["Ticino", "Zurigo", "Vaud", "Ginevra"]) {
+      await expect(page.locator(`path[aria-label^="${code}:"]`)).toHaveCount(1);
+    }
+    await expect(page.getByText("Revenue ATLAS", { exact: true })).toHaveCount(0);
+
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.reload();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  });
 });
 
 test.describe("broker B isolation", () => {
@@ -239,5 +272,38 @@ test.describe("control center", () => {
   test("admin can open partner management", async ({ page }) => {
     await page.goto("/control-center/partners");
     await expect(page.getByRole("heading", { name: "Partner e candidature" })).toBeVisible();
+  });
+
+  test("all control-center modules and global map metrics render", async ({ page }) => {
+    test.setTimeout(90_000);
+    await page.setViewportSize({ width: 1440, height: 900 });
+    const modules = [
+      ["/control-center", "Broker & Revenue"],
+      ["/control-center/users", "Utenti piattaforma"],
+      ["/control-center/partners", "Partner e candidature"],
+      ["/control-center/consultations", "Gestione consulenze"],
+      ["/control-center/contracts", "Contratti"],
+      ["/control-center/commissions", "Commissioni"],
+      ["/control-center/analytics", "Growth · Engagement · Revenue · Geography"],
+      ["/control-center/audit", "Audit log"],
+    ] as const;
+    for (const [route, heading] of modules) {
+      await page.goto(route);
+      await expect(page.getByRole("heading", { name: heading }).first()).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+    }
+
+    await page.goto("/control-center/analytics");
+    const metric = page.getByLabel("Metrica mappa");
+    for (const value of [
+      "users",
+      "policies",
+      "consultations",
+      "contracts",
+      "grossCommission",
+      "atlasRevenue",
+    ]) {
+      await expect(metric.locator(`option[value="${value}"]`)).toHaveCount(1);
+    }
   });
 });
