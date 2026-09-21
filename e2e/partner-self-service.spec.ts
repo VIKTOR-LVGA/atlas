@@ -14,7 +14,7 @@ const adminEmail = "atlas-admin-20260920b@example.com";
 const adminPassword = "AtlasBroker!2026Aa";
 
 async function login(page: Page, email: string, password: string) {
-  await page.goto("/login");
+  await page.goto("/login", { waitUntil: "domcontentloaded" });
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Accedi" }).click();

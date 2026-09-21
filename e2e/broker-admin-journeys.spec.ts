@@ -6,7 +6,7 @@ const email = (role: "consumer" | "broker-a" | "broker-b" | "admin") =>
   `atlas-${role}-${runId}@example.com`;
 
 async function login(page: Page, role: "consumer" | "broker-a" | "broker-b" | "admin") {
-  await page.goto("/login");
+  await page.goto("/login", { waitUntil: "domcontentloaded" });
   await page.getByLabel("Email").fill(email(role));
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Accedi" }).click();
