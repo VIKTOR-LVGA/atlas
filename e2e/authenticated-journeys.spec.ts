@@ -12,6 +12,7 @@ let documentId = "";
 
 async function login(page: Page, password = account.password) {
   await page.goto("/login", { waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(500);
   await page.getByLabel("Email").fill(account.email);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Accedi" }).click();

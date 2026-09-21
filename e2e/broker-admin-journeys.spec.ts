@@ -7,11 +7,13 @@ const email = (role: "consumer" | "broker-a" | "broker-b" | "admin") =>
 
 async function login(page: Page, role: "consumer" | "broker-a" | "broker-b" | "admin") {
   await page.goto("/login", { waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(500);
   await page.getByLabel("Email").fill(email(role));
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Accedi" }).click();
   await page.waitForURL(/\/(dashboard|partner|control-center|broker|admin)/, {
     timeout: 20_000,
+    waitUntil: "domcontentloaded",
   });
 }
 

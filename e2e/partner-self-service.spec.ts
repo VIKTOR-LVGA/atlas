@@ -15,10 +15,14 @@ const adminPassword = "AtlasBroker!2026Aa";
 
 async function login(page: Page, email: string, password: string) {
   await page.goto("/login", { waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(500);
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Accedi" }).click();
-  await page.waitForURL(/\/(dashboard|partner|control-center)/, { timeout: 30_000 });
+  await page.waitForURL(/\/(dashboard|partner|control-center)/, {
+    timeout: 30_000,
+    waitUntil: "domcontentloaded",
+  });
 }
 
 async function logoutFromOperations(page: Page) {
