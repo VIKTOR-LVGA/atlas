@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getOperationsIdentity } from "@/lib/operations-access";
 import { getCurrentPartnerApplication } from "@/lib/partner-applications";
+import { cantonLabel } from "@/lib/swiss-cantons";
 
 export const metadata = { title: "Stato candidatura | ATLAS" };
 
@@ -51,10 +52,16 @@ export default async function PartnerStatusPage() {
   if (!application) redirect("/partner/apply");
 
   const view = copy[application.status] ?? copy.submitted;
+  const reviewActive = ["under_review", "approved"].includes(application.status);
+  const activationComplete = application.status === "approved";
+  const applicationDate = new Intl.DateTimeFormat("it-CH", {
+    dateStyle: "medium",
+    timeZone: "Europe/Zurich",
+  }).format(new Date(application.createdAt));
 
   return (
     <div className="min-h-screen bg-background px-4 py-10 sm:px-6">
-      <div className="mx-auto max-w-xl rounded-xl border border-border bg-card p-6">
+      <div className="mx-auto max-w-2xl rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)] sm:p-8">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">
           Candidatura partner
         </p>
@@ -62,6 +69,46 @@ export default async function PartnerStatusPage() {
           {view.title}
         </h1>
         <p className="mt-3 text-[13px] leading-relaxed text-muted">{view.body}</p>
+        <div className="mt-6 grid gap-2 sm:grid-cols-4" aria-label="Avanzamento candidatura">
+          {[
+            ["Account creato", true],
+            ["Richiesta ricevuta", application.status !== "draft"],
+            ["Verifica ATLAS", reviewActive],
+            ["Attivazione Partner", activationComplete],
+          ].map(([label, complete], index) => (
+            <div
+              key={String(label)}
+              className={`rounded-xl border p-3 ${
+                complete
+                  ? "border-[var(--success-border)] bg-[var(--success-bg)]"
+                  : "border-border bg-card-muted/40"
+              }`}
+            >
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted">
+                Step {index + 1}
+              </p>
+              <p className="mt-1 text-[11px] font-medium text-foreground">
+                {label} {complete ? "✓" : ""}
+              </p>
+            </div>
+          ))}
+        </div>
+        <dl className="mt-6 grid gap-3 rounded-xl border border-border bg-card-muted/30 p-4 text-[12px] sm:grid-cols-3">
+          <div>
+            <dt className="text-muted">Società</dt>
+            <dd className="mt-1 font-medium">
+              {application.organizationName ?? "Non indicata"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-muted">Data richiesta</dt>
+            <dd className="mt-1 font-medium">{applicationDate}</dd>
+          </div>
+          <div>
+            <dt className="text-muted">Cantone</dt>
+            <dd className="mt-1 font-medium">{cantonLabel(application.primaryCanton)}</dd>
+          </div>
+        </dl>
         {application.status === "rejected" && application.rejectionReason ? (
           <p className="mt-4 rounded-lg bg-card-muted px-3 py-2 text-[12px] text-foreground">
             Motivazione: {application.rejectionReason}

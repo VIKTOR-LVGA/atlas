@@ -37,6 +37,16 @@ const sections = [
     ],
   },
   {
+    id: "partner",
+    title: "Condizioni Partner",
+    body: [
+      "La candidatura Partner è soggetta a verifica e approvazione ATLAS; la creazione dell'account non attribuisce automaticamente il ruolo broker.",
+      "Il Partner può trattare esclusivamente richieste e risorse assegnate o condivise esplicitamente e deve rispettare riservatezza, protezione dei dati e obblighi professionali applicabili.",
+      "ATLAS può sospendere l'accesso Partner per motivi di sicurezza, conformità o uso improprio, preservando i dati storici soggetti a obblighi di conservazione.",
+      "Commissioni e attribuzioni economiche sono registrate secondo gli accordi applicabili e non costituiscono una promessa di volumi, lead o guadagni.",
+    ],
+  },
+  {
     title: "Fase di pilot",
     body: [
       "Il servizio è in pilot controllato: funzionalità e interfaccia possono cambiare.",
@@ -65,7 +75,7 @@ export default function TermsDraftPage() {
       </header>
 
       {sections.map((section) => (
-        <section key={section.title}>
+        <section key={section.title} id={"id" in section ? section.id : undefined}>
           <h2 className="text-[16px] font-semibold tracking-tight text-foreground">
             {section.title}
           </h2>

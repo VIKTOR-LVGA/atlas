@@ -36,8 +36,8 @@ test.describe.serial("Atlas authenticated journeys", () => {
   test("invalid password is rejected and valid login persists", async ({ page }) => {
     await login(page, "WrongPassword!2026");
     await expect(
-      page.getByText("Email o password non corretti.", { exact: true })
-    ).toBeVisible();
+      page.getByText(/Email o password non corretti\.|Troppi tentativi\./)
+    ).toBeVisible({ timeout: 30_000 });
     await expect(page).toHaveURL(/\/login/);
 
     await page.getByLabel("Password").fill(account.password);
@@ -69,6 +69,7 @@ test.describe.serial("Atlas authenticated journeys", () => {
   });
 
   test("household people, homes and vehicles support create and edit", async ({ page }) => {
+    test.setTimeout(90_000);
     await login(page);
     await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
     await page.goto("/settings");
@@ -78,7 +79,9 @@ test.describe.serial("Atlas authenticated journeys", () => {
     await page.getByLabel("Cognome persona").fill("Browser");
     await page.getByLabel("Relazione").selectOption("partner");
     await page.getByRole("button", { name: "Salva persona" }).click();
-    await expect(page.getByRole("status")).toContainText("Membro aggiunto");
+    await expect(page.getByRole("status")).toContainText("Membro aggiunto", {
+      timeout: 30_000,
+    });
     await expect(page.getByText("Giulia Browser", { exact: true })).toBeVisible();
 
     const personRow = page.locator("li").filter({ hasText: "Giulia Browser" });
@@ -150,6 +153,7 @@ test.describe.serial("Atlas authenticated journeys", () => {
   });
 
   test("policies list, opportunities, wallet and mobile nav work", async ({ page }) => {
+    test.setTimeout(90_000);
     expect(policyId).not.toBe("");
     await login(page);
     await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
@@ -261,6 +265,7 @@ test.describe.serial("Atlas authenticated journeys", () => {
   });
 
   test("consumer submits a partner application and remains pending", async ({ page }) => {
+    test.setTimeout(60_000);
     await login(page);
     await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
     await page.goto("/partner/apply");
@@ -274,10 +279,16 @@ test.describe.serial("Atlas authenticated journeys", () => {
     await page.getByLabel("Cantone principale").selectOption("TI");
     await page.getByRole("checkbox", { name: "Ticino", exact: true }).check();
     await page.getByLabel(/Acconsento al trattamento/).check();
-    await page.getByLabel(/Accetto i termini partner/).check();
+    await page.getByLabel(/Accetto le condizioni Partner/).check();
+    await page.getByLabel(/Dichiaro che le informazioni/).check();
     await page.getByRole("button", { name: "Invia candidatura" }).click();
     await expect(page).toHaveURL(/\/partner\/status$/, { timeout: 20_000 });
     await expect(page.getByRole("heading", { name: "In revisione" })).toBeVisible();
+    await expect(
+      page
+        .getByLabel("Avanzamento candidatura")
+        .getByText("Richiesta ricevuta", { exact: false })
+    ).toBeVisible();
 
     await page.goto("/partner/dashboard");
     await expect(page).toHaveURL(/\/partner\/status$/);

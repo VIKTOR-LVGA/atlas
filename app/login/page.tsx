@@ -39,12 +39,11 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const { error: authError } = await getSupabaseBrowserClient().auth.signInWithPassword(
-        {
+      const { data, error: authError } =
+        await getSupabaseBrowserClient().auth.signInWithPassword({
           email: email.trim(),
           password,
-        }
-      );
+        });
 
       if (authError) {
         setError(mapSupabaseAuthError(authError.message, "login"));
@@ -52,7 +51,14 @@ export default function LoginPage() {
       }
 
       const next = new URLSearchParams(window.location.search).get("next");
-      router.push(getSafeAuthRedirect(next));
+      const intent = data.user?.user_metadata?.registration_intent;
+      router.push(
+        next
+          ? getSafeAuthRedirect(next)
+          : intent === "partner"
+            ? "/partner/apply"
+            : "/dashboard"
+      );
       router.refresh();
     } catch {
       setError("Impossibile connettersi al servizio di autenticazione.");

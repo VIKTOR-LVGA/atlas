@@ -15,6 +15,7 @@ const nav = [
   { href: "/control-center/commissions", label: "Commissioni", icon: "revenue" as const },
   { href: "/control-center/analytics", label: "Analytics", icon: "analytics" as const },
   { href: "/control-center/audit", label: "Audit", icon: "audit" as const },
+  { href: "/control-center/profile", label: "Profilo", icon: "profile" as const },
 ];
 
 export default async function ControlCenterLayout({

@@ -16,8 +16,12 @@ import {
 } from "@/lib/auth-validation";
 import { cn } from "@/lib/utils";
 
+type RegistrationType = "consumer" | "partner";
+
 export default function RegisterPage() {
   const router = useRouter();
+  const [registrationType, setRegistrationType] =
+    useState<RegistrationType>("consumer");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -56,12 +60,16 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
+      const redirectPath =
+        registrationType === "partner" ? "/partner/apply" : "/dashboard";
       const { data, error: authError } = await getSupabaseBrowserClient().auth.signUp({
         email: email.trim(),
         password,
         options: {
+          emailRedirectTo: `${window.location.origin}${redirectPath}`,
           data: {
             full_name: fullName.trim(),
+            registration_intent: registrationType,
           },
         },
       });
@@ -72,13 +80,15 @@ export default function RegisterPage() {
       }
 
       if (data.session) {
-        router.push("/dashboard");
+        router.push(redirectPath);
         router.refresh();
         return;
       }
 
       setSuccess(
-        "Account creato. Controlla la tua email per confermare l'account, poi accedi."
+        registrationType === "partner"
+          ? "Account creato. Conferma l'email per completare la candidatura Partner."
+          : "Account creato. Controlla la tua email per confermare l'account, poi accedi."
       );
     } catch {
       setError("Impossibile connettersi al servizio di autenticazione.");
@@ -90,11 +100,72 @@ export default function RegisterPage() {
   return (
     <AuthLayout
       title="Crea account"
-      subtitle="Inizia ad analizzare le tue assicurazioni con Atlas."
+      subtitle="Scegli come vuoi utilizzare ATLAS."
     >
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         <AuthMessage variant="error" message={error} />
         <AuthMessage variant="success" message={success} />
+
+        <fieldset>
+          <legend className="text-[12px] font-semibold text-foreground">
+            Tipo di account
+          </legend>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            <label
+              className={cn(
+                "cursor-pointer rounded-xl border p-3 transition",
+                registrationType === "consumer"
+                  ? "border-accent bg-accent-soft"
+                  : "border-border bg-card-muted/40 hover:border-accent/50"
+              )}
+            >
+              <input
+                type="radio"
+                name="registration_type"
+                value="consumer"
+                checked={registrationType === "consumer"}
+                onChange={() => setRegistrationType("consumer")}
+                className="sr-only"
+              />
+              <span className="block text-[13px] font-semibold text-foreground">
+                Privato
+              </span>
+              <span className="mt-1 block text-[11px] leading-relaxed text-muted">
+                Gestisci tutte le tue assicurazioni con ATLAS.
+              </span>
+            </label>
+            <label
+              className={cn(
+                "cursor-pointer rounded-xl border p-3 transition",
+                registrationType === "partner"
+                  ? "border-accent bg-accent-soft"
+                  : "border-border bg-card-muted/40 hover:border-accent/50"
+              )}
+            >
+              <input
+                type="radio"
+                name="registration_type"
+                value="partner"
+                checked={registrationType === "partner"}
+                onChange={() => setRegistrationType("partner")}
+                className="sr-only"
+              />
+              <span className="block text-[13px] font-semibold text-foreground">
+                Partner / Broker
+              </span>
+              <span className="mt-1 block text-[11px] leading-relaxed text-muted">
+                Gestisci clienti, richieste e opportunità tramite ATLAS.
+              </span>
+            </label>
+          </div>
+          {registrationType === "partner" ? (
+            <p className="mt-2 text-[11px] leading-relaxed text-muted">
+              Dopo la creazione dell&apos;account compilerai la candidatura
+              professionale. Il Partner Portal si attiva solo dopo l&apos;approvazione
+              ATLAS.
+            </p>
+          ) : null}
+        </fieldset>
 
         <AuthFormField
           id="fullName"
@@ -157,7 +228,9 @@ export default function RegisterPage() {
               Creazione account...
             </span>
           ) : (
-            "Crea account"
+            registrationType === "partner"
+              ? "Crea account e continua"
+              : "Crea account"
           )}
         </button>
       </form>

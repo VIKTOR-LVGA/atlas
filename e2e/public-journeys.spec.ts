@@ -38,6 +38,11 @@ test.describe("Atlas public journeys", () => {
   test("registration validates empty and mismatched passwords", async ({ page }) => {
     await page.goto("/register");
     await waitForClientHydration(page);
+    await expect(page.getByText("Privato", { exact: true })).toBeVisible();
+    await expect(page.getByText("Partner / Broker", { exact: true })).toBeVisible();
+    await page.getByText("Partner / Broker", { exact: true }).click();
+    await expect(page.getByText(/Partner Portal si attiva solo/)).toBeVisible();
+    await page.getByText("Privato", { exact: true }).click();
     await page.getByRole("button", { name: "Crea account" }).click();
     await expect(page.getByText("Inserisci il tuo nome completo.")).toBeVisible();
     await expect(page.getByText("Inserisci la tua email.")).toBeVisible();

@@ -1,14 +1,10 @@
 import Link from "next/link";
-import {
-  reviewPartnerApplicationAction,
-  setBrokerActiveAction,
-} from "@/app/control-center/actions";
+import { setBrokerActiveAction } from "@/app/control-center/actions";
 import {
   OperationsHeader,
   OperationsPanel,
   formatDate,
   operationsButton,
-  operationsInput,
 } from "@/components/operations/OperationsUi";
 import { getAdminWorkspace } from "@/lib/admin-operations";
 import { listPartnerApplicationsForAdmin } from "@/lib/partner-applications";
@@ -44,7 +40,12 @@ export default async function ControlCenterPartnersPage() {
             {grouped.applications.map((app) => (
               <div key={String(app.id)} className="rounded-lg border border-border p-3 text-[12px]">
                 <p className="font-semibold">
-                  {String(app.first_name)} {String(app.last_name)}
+                  <Link
+                    href={`/control-center/partners/applications/${String(app.id)}`}
+                    className="text-accent hover:text-accent-hover"
+                  >
+                    {String(app.first_name)} {String(app.last_name)}
+                  </Link>
                   <span className="float-right text-accent">{String(app.status)}</span>
                 </p>
                 <p className="mt-1 text-[10px] text-muted">
@@ -52,26 +53,12 @@ export default async function ControlCenterPartnersPage() {
                   {formatDate(String(app.created_at))}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <form action={reviewPartnerApplicationAction}>
-                    <input type="hidden" name="application_id" value={String(app.id)} />
-                    <input type="hidden" name="decision" value="under_review" />
-                    <button className={operationsButton}>In revisione</button>
-                  </form>
-                  <form action={reviewPartnerApplicationAction}>
-                    <input type="hidden" name="application_id" value={String(app.id)} />
-                    <input type="hidden" name="decision" value="approve" />
-                    <button className={operationsButton}>Approva</button>
-                  </form>
-                  <form action={reviewPartnerApplicationAction} className="flex gap-2">
-                    <input type="hidden" name="application_id" value={String(app.id)} />
-                    <input type="hidden" name="decision" value="reject" />
-                    <input
-                      name="rejection_reason"
-                      placeholder="Motivo rifiuto"
-                      className={operationsInput}
-                    />
-                    <button className={operationsButton}>Rifiuta</button>
-                  </form>
+                  <Link
+                    href={`/control-center/partners/applications/${String(app.id)}`}
+                    className={operationsButton}
+                  >
+                    Apri candidatura
+                  </Link>
                 </div>
               </div>
             ))}

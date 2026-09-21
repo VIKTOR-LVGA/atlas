@@ -16,7 +16,12 @@ export type PartnerApplicationStatus =
   | "rejected"
   | "suspended";
 
-export type PartnerType = "independent_broker" | "agency" | "general_agent" | "other";
+export type PartnerType =
+  | "independent_broker"
+  | "brokerage_company"
+  | "agency"
+  | "general_agent"
+  | "other";
 
 export type PartnerApplicationInput = {
   firstName: string;
@@ -35,6 +40,7 @@ export type PartnerApplicationInput = {
   message?: string;
   consent: boolean;
   termsAccepted: boolean;
+  accuracyDeclared: boolean;
 };
 
 export type PartnerApplicationPublic = {
@@ -100,8 +106,10 @@ export async function submitPartnerApplication(input: PartnerApplicationInput) {
   if (identity.role !== "consumer") {
     throw new OperationsInputError("Solo un account consumer può candidarsi come partner.");
   }
-  if (!input.consent || !input.termsAccepted) {
-    throw new OperationsInputError("Consenso e termini partner sono obbligatori.");
+  if (!input.consent || !input.termsAccepted || !input.accuracyDeclared) {
+    throw new OperationsInputError(
+      "Consenso, termini Partner e dichiarazione di correttezza sono obbligatori."
+    );
   }
   if (!input.firstName.trim() || !input.lastName.trim()) {
     throw new OperationsInputError("Nome e cognome sono obbligatori.");
@@ -131,6 +139,7 @@ export async function submitPartnerApplication(input: PartnerApplicationInput) {
     message: input.message?.trim().slice(0, 4000) || null,
     consent_given_at: new Date().toISOString(),
     terms_accepted_at: new Date().toISOString(),
+    accuracy_declared_at: new Date().toISOString(),
     status: "submitted" as const,
   };
 
@@ -188,6 +197,44 @@ export async function listPartnerApplicationsForAdmin() {
     throw new Error("Candidature non disponibili.");
   }
   return data ?? [];
+}
+
+export async function getPartnerApplicationForAdmin(applicationId: string) {
+  const { supabase } = await requireOperationsRole(["admin"]);
+  const { data: application, error } = await supabase
+    .from("partner_applications")
+    .select("*")
+    .eq("id", applicationId)
+    .maybeSingle();
+  if (error) throw new Error("Candidatura non disponibile.");
+  if (!application) return null;
+
+  const [{ data: review }, { data: profile }, { data: audit }] = await Promise.all([
+    supabase
+      .from("partner_application_reviews")
+      .select("admin_notes, reviewed_at, reviewed_by, updated_at")
+      .eq("application_id", applicationId)
+      .maybeSingle(),
+    supabase
+      .from("profiles")
+      .select("created_at")
+      .eq("id", application.user_id)
+      .maybeSingle(),
+    supabase
+      .from("platform_audit_log")
+      .select("id, event_type, actor_id, actor_role, created_at")
+      .eq("target_type", "partner_application")
+      .eq("target_id", applicationId)
+      .order("created_at", { ascending: false })
+      .limit(50),
+  ]);
+
+  return {
+    application,
+    review: review ?? null,
+    accountCreatedAt: profile?.created_at ?? null,
+    audit: audit ?? [],
+  };
 }
 
 export async function reviewPartnerApplication(input: {

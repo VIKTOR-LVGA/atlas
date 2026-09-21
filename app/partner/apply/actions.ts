@@ -20,6 +20,7 @@ export async function submitPartnerApplicationAction(
   try {
     const consent = formData.get("consent") === "on";
     const termsAccepted = formData.get("terms") === "on";
+    const accuracyDeclared = formData.get("accuracy_declared") === "on";
     const served = formData.getAll("served_cantons").map(String);
     const languages = formData.getAll("languages").map(String);
     await submitPartnerApplication({
@@ -42,6 +43,7 @@ export async function submitPartnerApplicationAction(
       message: String(formData.get("message") ?? ""),
       consent,
       termsAccepted,
+      accuracyDeclared,
     });
     revalidatePath("/partner/status");
     redirect("/partner/status");

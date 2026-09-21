@@ -86,6 +86,7 @@ export function PartnerApplyForm({
             className={operationsInput}
           >
             <option value="independent_broker">Broker indipendente</option>
+            <option value="brokerage_company">Società di brokeraggio</option>
             <option value="agency">Agenzia</option>
             <option value="general_agent">Agente generale</option>
             <option value="other">Altro</option>
@@ -168,7 +169,15 @@ export function PartnerApplyForm({
       </label>
       <label className="flex items-start gap-2 text-[11px] leading-relaxed text-muted">
         <input required name="terms" type="checkbox" className="mt-0.5" />
-        Accetto i termini partner ATLAS (bozza operativa per il pilot).
+        Accetto le{" "}
+        <Link href="/terms#partner" className="font-medium text-accent hover:text-accent-hover">
+          condizioni Partner ATLAS
+        </Link>
+        .
+      </label>
+      <label className="flex items-start gap-2 text-[11px] leading-relaxed text-muted">
+        <input required name="accuracy_declared" type="checkbox" className="mt-0.5" />
+        Dichiaro che le informazioni professionali fornite sono corrette e aggiornate.
       </label>
 
       {state.status === "error" ? (

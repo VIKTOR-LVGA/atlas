@@ -286,6 +286,7 @@ test.describe("control center", () => {
       ["/control-center/commissions", "Commissioni"],
       ["/control-center/analytics", "Growth · Engagement · Revenue · Geography"],
       ["/control-center/audit", "Audit log"],
+      ["/control-center/profile", "Profilo Administrator"],
     ] as const;
     for (const [route, heading] of modules) {
       await page.goto(route);
