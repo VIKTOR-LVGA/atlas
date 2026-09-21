@@ -20,7 +20,8 @@ async function login(page: Page, password = account.password) {
 
 test.describe.serial("Atlas authenticated journeys", () => {
   test("register creates a live session and opens the dashboard", async ({ page }) => {
-    await page.goto("/register");
+    await page.goto("/register", { waitUntil: "domcontentloaded" });
+    await page.waitForTimeout(500);
     await page.getByLabel("Nome completo").fill(account.fullName);
     await page.getByLabel("Email").fill(account.email);
     await page.getByLabel("Password", { exact: true }).fill(account.password);

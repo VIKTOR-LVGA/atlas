@@ -52,7 +52,7 @@ test.describe("operations access boundaries", () => {
 
   test("consumer legacy /broker denied", async ({ page }) => {
     await login(page, "consumer");
-    await page.goto("/broker");
+    await page.goto("/broker", { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/dashboard$/);
   });
 });
@@ -262,7 +262,10 @@ test.describe("control center", () => {
     await expect(page).toHaveURL(/\/settings/);
     await page.getByRole("button", { name: "Menu account" }).click();
     await expect(page.getByRole("menuitem", { name: "Control Center" })).toBeVisible();
-    await page.getByRole("menuitem", { name: "Control Center" }).click();
+    await Promise.all([
+      page.waitForURL(/\/control-center/, { waitUntil: "domcontentloaded" }),
+      page.getByRole("menuitem", { name: "Control Center" }).click({ noWaitAfter: true }),
+    ]);
     await expect(page).toHaveURL(/\/control-center/);
   });
 
