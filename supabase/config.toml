@@ -9,6 +9,8 @@ additional_redirect_urls = [
   "https://atlas-liard-three.vercel.app/login",
   "https://atlas-liard-three.vercel.app/register",
   "https://atlas-liard-three.vercel.app/reset-password",
+  "https://atlas-liard-three.vercel.app/dashboard",
+  "https://atlas-liard-three.vercel.app/partner/apply",
   "http://localhost:3000/**",
   "http://localhost:3001/**",
   "http://127.0.0.1:3000/**",
