@@ -185,7 +185,7 @@ test.describe("broker A partner portal", () => {
     await expect(page.getByText("Revenue ATLAS", { exact: true })).toHaveCount(0);
 
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.reload();
+    await page.reload({ waitUntil: "domcontentloaded" });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
   });
 });

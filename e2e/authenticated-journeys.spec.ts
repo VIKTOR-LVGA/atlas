@@ -44,7 +44,7 @@ test.describe.serial("Atlas authenticated journeys", () => {
     await page.getByRole("button", { name: "Accedi" }).click();
     await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
 
-    await page.reload();
+    await page.reload({ waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/dashboard$/);
     await page.goto("/settings");
     await expect(page).toHaveURL(/\/settings$/);
@@ -63,7 +63,7 @@ test.describe.serial("Atlas authenticated journeys", () => {
       timeout: 20_000,
     });
 
-    await page.reload();
+    await page.reload({ waitUntil: "domcontentloaded" });
     await expect(page.getByLabel("Nome completo")).toHaveValue(updatedName);
     await expect(page.getByLabel("Telefono")).toHaveValue("+41 79 000 00 00");
   });
@@ -104,7 +104,7 @@ test.describe.serial("Atlas authenticated journeys", () => {
     await page.getByRole("button", { name: "Salva veicolo" }).click();
     await expect(page.getByText("Auto Browser", { exact: true })).toBeVisible();
 
-    await page.reload();
+    await page.reload({ waitUntil: "domcontentloaded" });
     await expect(page.getByText("Giulia Browser Updated", { exact: true })).toBeVisible();
     await expect(page.getByText("Casa Browser", { exact: true })).toBeVisible();
     await expect(page.getByText("Auto Browser", { exact: true })).toBeVisible();
@@ -198,7 +198,7 @@ test.describe.serial("Atlas authenticated journeys", () => {
     await expect(page.getByTestId("consultation-confirmation")).toContainText(
       "Richiesta ricevuta"
     );
-    await page.reload();
+    await page.reload({ waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("consultation-confirmation")).toContainText(
       "Richiesta ricevuta"
     );
