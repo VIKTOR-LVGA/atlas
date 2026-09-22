@@ -4,14 +4,14 @@ import { getOperationsIdentity } from "@/lib/operations-access";
 import { getCurrentPartnerApplication } from "@/lib/partner-applications";
 import { SWISS_CANTON_CODES, CANTON_LABELS } from "@/lib/swiss-cantons";
 
-export const metadata = { title: "Candidatura partner | ATLAS" };
+export const metadata = { title: "Candidatura broker | ATLAS" };
 
 export default async function PartnerApplyPage() {
   const identity = await getOperationsIdentity();
   if (!identity.user) {
     redirect("/login?next=%2Fpartner%2Fapply");
   }
-  if (identity.role === "broker") redirect("/partner/dashboard");
+  if (identity.role === "broker") redirect("/broker/dashboard");
   if (identity.role === "admin") redirect("/control-center");
 
   const existing = await getCurrentPartnerApplication();
@@ -28,14 +28,14 @@ export default async function PartnerApplyPage() {
     <div className="min-h-screen bg-background px-4 py-10 sm:px-6">
       <div className="mx-auto max-w-3xl">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">
-          Candidatura partner
+          Candidatura broker
         </p>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
-          Richiedi l&apos;accesso al Partner Portal
+          Richiedi l&apos;accesso al Broker Workspace
         </h1>
         <p className="mt-2 text-[13px] leading-relaxed text-muted">
           Compila i dati professionali. La candidatura viene esaminata da ATLAS: non viene
-          approvata automaticamente.
+          approvata automaticamente. L&apos;accesso Intelligence B2B è un percorso separato.
         </p>
         {existing?.status === "rejected" ? (
           <p className="mt-4 rounded-lg border border-[var(--warning-border)] bg-[var(--warning-bg)] px-3 py-2 text-[12px] text-[var(--warning-text)]">

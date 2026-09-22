@@ -36,7 +36,7 @@ test("partner self-service registration, approval, activation and suspension", a
   test.setTimeout(180_000);
 
   await page.goto("/register");
-  await page.getByText("Partner / Broker", { exact: true }).click();
+  await page.getByText("Broker assicurativo", { exact: true }).click();
   await page.getByLabel("Nome completo").fill(partner.fullName);
   await page.getByLabel("Email").fill(partner.email);
   await page.getByLabel("Password", { exact: true }).fill(partner.password);

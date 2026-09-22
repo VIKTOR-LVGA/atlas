@@ -52,10 +52,11 @@ export default function LoginPage() {
 
       const next = new URLSearchParams(window.location.search).get("next");
       const intent = data.user?.user_metadata?.registration_intent;
+      const brokerIntent = intent === "broker" || intent === "partner";
       router.push(
         next
           ? getSafeAuthRedirect(next)
-          : intent === "partner"
+          : brokerIntent
             ? "/partner/apply"
             : "/dashboard"
       );

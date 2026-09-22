@@ -4,7 +4,7 @@ import { getOperationsIdentity } from "@/lib/operations-access";
 import { getCurrentPartnerApplication } from "@/lib/partner-applications";
 import { cantonLabel } from "@/lib/swiss-cantons";
 
-export const metadata = { title: "Stato candidatura | ATLAS" };
+export const metadata = { title: "Stato candidatura broker | ATLAS" };
 
 const copy: Record<
   string,
@@ -12,7 +12,7 @@ const copy: Record<
 > = {
   submitted: {
     title: "In revisione",
-    body: "La candidatura è stata ricevuta. Il team ATLAS la esaminerà prima di attivare l'accesso partner.",
+    body: "La candidatura è stata ricevuta. Il team ATLAS la esaminerà prima di attivare il Broker Workspace.",
     tone: "text-accent",
   },
   under_review: {
@@ -22,7 +22,7 @@ const copy: Record<
   },
   approved: {
     title: "Approvata",
-    body: "Il tuo profilo partner è attivo. Puoi aprire il Partner Portal.",
+    body: "Il tuo account broker è attivo. Puoi aprire il Broker Workspace.",
     tone: "text-[var(--success-text)]",
   },
   rejected: {
@@ -32,7 +32,7 @@ const copy: Record<
   },
   suspended: {
     title: "Sospesa",
-    body: "L'accesso partner è temporaneamente sospeso. Contatta il referente ATLAS.",
+    body: "L'accesso broker è temporaneamente sospeso. Contatta il referente ATLAS.",
     tone: "text-[var(--warning-text)]",
   },
   draft: {
@@ -45,7 +45,7 @@ const copy: Record<
 export default async function PartnerStatusPage() {
   const identity = await getOperationsIdentity();
   if (!identity.user) redirect("/login?next=%2Fpartner%2Fstatus");
-  if (identity.role === "broker") redirect("/partner/dashboard");
+  if (identity.role === "broker") redirect("/broker/dashboard");
   if (identity.role === "admin") redirect("/control-center");
 
   const application = await getCurrentPartnerApplication();
@@ -63,7 +63,7 @@ export default async function PartnerStatusPage() {
     <div className="min-h-screen bg-background px-4 py-10 sm:px-6">
       <div className="mx-auto max-w-2xl rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)] sm:p-8">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">
-          Candidatura partner
+          Candidatura broker
         </p>
         <h1 className={`mt-3 text-2xl font-semibold tracking-tight ${view.tone}`}>
           {view.title}
@@ -74,7 +74,7 @@ export default async function PartnerStatusPage() {
             ["Account creato", true],
             ["Richiesta ricevuta", application.status !== "draft"],
             ["Verifica ATLAS", reviewActive],
-            ["Attivazione Partner", activationComplete],
+            ["Attivazione Broker", activationComplete],
           ].map(([label, complete], index) => (
             <div
               key={String(label)}
@@ -125,8 +125,8 @@ export default async function PartnerStatusPage() {
         </p>
         <div className="mt-6 flex flex-col gap-2 sm:flex-row">
           {application.status === "approved" ? (
-            <Link href="/partner/dashboard" className="atlas-btn-primary px-4 py-2.5 text-[13px]">
-              Apri Partner Portal
+            <Link href="/broker/dashboard" className="atlas-btn-primary px-4 py-2.5 text-[13px]">
+              Apri Broker Workspace
             </Link>
           ) : null}
           {["draft", "rejected"].includes(application.status) ? (

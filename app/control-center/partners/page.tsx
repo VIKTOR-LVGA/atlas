@@ -68,7 +68,7 @@ export default async function ControlCenterPartnersPage() {
                   Nessuna candidatura Partner
                 </p>
                 <p className="mt-1.5 text-[11px] leading-relaxed text-muted">
-                  Le nuove richieste da Privato → Partner / Broker compariranno qui per
+                  Le nuove richieste da Privato → Broker compariranno qui per
                   revisione e approvazione.
                 </p>
               </div>

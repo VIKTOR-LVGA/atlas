@@ -184,7 +184,7 @@ export function PartnerShell({
                 onFocus={() => setOpen(true)}
                 placeholder="Cerca cliente, richiesta, contratto…"
                 className="w-full rounded-xl border border-border bg-card py-2.5 pl-10 pr-16 text-[13px] outline-none ring-accent/30 focus:ring-2"
-                aria-label="Cerca nel Partner Portal"
+                aria-label="Cerca nel Broker Workspace"
               />
               <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded border border-border px-1.5 py-0.5 text-[10px] text-muted sm:inline">
                 ⌘K

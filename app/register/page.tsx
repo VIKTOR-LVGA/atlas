@@ -16,7 +16,8 @@ import {
 } from "@/lib/auth-validation";
 import { cn } from "@/lib/utils";
 
-type RegistrationType = "consumer" | "partner";
+/** Account type on public registration. Intelligence partners use a separate CTA. */
+type RegistrationType = "consumer" | "broker";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -60,8 +61,10 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const redirectPath =
-        registrationType === "partner" ? "/partner/apply" : "/dashboard";
+      // Keep legacy metadata value "partner" for older clients that still read it,
+      // and also set "broker" so new login routing can prefer the broker intent.
+      const isBroker = registrationType === "broker";
+      const redirectPath = isBroker ? "/partner/apply" : "/dashboard";
       const { data, error: authError } = await getSupabaseBrowserClient().auth.signUp({
         email: email.trim(),
         password,
@@ -69,7 +72,7 @@ export default function RegisterPage() {
           emailRedirectTo: `${window.location.origin}${redirectPath}`,
           data: {
             full_name: fullName.trim(),
-            registration_intent: registrationType,
+            registration_intent: isBroker ? "broker" : "consumer",
           },
         },
       });
@@ -86,8 +89,8 @@ export default function RegisterPage() {
       }
 
       setSuccess(
-        registrationType === "partner"
-          ? "Account creato. Conferma l'email per completare la candidatura Partner."
+        isBroker
+          ? "Account creato. Conferma l'email per completare la candidatura broker."
           : "Account creato. Controlla la tua email per confermare l'account, poi accedi."
       );
     } catch {
@@ -131,13 +134,13 @@ export default function RegisterPage() {
                 Privato
               </span>
               <span className="mt-1 block text-[11px] leading-relaxed text-muted">
-                Gestisci tutte le tue assicurazioni con ATLAS.
+                Gestisci le tue assicurazioni con ATLAS.
               </span>
             </label>
             <label
               className={cn(
                 "cursor-pointer rounded-xl border p-3 transition",
-                registrationType === "partner"
+                registrationType === "broker"
                   ? "border-accent bg-accent-soft"
                   : "border-border bg-card-muted/40 hover:border-accent/50"
               )}
@@ -145,24 +148,24 @@ export default function RegisterPage() {
               <input
                 type="radio"
                 name="registration_type"
-                value="partner"
-                checked={registrationType === "partner"}
-                onChange={() => setRegistrationType("partner")}
+                value="broker"
+                checked={registrationType === "broker"}
+                onChange={() => setRegistrationType("broker")}
                 className="sr-only"
               />
               <span className="block text-[13px] font-semibold text-foreground">
-                Partner / Broker
+                Broker assicurativo
               </span>
               <span className="mt-1 block text-[11px] leading-relaxed text-muted">
-                Gestisci clienti, richieste e opportunità tramite ATLAS.
+                Ricevi e gestisci le richieste di revisione assegnate da ATLAS.
               </span>
             </label>
           </div>
-          {registrationType === "partner" ? (
+          {registrationType === "broker" ? (
             <p className="mt-2 text-[11px] leading-relaxed text-muted">
-              Dopo la creazione dell&apos;account compilerai la candidatura
-              professionale. Il Partner Portal si attiva solo dopo l&apos;approvazione
-              ATLAS.
+              Dopo la creazione dell&apos;account potrai completare la candidatura
+              professionale. Il Broker Workspace sarà disponibile dopo
+              l&apos;approvazione di ATLAS.
             </p>
           ) : null}
         </fieldset>
@@ -227,13 +230,25 @@ export default function RegisterPage() {
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
               Creazione account...
             </span>
+          ) : registrationType === "broker" ? (
+            "Crea account e continua"
           ) : (
-            registrationType === "partner"
-              ? "Crea account e continua"
-              : "Crea account"
+            "Crea account"
           )}
         </button>
       </form>
+
+      <div className="mt-6 rounded-xl border border-dashed border-border bg-card-muted/30 px-4 py-3 text-center">
+        <p className="text-[12px] text-muted">
+          Rappresenti una compagnia assicurativa o un partner B2B?
+        </p>
+        <Link
+          href="/intelligence"
+          className="mt-1.5 inline-block text-[13px] font-medium text-accent hover:text-accent-hover"
+        >
+          Richiedi accesso ad ATLAS Intelligence
+        </Link>
+      </div>
 
       <p className="mt-5 text-center text-[12px] leading-relaxed text-muted">
         Creando un account accetti i{" "}

@@ -81,7 +81,7 @@ test.describe("broker A partner portal", () => {
 
   test("partner navigation does not mix consumer modules", async ({ page }) => {
     await page.goto("/partner/dashboard");
-    await expect(page.getByRole("navigation", { name: "Partner Portal navigation" })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Broker workspace navigation" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Documenti" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Raccomandazioni" })).toHaveCount(0);
   });

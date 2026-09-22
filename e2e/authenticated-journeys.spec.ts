@@ -272,7 +272,7 @@ test.describe.serial("Atlas authenticated journeys", () => {
     await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
     await page.goto("/partner/apply");
     await expect(
-      page.getByRole("heading", { name: "Richiedi l'accesso al Partner Portal" })
+      page.getByRole("heading", { name: "Richiedi l'accesso al Broker Workspace" })
     ).toBeVisible();
     await page.getByLabel("Nome", { exact: true }).fill("Atlas");
     await page.getByLabel("Cognome", { exact: true }).fill("Browser");
