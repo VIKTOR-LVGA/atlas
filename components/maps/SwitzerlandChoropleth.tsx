@@ -77,6 +77,8 @@ export function SwitzerlandChoropleth({
   onMetricChange,
   metrics,
   showAtlasShare = false,
+  showRanking = false,
+  emptyHint,
 }: {
   data: MapDatum[];
   metric: MapMetricKey;
@@ -84,6 +86,8 @@ export function SwitzerlandChoropleth({
   metrics: MapMetricKey[];
   onMetricChange?: (metric: MapMetricKey) => void;
   showAtlasShare?: boolean;
+  showRanking?: boolean;
+  emptyHint?: string;
 }) {
   const [geo, setGeo] = useState<CantonGeo | null>(null);
   const [selected, setSelected] = useState<SwissCantonCode | null>(null);
@@ -125,14 +129,25 @@ export function SwitzerlandChoropleth({
   const active = activeCode ? byCanton.get(activeCode) : null;
   const unknown = byCanton.get("UNKNOWN");
   const unknownCount = (unknown?.leads ?? 0) + (unknown?.clients ?? 0);
+  const ranking = useMemo(() => {
+    return SWISS_CANTON_CODES.map((code) => ({
+      code,
+      value: valueOf(byCanton.get(code), activeMetric),
+    }))
+      .filter((row) => row.value > 0)
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 8);
+  }, [activeMetric, byCanton]);
 
   return (
-    <section className="rounded-xl border border-border bg-card p-4 shadow-[var(--shadow-card)]">
+    <section className="rounded-xl border border-border bg-card p-4 shadow-[var(--shadow-card)] sm:p-5">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-[13px] font-semibold text-foreground">{title}</h2>
           <p className="mt-1 text-[11px] text-muted">
-            Confini cantonali reali · solo aggregazioni · nessun indirizzo individuale
+            {max <= 0 && emptyHint
+              ? emptyHint
+              : "Confini cantonali reali · solo aggregazioni · nessun indirizzo individuale"}
           </p>
         </div>
         {metrics.length > 1 ? (
@@ -313,6 +328,29 @@ export function SwitzerlandChoropleth({
           </div>
         </div>
       </div>
+
+      {showRanking && ranking.length > 0 ? (
+        <div className="mt-5 border-t border-border pt-4">
+          <h3 className="text-[12px] font-semibold">Cantoni principali</h3>
+          <ol className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+            {ranking.map((row, index) => (
+              <li
+                key={row.code}
+                className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-[12px]"
+              >
+                <span className="text-muted">
+                  {index + 1}. {cantonLabel(row.code)}
+                </span>
+                <span className="font-semibold tabular-nums">
+                  {isMoneyMetric(activeMetric)
+                    ? formatChfMoney(row.value)
+                    : row.value}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      ) : null}
     </section>
   );
 }

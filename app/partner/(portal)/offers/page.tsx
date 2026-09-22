@@ -1,28 +1,36 @@
 import Link from "next/link";
+import { ScrollText } from "lucide-react";
 import {
   OperationsHeader,
   OperationsPanel,
   formatChf,
   formatDate,
 } from "@/components/operations/OperationsUi";
-import { requireOperationsRole } from "@/lib/operations-access";
+import { PartnerBadge, PartnerEmptyState } from "@/components/partner/PartnerEmptyState";
+import { getBrokerWorkspace } from "@/lib/broker-operations";
 import { offerStatusLabel } from "@/lib/operations-labels";
 
 export const metadata = { title: "Offerte | Partner" };
 
-export default async function PartnerOffersPage() {
-  const { supabase, broker } = await requireOperationsRole(["broker"]);
-  if (!broker) throw new Error("Profilo broker mancante.");
+const FILTERS = [
+  ["all", "Tutte"],
+  ["draft", "Bozza"],
+  ["proposed", "Inviate"],
+  ["accepted", "Accettate"],
+  ["rejected", "Rifiutate"],
+  ["expired", "Scadute"],
+] as const;
 
-  const { data, error } = await supabase
-    .from("insurance_offers")
-    .select(
-      "id, consultation_request_id, insurer, product, policy_category, premium_amount, status, created_at"
-    )
-    .eq("broker_id", broker.id)
-    .order("created_at", { ascending: false })
-    .limit(200);
-  if (error) throw new Error("Offerte non disponibili.");
+export default async function PartnerOffersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
+  const params = await searchParams;
+  const status = params.status ?? "all";
+  const { offers } = await getBrokerWorkspace();
+  const filtered =
+    status === "all" ? offers : offers.filter((row) => String(row.status) === status);
 
   return (
     <>
@@ -31,15 +39,37 @@ export default async function PartnerOffersPage() {
         title="Offerte"
         description="Offerte emesse sui tuoi lead. Nessuna quota ATLAS esposta qui."
       />
-      <OperationsPanel title={`${data?.length ?? 0} offerte`}>
-        {!data?.length ? (
-          <p className="text-[12px] text-muted">Nessuna offerta ancora.</p>
+
+      <div className="mb-4 flex flex-wrap gap-2 text-[12px]">
+        {FILTERS.map(([value, label]) => (
+          <Link
+            key={value}
+            href={value === "all" ? "/partner/offers" : `/partner/offers?status=${value}`}
+            className={`rounded-lg border px-3 py-1.5 ${
+              status === value
+                ? "border-accent bg-accent-soft text-accent"
+                : "border-border text-muted"
+            }`}
+          >
+            {label}
+          </Link>
+        ))}
+      </div>
+
+      <OperationsPanel title={`${filtered.length} offerte`}>
+        {!filtered.length ? (
+          <PartnerEmptyState
+            icon={ScrollText}
+            title="Nessuna offerta"
+            description="Crea la prima offerta dal dettaglio di una richiesta."
+            action={{ href: "/partner/leads", label: "Vai alle richieste" }}
+          />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[680px] text-left text-[12px]">
+            <table className="w-full min-w-[720px] text-left text-[12px]">
               <thead className="text-[10px] uppercase text-muted">
                 <tr>
-                  <th className="pb-2">Prodotto</th>
+                  <th className="pb-2">Cliente / prodotto</th>
                   <th className="pb-2">Categoria</th>
                   <th className="pb-2">Premio</th>
                   <th className="pb-2">Stato</th>
@@ -47,20 +77,26 @@ export default async function PartnerOffersPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {data.map((row) => (
-                  <tr key={row.id}>
+                {filtered.map((row) => (
+                  <tr key={String(row.id)}>
                     <td className="py-2">
                       <Link
                         href={`/partner/leads/${row.consultation_request_id}`}
                         className="font-semibold text-accent"
                       >
-                        {row.insurer} · {row.product}
+                        {row.clientName ?? "Cliente"} · {row.insurer} · {row.product}
                       </Link>
                     </td>
                     <td>{row.policy_category}</td>
-                    <td>{row.premium_amount != null ? formatChf(row.premium_amount) : "—"}</td>
-                    <td>{offerStatusLabel(row.status)}</td>
-                    <td>{formatDate(row.created_at)}</td>
+                    <td>
+                      {row.premium_amount != null ? formatChf(row.premium_amount) : "—"}
+                    </td>
+                    <td>
+                      <PartnerBadge tone="accent">
+                        {offerStatusLabel(String(row.status))}
+                      </PartnerBadge>
+                    </td>
+                    <td>{formatDate(String(row.created_at))}</td>
                   </tr>
                 ))}
               </tbody>

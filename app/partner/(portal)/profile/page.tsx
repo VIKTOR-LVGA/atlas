@@ -1,15 +1,23 @@
 import {
   OperationsHeader,
   OperationsPanel,
+  formatDate,
 } from "@/components/operations/OperationsUi";
+import { PartnerBadge } from "@/components/partner/PartnerEmptyState";
 import { requireOperationsRole } from "@/lib/operations-access";
 import { cantonLabel } from "@/lib/swiss-cantons";
 
 export const metadata = { title: "Profilo | Partner" };
 
 export default async function PartnerProfilePage() {
-  const { broker } = await requireOperationsRole(["broker"]);
+  const { broker, supabase } = await requireOperationsRole(["broker"]);
   if (!broker) throw new Error("Profilo broker mancante.");
+
+  const { data: brokerRow } = await supabase
+    .from("brokers")
+    .select("created_at, phone, active")
+    .eq("id", broker.id)
+    .maybeSingle();
 
   return (
     <>
@@ -18,6 +26,14 @@ export default async function PartnerProfilePage() {
         title={broker.displayName}
         description="I campi di stato e ruolo non sono modificabili dal partner. Contatta ATLAS per variazioni strutturali."
       />
+      <div className="mb-5 flex flex-wrap items-center gap-2">
+        <PartnerBadge tone={broker.active ? "success" : "danger"}>
+          {broker.active ? "Attivo" : "Sospeso"}
+        </PartnerBadge>
+        {broker.partnerType ? (
+          <PartnerBadge tone="neutral">{broker.partnerType}</PartnerBadge>
+        ) : null}
+      </div>
       <div className="grid gap-5 xl:grid-cols-2">
         <OperationsPanel title="Identità">
           <dl className="grid gap-3 text-[12px]">
@@ -34,16 +50,22 @@ export default async function PartnerProfilePage() {
               <dd>{broker.email ?? "—"}</dd>
             </div>
             <div>
+              <dt className="text-muted">Telefono</dt>
+              <dd>{brokerRow?.phone ? String(brokerRow.phone) : "—"}</dd>
+            </div>
+            <div>
               <dt className="text-muted">Sito</dt>
               <dd>{broker.website ?? "—"}</dd>
             </div>
             <div>
-              <dt className="text-muted">Tipo partner</dt>
-              <dd>{broker.partnerType ?? "—"}</dd>
-            </div>
-            <div>
               <dt className="text-muted">ID professionale</dt>
               <dd>{broker.professionalId ?? "—"}</dd>
+            </div>
+            <div>
+              <dt className="text-muted">Attivazione</dt>
+              <dd>
+                {brokerRow?.created_at ? formatDate(String(brokerRow.created_at)) : "—"}
+              </dd>
             </div>
           </dl>
         </OperationsPanel>
@@ -70,12 +92,10 @@ export default async function PartnerProfilePage() {
               </dd>
             </div>
             <div>
-              <dt className="text-muted">Stato account</dt>
-              <dd className="font-medium">{broker.active ? "Attivo" : "Sospeso"}</dd>
-            </div>
-            <div>
               <dt className="text-muted">Note professionali</dt>
-              <dd className="whitespace-pre-wrap">{broker.experienceNotes ?? "—"}</dd>
+              <dd className="whitespace-pre-wrap">
+                {broker.experienceNotes ?? "—"}
+              </dd>
             </div>
           </dl>
         </OperationsPanel>

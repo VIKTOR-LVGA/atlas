@@ -9,7 +9,6 @@ import { SimpleBarChart, SimpleFunnel, SimpleLineChart } from "@/components/char
 import { SwitzerlandChoropleth } from "@/components/maps/SwitzerlandChoropleth";
 import { getBrokerWorkspace } from "@/lib/broker-operations";
 import { getCantonAggregates } from "@/lib/partner-applications";
-import { requireOperationsRole } from "@/lib/operations-access";
 import { pct } from "@/lib/analytics-period";
 
 export const metadata = { title: "Analytics | Partner" };
@@ -21,25 +20,21 @@ export default async function PartnerAnalyticsPage({
 }) {
   const params = await searchParams;
   const range = params.range ?? "12m";
-  const [{ supabase, broker }, workspace, cantons] = await Promise.all([
-    requireOperationsRole(["broker"]),
+  const [workspace, cantons] = await Promise.all([
     getBrokerWorkspace(),
     getCantonAggregates("partner").catch(() => []),
   ]);
-  if (!broker) throw new Error("Profilo broker mancante.");
-
-  const { data: offers } = await supabase
-    .from("insurance_offers")
-    .select("id, policy_category, insurer, status, created_at")
-    .eq("broker_id", broker.id);
-  const { data: ledger } = await supabase.rpc("get_broker_commission_ledger");
 
   const completed =
     (workspace.pipeline.won ?? 0) + (workspace.pipeline.completed ?? 0);
   const decided = completed + (workspace.pipeline.lost ?? 0);
+  const avgPerContract =
+    workspace.contracts.length > 0
+      ? workspace.revenue.netBrokerRevenue / workspace.contracts.length
+      : 0;
 
   const funnel = [
-    { id: "assigned", label: "Lead assegnati", count: workspace.leads.length },
+    { id: "assigned", label: "Assegnati", count: workspace.leads.length },
     {
       id: "contacted",
       label: "Contattati+",
@@ -50,26 +45,30 @@ export default async function PartnerAnalyticsPage({
           (workspace.pipeline.submitted ?? 0)
       ),
     },
-    { id: "appointments", label: "Appuntamenti", count: workspace.appointmentCount },
-    { id: "offers", label: "Offerte", count: (offers ?? []).length },
-    { id: "contracts", label: "Contratti", count: workspace.contracts.length },
+    {
+      id: "appointments",
+      label: "Appuntamento",
+      count: workspace.appointmentCount,
+    },
+    { id: "offers", label: "Offerta", count: workspace.offers.length },
+    { id: "contracts", label: "Vinti", count: workspace.contracts.length },
   ];
 
-  const byCategory = (offers ?? []).reduce<
-    Record<string, { offers: number; contracts: number }>
+  const byCategory = workspace.offers.reduce<
+    Record<string, { offers: number; contracts: number; revenue: number }>
   >((acc, offer) => {
     const key = String(offer.policy_category ?? "Altro");
-    acc[key] ??= { offers: 0, contracts: 0 };
+    acc[key] ??= { offers: 0, contracts: 0, revenue: 0 };
     acc[key].offers += 1;
     return acc;
   }, {});
   for (const contract of workspace.contracts) {
     const key = String(contract.category ?? "Altro");
-    byCategory[key] ??= { offers: 0, contracts: 0 };
+    byCategory[key] ??= { offers: 0, contracts: 0, revenue: 0 };
     byCategory[key].contracts += 1;
   }
 
-  const byInsurer = (offers ?? []).reduce<
+  const byInsurer = workspace.offers.reduce<
     Record<string, { offers: number; contracts: number }>
   >((acc, offer) => {
     const key = String(offer.insurer ?? "Altro");
@@ -87,12 +86,14 @@ export default async function PartnerAnalyticsPage({
     const date = new Date();
     date.setMonth(date.getMonth() - (11 - index));
     const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-    const rows = ((ledger ?? []) as Array<{
-      earned_at?: string | null;
-      created_at?: string;
-      broker_share?: number | string;
-      net_broker_share?: number | string;
-    }>).filter((row) => {
+    const rows = (
+      workspace.ledger as Array<{
+        earned_at?: string | null;
+        created_at?: string;
+        broker_share?: number | string;
+        net_broker_share?: number | string;
+      }>
+    ).filter((row) => {
       const stamp = String(row.earned_at ?? row.created_at ?? "").slice(0, 7);
       return stamp === key;
     });
@@ -104,7 +105,13 @@ export default async function PartnerAnalyticsPage({
   });
 
   const months =
-    range === "3m" ? 3 : range === "6m" ? 6 : range === "ytd" ? new Date().getMonth() + 1 : 12;
+    range === "3m"
+      ? 3
+      : range === "6m"
+        ? 6
+        : range === "ytd"
+          ? new Date().getMonth() + 1
+          : 12;
   const seriesSlice = monthly.slice(-months);
 
   return (
@@ -112,7 +119,7 @@ export default async function PartnerAnalyticsPage({
       <OperationsHeader
         eyebrow="Performance"
         title="Analytics partner"
-        description="Solo i tuoi dati assegnati. ATLAS share non è esposto in questo portale."
+        description="Solo i tuoi dati assegnati. La quota ATLAS non è esposta in questo portale."
       />
 
       <div className="mb-4 flex flex-wrap gap-2 text-[12px]">
@@ -136,54 +143,78 @@ export default async function PartnerAnalyticsPage({
         ))}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <OperationsMetric label="Conversion" value={`${pct(completed, decided)}%`} />
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <OperationsMetric
-          label="Broker share"
+          label="Tasso di conversione"
+          value={`${pct(completed, decided)}%`}
+          detail={`${completed} su ${decided || 0} decisi`}
+        />
+        <OperationsMetric
+          label="Quota broker"
           value={formatChf(workspace.revenue.brokerShare)}
         />
-        <OperationsMetric label="Expected" value={formatChf(workspace.revenue.expectedShare)} />
-        <OperationsMetric label="Paid" value={formatChf(workspace.revenue.paidShare)} />
+        <OperationsMetric
+          label="Attese"
+          value={formatChf(workspace.revenue.expectedShare)}
+        />
+        <OperationsMetric
+          label="Pagate"
+          value={formatChf(workspace.revenue.paidShare)}
+        />
+        <OperationsMetric
+          label="Media / contratto"
+          value={formatChf(avgPerContract)}
+          detail={`${workspace.contracts.length} contratti`}
+        />
       </div>
 
       <div className="mt-5 grid gap-5 xl:grid-cols-2">
-        <SimpleFunnel title="Funnel" steps={funnel} />
+        <SimpleFunnel title="Funnel operativo" steps={funnel} />
         <SimpleLineChart
-          title="Revenue temporale (broker share)"
+          title="Andamento temporale — quota broker"
           series={[
-            { label: "Broker share", values: seriesSlice.map((r) => r.broker) },
+            { label: "Quota broker", values: seriesSlice.map((r) => r.broker) },
             {
               label: "Netto",
               values: seriesSlice.map((r) => r.net),
               color: "var(--muted-foreground)",
             },
           ]}
+          emptyLabel="Nessuna serie temporale nel periodo selezionato."
         />
       </div>
 
       <div className="mt-5 grid gap-5 xl:grid-cols-2">
         <SimpleBarChart
-          title="Performance by category — contratti"
-          points={Object.entries(byCategory).map(([label, value]) => ({
-            label,
-            value: value.contracts,
-          }))}
+          title="Performance per categoria — contratti"
+          points={Object.entries(byCategory)
+            .filter(([, value]) => value.contracts > 0 || value.offers > 0)
+            .map(([label, value]) => ({
+              label,
+              value: value.contracts,
+            }))}
+          emptyLabel="Nessuna categoria con dati nel periodo."
         />
         <SimpleBarChart
-          title="Performance by insurer — offerte"
-          points={Object.entries(byInsurer).map(([label, value]) => ({
-            label,
-            value: value.offers,
-          }))}
+          title="Performance per compagnia — offerte"
+          points={Object.entries(byInsurer)
+            .filter(([, value]) => value.offers > 0 || value.contracts > 0)
+            .map(([label, value]) => ({
+              label,
+              value: value.offers,
+            }))}
+          emptyLabel="Nessuna compagnia con dati nel periodo."
         />
       </div>
 
       <div className="mt-5">
         <SwitzerlandChoropleth
-          title="Il tuo portafoglio in Svizzera"
+          title="Portafoglio geografico"
           data={cantons}
           metric="contracts"
           metrics={["leads", "clients", "contracts", "brokerRevenue"]}
+          emptyHint="Il tuo portafoglio geografico apparirà qui quando riceverai le prime richieste."
+          showRanking
         />
       </div>
 
@@ -198,6 +229,7 @@ export default async function PartnerAnalyticsPage({
                   <th className="pb-2">Categoria</th>
                   <th className="pb-2">Offerte</th>
                   <th className="pb-2">Contratti</th>
+                  <th className="pb-2">Conversione</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -206,6 +238,7 @@ export default async function PartnerAnalyticsPage({
                     <td className="py-2">{label}</td>
                     <td>{value.offers}</td>
                     <td>{value.contracts}</td>
+                    <td>{pct(value.contracts, value.offers)}%</td>
                   </tr>
                 ))}
               </tbody>

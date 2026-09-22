@@ -1,18 +1,6 @@
-import { redirect } from "next/navigation";
-import { OperationsShell } from "@/components/operations/OperationsShell";
+import { PartnerShell } from "@/components/partner/PartnerShell";
 import { getOperationsIdentity } from "@/lib/operations-access";
-
-const nav = [
-  { href: "/partner/dashboard", label: "Dashboard", icon: "dashboard" as const },
-  { href: "/partner/leads", label: "Richieste", icon: "pipeline" as const },
-  { href: "/partner/clients", label: "Clienti", icon: "clients" as const },
-  { href: "/partner/appointments", label: "Appuntamenti", icon: "appointments" as const },
-  { href: "/partner/offers", label: "Offerte", icon: "offers" as const },
-  { href: "/partner/contracts", label: "Contratti", icon: "contracts" as const },
-  { href: "/partner/commissions", label: "Commissioni", icon: "revenue" as const },
-  { href: "/partner/analytics", label: "Analytics", icon: "analytics" as const },
-  { href: "/partner/profile", label: "Profilo", icon: "profile" as const },
-];
+import { redirect } from "next/navigation";
 
 export default async function PartnerPortalLayout({
   children,
@@ -26,13 +14,45 @@ export default async function PartnerPortalLayout({
     redirect(applicationPending ? "/partner/status" : "/dashboard");
   }
 
+  let newRequests = 0;
+  try {
+    const { count } = await identity.supabase
+      .from("consultation_requests")
+      .select("id", { count: "exact", head: true })
+      .eq("assigned_broker_id", identity.broker.id)
+      .in("status", ["assigned", "submitted"]);
+    newRequests = count ?? 0;
+  } catch {
+    newRequests = 0;
+  }
+
+  const nav = [
+    { href: "/partner/dashboard", label: "Dashboard", icon: "dashboard" as const },
+    {
+      href: "/partner/leads",
+      label: "Richieste",
+      icon: "pipeline" as const,
+      badge: newRequests,
+    },
+    { href: "/partner/clients", label: "Clienti", icon: "clients" as const },
+    {
+      href: "/partner/appointments",
+      label: "Appuntamenti",
+      icon: "appointments" as const,
+    },
+    { href: "/partner/offers", label: "Offerte", icon: "offers" as const },
+    { href: "/partner/contracts", label: "Contratti", icon: "contracts" as const },
+    { href: "/partner/commissions", label: "Commissioni", icon: "revenue" as const },
+    { href: "/partner/analytics", label: "Analytics", icon: "analytics" as const },
+    { href: "/partner/profile", label: "Profilo", icon: "profile" as const },
+  ];
+
   return (
-    <OperationsShell
-      title="Partner Portal"
+    <PartnerShell
       subtitle={`${identity.broker.displayName} · solo mandati assegnati`}
       nav={nav}
     >
       {children}
-    </OperationsShell>
+    </PartnerShell>
   );
 }
