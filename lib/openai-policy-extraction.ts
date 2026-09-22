@@ -1490,3 +1490,57 @@ export const openAIPolicyDocumentExtractor: PolicyDocumentExtractor = {
     return enriched;
   },
 };
+
+/**
+ * Quote/offer extraction for broker collaboration.
+ * Caller supplies PDF text (no consumer document ownership required).
+ * Does NOT create a personal policy. Caller maps draft → insurance_offers.
+ */
+export async function extractQuoteStructureFromText(
+  document: UserDocument,
+  text: string
+): Promise<PolicyDocumentExtractionResult> {
+  const extractStartedAt = performance.now();
+  const {
+    payload,
+    compaction,
+    modelUsed,
+    fallbackUsed,
+    openaiMs,
+    useFastFirst,
+    knowledgeRuleIds,
+  } = await extractPolicyPayloadWithModelStrategy(document, text);
+
+  const normalizeStartedAt = performance.now();
+  const normalized = normalizeOpenAIExtraction(payload, document, text, {
+    knowledgeRuleIds,
+  });
+  const enriched = enrichSwissPolicyExtraction(normalized, document, text, {
+    modelUsed,
+    fallbackUsed,
+  });
+  const normalizeMs = elapsedMs(normalizeStartedAt);
+
+  logAnalysisTiming({
+    documentId: document.id,
+    extractMs: elapsedMs(extractStartedAt),
+    pdfMs: 0,
+    openaiMs,
+    normalizeMs,
+    modelUsed,
+    fallbackUsed,
+    useFastFirst,
+    confidence: enriched.draft.extractionConfidence,
+    originalTextLength: compaction.originalTextLength,
+    compactedTextLength: compaction.compactedTextLength,
+    reductionPercent: compaction.reductionPercent,
+    outcome: "success",
+  });
+
+  return {
+    ...enriched,
+    processingMs: elapsedMs(extractStartedAt),
+    usedFallback: fallbackUsed,
+  };
+}
+

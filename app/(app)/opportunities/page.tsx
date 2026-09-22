@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ConsultationPrepCard } from "@/components/consumer/ConsultationPrepCard";
 import { OpportunityActions } from "@/components/consumer/OpportunityActions";
 import { listCurrentUserConsultationRequests } from "@/lib/consultations";
+import { listCurrentUserVerifiedQuotes } from "@/lib/consumer-collaboration";
 import { getCurrentUserDocuments } from "@/lib/documents";
 import { getCurrentUserPolicies } from "@/lib/policies";
 import { syncCurrentUserOpportunities } from "@/lib/persisted-opportunities";
@@ -38,13 +39,27 @@ function Section({
 }
 
 export default async function OpportunitiesPage() {
-  const [policies, documents, consultationRequests] = await Promise.all([
+  const [policies, documents, consultationRequests, verifiedQuotes] = await Promise.all([
     getCurrentUserPolicies(),
     getCurrentUserDocuments(),
     listCurrentUserConsultationRequests(),
+    listCurrentUserVerifiedQuotes().catch(() => []),
   ]);
   const persisted = await syncCurrentUserOpportunities({ policies, documents });
-  const intelligence = buildIntelligenceOpportunities({ policies, documents });
+  const intelligence = buildIntelligenceOpportunities({
+    policies,
+    documents,
+    verifiedQuotes: verifiedQuotes.map((q) => ({
+      id: String(q.id),
+      consultation_request_id: String(q.consultation_request_id),
+      source_policy_id: q.source_policy_id ? String(q.source_policy_id) : null,
+      insurer: String(q.insurer),
+      product: String(q.product),
+      premium_amount: q.premium_amount,
+      premium_frequency: q.premium_frequency,
+      currency: q.currency,
+    })),
+  });
   const grouped = groupIntelligenceOpportunities(intelligence);
   const activeConsultation =
     consultationRequests.find(

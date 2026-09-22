@@ -315,7 +315,7 @@ export async function getConsumerOfferComparison(offerId: string) {
     .maybeSingle();
   if (!request) throw new CollaborationError("Offerta non trovata.");
 
-  // mark viewed
+  // mark viewed once (idempotent)
   if (!offer.viewed_at && ["proposed", "sent"].includes(offer.status)) {
     await supabase
       .from("insurance_offers")
@@ -397,7 +397,7 @@ export async function consumerDecideOffer(input: {
   const { supabase, user } = await current();
   const { data: offer } = await supabase
     .from("insurance_offers")
-    .select("id, consultation_request_id, broker_id, status")
+    .select("id, consultation_request_id, broker_id, status, version")
     .eq("id", input.offerId)
     .maybeSingle();
   if (!offer) throw new CollaborationError("Offerta non trovata.");
@@ -424,6 +424,7 @@ export async function consumerDecideOffer(input: {
       consumer_decision: input.decision,
       consumer_decision_at: new Date().toISOString(),
       consumer_decision_note: input.note?.slice(0, 1000) ?? null,
+      decision_offer_version: offer.version ?? 1,
     })
     .eq("id", offer.id);
 
@@ -462,4 +463,36 @@ export async function consumerDecideOffer(input: {
       p_href: `/broker/requests/${request.id}?tab=offers`,
     });
   }
+}
+
+export async function listCurrentUserVerifiedQuotes() {
+  const { supabase, user } = await current();
+  const { data: requests } = await supabase
+    .from("consultation_requests")
+    .select("id")
+    .eq("user_id", user.id);
+  const ids = (requests ?? []).map((r) => r.id);
+  if (!ids.length) return [];
+
+  const { data: offers } = await supabase
+    .from("insurance_offers")
+    .select(
+      "id, consultation_request_id, source_policy_id, insurer, product, premium_amount, premium_frequency, currency, status, version, verified_at, quote_document_id"
+    )
+    .in("consultation_request_id", ids)
+    .eq("is_current", true)
+    .in("status", [
+      "sent",
+      "proposed",
+      "viewed",
+      "interested",
+      "clarification_requested",
+      "accepted",
+      "converted",
+    ])
+    .not("verified_at", "is", null)
+    .not("source_policy_id", "is", null)
+    .order("created_at", { ascending: false });
+
+  return offers ?? [];
 }

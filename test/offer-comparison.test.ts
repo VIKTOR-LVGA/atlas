@@ -119,4 +119,21 @@ run("global deductibles", () => {
   );
 });
 
+run("multi-age deductible structure not collapsed", () => {
+  const result = comparePolicyToOffer({
+    conditions: [
+      {
+        key: "ded_age",
+        label: "Franchigia per età",
+        current: ">=25: CHF 1'000 · <25: CHF 3'000",
+        offer: "CHF 1'500",
+      },
+    ],
+  });
+  const row = result.items.find((i) => i.key === "ded_age");
+  assert.equal(row?.state, "different");
+  assert.match(String(row?.current), /25/);
+  assert.match(String(row?.offer), /1/);
+});
+
 console.log("offer-comparison: all assertions passed");

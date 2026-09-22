@@ -9,6 +9,8 @@ export const insuranceDocumentTypes = [
   "coverage_summary",
   "customer_information",
   "certificate",
+  "quote",
+  "offer",
   "unknown",
 ] as const;
 
@@ -25,6 +27,8 @@ export const insuranceDocumentTypeLabels: Record<InsuranceDocumentType, string> 
   coverage_summary: "Riepilogo coperture",
   customer_information: "Informazione alla clientela",
   certificate: "Attestato assicurativo",
+  quote: "Preventivo / quotazione",
+  offer: "Offerta assicurativa",
   unknown: "Non classificato",
 };
 
@@ -163,6 +167,36 @@ const signals: Array<{
       "apercu des prestations",
       "aperçu des prestations",
       "resume des couvertures",
+    ],
+  },
+  {
+    type: "quote",
+    strong: [
+      "preventivo",
+      "offerta di assicurazione",
+      "offerta assicurativa",
+      "quotazione",
+      "offerte di premio",
+      "versicherungsofferte",
+      "offerte",
+      "devis d assurance",
+      "devis d'assurance",
+      "quotation",
+      "insurance quote",
+      "quote validity",
+      "validita dell offerta",
+      "validità dell'offerta",
+      "offerta valida fino",
+    ],
+    weak: ["premio proposto", "proposta di premio", "angebot"],
+  },
+  {
+    type: "offer",
+    strong: [
+      "proposta commerciale",
+      "offerta commerciale assicurativa",
+      "versicherungsangebot",
+      "proposition d assurance",
     ],
   },
   {

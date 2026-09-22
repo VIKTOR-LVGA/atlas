@@ -21,8 +21,12 @@ type Props = {
     currency: string | null;
     consumer_visible_notes: string | null;
     status: string;
+    version?: number | null;
+    verified_at?: string | null;
+    quote_document_id?: string | null;
   };
   comparison: OfferComparisonResult;
+  pdfHref?: string | null;
 };
 
 export function OfferComparisonClient({
@@ -30,6 +34,7 @@ export function OfferComparisonClient({
   offerId,
   offer,
   comparison,
+  pdfHref,
 }: Props) {
   const [note, setNote] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
@@ -54,7 +59,8 @@ export function OfferComparisonClient({
 
       <header className="rounded-2xl border border-border bg-surface px-4 py-5 sm:px-6">
         <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-muted">
-          Nuova offerta
+          {offer.verified_at ? "Preventivo verificato" : "Nuova offerta"}
+          {offer.version ? ` · v${offer.version}` : ""}
         </p>
         <h1 className="mt-1 text-[22px] font-semibold tracking-tight text-foreground">
           {offer.insurer}
@@ -133,6 +139,19 @@ export function OfferComparisonClient({
           <p className="text-[13px] leading-relaxed text-foreground">
             {offer.consumer_visible_notes}
           </p>
+        </SectionCard>
+      ) : null}
+
+      {pdfHref ? (
+        <SectionCard title="Preventivo originale" padding="sm">
+          <a
+            href={pdfHref}
+            className="atlas-btn-secondary inline-flex px-3 py-2 text-[12px]"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Apri PDF preventivo
+          </a>
         </SectionCard>
       ) : null}
 

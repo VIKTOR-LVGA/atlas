@@ -19,12 +19,16 @@ export default async function ConsumerOfferPage({
     if (error instanceof CollaborationError) notFound();
     throw error;
   }
+  const pdfHref = offer.quote_document_id
+    ? `/consultations/${id}/offers/${offerId}/pdf`
+    : null;
   return (
     <OfferComparisonClient
       consultationId={id}
       offerId={offerId}
       offer={offer}
       comparison={comparison}
+      pdfHref={pdfHref}
     />
   );
 }

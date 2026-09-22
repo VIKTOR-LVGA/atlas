@@ -144,18 +144,37 @@ export async function updateOfferStatusAction(formData: FormData) {
   if (!["proposed", "sent", "accepted", "rejected", "expired", "converted"].includes(status)) {
     throw new Error("Stato offerta non valido.");
   }
+  const offerId = required(formData, "offer_id");
   const now = new Date().toISOString();
   const sendStatuses = ["proposed", "sent"];
-  const mapped = status === "sent" ? "sent" : status;
+
+  if (sendStatuses.includes(status)) {
+    const { data: offer } = await supabase
+      .from("insurance_offers")
+      .select("id, extraction_status, source_policy_id, status")
+      .eq("id", offerId)
+      .eq("broker_id", broker.id)
+      .maybeSingle();
+    if (!offer) throw new Error("Offerta non trovata.");
+    if (offer.status !== "draft") throw new Error("Solo le bozze possono essere inviate.");
+    if (!offer.source_policy_id) {
+      throw new Error("Seleziona e verifica la polizza da confrontare prima dell'invio.");
+    }
+    if (!["verified", "ready_to_send"].includes(String(offer.extraction_status ?? ""))) {
+      throw new Error("Conferma «Dati verificati» prima di inviare l'offerta.");
+    }
+  }
+
+  const mapped = status === "sent" || status === "proposed" ? "sent" : status;
   const { error } = await supabase
     .from("insurance_offers")
     .update({
-      status: mapped === "proposed" ? "sent" : mapped,
+      status: mapped,
       proposed_at: sendStatuses.includes(status) ? now : undefined,
       accepted_at: status === "accepted" ? now : undefined,
       rejected_at: status === "rejected" ? now : undefined,
     })
-    .eq("id", required(formData, "offer_id"))
+    .eq("id", offerId)
     .eq("broker_id", broker.id)
     .eq("consultation_request_id", requestId);
   if (error) throw new Error(error.message);
@@ -176,7 +195,7 @@ export async function updateOfferStatusAction(formData: FormData) {
         p_user_id: request.user_id,
         p_consultation_id: requestId,
         p_event_type: "offer_sent",
-        p_title: "Nuova offerta disponibile",
+        p_title: "Nuova offerta — preventivo verificato",
         p_body: null,
         p_href: `/consultations/${requestId}?tab=offers`,
       });
@@ -386,5 +405,86 @@ export async function sendConsultationMessageAction(formData: FormData) {
     });
   }
 
+  revalidateLead(requestId);
+}
+
+export async function uploadOfferQuotePdfAction(formData: FormData) {
+  const { supabase, broker } = await requireOperationsRole(["broker"]);
+  if (!broker) throw new Error("Profilo broker mancante.");
+  const requestId = required(formData, "request_id");
+  const offerId = required(formData, "offer_id");
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.type !== "application/pdf") {
+    throw new Error("Carica un PDF preventivo.");
+  }
+  if (file.size > 20 * 1024 * 1024) throw new Error("PDF troppo grande (max 20MB).");
+
+  const bytes = Buffer.from(await file.arrayBuffer());
+  const crypto = await import("node:crypto");
+  const hash = crypto.createHash("sha256").update(bytes).digest("hex");
+  const safeName = file.name.replace(/[^\w.\-]+/g, "_").slice(0, 120) || "quote.pdf";
+  const filePath = `quotes/${requestId}/${offerId}-${hash.slice(0, 12)}.pdf`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("policy-documents")
+    .upload(filePath, bytes, {
+      contentType: "application/pdf",
+      upsert: false,
+    });
+  if (uploadError) throw new Error(`Upload fallito: ${uploadError.message}`);
+
+  const { error: regError } = await supabase.rpc("broker_register_offer_quote_document", {
+    p_consultation_id: requestId,
+    p_offer_id: offerId,
+    p_file_name: safeName,
+    p_file_path: filePath,
+    p_file_size: file.size,
+    p_mime_type: "application/pdf",
+    p_file_hash: hash,
+  });
+  if (regError) {
+    await supabase.storage.from("policy-documents").remove([filePath]);
+    throw new Error(regError.message);
+  }
+
+  revalidateLead(requestId);
+}
+
+export async function analyzeOfferQuoteAction(formData: FormData) {
+  const requestId = required(formData, "request_id");
+  const offerId = required(formData, "offer_id");
+  const { analyzeBrokerOfferQuote } = await import("@/lib/offer-quote-analysis");
+  await analyzeBrokerOfferQuote(offerId);
+  revalidateLead(requestId);
+}
+
+export async function verifyOfferQuoteAction(formData: FormData) {
+  const requestId = required(formData, "request_id");
+  const { verifyBrokerOfferExtraction } = await import("@/lib/offer-quote-analysis");
+  const premium = value(formData, "premium_amount");
+  await verifyBrokerOfferExtraction({
+    offerId: required(formData, "offer_id"),
+    insurer: required(formData, "insurer"),
+    product: required(formData, "product"),
+    category: required(formData, "category"),
+    premiumAmount: premium ? Number(premium) : null,
+    premiumFrequency: value(formData, "premium_frequency") || "annual",
+    currency: value(formData, "currency") || "CHF",
+    effectiveDate: value(formData, "effective_date") || null,
+    quoteValidityDate: value(formData, "quote_validity_date") || null,
+    sourcePolicyId: required(formData, "source_policy_id"),
+    consumerNotes: value(formData, "consumer_notes") || null,
+  });
+  revalidateLead(requestId);
+}
+
+export async function createOfferRevisionAction(formData: FormData) {
+  const { supabase } = await requireOperationsRole(["broker"]);
+  const requestId = required(formData, "request_id");
+  const offerId = required(formData, "offer_id");
+  const { error } = await supabase.rpc("create_insurance_offer_revision", {
+    p_offer_id: offerId,
+  });
+  if (error) throw new Error(error.message);
   revalidateLead(requestId);
 }

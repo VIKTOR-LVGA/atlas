@@ -1,14 +1,18 @@
 import { notFound } from "next/navigation";
 import {
   addBrokerNoteAction,
+  analyzeOfferQuoteAction,
   brokerRespondAppointmentAction,
   brokerRespondAssignmentAction,
   createContractAction,
   createOfferAction,
+  createOfferRevisionAction,
   scheduleAppointmentAction,
   sendConsultationMessageAction,
   transitionLeadAction,
   updateOfferStatusAction,
+  uploadOfferQuotePdfAction,
+  verifyOfferQuoteAction,
 } from "@/app/broker/actions";
 import {
   OperationsHeader,
@@ -285,36 +289,182 @@ export default async function BrokerLeadDetailPage({
               <div key={offer.id} className="rounded-lg border border-border p-3 text-[12px]">
                 <span className="font-semibold">
                   {offer.insurer} · {offer.product}
+                  {offer.version ? ` · v${offer.version}` : ""}
                 </span>
                 <span className="float-right text-accent">{offerStatusLabel(String(offer.status))}</span>
                 <p className="text-[10px] text-muted">
                   {formatChf(offer.premium_amount)} / {premiumFrequencyLabel(String(offer.premium_frequency ?? ""))}
+                  {offer.extraction_status
+                    ? ` · Estrazione: ${String(offer.extraction_status)}`
+                    : ""}
                 </p>
-                <form action={updateOfferStatusAction} className="mt-2 flex flex-wrap gap-2">
-                  <input type="hidden" name="request_id" value={id} />
-                  <input type="hidden" name="offer_id" value={offer.id} />
-                  {offer.status === "draft" ? (
-                    <button name="status" value="sent" className="text-[10px] font-medium text-accent">
-                      Invia al cliente
-                    </button>
-                  ) : null}
-                  {["sent", "proposed", "viewed", "interested", "clarification_requested"].includes(
-                    String(offer.status)
-                  ) ? (
-                    <>
-                      <button
-                        name="status"
-                        value="accepted"
-                        className="text-[10px] font-medium text-[var(--success-text)]"
+                {offer.extraction_error ? (
+                  <p className="mt-1 text-[10px] text-[var(--danger-text)]">
+                    {String(offer.extraction_error)}
+                  </p>
+                ) : null}
+
+                {offer.status === "draft" ? (
+                  <div className="mt-3 space-y-2 border-t border-border pt-2">
+                    <form
+                      action={uploadOfferQuotePdfAction}
+                      className="flex flex-wrap items-end gap-2"
+                      encType="multipart/form-data"
+                    >
+                      <input type="hidden" name="request_id" value={id} />
+                      <input type="hidden" name="offer_id" value={String(offer.id)} />
+                      <label className="block text-[10px] text-muted">
+                        Carica preventivo (PDF)
+                        <input
+                          required
+                          type="file"
+                          name="file"
+                          accept="application/pdf"
+                          className="mt-1 block w-full text-[11px]"
+                        />
+                      </label>
+                      <button className="text-[10px] font-medium text-accent">Carica preventivo</button>
+                    </form>
+                    {offer.quote_document_id ? (
+                      <form action={analyzeOfferQuoteAction} className="inline">
+                        <input type="hidden" name="request_id" value={id} />
+                        <input type="hidden" name="offer_id" value={String(offer.id)} />
+                        <button className="text-[10px] font-medium text-accent">
+                          Analizza con Insurance Intelligence
+                        </button>
+                      </form>
+                    ) : null}
+
+                    <form action={verifyOfferQuoteAction} className="grid gap-2 sm:grid-cols-2">
+                      <input type="hidden" name="request_id" value={id} />
+                      <input type="hidden" name="offer_id" value={String(offer.id)} />
+                      <p className="sm:col-span-2 text-[11px] font-semibold text-foreground">
+                        Verifica preventivo
+                      </p>
+                      <input
+                        required
+                        name="insurer"
+                        defaultValue={String(offer.insurer ?? "")}
+                        className={operationsInput}
+                        placeholder="Compagnia"
+                      />
+                      <input
+                        required
+                        name="product"
+                        defaultValue={String(offer.product ?? "")}
+                        className={operationsInput}
+                        placeholder="Prodotto"
+                      />
+                      <input
+                        required
+                        name="category"
+                        defaultValue={String(offer.policy_category ?? "")}
+                        className={operationsInput}
+                        placeholder="Categoria"
+                      />
+                      <input
+                        name="premium_amount"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        defaultValue={
+                          offer.premium_amount != null ? String(offer.premium_amount) : ""
+                        }
+                        className={operationsInput}
+                        placeholder="Premio"
+                      />
+                      <select
+                        name="premium_frequency"
+                        defaultValue={String(offer.premium_frequency ?? "annual")}
+                        className={operationsInput}
                       >
-                        Segna accettata
+                        <option value="annual">Annuale</option>
+                        <option value="monthly">Mensile</option>
+                        <option value="quarterly">Trimestrale</option>
+                        <option value="semiannual">Semestrale</option>
+                      </select>
+                      <select
+                        required
+                        name="source_policy_id"
+                        defaultValue={String(offer.source_policy_id ?? "")}
+                        className={operationsInput}
+                      >
+                        <option value="">Confronta con polizza…</option>
+                        {data.resources.policies.map((policy) => (
+                          <option key={String(policy.id)} value={String(policy.id)}>
+                            {String(policy.provider)} · {String(policy.policy_type)}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        name="effective_date"
+                        type="date"
+                        defaultValue={
+                          offer.effective_date ? String(offer.effective_date) : ""
+                        }
+                        className={operationsInput}
+                      />
+                      <input
+                        name="quote_validity_date"
+                        type="date"
+                        defaultValue={
+                          offer.quote_validity_date
+                            ? String(offer.quote_validity_date)
+                            : ""
+                        }
+                        className={operationsInput}
+                      />
+                      <input
+                        name="consumer_notes"
+                        defaultValue={String(offer.consumer_visible_notes ?? "")}
+                        className={`${operationsInput} sm:col-span-2`}
+                        placeholder="Nota visibile al cliente"
+                      />
+                      <button className={`${operationsButton} sm:col-span-2`}>
+                        Dati verificati
                       </button>
-                      <button name="status" value="rejected" className="text-[10px] text-[var(--danger-text)]">
-                        Rifiuta
+                    </form>
+
+                    {["verified", "ready_to_send"].includes(
+                      String(offer.extraction_status ?? "")
+                    ) ? (
+                      <form action={updateOfferStatusAction}>
+                        <input type="hidden" name="request_id" value={id} />
+                        <input type="hidden" name="offer_id" value={String(offer.id)} />
+                        <button
+                          name="status"
+                          value="sent"
+                          className="text-[10px] font-medium text-accent"
+                        >
+                          Invia al cliente
+                        </button>
+                      </form>
+                    ) : (
+                      <p className="text-[10px] text-muted">
+                        Completa «Dati verificati» prima dell&apos;invio.
+                      </p>
+                    )}
+                  </div>
+                ) : null}
+
+                {["sent", "proposed", "viewed", "interested", "clarification_requested"].includes(
+                  String(offer.status)
+                ) ? (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <span className="text-[10px] text-muted">
+                      {offer.consumer_decision
+                        ? `Decisione: ${String(offer.consumer_decision)}`
+                        : "In attesa del cliente"}
+                    </span>
+                    <form action={createOfferRevisionAction}>
+                      <input type="hidden" name="request_id" value={id} />
+                      <input type="hidden" name="offer_id" value={String(offer.id)} />
+                      <button className="text-[10px] font-medium text-accent">
+                        Crea revisione
                       </button>
-                    </>
-                  ) : null}
-                </form>
+                    </form>
+                  </div>
+                ) : null}
               </div>
             ))}
           </div>

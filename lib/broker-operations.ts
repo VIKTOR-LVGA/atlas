@@ -182,7 +182,7 @@ export async function getBrokerLeadDetail(id: string) {
     supabase
       .from("insurance_offers")
       .select(
-        "id, insurer, product, policy_category, premium_amount, premium_frequency, status, proposed_at, created_at"
+        "id, insurer, product, policy_category, premium_amount, premium_frequency, status, proposed_at, created_at, source_policy_id, quote_document_id, extraction_status, extraction_error, verified_at, version, is_current, parent_offer_id, currency, effective_date, quote_validity_date, consumer_visible_notes, consumer_decision"
       )
       .eq("consultation_request_id", id)
       .order("created_at", { ascending: false }),
