@@ -90,7 +90,18 @@ const policyDetailKeys: Record<TypedPolicyType, Array<keyof PolicyDetails>> = {
   ],
   liability: ["liability_limit", "household_members_included"],
   household: ["insured_sum", "glass_coverage", "theft_coverage"],
-  car: ["plate_number", "casco", "bonus_malus", "annual_km"],
+  car: [
+    "plate_number",
+    "license_plate",
+    "vehicle_make",
+    "vehicle_model",
+    "vehicle",
+    "annual_gross_premium",
+    "payment_frequency_label",
+    "casco",
+    "bonus_malus",
+    "annual_km",
+  ],
   legal: ["private_legal", "traffic_legal", "coverage_region"],
   travel: ["travel_coverage", "coverage_region", "generic_details"],
   life: ["generic_details"],
@@ -125,6 +136,12 @@ const detailLabels: Record<keyof PolicyDetails, string> = {
   extraction_metadata: "Metadati estrazione",
   reviewed_at: "Confermata il",
   plate_number: "Targa",
+  license_plate: "Targa",
+  vehicle_make: "Marca",
+  vehicle_model: "Modello",
+  vehicle: "Veicolo",
+  annual_gross_premium: "Premio annuo lordo",
+  payment_frequency_label: "Modalità di pagamento",
   casco: "Casco",
   bonus_malus: "Bonus malus",
   annual_km: "Km annui",
@@ -822,7 +839,8 @@ export function sanitizePolicyDetails(
       case "annual_km":
       case "insured_sum":
       case "liability_limit":
-      case "household_members_included": {
+      case "household_members_included":
+      case "annual_gross_premium": {
         result[key] = normalizeNullableNumber(value) as never;
         break;
       }

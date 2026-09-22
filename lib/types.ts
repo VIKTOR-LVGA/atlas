@@ -303,6 +303,12 @@ export type PolicyDetails = {
   extraction_metadata?: PolicyExtractionMetadata;
   reviewed_at?: string | null;
   plate_number?: string | null;
+  license_plate?: string | null;
+  vehicle_make?: string | null;
+  vehicle_model?: string | null;
+  vehicle?: string | null;
+  annual_gross_premium?: number | null;
+  payment_frequency_label?: string | null;
   casco?: string | null;
   bonus_malus?: string | null;
   annual_km?: number | null;

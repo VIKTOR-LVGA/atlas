@@ -28,6 +28,7 @@ import {
   normalizeSwissInsuranceProvider,
   normalizeSwissPolicyClassification,
 } from "@/lib/swiss-insurance-normalization";
+import { applySwissMotorRecovery } from "@/lib/motor-policy-recovery";
 
 function getPayloadRecord(value: unknown) {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -341,10 +342,31 @@ export function enrichSwissPolicyExtraction(
     };
   }
 
+  const withMotorRecovery = applySwissMotorRecovery(
+    {
+      ...result,
+      draft: {
+        ...result.draft,
+        provider: providerMatch.provider ?? result.draft.provider,
+        policyType:
+          result.draft.policyType === "other" && classification.policyType !== "other"
+            ? classification.policyType
+            : result.draft.policyType,
+        policyCategoryLabel:
+          result.draft.policyCategoryLabel ??
+          (classification.subtype === "other" ? null : classification.categoryLabel),
+        details: enrichedDetails,
+      },
+    },
+    extractedText
+  );
+
   const overallConfidence = resolveExtractionConfidence(
-    result.draft.extractionConfidence ?? averageConfidence(fieldConfidence),
+    withMotorRecovery.draft.extractionConfidence ??
+      result.draft.extractionConfidence ??
+      averageConfidence(fieldConfidence),
     fieldConfidence,
-    result.draft
+    withMotorRecovery.draft
   );
 
   const uncertainCount = Object.values(fieldConfidence).filter(
@@ -352,6 +374,7 @@ export function enrichSwissPolicyExtraction(
   ).length;
 
   const extractionNotes =
+    withMotorRecovery.draft.extractionNotes ??
     result.draft.extractionNotes ??
     [
       "Estrazione OpenAI con normalizzazione svizzera.",
@@ -361,20 +384,19 @@ export function enrichSwissPolicyExtraction(
     ].join(" ");
 
   const enriched: PolicyDocumentExtractionResult = {
-    ...result,
+    ...withMotorRecovery,
     draft: {
-      ...result.draft,
-      provider: providerMatch.provider ?? result.draft.provider,
-      policyType:
-        result.draft.policyType === "other" && classification.policyType !== "other"
-          ? classification.policyType
-          : result.draft.policyType,
-      policyCategoryLabel:
-        result.draft.policyCategoryLabel ??
-        (classification.subtype === "other" ? null : classification.categoryLabel),
-      details: enrichedDetails,
+      ...withMotorRecovery.draft,
       extractionConfidence: overallConfidence,
       extractionNotes,
+      details: {
+        ...withMotorRecovery.draft.details,
+        field_confidence: fieldConfidence,
+        extraction_metadata: {
+          ...(withMotorRecovery.draft.details as PolicyDetails).extraction_metadata,
+          ...extractionMetadata,
+        },
+      },
     },
   };
 
