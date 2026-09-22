@@ -64,7 +64,7 @@ export default async function IntelligencePublicPage() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                href="/login?next=%2Fintelligence%2Fdashboard"
+                href="/login?intent=intelligence"
                 className="landing-btn-ghost"
               >
                 Accedi

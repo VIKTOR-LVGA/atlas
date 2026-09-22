@@ -20,7 +20,7 @@ export default async function ControlCenterIntelligencePage() {
       supabase
         .from("intelligence_applications")
         .select(
-          "id, first_name, last_name, work_email, company_name, status, created_at, company_type"
+          "id, first_name, last_name, work_email, company_name, legal_entity, job_title, status, created_at, company_type, website, country, operating_canton, access_reason, desired_modules"
         )
         .order("created_at", { ascending: false })
         .limit(100),
@@ -129,9 +129,38 @@ export default async function ControlCenterIntelligencePage() {
                     {app.first_name} {app.last_name} · {app.company_name}
                   </p>
                   <p className="mt-1 text-muted">
-                    {app.work_email} · {app.company_type} ·{" "}
-                    {formatDate(String(app.created_at))}
+                    {app.work_email}
+                    {app.job_title ? ` · ${app.job_title}` : ""} ·{" "}
+                    {app.company_type} · {formatDate(String(app.created_at))}
                   </p>
+                  <p className="mt-1 text-[11px] text-muted">
+                    {[app.website, app.country, app.operating_canton]
+                      .filter(Boolean)
+                      .join(" · ") || "—"}
+                  </p>
+                  {Array.isArray(app.desired_modules) && app.desired_modules.length ? (
+                    <p className="mt-1 text-[11px] text-muted">
+                      Moduli richiesti:{" "}
+                      {(app.desired_modules as string[])
+                        .map((m) =>
+                          ({
+                            market_overview: "Panoramica mercato",
+                            switching: "Switching",
+                            premium_benchmark: "Benchmark premi",
+                            coverage_benchmark: "Coperture",
+                            geography: "Geografia",
+                            insurer_comparison: "Compagnie",
+                            reports: "Report",
+                          } as Record<string, string>)[m] ?? m
+                        )
+                        .join(", ")}
+                    </p>
+                  ) : null}
+                  {app.access_reason ? (
+                    <p className="mt-2 line-clamp-3 text-[11px] text-foreground/80">
+                      {String(app.access_reason)}
+                    </p>
+                  ) : null}
                   <div className="mt-3 flex flex-wrap gap-2">
                     <form action={reviewIntelligenceApplicationAction}>
                       <input type="hidden" name="application_id" value={String(app.id)} />

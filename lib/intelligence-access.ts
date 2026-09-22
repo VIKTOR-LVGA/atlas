@@ -7,41 +7,23 @@ import {
   formatInsufficientSample,
   getIntelligenceMinCohortSize,
 } from "@/lib/intelligence/privacy";
+import {
+  INTELLIGENCE_COMPANY_TYPES,
+  INTELLIGENCE_MODULE_LABELS,
+  INTELLIGENCE_MODULES,
+  type IntelligenceModule,
+} from "@/lib/intelligence/constants";
 
 export const INTELLIGENCE_MIN_COHORT = getIntelligenceMinCohortSize();
 export const INTELLIGENCE_REPRESENTATIVENESS_NOTE =
   "I dati rappresentano il campione osservato da ATLAS (utenti e pratiche ATLAS), non necessariamente l'intero mercato assicurativo svizzero.";
 
-export const INTELLIGENCE_MODULES = [
-  "market_overview",
-  "switching",
-  "premium_benchmark",
-  "coverage_benchmark",
-  "geography",
-  "insurer_comparison",
-  "reports",
-] as const;
-
-export type IntelligenceModule = (typeof INTELLIGENCE_MODULES)[number];
-
-export async function hasIntelligenceAccess() {
-  const supabase = await getSupabaseServerClient();
-  const { data, error } = await supabase.rpc("has_atlas_intelligence");
-  if (error) return false;
-  return Boolean(data);
-}
-
-export async function requireIntelligenceAccess() {
-  const identity = await getOperationsIdentity();
-  if (!identity.user) redirect("/login?next=%2Fintelligence%2Fdashboard");
-  if (identity.role === "admin") return { ...identity, isAdmin: true as const };
-
-  const allowed = await hasIntelligenceAccess();
-  if (!allowed) {
-    redirect("/intelligence/apply");
-  }
-  return { ...identity, isAdmin: false as const };
-}
+export {
+  INTELLIGENCE_COMPANY_TYPES,
+  INTELLIGENCE_MODULE_LABELS,
+  INTELLIGENCE_MODULES,
+};
+export type { IntelligenceModule };
 
 export type IntelligenceDashboardSummary = {
   sample_label?: string;
@@ -60,6 +42,72 @@ export type IntelligenceDashboardSummary = {
 };
 
 export const EMPTY_INTELLIGENCE_SUMMARY: IntelligenceDashboardSummary = {};
+
+export type IntelligenceApplicationRow = {
+  id: string;
+  status: string;
+  company_name: string;
+  work_email: string;
+  first_name: string;
+  last_name: string;
+  created_at: string;
+  rejection_reason: string | null;
+  company_id: string | null;
+};
+
+export async function hasIntelligenceAccess() {
+  const supabase = await getSupabaseServerClient();
+  const { data, error } = await supabase.rpc("has_atlas_intelligence");
+  if (error) return false;
+  return Boolean(data);
+}
+
+export async function getLatestIntelligenceApplication(userId?: string) {
+  const supabase = await getSupabaseServerClient();
+  let uid = userId;
+  if (!uid) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    uid = user?.id;
+  }
+  if (!uid) return null;
+
+  const { data } = await supabase
+    .from("intelligence_applications")
+    .select(
+      "id, status, company_name, work_email, first_name, last_name, created_at, rejection_reason, company_id"
+    )
+    .eq("user_id", uid)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return (data as IntelligenceApplicationRow | null) ?? null;
+}
+
+/** Post-login destination for Intelligence intent. */
+export async function resolveIntelligenceEntryPath(): Promise<string> {
+  if (await hasIntelligenceAccess()) return "/intelligence/dashboard";
+  const app = await getLatestIntelligenceApplication();
+  if (app) return "/intelligence/apply/status";
+  return "/intelligence/apply";
+}
+
+export async function requireIntelligenceAccess() {
+  const identity = await getOperationsIdentity();
+  if (!identity.user) redirect("/login?intent=intelligence&next=%2Fintelligence%2Fdashboard");
+  if (identity.role === "admin") return { ...identity, isAdmin: true as const };
+
+  const allowed = await hasIntelligenceAccess();
+  if (allowed) return { ...identity, isAdmin: false as const };
+
+  const application = await getLatestIntelligenceApplication(identity.user.id);
+  if (application) {
+    redirect("/intelligence/apply/status");
+  }
+  redirect("/intelligence/apply");
+}
 
 export async function getIntelligenceDashboardSummary(): Promise<IntelligenceDashboardSummary> {
   const { supabase } = await requireIntelligenceAccess();

@@ -74,7 +74,17 @@ export async function proxy(request: NextRequest) {
       pathname === "/login"
         ? request.nextUrl.searchParams.get("next")
         : null;
-    const destination = getSafeAuthRedirect(requestedNext);
+    const intent =
+      pathname === "/login"
+        ? request.nextUrl.searchParams.get("intent")
+        : null;
+    // Intelligence intent: bounce via status page (approved→dashboard, pending→status, else→apply)
+    const destination =
+      requestedNext
+        ? getSafeAuthRedirect(requestedNext)
+        : intent === "intelligence"
+          ? "/intelligence/apply/status"
+          : getSafeAuthRedirect(null);
     const destUrl = new URL(destination, request.nextUrl.origin);
 
     return redirectWithAuthCookies(

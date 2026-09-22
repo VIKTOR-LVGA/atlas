@@ -26,8 +26,7 @@ export const productRoutes = [
   "/intelligence/insurers",
   "/intelligence/reports",
   "/intelligence/profile",
-  "/intelligence/apply",
-  "/intelligence/status",
+  "/intelligence/methodology",
   "/admin",
   "/partner/apply",
   "/partner/status",
@@ -43,15 +42,27 @@ export const productRoutes = [
   "/control-center",
 ] as const;
 
-/** Public marketing surfaces — not gated by auth. */
+/** Public marketing / application surfaces — not gated by auth. */
 const publicExactRoutes = new Set([
   "/broker",
   "/intelligence",
   "/partner",
 ]);
 
+const publicPrefixes = [
+  "/intelligence/apply",
+  "/intelligence/status",
+];
+
+export function isPublicIntelligencePath(pathname: string) {
+  return publicPrefixes.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
+}
+
 export function isProductRoute(pathname: string) {
   if (publicExactRoutes.has(pathname)) return false;
+  if (isPublicIntelligencePath(pathname)) return false;
   return productRoutes.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
@@ -82,6 +93,11 @@ export function getSafeAuthRedirect(next: string | null | undefined): string {
 
     if (url.origin !== "http://atlas.local" || url.username || url.password) {
       return "/dashboard";
+    }
+
+    // Allow returning to public Intelligence apply after login
+    if (isPublicIntelligencePath(url.pathname) || url.pathname === "/intelligence") {
+      return `${url.pathname}${url.search}`;
     }
 
     if (!isProductRoute(url.pathname)) {

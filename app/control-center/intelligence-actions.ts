@@ -9,12 +9,27 @@ export async function reviewIntelligenceApplicationAction(formData: FormData) {
   const decision = String(formData.get("decision") ?? "");
   const rejectionReason = String(formData.get("rejection_reason") ?? "") || null;
 
+  let moduleAccess: string[] | null = null;
+  if (decision === "approve") {
+    const { data: app } = await supabase
+      .from("intelligence_applications")
+      .select("desired_modules")
+      .eq("id", applicationId)
+      .maybeSingle();
+    const desired = (app?.desired_modules as string[] | null) ?? [];
+    // Only assign modules the applicant requested — never auto-enable the full catalog.
+    moduleAccess =
+      desired.length > 0
+        ? desired
+        : ["market_overview", "switching", "premium_benchmark"];
+  }
+
   const { error } = await supabase.rpc("review_intelligence_application", {
     p_application_id: applicationId,
     p_decision: decision,
     p_admin_notes: null,
     p_rejection_reason: rejectionReason,
-    p_module_access: null,
+    p_module_access: moduleAccess,
   });
   if (error) throw new Error(error.message);
   revalidatePath("/control-center/intelligence");

@@ -14,6 +14,10 @@ test("login next param rejects open redirects", () => {
   expect(getSafeAuthRedirect("//evil.example")).toBe("/dashboard");
   expect(getSafeAuthRedirect("/login")).toBe("/dashboard");
   expect(getSafeAuthRedirect("/register")).toBe("/dashboard");
+  expect(getSafeAuthRedirect("/intelligence/apply")).toBe("/intelligence/apply");
+  expect(getSafeAuthRedirect("/intelligence/apply/status")).toBe(
+    "/intelligence/apply/status"
+  );
 });
 
 test("recovery errors prefer actionable backend states", () => {
@@ -83,9 +87,7 @@ test.describe("Atlas public journeys", () => {
 
     await page.goto("/documents/abc");
     expect(new URL(page.url()).searchParams.get("next")).toBe("/documents/abc");
-  });
 
-  test("logout is not required to keep private routes blocked", async ({ page }) => {
     await page.goto("/policies");
     await expect(page).toHaveURL(/\/login/);
     await page.goto("/settings");
@@ -93,6 +95,35 @@ test.describe("Atlas public journeys", () => {
 
     await page.goto("/opportunities");
     await expect(page).toHaveURL(/\/login/);
+  });
+
+  test("intelligence apply is public and register CTA points to apply", async ({
+    page,
+  }) => {
+    const response = await page.goto("/intelligence/apply");
+    expect(response?.ok()).toBeTruthy();
+    await waitForClientHydration(page);
+    await expect(
+      page.getByRole("heading", { name: "Richiedi accesso ad ATLAS Intelligence" })
+    ).toBeVisible();
+    await expect(page).not.toHaveURL(/\/login/);
+
+    await page.goto("/intelligence");
+    await waitForClientHydration(page);
+    await expect(page.getByRole("link", { name: "Richiedi accesso" }).first()).toHaveAttribute(
+      "href",
+      "/intelligence/apply"
+    );
+    await expect(page.getByRole("link", { name: "Accedi" }).first()).toHaveAttribute(
+      "href",
+      "/login?intent=intelligence"
+    );
+
+    await page.goto("/register");
+    await waitForClientHydration(page);
+    await expect(
+      page.getByRole("link", { name: "Richiedi accesso ad ATLAS Intelligence" })
+    ).toHaveAttribute("href", "/intelligence/apply");
   });
 
   test("reset password without a recovery token is rejected", async ({ page }) => {

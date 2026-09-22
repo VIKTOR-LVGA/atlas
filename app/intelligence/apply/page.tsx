@@ -1,21 +1,40 @@
 import { redirect } from "next/navigation";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { LandingNav } from "@/components/landing/LandingNav";
+import { IntelligenceApplyForm } from "@/components/intelligence/IntelligenceApplyForm";
 import { getOperationsIdentity } from "@/lib/operations-access";
-import { hasIntelligenceAccess } from "@/lib/intelligence-access";
-import { submitIntelligenceApplicationAction } from "@/app/intelligence/actions";
-import { operationsInput } from "@/components/operations/OperationsUi";
+import {
+  getLatestIntelligenceApplication,
+  hasIntelligenceAccess,
+} from "@/lib/intelligence-access";
 
-export const metadata = { title: "Richiedi accesso | ATLAS Intelligence" };
+export const metadata = {
+  title: "Richiedi accesso ad ATLAS Intelligence",
+  description:
+    "Candidatura B2B per ATLAS Intelligence. Verifica aziendale obbligatoria prima dell'attivazione.",
+};
 
 export default async function IntelligenceApplyPage() {
   const identity = await getOperationsIdentity();
-  if (!identity.user) {
-    redirect("/login?next=%2Fintelligence%2Fapply");
-  }
-  if (await hasIntelligenceAccess()) {
+
+  if (identity.user && (await hasIntelligenceAccess())) {
     redirect("/intelligence/dashboard");
   }
+
+  if (identity.user) {
+    const existing = await getLatestIntelligenceApplication(identity.user.id);
+    if (
+      existing &&
+      ["submitted", "under_review", "approved"].includes(existing.status)
+    ) {
+      redirect("/intelligence/apply/status");
+    }
+  }
+
+  const fullName = identity.user?.user_metadata?.full_name
+    ? String(identity.user.user_metadata.full_name)
+    : "";
+  const [firstName, ...rest] = fullName.trim().split(/\s+/).filter(Boolean);
 
   return (
     <div className="landing min-h-screen">
@@ -25,78 +44,20 @@ export default async function IntelligenceApplyPage() {
           ATLAS Intelligence
         </p>
         <h1 className="mt-3 text-[28px] font-semibold tracking-tight text-[var(--landing-text)]">
-          Richiedi accesso
+          Richiedi accesso ad ATLAS Intelligence
         </h1>
         <p className="mt-3 text-[14px] leading-relaxed text-[var(--landing-muted)]">
-          Accesso riservato a compagnie e partner B2B. Nessuna approvazione automatica.
-          Non riceverai mai dati personali di consumatori.
+          Raccontaci chi sei e come vorresti utilizzare gli insight ATLAS. Ogni richiesta
+          viene verificata prima dell&apos;attivazione.
         </p>
-
-        <form action={submitIntelligenceApplicationAction} className="mt-8 space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="block text-[12px]">
-              Nome
-              <input name="first_name" required className={`${operationsInput} mt-1`} />
-            </label>
-            <label className="block text-[12px]">
-              Cognome
-              <input name="last_name" required className={`${operationsInput} mt-1`} />
-            </label>
-          </div>
-          <label className="block text-[12px]">
-            Email professionale
-            <input
-              name="work_email"
-              type="email"
-              required
-              defaultValue={identity.user.email ?? ""}
-              className={`${operationsInput} mt-1`}
-            />
-          </label>
-          <label className="block text-[12px]">
-            Società
-            <input name="company_name" required className={`${operationsInput} mt-1`} />
-          </label>
-          <label className="block text-[12px]">
-            Ragione sociale
-            <input name="legal_entity" className={`${operationsInput} mt-1`} />
-          </label>
-          <label className="block text-[12px]">
-            Ruolo / titolo
-            <input name="job_title" className={`${operationsInput} mt-1`} />
-          </label>
-          <label className="block text-[12px]">
-            Tipo compagnia
-            <select name="company_type" className={`${operationsInput} mt-1`} defaultValue="insurer">
-              <option value="insurer">Compagnia assicurativa</option>
-              <option value="general_agency">Agenzia generale</option>
-              <option value="insurance_group">Gruppo assicurativo</option>
-              <option value="market_partner">Partner di mercato</option>
-              <option value="other">Altro</option>
-            </select>
-          </label>
-          <label className="block text-[12px]">
-            Sito
-            <input name="website" className={`${operationsInput} mt-1`} />
-          </label>
-          <label className="block text-[12px]">
-            Motivo della richiesta
-            <textarea
-              name="access_reason"
-              required
-              rows={4}
-              className={`${operationsInput} mt-1`}
-            />
-          </label>
-          <label className="flex items-start gap-2 text-[12px] text-[var(--landing-muted)]">
-            <input type="checkbox" name="consent" required className="mt-1" />
-            Acconsento al trattamento dei dati per la valutazione della candidatura
-            Intelligence. Nessun accesso automatico ai dati consumer.
-          </label>
-          <button type="submit" className="landing-btn-gradient">
-            Invia candidatura
-          </button>
-        </form>
+        <IntelligenceApplyForm
+          isAuthenticated={Boolean(identity.user)}
+          prefill={{
+            firstName: firstName || undefined,
+            lastName: rest.length ? rest.join(" ") : undefined,
+            email: identity.user?.email ?? undefined,
+          }}
+        />
       </main>
       <LandingFooter />
     </div>

@@ -243,7 +243,7 @@ export default function RegisterPage() {
           Rappresenti una compagnia assicurativa o un partner B2B?
         </p>
         <Link
-          href="/intelligence"
+          href="/intelligence/apply"
           className="mt-1.5 inline-block text-[13px] font-medium text-accent hover:text-accent-hover"
         >
           Richiedi accesso ad ATLAS Intelligence
