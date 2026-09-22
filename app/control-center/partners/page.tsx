@@ -63,7 +63,15 @@ export default async function ControlCenterPartnersPage() {
               </div>
             ))}
             {!grouped.applications.length ? (
-              <p className="text-[12px] text-muted">Nessuna candidatura in coda.</p>
+              <div className="rounded-lg border border-dashed border-border bg-card-muted/20 px-4 py-6 text-center">
+                <p className="text-[13px] font-medium text-foreground">
+                  Nessuna candidatura Partner
+                </p>
+                <p className="mt-1.5 text-[11px] leading-relaxed text-muted">
+                  Le nuove richieste da Privato → Partner / Broker compariranno qui per
+                  revisione e approvazione.
+                </p>
+              </div>
             ) : null}
           </div>
         </OperationsPanel>

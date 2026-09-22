@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
+import { assertLiveFixtureSafety } from "./live-fixture-safety.mjs";
+
+assertLiveFixtureSafety("supabase-live-validation");
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
@@ -470,6 +473,22 @@ async function main() {
 
   await Promise.all([clientA.auth.signOut(), clientB.auth.signOut()]);
   assert.notEqual(userA.id, userB.id);
+
+  if (process.env.ATLAS_CLEANUP_AFTER === "1" && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    const admin = createClient(url, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+    for (const user of [userA, userB]) {
+      const { error } = await admin.auth.admin.deleteUser(user.id);
+      checkNoError(error, `auth cleanup ${user.email}`);
+    }
+    console.log("PASS auth users deleted after fixture run");
+  } else if (process.env.ATLAS_CLEANUP_AFTER === "1") {
+    console.warn(
+      "ATLAS_CLEANUP_AFTER=1 but SUPABASE_SERVICE_ROLE_KEY missing — auth users left behind"
+    );
+  }
+
   console.log("PASS ATLAS Supabase live validation complete");
 }
 

@@ -11,6 +11,9 @@
  */
 import assert from "node:assert/strict";
 import { createClient } from "@supabase/supabase-js";
+import { assertLiveFixtureSafety } from "./live-fixture-safety.mjs";
+
+assertLiveFixtureSafety("partner-security-validation");
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;

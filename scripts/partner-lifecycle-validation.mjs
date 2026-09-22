@@ -4,6 +4,9 @@
  */
 import assert from "node:assert/strict";
 import { createClient } from "@supabase/supabase-js";
+import { assertLiveFixtureSafety } from "./live-fixture-safety.mjs";
+
+assertLiveFixtureSafety("partner-lifecycle-validation");
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
@@ -232,6 +235,20 @@ async function main() {
     assert.ok(audit.data.some((row) => row.event_type === eventType), `missing ${eventType}`);
   }
   console.log("PASS lifecycle audit trail and admin review visibility");
+
+  if (process.env.ATLAS_CLEANUP_AFTER === "1" && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    const adminApi = createClient(url, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+    for (const account of [approveAccount, rejectAccount]) {
+      await adminApi.from("partner_applications").delete().eq("user_id", account.user.id);
+      await adminApi.from("brokers").delete().eq("auth_user_id", account.user.id);
+      const { error } = await adminApi.auth.admin.deleteUser(account.user.id);
+      assert.equal(error, null, `cleanup ${account.email}: ${error?.message}`);
+    }
+    console.log("PASS lifecycle fixture accounts removed");
+  }
+
   console.log(`PARTNER LIFECYCLE VALIDATION COMPLETE (${runId})`);
 }
 
