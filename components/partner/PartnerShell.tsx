@@ -43,24 +43,28 @@ const icons = {
 type SearchHit = { id: string; label: string; detail: string; href: string };
 
 const COMMANDS = [
-  { label: "Apri richieste", href: "/partner/leads" },
-  { label: "Apri clienti", href: "/partner/clients" },
-  { label: "Apri appuntamenti", href: "/partner/appointments" },
-  { label: "Apri offerte", href: "/partner/offers" },
-  { label: "Apri contratti", href: "/partner/contracts" },
-  { label: "Apri commissioni", href: "/partner/commissions" },
-  { label: "Apri analytics", href: "/partner/analytics" },
-  { label: "Apri profilo", href: "/partner/profile" },
+  { label: "Apri richieste ATLAS", href: "/broker/requests" },
+  { label: "Apri clienti ATLAS", href: "/broker/clients" },
+  { label: "Apri appuntamenti", href: "/broker/appointments" },
+  { label: "Apri offerte", href: "/broker/offers" },
+  { label: "Apri contratti", href: "/broker/contracts" },
+  { label: "Apri commissioni", href: "/broker/commissions" },
+  { label: "Apri analytics", href: "/broker/analytics" },
+  { label: "Apri profilo", href: "/broker/profile" },
 ];
 
 export function PartnerShell({
   children,
   subtitle,
   nav,
+  brandLabel = "Broker Workspace",
+  homeHref = "/broker/dashboard",
 }: {
   children: React.ReactNode;
   subtitle: string;
   nav: NavItem[];
+  brandLabel?: string;
+  homeHref?: string;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -117,16 +121,16 @@ export function PartnerShell({
   return (
     <div className="min-h-screen bg-background text-foreground lg:flex">
       <aside className="border-b border-sidebar-border bg-sidebar px-5 py-4 lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-64 lg:flex-col lg:border-b-0 lg:border-r lg:px-4 lg:py-6">
-        <AtlasBrandLogo compact href="/partner/dashboard" />
+        <AtlasBrandLogo compact href={homeHref} />
         <div className="mt-5 rounded-xl border border-border bg-card px-3 py-3">
           <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-accent">
-            Partner Portal
+            {brandLabel}
           </p>
           <p className="mt-1 text-[11px] leading-relaxed text-muted">{subtitle}</p>
         </div>
         <nav
           className="mt-4 grid grid-cols-2 gap-1 sm:grid-cols-3 lg:grid-cols-1 lg:flex-1"
-          aria-label="Partner navigation"
+          aria-label="Broker workspace navigation"
         >
           {nav.map((item) => {
             const Icon = icons[item.icon];

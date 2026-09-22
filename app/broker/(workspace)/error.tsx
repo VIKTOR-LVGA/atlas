@@ -40,7 +40,7 @@ export default function BrokerError({
           Riprova
         </button>
         <a
-          href="/broker"
+          href="/partner"
           className="atlas-btn-secondary flex min-h-11 items-center justify-center px-4 text-[13px]"
         >
           Torna alla dashboard

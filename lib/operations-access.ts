@@ -52,7 +52,7 @@ export async function requireOperationsRole(allowed: AtlasUserRole[]) {
   const identity = await getOperationsIdentity();
   if (!identity.user) redirect("/login");
   if (!identity.role || !allowed.includes(identity.role)) {
-    if (identity.role === "broker") redirect("/partner/dashboard");
+    if (identity.role === "broker") redirect("/broker/dashboard");
     if (identity.role === "admin") redirect("/control-center");
     redirect("/dashboard");
   }

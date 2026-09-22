@@ -5,7 +5,12 @@ import { getOperationsIdentity } from "@/lib/operations-access";
 const nav = [
   { href: "/control-center", label: "Dashboard", icon: "admin" as const },
   { href: "/control-center/users", label: "Utenti", icon: "clients" as const },
-  { href: "/control-center/partners", label: "Partner", icon: "pipeline" as const },
+  { href: "/control-center/partners", label: "Broker", icon: "pipeline" as const },
+  {
+    href: "/control-center/intelligence",
+    label: "Intelligence",
+    icon: "analytics" as const,
+  },
   {
     href: "/control-center/consultations",
     label: "Consulenze",
@@ -26,7 +31,7 @@ export default async function ControlCenterLayout({
   const identity = await getOperationsIdentity();
   if (!identity.user) redirect("/login?next=%2Fcontrol-center");
   if (identity.role !== "admin") {
-    if (identity.role === "broker") redirect("/partner/dashboard");
+    if (identity.role === "broker") redirect("/broker/dashboard");
     redirect("/dashboard");
   }
 

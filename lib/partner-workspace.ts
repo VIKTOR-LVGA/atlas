@@ -141,7 +141,7 @@ export function buildTodayPriorities(input: {
         clientName: lead.clientName,
         reason: "Nuova richiesta da contattare",
         dueLabel: "Oggi",
-        href: `/partner/leads/${lead.id}`,
+        href: `/broker/requests/${lead.id}`,
         tone: "urgent",
       });
     }
@@ -151,7 +151,7 @@ export function buildTodayPriorities(input: {
         clientName: lead.clientName,
         reason: `Offerta inviata ${daysBetween(lead.updatedAt, now)} giorni fa`,
         dueLabel: "Follow-up",
-        href: `/partner/leads/${lead.id}`,
+        href: `/broker/requests/${lead.id}`,
         tone: "soon",
       });
     }
@@ -170,7 +170,7 @@ export function buildTodayPriorities(input: {
           hour: "2-digit",
           minute: "2-digit",
         }).format(new Date(appt.scheduled_at)),
-        href: `/partner/leads/${appt.consultation_request_id}`,
+        href: `/broker/requests/${appt.consultation_request_id}`,
         tone: "urgent",
       });
     } else if (day === tomorrow) {
@@ -179,7 +179,7 @@ export function buildTodayPriorities(input: {
         clientName: appt.clientName ?? "Cliente",
         reason: "Appuntamento domani",
         dueLabel: "Domani",
-        href: `/partner/leads/${appt.consultation_request_id}`,
+        href: `/broker/requests/${appt.consultation_request_id}`,
         tone: "soon",
       });
     }
@@ -194,7 +194,7 @@ export function buildTodayPriorities(input: {
           clientName: offer.clientName ?? offer.insurer,
           reason: "Offerta senza risposta da oltre 7 giorni",
           dueLabel: "Follow-up",
-          href: `/partner/leads/${offer.consultation_request_id}`,
+          href: `/broker/requests/${offer.consultation_request_id}`,
           tone: "soon",
         });
       }

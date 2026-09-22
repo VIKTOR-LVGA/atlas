@@ -140,7 +140,7 @@ export async function getBrokerLeadDetail(id: string) {
   const { data: request, error } = await supabase
     .from("consultation_requests")
     .select(
-      "id, user_id, status, request_type, message, preferred_contact_method, preferred_contact_time, source, created_at, updated_at"
+      "id, user_id, status, request_type, message, preferred_contact_method, preferred_contact_time, source, created_at, updated_at, broker_acceptance, broker_decline_reason, broker_accepted_at, broker_declined_at"
     )
     .eq("id", id)
     .eq("assigned_broker_id", broker.id)
@@ -155,6 +155,7 @@ export async function getBrokerLeadDetail(id: string) {
     { data: offers },
     { data: contracts },
     { data: events },
+    { data: messages },
   ] = await Promise.all([
     supabase
       .from("profiles")
@@ -197,6 +198,12 @@ export async function getBrokerLeadDetail(id: string) {
       .select("id, event_type, actor_type, metadata, created_at")
       .eq("consultation_request_id", id)
       .order("created_at", { ascending: false }),
+    supabase
+      .from("consultation_messages")
+      .select("id, sender_role, message_kind, body, created_at")
+      .eq("consultation_request_id", id)
+      .order("created_at", { ascending: true })
+      .limit(200),
   ]);
 
   const resources = { policies: [] as UnknownRow[], documents: [] as UnknownRow[] };
@@ -233,6 +240,7 @@ export async function getBrokerLeadDetail(id: string) {
     offers: offers ?? [],
     contracts: contracts ?? [],
     events: events ?? [],
+    messages: messages ?? [],
   };
 }
 
@@ -326,7 +334,7 @@ export async function searchPartnerWorkspace(query: string) {
       id: client.userId,
       label: client.clientName,
       detail: client.clientEmail ?? "Cliente",
-      href: `/partner/clients/${client.userId}`,
+      href: `/broker/clients/${client.userId}`,
     }));
 
   const leads = workspace.leads
@@ -339,7 +347,7 @@ export async function searchPartnerWorkspace(query: string) {
       id: lead.id,
       label: lead.clientName,
       detail: lead.requestType,
-      href: `/partner/leads/${lead.id}`,
+      href: `/broker/requests/${lead.id}`,
     }));
 
   const contracts = workspace.contracts
@@ -353,8 +361,8 @@ export async function searchPartnerWorkspace(query: string) {
       label: `${contract.insurer} · ${contract.product}`,
       detail: String(contract.category ?? ""),
       href: contract.consultation_request_id
-        ? `/partner/leads/${contract.consultation_request_id}`
-        : "/partner/contracts",
+        ? `/broker/requests/${contract.consultation_request_id}`
+        : "/broker/contracts",
     }));
 
   const offers = workspace.offers
@@ -367,7 +375,7 @@ export async function searchPartnerWorkspace(query: string) {
       id: String(offer.id),
       label: `${offer.insurer} · ${offer.product}`,
       detail: offer.clientName ?? String(offer.status),
-      href: `/partner/leads/${offer.consultation_request_id}`,
+      href: `/broker/requests/${offer.consultation_request_id}`,
     }));
 
   return { clients, leads, contracts, offers };

@@ -8,7 +8,26 @@ export const productRoutes = [
   "/consulting",
   "/opportunities",
   "/settings",
-  "/broker",
+  "/broker/dashboard",
+  "/broker/requests",
+  "/broker/clients",
+  "/broker/appointments",
+  "/broker/offers",
+  "/broker/contracts",
+  "/broker/commissions",
+  "/broker/analytics",
+  "/broker/profile",
+  "/intelligence/dashboard",
+  "/intelligence/market",
+  "/intelligence/switching",
+  "/intelligence/premiums",
+  "/intelligence/coverages",
+  "/intelligence/geography",
+  "/intelligence/insurers",
+  "/intelligence/reports",
+  "/intelligence/profile",
+  "/intelligence/apply",
+  "/intelligence/status",
   "/admin",
   "/partner/apply",
   "/partner/status",
@@ -24,7 +43,15 @@ export const productRoutes = [
   "/control-center",
 ] as const;
 
+/** Public marketing surfaces — not gated by auth. */
+const publicExactRoutes = new Set([
+  "/broker",
+  "/intelligence",
+  "/partner",
+]);
+
 export function isProductRoute(pathname: string) {
+  if (publicExactRoutes.has(pathname)) return false;
   return productRoutes.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );

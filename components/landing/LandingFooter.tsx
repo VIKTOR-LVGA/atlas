@@ -34,8 +34,16 @@ export function LandingFooter() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/partner" className="transition hover:text-[var(--landing-text)]">
-                    Per i partner
+                  <Link href="/broker" className="transition hover:text-[var(--landing-text)]">
+                    Per i broker
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/intelligence"
+                    className="transition hover:text-[var(--landing-text)]"
+                  >
+                    Intelligence
                   </Link>
                 </li>
                 <li>

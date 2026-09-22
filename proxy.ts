@@ -101,6 +101,8 @@ export const config = {
     "/settings/:path*",
     "/broker",
     "/broker/:path*",
+    "/intelligence",
+    "/intelligence/:path*",
     "/admin",
     "/admin/:path*",
     "/partner/apply",

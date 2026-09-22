@@ -14,10 +14,10 @@ function required(formData: FormData, key: string) {
 }
 
 function revalidateLead(requestId: string) {
-  revalidatePath(`/partner/leads/${requestId}`);
-  revalidatePath("/partner/dashboard");
-  revalidatePath("/partner/leads");
-  revalidatePath(`/broker/leads/${requestId}`);
+  revalidatePath(`/broker/requests/${requestId}`);
+  revalidatePath("/broker/dashboard");
+  revalidatePath("/broker/requests");
+  revalidatePath(`/broker/requests/${requestId}`);
   revalidatePath("/broker");
 }
 
@@ -60,7 +60,7 @@ export async function scheduleAppointmentAction(formData: FormData) {
   });
   if (error) throw new Error(error.message);
   revalidateLead(requestId);
-  revalidatePath("/partner/appointments");
+  revalidatePath("/broker/appointments");
 }
 
 export async function createOfferAction(formData: FormData) {
@@ -80,7 +80,7 @@ export async function createOfferAction(formData: FormData) {
   });
   if (error) throw new Error(error.message);
   revalidateLead(requestId);
-  revalidatePath("/partner/offers");
+  revalidatePath("/broker/offers");
 }
 
 export async function updateOfferStatusAction(formData: FormData) {
@@ -105,7 +105,7 @@ export async function updateOfferStatusAction(formData: FormData) {
     .eq("consultation_request_id", requestId);
   if (error) throw new Error(error.message);
   revalidateLead(requestId);
-  revalidatePath("/partner/offers");
+  revalidatePath("/broker/offers");
 }
 
 export async function createContractAction(formData: FormData) {
@@ -133,6 +133,6 @@ export async function createContractAction(formData: FormData) {
   });
   if (error) throw new Error(error.message);
   revalidateLead(requestId);
-  revalidatePath("/partner/contracts");
-  revalidatePath("/partner/commissions");
+  revalidatePath("/broker/contracts");
+  revalidatePath("/broker/commissions");
 }
