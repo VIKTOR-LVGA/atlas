@@ -28,5 +28,32 @@ export async function refreshIntelligenceSnapshotsAction() {
   });
   if (error) throw new Error(error.message);
   revalidatePath("/control-center/intelligence");
+  revalidatePath("/control-center/health");
   revalidatePath("/intelligence/dashboard");
+}
+
+export async function setIntelligenceCompanyStatusAction(formData: FormData) {
+  const { supabase } = await requireOperationsRole(["admin"]);
+  const companyId = String(formData.get("company_id") ?? "");
+  const status = String(formData.get("status") ?? "");
+  if (!companyId || !["active", "suspended"].includes(status)) {
+    throw new Error("invalid company status update");
+  }
+  const { error } = await supabase
+    .from("intelligence_companies")
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq("id", companyId);
+  if (error) throw new Error(error.message);
+  if (status === "suspended") {
+    await supabase
+      .from("intelligence_memberships")
+      .update({ active: false })
+      .eq("company_id", companyId);
+  } else {
+    await supabase
+      .from("intelligence_memberships")
+      .update({ active: true })
+      .eq("company_id", companyId);
+  }
+  revalidatePath("/control-center/intelligence");
 }

@@ -71,17 +71,29 @@ ATLAS_DEBUG_EXTRACTION_SUMMARY=true
 
 ```bash
 npm run lint
+npm run typecheck
 npm run build
+npm run verify:migrations
+npm run test:intelligence
+npm run test:financial
+npm run test:knowledge
+npm run test:pilot
 ```
 
-## Learn More
+## Environments
 
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Supabase Documentation](https://supabase.com/docs)
-- [OpenAI API Documentation](https://platform.openai.com/docs)
+See `docs/environment-separation.md`. Prefer Staging/local Supabase for fixtures.
+Never commit secrets. Production service role belongs only in Vercel Production.
+
+## Architecture & ops
+
+- `docs/architecture.md`
+- `docs/pilot/operations.md`
+- `docs/pilot/readiness-checklist.md`
+- `docs/operations/incident-runbook.md`
+- `docs/privacy/data-map.md`
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Set Production env vars in Vercel. Configure `CRON_SECRET` for daily Intelligence snapshots
+(`vercel.json` cron → `/api/cron/intelligence-snapshots`).

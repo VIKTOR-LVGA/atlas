@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   OperationsHeader,
   OperationsPanel,
@@ -8,6 +7,7 @@ import { requireOperationsRole } from "@/lib/operations-access";
 import {
   refreshIntelligenceSnapshotsAction,
   reviewIntelligenceApplicationAction,
+  setIntelligenceCompanyStatusAction,
 } from "@/app/control-center/intelligence-actions";
 
 export const metadata = { title: "Intelligence Partners | Control Center" };
@@ -191,12 +191,20 @@ export default async function ControlCenterIntelligencePage() {
                           "—"}
                       </p>
                     </div>
-                    <Link
-                      href={`/control-center/intelligence`}
-                      className="text-[11px] text-accent"
-                    >
-                      Gestisci
-                    </Link>
+                    <form action={setIntelligenceCompanyStatusAction}>
+                      <input type="hidden" name="company_id" value={String(company.id)} />
+                      <input
+                        type="hidden"
+                        name="status"
+                        value={company.status === "active" ? "suspended" : "active"}
+                      />
+                      <button
+                        type="submit"
+                        className="rounded-lg border border-border px-2.5 py-1.5 text-[11px]"
+                      >
+                        {company.status === "active" ? "Sospendi" : "Riattiva"}
+                      </button>
+                    </form>
                   </div>
                 </li>
               ))}

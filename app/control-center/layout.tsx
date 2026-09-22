@@ -19,6 +19,7 @@ const nav = [
   { href: "/control-center/contracts", label: "Contratti", icon: "contracts" as const },
   { href: "/control-center/commissions", label: "Commissioni", icon: "revenue" as const },
   { href: "/control-center/analytics", label: "Analytics", icon: "analytics" as const },
+  { href: "/control-center/health", label: "Health", icon: "admin" as const },
   { href: "/control-center/audit", label: "Audit", icon: "audit" as const },
   { href: "/control-center/profile", label: "Profilo", icon: "profile" as const },
 ];

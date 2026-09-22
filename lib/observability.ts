@@ -5,6 +5,8 @@
  * document content, passwords, tokens, emails, policy numbers or payloads.
  */
 
+import { createHash, randomBytes } from "crypto";
+
 export type AtlasErrorRole = "consumer" | "broker" | "admin" | "public";
 
 export type AtlasErrorEvent = {
@@ -40,4 +42,39 @@ export function reportAtlasError(event: AtlasErrorEvent) {
   };
 
   console.error("[atlas:error]", payload);
+}
+
+/** Short public-facing error reference — never include stack or secrets. */
+export function createErrorTraceId(prefix = "atl"): string {
+  const stamp = Date.now().toString(36);
+  const rand = randomBytes(4).toString("hex");
+  return `${prefix}_${stamp}_${rand}`;
+}
+
+export function hashForLog(value: string): string {
+  return createHash("sha256").update(value).digest("hex").slice(0, 12);
+}
+
+export function publicErrorMessage(traceId: string): string {
+  return `Si è verificato un problema tecnico. Codice riferimento: ${traceId}`;
+}
+
+export function logServerError(
+  scope: string,
+  error: unknown,
+  extras?: Record<string, unknown>
+) {
+  const traceId = createErrorTraceId();
+  const message = error instanceof Error ? error.message : String(error);
+  console.error(
+    JSON.stringify({
+      level: "error",
+      scope,
+      traceId,
+      message,
+      ...extras,
+      at: new Date().toISOString(),
+    })
+  );
+  return traceId;
 }

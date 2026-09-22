@@ -168,9 +168,15 @@ export function IconRefresh({ className }: IconProps) {
 export function IconCar({ className }: IconProps) {
   return (
     <IconBase className={className}>
-      <path d="M5 17h14M6 17l-1-5h14l-1 5M7 12l1.5-4h7L17 12" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="7.5" cy="17" r="1.5" fill="currentColor" stroke="none" />
-      <circle cx="16.5" cy="17" r="1.5" fill="currentColor" stroke="none" />
+      <path
+        d="M4.5 15.5h15M6 15.5l.8-3.2A2 2 0 018.7 10.5h6.6a2 2 0 011.9 1.8l.8 3.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M7.2 10.5l1.1-2.4A1.5 1.5 0 019.7 7.2h4.6a1.5 1.5 0 011.4.9l1.1 2.4" strokeLinejoin="round" />
+      <circle cx="7.8" cy="15.5" r="1.6" />
+      <circle cx="16.2" cy="15.5" r="1.6" />
+      <path d="M10.5 12.8h3" strokeLinecap="round" />
     </IconBase>
   );
 }
@@ -178,7 +184,8 @@ export function IconCar({ className }: IconProps) {
 export function IconHome({ className }: IconProps) {
   return (
     <IconBase className={className}>
-      <path d="M4 10.5L12 4l8 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1v-9.5z" strokeLinejoin="round" />
+      <path d="M4 11L12 4.5 20 11v8.2a1.3 1.3 0 01-1.3 1.3H5.3A1.3 1.3 0 014 19.2V11z" strokeLinejoin="round" />
+      <path d="M10 20.5V14h4v6.5" strokeLinejoin="round" />
     </IconBase>
   );
 }
@@ -186,7 +193,11 @@ export function IconHome({ className }: IconProps) {
 export function IconHealth({ className }: IconProps) {
   return (
     <IconBase className={className}>
-      <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+      <path
+        d="M8.5 4.5h7a2 2 0 012 2V9h1.2A1.8 1.8 0 0120.5 10.8v2.4a1.8 1.8 0 01-1.8 1.8H17.5v2.5a2 2 0 01-2 2h-7a2 2 0 01-2-2v-2.5H5.3A1.8 1.8 0 013.5 13.2v-2.4A1.8 1.8 0 015.3 9H6.5V6.5a2 2 0 012-2z"
+        strokeLinejoin="round"
+      />
+      <path d="M12 9.5v5M9.5 12h5" strokeLinecap="round" />
     </IconBase>
   );
 }
@@ -194,7 +205,11 @@ export function IconHealth({ className }: IconProps) {
 export function IconShield({ className }: IconProps) {
   return (
     <IconBase className={className}>
-      <path d="M12 3l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V7l8-4z" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M12 3.2l7.5 3.2v5.6c0 4.8-3.2 8.2-7.5 9.8-4.3-1.6-7.5-5-7.5-9.8V6.4L12 3.2z"
+        strokeLinejoin="round"
+      />
+      <path d="M9.2 12.1l1.9 1.9 3.7-3.8" strokeLinecap="round" strokeLinejoin="round" />
     </IconBase>
   );
 }
@@ -202,7 +217,11 @@ export function IconShield({ className }: IconProps) {
 export function IconLife({ className }: IconProps) {
   return (
     <IconBase className={className}>
-      <path d="M12 21s-6-4.5-6-10a6 6 0 1112 0c0 5.5-6 10-6 10z" strokeLinejoin="round" />
+      <path
+        d="M12 20.5S5.5 16.2 5.5 10.8a4.8 4.8 0 019.6 0c0 5.4-6.5 9.7-6.5 9.7z"
+        strokeLinejoin="round"
+      />
+      <path d="M12 8.2v4.2M10 10.3h4" strokeLinecap="round" />
     </IconBase>
   );
 }
@@ -210,7 +229,50 @@ export function IconLife({ className }: IconProps) {
 export function IconLegal({ className }: IconProps) {
   return (
     <IconBase className={className}>
-      <path d="M12 3v3M8 6h8M10 9h4v12H10V9z" strokeLinecap="round" />
+      <path d="M12 3.5v3.2M7.5 6.7h9" strokeLinecap="round" />
+      <path d="M8.5 9.5h7v11h-7v-11z" strokeLinejoin="round" />
+      <path d="M10.2 12.2h3.6M10.2 15h3.6M10.2 17.8h2.4" strokeLinecap="round" />
+    </IconBase>
+  );
+}
+
+export function IconTravel({ className }: IconProps) {
+  return (
+    <IconBase className={className}>
+      <path d="M3.5 16.5l6.2-1.4 4.8-7.8 1.5.9-2.8 7.2 4.3 1.1.9-1.6 1.3.8-2.1 3.7-9.6-1.1L3.5 16.5z" strokeLinejoin="round" />
+      <path d="M9.2 14.8l-2.4 4.2" strokeLinecap="round" />
+    </IconBase>
+  );
+}
+
+export function IconPension({ className }: IconProps) {
+  return (
+    <IconBase className={className}>
+      <rect x="4.5" y="8" width="15" height="12" rx="2" />
+      <path d="M8 8V6.8A4 4 0 0112 3a4 4 0 014 3.8V8" strokeLinecap="round" />
+      <path d="M9.5 13.5h5M9.5 16.5h3" strokeLinecap="round" />
+    </IconBase>
+  );
+}
+
+export function IconBuilding({ className }: IconProps) {
+  return (
+    <IconBase className={className}>
+      <path d="M5 20.5V6.5l7-3 7 3v14" strokeLinejoin="round" />
+      <path d="M9 9.5h1.5M13.5 9.5H15M9 13h1.5M13.5 13H15M9 16.5h1.5M13.5 16.5H15" strokeLinecap="round" />
+      <path d="M10.5 20.5V17H13.5v3.5" strokeLinejoin="round" />
+    </IconBase>
+  );
+}
+
+export function IconPet({ className }: IconProps) {
+  return (
+    <IconBase className={className}>
+      <ellipse cx="12" cy="14.5" rx="5.2" ry="4.2" />
+      <circle cx="7.2" cy="9.2" r="1.7" />
+      <circle cx="10.2" cy="7.6" r="1.5" />
+      <circle cx="13.8" cy="7.6" r="1.5" />
+      <circle cx="16.8" cy="9.2" r="1.7" />
     </IconBase>
   );
 }
