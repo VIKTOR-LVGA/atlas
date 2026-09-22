@@ -101,6 +101,11 @@ export default async function ControlCenterDashboard({
           detail={`Pending · fail ${s.documentsFailed}`}
         />
         <OperationsMetric
+          label="Doc Intelligence"
+          value={String(Math.max(0, s.documents - s.documentsFailed))}
+          detail={`OK proxy · fail ${s.documentsFailed} (no PII)`}
+        />
+        <OperationsMetric
           label="Netto storico"
           value={formatChf(workspace.summary.netCommission)}
         />

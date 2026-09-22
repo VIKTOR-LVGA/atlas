@@ -11,7 +11,7 @@ export type SwissInsurerDefinition = {
 
 export const swissInsurerRegistry: SwissInsurerDefinition[] = [
   { id: "axa", brand: "AXA", legalEntities: ["AXA Versicherungen AG", "AXA Assicurazioni SA", "AXA-ARAG Rechtsschutz AG"], domains: ["axa.ch"], aliases: ["axa", "axa winterthur", "axa-arag"], productSignals: ["intertours"] },
-  { id: "zurich", brand: "Zurich", legalEntities: ["Zurich Insurance Company Ltd", "Zurigo Compagnia di Assicurazioni SA"], domains: ["zurich.ch"], aliases: ["zurich", "zurigo assicurazioni"], productSignals: ["relax assistance", "orion"] },
+  { id: "zurich", brand: "Zurich", legalEntities: ["Zurich Insurance Company Ltd", "Zurigo Compagnia di Assicurazioni SA", "Zurich Compagnia di Assicurazioni SA"], domains: ["zurich.ch"], aliases: ["zurich", "zurigo assicurazioni", "zurich compagnia"], productSignals: ["relax assistance", "orion", "help point"] },
   { id: "helvetia", brand: "Helvetia", legalEntities: ["Helvetia Compagnia Svizzera d'Assicurazioni SA", "Helvetia Schweizerische Versicherungsgesellschaft AG"], domains: ["helvetia.com"], aliases: ["helvetia"], productSignals: ["you­niverse", "youniverse"] },
   { id: "allianz", brand: "Allianz Suisse", legalEntities: ["Allianz Suisse Societa di Assicurazioni SA", "Allianz Suisse Versicherungs-Gesellschaft AG", "Allianz Suisse Societa di Assicurazioni sulla Vita SA"], domains: ["allianz.ch"], aliases: ["allianz", "allianz suisse"], productSignals: ["smart invest", "balance invest"] },
   { id: "mobiliar", brand: "La Mobiliare", legalEntities: ["Societa svizzera d'assicurazioni La Mobiliare", "Schweizerische Mobiliar Versicherungsgesellschaft AG"], domains: ["mobiliere.ch", "mobiliar.ch"], aliases: ["la mobiliare", "mobiliare", "mobiliere", "mobiliar"], productSignals: [] },

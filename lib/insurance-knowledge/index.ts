@@ -1,4 +1,9 @@
 export {
+  ATLAS_CLASSIFIER_VERSION,
+  ATLAS_EXTRACTOR_VERSION,
+  ATLAS_KNOWLEDGE_VERSION,
+} from "@/lib/insurance-knowledge/versions";
+export {
   SWISS_INSURANCE_KNOWLEDGE_RULES,
 } from "@/lib/insurance-knowledge/ch";
 export {
@@ -23,11 +28,14 @@ export {
 export {
   classifyInsuranceDocument,
   detectInsuranceDocumentLanguage,
+  friendlyInsuranceDocumentTypeLabel,
   insuranceDocumentTypes,
   insuranceDocumentTypeLabels,
   isInsuranceDocumentType,
+  scorePersonalContractSignals,
   type InsuranceDocumentType,
   type InsuranceDocumentLanguage,
+  type PersonalContractSignals,
 } from "@/lib/insurance-knowledge/document-types";
 export {
   canonicalCoverageTaxonomy,

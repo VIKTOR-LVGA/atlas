@@ -53,6 +53,15 @@ assert.equal(cga.type, "general_conditions", "CGA must never classify as policy"
 assert.equal(canPersistAsPersonalPolicy(cga.type), false, "CGA must not create a personal policy");
 assert.equal(canPersistAsPersonalPolicy("policy"), true, "a policy can create a personal policy");
 
+const zurichMotor = classifyInsuranceDocument(fixture("zurich-motor-personal-policy-it.txt"));
+assert.equal(
+  zurichMotor.type,
+  "policy",
+  "Zurich-like personal motor policy must not classify as general_conditions"
+);
+assert.equal(canPersistAsPersonalPolicy(zurichMotor.type), true);
+assert.equal(zurichMotor.embeddedGeneralConditionsReference, true);
+
 const requiredCategories = [
   "vehicle",
   "health_basic",

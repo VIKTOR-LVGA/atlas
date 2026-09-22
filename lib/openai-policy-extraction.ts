@@ -18,12 +18,16 @@ import {
   typedPolicyTypes,
 } from "@/lib/policy-types";
 import {
+  ATLAS_CLASSIFIER_VERSION,
+  ATLAS_EXTRACTOR_VERSION,
+  ATLAS_KNOWLEDGE_VERSION,
   buildExtractionKnowledgeContext,
   canPersistAsPersonalPolicy,
   canonicalCoverageTypes,
   classifyInsuranceDocument,
   detectInsuranceDocumentLanguage,
   formatSwissInsuranceKnowledgePromptSection,
+  friendlyInsuranceDocumentTypeLabel,
   isSwissKnowledgeRuleId,
   recognizeSwissInsurer,
 } from "@/lib/insurance-knowledge";
@@ -155,9 +159,10 @@ export class NonPolicyDocumentError extends OpenAIPolicyExtractionError {
   readonly documentType: string;
 
   constructor(documentType: string) {
+    const label = friendlyInsuranceDocumentTypeLabel(documentType);
     super(
       `non_policy_document:${documentType}`,
-      `Documento classificato come ${documentType}: archiviato, ma non trasformato in polizza.`
+      `Non siamo riusciti a identificare con certezza tutti i dati della polizza. Il documento sembra una «${label}» e per ora resta archiviato senza creare una polizza automatica. Puoi riprovare l'analisi o creare la polizza manualmente.`
     );
     this.name = "NonPolicyDocumentError";
     this.documentType = documentType;
@@ -1429,7 +1434,14 @@ export const openAIPolicyDocumentExtractor: PolicyDocumentExtractor = {
         insurer_legal_entity: insurer.legalEntity,
         insurer_confidence: insurer.confidence,
         insurer_signals: insurer.matchedSignals,
-        classifier: "atlas-swiss-v1",
+        classifier: ATLAS_CLASSIFIER_VERSION,
+        knowledge_version: ATLAS_KNOWLEDGE_VERSION,
+        extractor_version: ATLAS_EXTRACTOR_VERSION,
+        personal_contract_score: classification.personalContractScore ?? null,
+        embedded_general_conditions_reference:
+          classification.embeddedGeneralConditionsReference ?? false,
+        reasoning_signals: classification.reasoningSignals ?? [],
+        processed_at: new Date().toISOString(),
       },
     });
 

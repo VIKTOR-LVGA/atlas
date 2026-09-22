@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { MotorPolicyExperience } from "@/components/policies/detail/MotorPolicyExperience";
 import { PolicyConsumerOverview } from "@/components/policies/detail/PolicyConsumerOverview";
 import { PolicyCoverageIntelligence } from "@/components/policies/detail/PolicyCoverageIntelligence";
 import { PolicyDetailFactsCard } from "@/components/policies/detail/PolicyDetailFactsCard";
@@ -191,6 +192,7 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
     <PageShell backHref="/policies" backLabel="Torna alle polizze">
       <RevealStagger>
         <PolicyConsumerOverview policy={policy} />
+        <MotorPolicyExperience policy={policy} />
 
         {assigned === "1" ? (
           <StatusFlash tone="success">

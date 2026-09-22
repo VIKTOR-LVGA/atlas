@@ -80,7 +80,8 @@ export function DocumentAnalysisForm({
     !canPersistAsPersonalPolicy(documentType);
   const showOpenPolicy = documentStatus === "analyzed" && hasLinkedPolicy;
   const showRecreate =
-    documentStatus === "analyzed" && !hasLinkedPolicy && !isArchivedReference;
+    (documentStatus === "analyzed" && !hasLinkedPolicy && !isArchivedReference) ||
+    isArchivedReference;
   const showAnalyze =
     documentStatus === "uploaded" ||
     documentStatus === "failed" ||
@@ -95,7 +96,7 @@ export function DocumentAnalysisForm({
       : documentStatus === "failed"
         ? "Riprova analisi"
         : isArchivedReference
-          ? "Documento archiviato"
+          ? "Analizza di nuovo"
         : showRecreate
           ? "Ricrea bozza"
           : showOpenPolicy
@@ -206,9 +207,10 @@ export function DocumentAnalysisForm({
         ) : null}
 
         {isArchivedReference && variant !== "icon" ? (
-          <p className="text-[11px] leading-relaxed text-muted">
-            Il tipo di documento non rappresenta una polizza personale e resta nel wallet
-            come riferimento.
+          <p className="text-[12px] leading-relaxed text-muted">
+            ATLAS non ha creato una polizza automatica da questo PDF. Puoi{" "}
+            <span className="font-medium text-foreground">analizzare di nuovo</span>,
+            creare la polizza manualmente oppure segnalare una classificazione errata.
           </p>
         ) : null}
 

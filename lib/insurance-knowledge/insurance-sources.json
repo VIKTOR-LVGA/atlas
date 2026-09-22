@@ -8,7 +8,9 @@
     "language": "it",
     "url": "https://www.bag.admin.ch/it/assicurazione-malattie-premi-e-partecipazione-ai-costi",
     "accessed_at": "2026-09-20",
-    "categories": ["health_basic"]
+    "categories": [
+      "health_basic"
+    ]
   },
   {
     "insurer": "Swiss Federal Social Insurance Office (FSIO/BSV)",
@@ -19,7 +21,9 @@
     "language": "it",
     "url": "https://www.bsv.admin.ch/it/il-terzo-pilastro",
     "accessed_at": "2026-09-20",
-    "categories": ["pension"]
+    "categories": [
+      "pension"
+    ]
   },
   {
     "insurer": "AXA",
@@ -30,7 +34,9 @@
     "language": "it",
     "url": "https://www.axa.ch/it/clienti-privati/offerte/veicoli-viaggi/assicurazione-auto.html",
     "accessed_at": "2026-09-20",
-    "categories": ["vehicle"]
+    "categories": [
+      "vehicle"
+    ]
   },
   {
     "insurer": "AXA",
@@ -41,7 +47,10 @@
     "language": "it",
     "url": "https://www.axa.ch/it/clienti-privati/offerte/abitare-proprieta/mobilia-domestica/assicurazione-economia-domestica.html",
     "accessed_at": "2026-09-20",
-    "categories": ["household", "private_liability"]
+    "categories": [
+      "household",
+      "private_liability"
+    ]
   },
   {
     "insurer": "AXA",
@@ -52,7 +61,9 @@
     "language": "it",
     "url": "https://www.axa.ch/it/clienti-privati/offerte/veicoli-viaggi/assicurazione-viaggi.html",
     "accessed_at": "2026-09-20",
-    "categories": ["travel"]
+    "categories": [
+      "travel"
+    ]
   },
   {
     "insurer": "Zurich",
@@ -63,7 +74,9 @@
     "language": "it",
     "url": "https://www.zurich.ch/it/clientela-privata/mobilita-viaggi/assicurazione-auto",
     "accessed_at": "2026-09-20",
-    "categories": ["vehicle"]
+    "categories": [
+      "vehicle"
+    ]
   },
   {
     "insurer": "Zurich",
@@ -74,7 +87,10 @@
     "language": "it",
     "url": "https://www.zurich.ch/-/media/zurich-site/content/privatkunden/haftung-recht/dokumente/avb-haushaltversicherung/cga-assicurazione-economia-domestica.pdf",
     "accessed_at": "2026-09-20",
-    "categories": ["household", "private_liability"]
+    "categories": [
+      "household",
+      "private_liability"
+    ]
   },
   {
     "insurer": "Zurich / Orion",
@@ -85,7 +101,9 @@
     "language": "it",
     "url": "https://www.zurich.ch/-/media/zurich-site/content/privatkunden/haftung-recht/dokumente/avb-privat-verkehrsrechtsschutzversicherung/cga-protezione-giuridica-materia-circolazione-privati.pdf",
     "accessed_at": "2026-09-20",
-    "categories": ["legal_protection"]
+    "categories": [
+      "legal_protection"
+    ]
   },
   {
     "insurer": "Helvetia",
@@ -96,7 +114,9 @@
     "language": "it",
     "url": "https://www.helvetia.com/ch/web/it/clienti-privati/assicurazioni/assicurazione-auto.html",
     "accessed_at": "2026-09-20",
-    "categories": ["vehicle"]
+    "categories": [
+      "vehicle"
+    ]
   },
   {
     "insurer": "Helvetia",
@@ -107,7 +127,10 @@
     "language": "it",
     "url": "https://www.helvetia.com/ch/web/it/clienti-privati/assicurazioni/rc-domestica.html",
     "accessed_at": "2026-09-20",
-    "categories": ["household", "private_liability"]
+    "categories": [
+      "household",
+      "private_liability"
+    ]
   },
   {
     "insurer": "Helvetia",
@@ -118,7 +141,10 @@
     "language": "it",
     "url": "https://www.helvetia.com/ch/web/it/clienti-privati/previdenza/assicurazione-sulla-vita.html",
     "accessed_at": "2026-09-20",
-    "categories": ["life", "pension"]
+    "categories": [
+      "life",
+      "pension"
+    ]
   },
   {
     "insurer": "Allianz Suisse",
@@ -129,7 +155,10 @@
     "language": "it",
     "url": "https://www.allianz.ch/it/clienti-privati/offerte/veicoli-viaggi/downloads.html",
     "accessed_at": "2026-09-20",
-    "categories": ["vehicle", "travel"]
+    "categories": [
+      "vehicle",
+      "travel"
+    ]
   },
   {
     "insurer": "Allianz Suisse",
@@ -140,7 +169,10 @@
     "language": "it",
     "url": "https://www.allianz.ch/it/clienti-privati/guida/previdenza/assicurazione-vita.html",
     "accessed_at": "2026-09-20",
-    "categories": ["life", "pension"]
+    "categories": [
+      "life",
+      "pension"
+    ]
   },
   {
     "insurer": "La Mobiliare",
@@ -151,7 +183,11 @@
     "language": "fr",
     "url": "https://www.mobiliere.ch/media/17120/download?inline=",
     "accessed_at": "2026-09-20",
-    "categories": ["household", "building", "private_liability"]
+    "categories": [
+      "household",
+      "building",
+      "private_liability"
+    ]
   },
   {
     "insurer": "Baloise",
@@ -162,7 +198,10 @@
     "language": "it",
     "url": "https://www.baloise.ch/dam/baloise-ch/privatkunden/documents/it/vertragsbedingungen/140_1261_i.pdf",
     "accessed_at": "2026-09-20",
-    "categories": ["household", "private_liability"]
+    "categories": [
+      "household",
+      "private_liability"
+    ]
   },
   {
     "insurer": "Generali",
@@ -173,7 +212,9 @@
     "language": "it",
     "url": "https://www.generali.ch/it/privati/abitazione-proprieta/assicurazione-mobilia-domestica",
     "accessed_at": "2026-09-20",
-    "categories": ["household"]
+    "categories": [
+      "household"
+    ]
   },
   {
     "insurer": "Generali",
@@ -184,7 +225,10 @@
     "language": "it",
     "url": "https://www.generali.ch/it/privati/veicoli-viaggi/assicurazione-viaggi",
     "accessed_at": "2026-09-20",
-    "categories": ["travel", "legal_protection"]
+    "categories": [
+      "travel",
+      "legal_protection"
+    ]
   },
   {
     "insurer": "Vaudoise",
@@ -195,7 +239,13 @@
     "language": "fr",
     "url": "https://www.vaudoise.ch/fr/a-notre-propos/courtiers/documentations/conditions-generales-assurance",
     "accessed_at": "2026-09-20",
-    "categories": ["household", "private_liability", "building", "travel", "vehicle"]
+    "categories": [
+      "household",
+      "private_liability",
+      "building",
+      "travel",
+      "vehicle"
+    ]
   },
   {
     "insurer": "CSS",
@@ -206,7 +256,10 @@
     "language": "it",
     "url": "https://www.css.ch/it/clienti-privati/presto-fatto/fallo-da-solo/ordinazione/cga.html",
     "accessed_at": "2026-09-20",
-    "categories": ["health_basic", "health_supplementary"]
+    "categories": [
+      "health_basic",
+      "health_supplementary"
+    ]
   },
   {
     "insurer": "Helsana",
@@ -217,7 +270,11 @@
     "language": "it",
     "url": "https://www.helsana.ch/it/privati/servizi/documenti-e-download/condizioni-assicurazione.html",
     "accessed_at": "2026-09-20",
-    "categories": ["health_basic", "health_supplementary", "legal_protection"]
+    "categories": [
+      "health_basic",
+      "health_supplementary",
+      "legal_protection"
+    ]
   },
   {
     "insurer": "SWICA",
@@ -228,7 +285,10 @@
     "language": "it",
     "url": "https://www.swica.ch/it/privati/assicurazioni/assicurazione-base/panoramica",
     "accessed_at": "2026-09-20",
-    "categories": ["health_basic", "health_supplementary"]
+    "categories": [
+      "health_basic",
+      "health_supplementary"
+    ]
   },
   {
     "insurer": "Sanitas",
@@ -239,7 +299,11 @@
     "language": "it",
     "url": "https://www.sanitas.com/it/clienti-privati/servizi/aiuto/documenti-e-download/condizioni-assicurazione.html",
     "accessed_at": "2026-09-20",
-    "categories": ["health_basic", "health_supplementary", "legal_protection"]
+    "categories": [
+      "health_basic",
+      "health_supplementary",
+      "legal_protection"
+    ]
   },
   {
     "insurer": "Groupe Mutuel",
@@ -250,7 +314,10 @@
     "language": "it",
     "url": "https://www.groupemutuel.ch/it/clienti-privati/i-nostri-prodotti/salute.html",
     "accessed_at": "2026-09-20",
-    "categories": ["health_basic", "health_supplementary"]
+    "categories": [
+      "health_basic",
+      "health_supplementary"
+    ]
   },
   {
     "insurer": "Visana",
@@ -261,6 +328,285 @@
     "language": "it",
     "url": "https://www.visana.ch/it/clienti-privati/assicurazioni/malattia-e-infortunio/assicurazioni-di-base/tradizionale",
     "accessed_at": "2026-09-20",
-    "categories": ["health_basic", "health_supplementary"]
+    "categories": [
+      "health_basic",
+      "health_supplementary"
+    ]
+  },
+  {
+    "insurer": "Zurich",
+    "title": "CGA Assicurazione di veicoli a motore (IT)",
+    "document_category": "general_conditions",
+    "version": "public official PDF",
+    "valid_from": null,
+    "language": "it",
+    "url": "https://www.zurich.ch/-/media/zurich-site/content/privatkunden/fahrzeuge-reisen/dokumente/avb-motorfahrzeug-versicherung/cga-assicurazione-veicoli-a-motore-auto.pdf?sc_lang=it",
+    "accessed_at": "2026-09-22",
+    "categories": [
+      "vehicle"
+    ],
+    "notes": "Official Zurich motor AVB/CGA – public product conditions, not a personal policy"
+  },
+  {
+    "insurer": "Zurich",
+    "title": "AVB Motorfahrzeugversicherung (DE)",
+    "document_category": "general_conditions",
+    "version": "public official PDF",
+    "valid_from": null,
+    "language": "de",
+    "url": "https://www.zurich.ch/-/media/zurich-site/content/privatkunden/fahrzeuge-reisen/dokumente/avb-motorfahrzeug-versicherung/avb-motorfahrzeuge-auto-motorrad-versicherung.pdf?la=de",
+    "accessed_at": "2026-09-22",
+    "categories": [
+      "vehicle"
+    ]
+  },
+  {
+    "insurer": "Zurich",
+    "title": "CGA Assurance de véhicules à moteur (FR)",
+    "document_category": "general_conditions",
+    "version": "public official PDF",
+    "valid_from": null,
+    "language": "fr",
+    "url": "https://www.zurich.ch/-/media/zurich-site/content/privatkunden/fahrzeuge-reisen/dokumente/avb-motorfahrzeug-versicherung/cga-assurance-vehicule-automobile-moto.pdf?sc_lang=fr",
+    "accessed_at": "2026-09-22",
+    "categories": [
+      "vehicle"
+    ]
+  },
+  {
+    "insurer": "AXA",
+    "title": "CGA Assicurazione veicoli a motore (IT)",
+    "document_category": "general_conditions",
+    "version": "public official PDF",
+    "valid_from": null,
+    "language": "it",
+    "url": "https://www.axa.ch/servlets/external/docstoredocument?accesscode=anerb",
+    "accessed_at": "2026-09-22",
+    "categories": [
+      "vehicle"
+    ]
+  },
+  {
+    "insurer": "Allianz Suisse",
+    "title": "Condizioni generali – Assicurazione veicoli a motore (IT)",
+    "document_category": "general_conditions",
+    "version": "Edizione 06/24 SMAA603",
+    "valid_from": "2024-06-01",
+    "language": "it",
+    "url": "https://www.allianz.ch/content/dam/onemarketing/azch/common/allianz/it/allianz-assicurazione_veicoli-condizioni_generali.pdf",
+    "accessed_at": "2026-09-22",
+    "categories": [
+      "vehicle"
+    ],
+    "notes": "Official Allianz Suisse motor CG PDF"
+  },
+  {
+    "insurer": "Generali",
+    "title": "CGA Assicurazione veicoli (IT)",
+    "document_category": "general_conditions",
+    "version": "Edizione 2026",
+    "valid_from": "2026-01-01",
+    "language": "it",
+    "url": "https://www.generali.ch/content/dam/generali/pdf/produktdokumente/avb-ki/motorfahrzeuge/avb-assicurazione-veicoli-it.pdf",
+    "accessed_at": "2026-09-22",
+    "categories": [
+      "vehicle"
+    ]
+  },
+  {
+    "insurer": "Generali",
+    "title": "CGA Assurance véhicules (FR)",
+    "document_category": "general_conditions",
+    "version": "Edition 2026",
+    "valid_from": "2026-01-01",
+    "language": "fr",
+    "url": "https://www.generali.ch/content/dam/generali/pdf/produktdokumente/avb-ki/motorfahrzeuge/avb-assurance-vehicules-fr.pdf",
+    "accessed_at": "2026-09-22",
+    "categories": [
+      "vehicle"
+    ]
+  },
+  {
+    "insurer": "Generali",
+    "title": "AVB Fahrzeugversicherung (EN public)",
+    "document_category": "general_conditions",
+    "version": "Edition 2026",
+    "valid_from": "2026-01-01",
+    "language": "en",
+    "url": "https://www.generali.ch/content/dam/generali/pdf/produktdokumente/avb-ki/motorfahrzeuge/avb-vehicle-insurance-en.pdf",
+    "accessed_at": "2026-09-22",
+    "categories": [
+      "vehicle"
+    ]
+  },
+  {
+    "insurer": "Helvetia",
+    "title": "AVB Helvetia Motorfahrzeugversicherung (DE mirror via Remaag catalog)",
+    "document_category": "general_conditions",
+    "version": "Ausgabe März 2026",
+    "valid_from": "2026-03-01",
+    "language": "de",
+    "url": "https://www.remaag.ch/files/08_avb-konfigurator/02_avb-download/14_helvetia/AVB%20Helvetia%20Motorfahrzeugversicherung%2003-2026.pdf",
+    "accessed_at": "2026-09-22",
+    "categories": [
+      "vehicle"
+    ],
+    "notes": "Public AVB catalog mirror; prefer helvetia.com when direct PDF link available"
+  },
+  {
+    "insurer": "AXA",
+    "title": "CGA Assicurazione veicoli a motore (IT, ag7fx)",
+    "document_category": "general_conditions",
+    "version": "edizione 10.2021",
+    "valid_from": "2021-10-01",
+    "language": "it",
+    "url": "https://www.axa.ch/doc/ag7fx",
+    "accessed_at": "2026-09-22",
+    "categories": [
+      "vehicle"
+    ]
+  },
+  {
+    "insurer": "AXA",
+    "title": "STRADA product information (IT)",
+    "document_category": "customer_information",
+    "version": "unknown",
+    "valid_from": null,
+    "language": "it",
+    "url": "https://www.axa.ch/doc/aacjh",
+    "accessed_at": "2026-09-22",
+    "categories": [
+      "vehicle"
+    ]
+  },
+  {
+    "insurer": "Baloise",
+    "title": "Assicurazione flotta veicoli a motore (product page)",
+    "document_category": "product_overview",
+    "version": "current web",
+    "valid_from": null,
+    "language": "it",
+    "url": "https://www.baloise.ch/it/clienti-aziendali/assicurare/trasporto-veicoli/veicoli-a-motore.html",
+    "accessed_at": "2026-09-22",
+    "categories": [
+      "vehicle"
+    ]
+  },
+  {
+    "insurer": "La Mobiliare",
+    "title": "Assicurazione veicoli (IT product)",
+    "document_category": "product_overview",
+    "version": "current web",
+    "valid_from": null,
+    "language": "it",
+    "url": "https://www.mobi.ch/it/privati/abitazione-veicoli/veicoli",
+    "accessed_at": "2026-09-22",
+    "categories": [
+      "vehicle"
+    ]
+  },
+  {
+    "insurer": "Vaudoise",
+    "title": "Assurance véhicule (FR product)",
+    "document_category": "product_overview",
+    "version": "current web",
+    "valid_from": null,
+    "language": "fr",
+    "url": "https://www.vaudoise.ch/fr/particuliers/assurances/vehicule",
+    "accessed_at": "2026-09-22",
+    "categories": [
+      "vehicle"
+    ]
+  },
+  {
+    "insurer": "CSS",
+    "title": "Assicurazione di base LAMal (IT)",
+    "document_category": "product_overview",
+    "version": "current web",
+    "valid_from": null,
+    "language": "it",
+    "url": "https://www.css.ch/it/clienti-privati/assicurazioni/assicurazione-base.html",
+    "accessed_at": "2026-09-22",
+    "categories": [
+      "health_basic"
+    ]
+  },
+  {
+    "insurer": "Helsana",
+    "title": "Assicurazione di base (IT)",
+    "document_category": "product_overview",
+    "version": "current web",
+    "valid_from": null,
+    "language": "it",
+    "url": "https://www.helsana.ch/it/privati/assicurazioni/assicurazione-base.html",
+    "accessed_at": "2026-09-22",
+    "categories": [
+      "health_basic"
+    ]
+  },
+  {
+    "insurer": "SWICA",
+    "title": "Assicurazione di base (IT)",
+    "document_category": "product_overview",
+    "version": "current web",
+    "valid_from": null,
+    "language": "it",
+    "url": "https://www.swica.ch/it/privati/assicurazioni/assicurazione-base",
+    "accessed_at": "2026-09-22",
+    "categories": [
+      "health_basic"
+    ]
+  },
+  {
+    "insurer": "Sanitas",
+    "title": "Assicurazione di base (IT)",
+    "document_category": "product_overview",
+    "version": "current web",
+    "valid_from": null,
+    "language": "it",
+    "url": "https://www.sanitas.com/it/privati/assicurazioni/assicurazione-base.html",
+    "accessed_at": "2026-09-22",
+    "categories": [
+      "health_basic"
+    ]
+  },
+  {
+    "insurer": "Groupe Mutuel",
+    "title": "Assicurazione di base (IT)",
+    "document_category": "product_overview",
+    "version": "current web",
+    "valid_from": null,
+    "language": "it",
+    "url": "https://www.groupemutuel.ch/it/clienti-privati/assicurazione-base.html",
+    "accessed_at": "2026-09-22",
+    "categories": [
+      "health_basic"
+    ]
+  },
+  {
+    "insurer": "Visana",
+    "title": "Assicurazione di base (DE)",
+    "document_category": "product_overview",
+    "version": "current web",
+    "valid_from": null,
+    "language": "de",
+    "url": "https://www.visana.ch/de/privatpersonen/grundversicherung",
+    "accessed_at": "2026-09-22",
+    "categories": [
+      "health_basic"
+    ]
+  },
+  {
+    "insurer": "FINMA",
+    "title": "Assicuratori vigilati – panorama",
+    "document_category": "official_guidance",
+    "version": "current web",
+    "valid_from": null,
+    "language": "it",
+    "url": "https://www.finma.ch/it/supervision/assicuratori/",
+    "accessed_at": "2026-09-22",
+    "categories": [
+      "other"
+    ]
   }
 ]

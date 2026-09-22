@@ -163,3 +163,31 @@ export async function analyzeDocumentAction(
 
   redirect(`/policies/${policyId}`);
 }
+
+const DOCUMENT_FEEDBACK_REASONS = new Set([
+  "classification_wrong",
+  "premium_wrong",
+  "coverage_wrong",
+  "date_wrong",
+  "other",
+]);
+
+/** Non-PII structured feedback. Never stores PDF content in the corpus. */
+export async function submitDocumentAnalysisFeedbackAction(input: {
+  documentId: string;
+  reason: string;
+}): Promise<{ ok: boolean }> {
+  const reason = input.reason.trim();
+  if (!input.documentId || !DOCUMENT_FEEDBACK_REASONS.has(reason)) {
+    return { ok: false };
+  }
+
+  const { logPolicyAnalysisInfo } = await import("@/lib/policy-analysis-logging");
+  logPolicyAnalysisInfo("document_analysis_user_feedback", {
+    documentId: input.documentId,
+    reason,
+    // Explicitly omit any document text / PII payload.
+  });
+
+  return { ok: true };
+}
