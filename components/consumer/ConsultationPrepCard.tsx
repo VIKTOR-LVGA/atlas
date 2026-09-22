@@ -32,10 +32,10 @@ export function ConsultationPrepCard({
             scelto di condividere e lo stato della pratica.
           </p>
           <Link
-            href="/consulting"
+            href={`/consultations/${request.id}`}
             className="atlas-btn-secondary mt-4 flex min-h-11 items-center justify-center px-4 text-[13px]"
           >
-            Apri la richiesta
+            Apri la pratica
           </Link>
         </>
       ) : (

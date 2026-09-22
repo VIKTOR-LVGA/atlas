@@ -11,6 +11,8 @@ export type ConsultationRequestInput = {
   preferredContactMethod?: ConsultationRequest["preferredContactMethod"];
   preferredContactTime?: string | null;
   sourceOpportunityId?: string | null;
+  reviewReason?: string | null;
+  reviewReasonDetail?: string | null;
   consent: boolean;
   sharedResources?: Array<{
     type: "policy" | "document" | "vehicle" | "property" | "family_member";
@@ -90,6 +92,8 @@ export async function createConsultationRequest(input: ConsultationRequestInput)
     consent_given_at: new Date().toISOString(),
     privacy_version: CONSULTATION_PRIVACY_VERSION,
     source_opportunity_id: input.sourceOpportunityId ?? null,
+    review_reason: input.reviewReason?.slice(0, 80) ?? null,
+    review_reason_detail: input.reviewReasonDetail?.trim().slice(0, 500) || null,
   }).select("id, status, request_type, message, preferred_contact_method, preferred_contact_time, consent_given_at, privacy_version, source_opportunity_id, created_at, updated_at, closed_at").single();
   if (error || !data) throw new ConsultationDataError("Richiesta non inviata.");
   const sharedResources = (input.sharedResources ?? []).filter(

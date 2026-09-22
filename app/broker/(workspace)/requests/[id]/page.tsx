@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import {
   addBrokerNoteAction,
+  brokerRespondAppointmentAction,
   brokerRespondAssignmentAction,
   createContractAction,
   createOfferAction,
@@ -204,6 +205,7 @@ export default async function BrokerLeadDetailPage({
               <option value="video">Video</option>
               <option value="phone">Telefono</option>
               <option value="in_person">In presenza</option>
+              <option value="other">Altro</option>
             </select>
             <input name="location_or_link" className={operationsInput} placeholder="Link o luogo" />
             <input
@@ -227,6 +229,18 @@ export default async function BrokerLeadDetailPage({
                   {appointmentChannelLabel(String(appointment.channel))} ·{" "}
                   {appointment.duration_minutes ?? "—"} min
                 </p>
+                {String(appointment.status) === "counter_proposed" ? (
+                  <form action={brokerRespondAppointmentAction} className="mt-2 flex flex-wrap gap-2">
+                    <input type="hidden" name="request_id" value={id} />
+                    <input type="hidden" name="appointment_id" value={String(appointment.id)} />
+                    <button name="action" value="accept" className="text-[10px] font-medium text-accent">
+                      Accetta controproposta
+                    </button>
+                    <button name="action" value="reject" className="text-[10px] text-muted">
+                      Rifiuta
+                    </button>
+                  </form>
+                ) : null}
               </div>
             ))}
           </div>
@@ -251,7 +265,20 @@ export default async function BrokerLeadDetailPage({
               <option value="quarterly">Trimestrale</option>
               <option value="semiannual">Semestrale</option>
             </select>
-            <button className={operationsButton}>Crea bozza</button>
+            <select name="source_policy_id" className={operationsInput}>
+              <option value="">Confronta con polizza…</option>
+              {data.resources.policies.map((policy) => (
+                <option key={String(policy.id)} value={String(policy.id)}>
+                  {String(policy.provider)} · {String(policy.policy_type)}
+                </option>
+              ))}
+            </select>
+            <input
+              name="consumer_notes"
+              className={`${operationsInput} sm:col-span-2`}
+              placeholder="Nota visibile al cliente"
+            />
+            <button className={`${operationsButton} sm:col-span-2`}>Nuova offerta (bozza)</button>
           </form>
           <div className="mt-4 space-y-2">
             {data.offers.map((offer) => (
@@ -267,18 +294,20 @@ export default async function BrokerLeadDetailPage({
                   <input type="hidden" name="request_id" value={id} />
                   <input type="hidden" name="offer_id" value={offer.id} />
                   {offer.status === "draft" ? (
-                    <button name="status" value="proposed" className="text-[10px] font-medium text-accent">
-                      Invia proposta
+                    <button name="status" value="sent" className="text-[10px] font-medium text-accent">
+                      Invia al cliente
                     </button>
                   ) : null}
-                  {offer.status === "proposed" ? (
+                  {["sent", "proposed", "viewed", "interested", "clarification_requested"].includes(
+                    String(offer.status)
+                  ) ? (
                     <>
                       <button
                         name="status"
                         value="accepted"
                         className="text-[10px] font-medium text-[var(--success-text)]"
                       >
-                        Accetta
+                        Segna accettata
                       </button>
                       <button name="status" value="rejected" className="text-[10px] text-[var(--danger-text)]">
                         Rifiuta

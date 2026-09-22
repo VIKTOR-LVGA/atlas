@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { consumerConsultationStatusLabel } from "@/lib/collaboration-status";
 import { AtlasScoreCard } from "@/components/consumer/AtlasScoreCard";
 import { ConsultationPrepCard } from "@/components/consumer/ConsultationPrepCard";
 import { EmptyState, MetricTile, ConsumerSection } from "@/components/consumer/EmptyState";
@@ -51,6 +52,26 @@ export default async function DashboardPage() {
         </h1>
         <p className="mt-1 text-[15px] text-muted-foreground">Il tuo mondo assicurativo</p>
       </header>
+
+      {activeConsultation ? (
+        <div
+          className="rounded-2xl border border-border bg-surface px-4 py-4"
+          data-testid="active-consultation-card"
+        >
+          <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-muted">
+            Revisione in corso
+          </p>
+          <p className="mt-1 text-[15px] font-semibold text-foreground">
+            {consumerConsultationStatusLabel(activeConsultation.status)}
+          </p>
+          <Link
+            href={`/consultations/${activeConsultation.id}`}
+            className="mt-3 inline-flex text-[13px] font-medium text-accent"
+          >
+            Apri pratica →
+          </Link>
+        </div>
+      ) : null}
 
       {policies.length === 0 ? (
         <EmptyState

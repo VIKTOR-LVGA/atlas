@@ -159,6 +159,17 @@ export function buildTodayPriorities(input: {
 
   for (const appt of input.appointments) {
     if (["cancelled", "completed", "no_show"].includes(appt.status)) continue;
+    if (appt.status === "counter_proposed") {
+      items.push({
+        id: `appt-response-${appt.id}`,
+        clientName: appt.clientName ?? "Cliente",
+        reason: "Controproposta da rispondere",
+        dueLabel: "Oggi",
+        href: `/broker/requests/${appt.consultation_request_id}?tab=appointment`,
+        tone: "urgent",
+      });
+      continue;
+    }
     const day = startOfDayZurich(new Date(appt.scheduled_at));
     if (day === today) {
       items.push({
@@ -186,7 +197,27 @@ export function buildTodayPriorities(input: {
   }
 
   for (const offer of input.offers) {
-    if (offer.status === "proposed") {
+    if (offer.status === "draft") {
+      items.push({
+        id: `offer-draft-${offer.id}`,
+        clientName: offer.clientName ?? offer.insurer,
+        reason: "Offerta in bozza da completare",
+        dueLabel: "Oggi",
+        href: `/broker/requests/${offer.consultation_request_id}?tab=offers`,
+        tone: "soon",
+      });
+    }
+    if (offer.status === "clarification_requested") {
+      items.push({
+        id: `offer-clarify-${offer.id}`,
+        clientName: offer.clientName ?? offer.insurer,
+        reason: "Cliente ha chiesto chiarimenti",
+        dueLabel: "Oggi",
+        href: `/broker/requests/${offer.consultation_request_id}?tab=offers`,
+        tone: "urgent",
+      });
+    }
+    if (["proposed", "sent", "viewed"].includes(offer.status)) {
       const stamp = offer.proposed_at ?? offer.created_at;
       if (daysBetween(stamp, now) >= 7) {
         items.push({

@@ -14,7 +14,7 @@ import {
   appointmentStatusLabel,
 } from "@/lib/operations-labels";
 
-export const metadata = { title: "Appuntamenti | Partner" };
+export const metadata = { title: "Appuntamenti | Broker" };
 
 function dayKey(iso: string) {
   return new Intl.DateTimeFormat("en-CA", {
@@ -25,143 +25,134 @@ function dayKey(iso: string) {
   }).format(new Date(iso));
 }
 
-export default async function PartnerAppointmentsPage({
-  searchParams,
+function AppointmentRow({
+  row,
 }: {
-  searchParams: Promise<{ view?: string }>;
+  row: {
+    id: string | number;
+    consultation_request_id: string;
+    clientName?: string | null;
+    scheduled_at: string;
+    channel: string;
+    status: string;
+    duration_minutes?: number | null;
+  };
 }) {
-  const params = await searchParams;
-  const view = params.view ?? "list";
-  const { appointments } = await getBrokerWorkspace();
-
-  const upcoming = appointments.filter(
-    (row) => !["cancelled", "completed", "no_show"].includes(String(row.status))
+  return (
+    <Link
+      href={`/broker/requests/${row.consultation_request_id}`}
+      className="block rounded-xl border border-border bg-card p-3.5 text-[12px] transition hover:border-accent/50"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <p className="font-semibold">{row.clientName ?? "Cliente ATLAS"}</p>
+        <PartnerBadge tone="accent">
+          {appointmentStatusLabel(String(row.status))}
+        </PartnerBadge>
+      </div>
+      <p className="mt-1.5 text-[10px] text-muted">
+        {formatDate(String(row.scheduled_at))} ·{" "}
+        {appointmentChannelLabel(String(row.channel))} · {row.duration_minutes ?? "—"}{" "}
+        min
+      </p>
+    </Link>
   );
-  const byDay = upcoming.reduce<Record<string, typeof upcoming>>((acc, row) => {
-    const key = dayKey(String(row.scheduled_at));
-    acc[key] ??= [];
-    acc[key].push(row);
-    return acc;
-  }, {});
-  const days = Object.keys(byDay).sort().slice(0, 14);
+}
+
+export default async function BrokerAppointmentsPage() {
+  const { appointments } = await getBrokerWorkspace();
+  const now = new Date().getTime();
   const todayKey = dayKey(new Date().toISOString());
-  const todayCount = byDay[todayKey]?.length ?? 0;
+
+  const today = appointments.filter(
+    (row) =>
+      dayKey(String(row.scheduled_at)) === todayKey &&
+      !["cancelled", "completed", "no_show"].includes(String(row.status))
+  );
+  const needsResponse = appointments.filter((row) =>
+    ["counter_proposed"].includes(String(row.status))
+  );
+  const upcoming = appointments.filter((row) => {
+    const t = new Date(String(row.scheduled_at)).getTime();
+    return (
+      t >= now &&
+      dayKey(String(row.scheduled_at)) !== todayKey &&
+      !["cancelled", "completed", "no_show"].includes(String(row.status)) &&
+      String(row.status) !== "counter_proposed"
+    );
+  });
+  const past = appointments.filter((row) => {
+    const t = new Date(String(row.scheduled_at)).getTime();
+    return (
+      t < now ||
+      ["cancelled", "completed", "no_show"].includes(String(row.status))
+    );
+  });
 
   return (
     <>
       <PartnerPageIntro
         area="appointments"
-        eyebrow="Agenda"
+        eyebrow="Agenda ATLAS"
         title="Appuntamenti"
-        description="Solo gli appuntamenti legati ai tuoi mandati assegnati."
+        description="Solo appuntamenti legati alle pratiche ATLAS assegnate. Nessun calendario esterno."
         actions={
-          todayCount > 0 ? (
-            <PartnerBadge tone="warn">{todayCount} oggi</PartnerBadge>
+          needsResponse.length ? (
+            <PartnerBadge tone="warn">{needsResponse.length} da rispondere</PartnerBadge>
           ) : (
-            <PartnerBadge tone="neutral">{upcoming.length} in agenda</PartnerBadge>
+            <PartnerBadge tone="neutral">{appointments.length} totali</PartnerBadge>
           )
         }
       />
 
-      <div className="mb-4 flex flex-wrap gap-2 text-[12px]">
-        {[
-          ["list", "Lista"],
-          ["week", "Prossimi giorni"],
-        ].map(([value, label]) => (
-          <Link
-            key={value}
-            href={`/broker/appointments?view=${value}`}
-            className={`rounded-lg border px-3.5 py-1.5 transition ${
-              view === value
-                ? "border-accent bg-accent-soft text-accent shadow-[0_0_0_1px_color-mix(in_srgb,var(--accent)_30%,transparent)]"
-                : "border-border text-muted hover:border-accent/40 hover:text-foreground"
-            }`}
-          >
-            {label}
-          </Link>
-        ))}
-      </div>
-
       {!appointments.length ? (
         <PartnerEmptyState
           area="appointments"
-          title="Nessun appuntamento programmato"
-          description="Fissa il prossimo incontro dalle richieste assegnate."
+          title="Nessun appuntamento"
+          description="Proponi un incontro dalla pratica cliente."
           action={{ href: "/broker/requests", label: "Vai alle richieste" }}
         />
-      ) : view === "week" ? (
-        <div className="grid gap-3 lg:grid-cols-2">
-          {days.length ? (
-            days.map((day) => (
-              <OperationsPanel
-                key={day}
-                title={new Intl.DateTimeFormat("it-CH", {
-                  timeZone: "Europe/Zurich",
-                  weekday: "long",
-                  day: "numeric",
-                  month: "long",
-                }).format(new Date(`${day}T12:00:00`))}
-              >
-                <div className="space-y-2">
-                  {byDay[day].map((row) => (
-                    <Link
-                      key={String(row.id)}
-                      href={`/broker/requests/${row.consultation_request_id}`}
-                      className="block rounded-lg border border-border p-3 text-[12px] transition hover:border-accent/50"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="font-semibold">{row.clientName ?? "Cliente"}</p>
-                        <PartnerBadge tone="accent">
-                          {appointmentStatusLabel(String(row.status))}
-                        </PartnerBadge>
-                      </div>
-                      <p className="mt-1 text-[10px] text-muted">
-                        {formatDate(String(row.scheduled_at))} ·{" "}
-                        {appointmentChannelLabel(String(row.channel))}
-                      </p>
-                    </Link>
-                  ))}
-                </div>
-              </OperationsPanel>
-            ))
-          ) : (
-            <PartnerEmptyState
-              area="appointments"
-              title="Nessun appuntamento imminente"
-              description="Gli appuntamenti futuri appariranno raggruppati per giorno."
-            />
-          )}
-        </div>
       ) : (
-        <OperationsPanel title={`${appointments.length} appuntamenti`}>
-          <div className="space-y-2">
-            {appointments.map((row) => {
-              const isToday = dayKey(String(row.scheduled_at)) === todayKey;
-              return (
-                <Link
-                  key={String(row.id)}
-                  href={`/broker/requests/${row.consultation_request_id}`}
-                  className="block rounded-xl border border-border bg-card p-3.5 text-[12px] transition hover:border-accent/50"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="font-semibold">{row.clientName ?? "Cliente"}</p>
-                    <div className="flex flex-wrap justify-end gap-1.5">
-                      {isToday ? <PartnerBadge tone="warn">Oggi</PartnerBadge> : null}
-                      <PartnerBadge tone="accent">
-                        {appointmentStatusLabel(String(row.status))}
-                      </PartnerBadge>
-                    </div>
-                  </div>
-                  <p className="mt-1.5 text-[10px] text-muted">
-                    {formatDate(String(row.scheduled_at))} ·{" "}
-                    {appointmentChannelLabel(String(row.channel))} · {row.duration_minutes}{" "}
-                    min
-                  </p>
-                </Link>
-              );
-            })}
-          </div>
-        </OperationsPanel>
+        <div className="space-y-4">
+          {needsResponse.length ? (
+            <OperationsPanel title="Needs response">
+              <div className="space-y-2">
+                {needsResponse.map((row) => (
+                  <AppointmentRow key={String(row.id)} row={row as never} />
+                ))}
+              </div>
+            </OperationsPanel>
+          ) : null}
+          <OperationsPanel title="Today">
+            <div className="space-y-2">
+              {today.length ? (
+                today.map((row) => <AppointmentRow key={String(row.id)} row={row as never} />)
+              ) : (
+                <p className="text-[12px] text-muted">Nessun appuntamento oggi.</p>
+              )}
+            </div>
+          </OperationsPanel>
+          <OperationsPanel title="Upcoming">
+            <div className="space-y-2">
+              {upcoming.length ? (
+                upcoming.map((row) => (
+                  <AppointmentRow key={String(row.id)} row={row as never} />
+                ))
+              ) : (
+                <p className="text-[12px] text-muted">Nessun prossimo appuntamento.</p>
+              )}
+            </div>
+          </OperationsPanel>
+          <OperationsPanel title="Past">
+            <div className="space-y-2">
+              {past.slice(0, 20).map((row) => (
+                <AppointmentRow key={String(row.id)} row={row as never} />
+              ))}
+              {!past.length ? (
+                <p className="text-[12px] text-muted">Nessuno storico.</p>
+              ) : null}
+            </div>
+          </OperationsPanel>
+        </div>
       )}
     </>
   );

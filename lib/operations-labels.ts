@@ -62,6 +62,8 @@ export const commissionTypeLabels: Record<string, string> = {
 
 export const appointmentStatusLabels: Record<string, string> = {
   scheduled: "Pianificato",
+  proposed: "Proposto",
+  counter_proposed: "Controproposta",
   confirmed: "Confermato",
   completed: "Svolto",
   cancelled: "Annullato",
@@ -72,6 +74,7 @@ export const appointmentChannelLabels: Record<string, string> = {
   video: "Video",
   phone: "Telefono",
   in_person: "In presenza",
+  other: "Altro",
 };
 
 export const eventTypeLabels: Record<string, string> = {

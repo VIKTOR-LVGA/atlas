@@ -127,6 +127,12 @@ export function PolicyReviewTab({ policy }: { policy: UserPolicy }) {
             Rianalizza da documento
           </Link>
         ) : null}
+        <Link
+          href="/consulting"
+          className="atlas-btn-primary min-h-10 px-3 text-[12px]"
+        >
+          Richiedi revisione
+        </Link>
       </div>
     </div>
   );
