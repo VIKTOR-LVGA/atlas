@@ -91,10 +91,7 @@ const policyDetailKeys: Record<TypedPolicyType, Array<keyof PolicyDetails>> = {
   liability: ["liability_limit", "household_members_included"],
   household: ["insured_sum", "glass_coverage", "theft_coverage"],
   car: [
-    "plate_number",
     "license_plate",
-    "vehicle_make",
-    "vehicle_model",
     "vehicle",
     "annual_gross_premium",
     "payment_frequency_label",
@@ -946,9 +943,19 @@ export function getPolicyDetailRows(
   policyType: TypedPolicyType,
   details: PolicyDetails
 ): PolicyDetailRow[] {
+  // Prefer license_plate; fall back to plate_number so Targa appears once.
+  const normalizedDetails: PolicyDetails = {
+    ...details,
+    license_plate: details.license_plate ?? details.plate_number ?? null,
+    vehicle:
+      details.vehicle ??
+      ([details.vehicle_make, details.vehicle_model].filter(Boolean).join(" ") ||
+        null),
+  };
+
   return policyDetailKeys[policyType]
     .map((key) => {
-      const value = details[key];
+      const value = normalizedDetails[key];
 
       if (!hasDisplayValue(value)) {
         return null;
