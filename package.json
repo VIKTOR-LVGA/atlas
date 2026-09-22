@@ -14,6 +14,7 @@
     "test:classifier": "tsx test/zurich-motor-classifier.test.ts && tsx test/multi-insurer-classifier.test.ts && tsx test/zurich-motor-extraction.test.ts && tsx test/motor-policy-recovery.test.ts",
     "test:supabase-live": "node --env-file=.env.local scripts/supabase-live-validation.mjs",
     "test:financial": "tsx test/commission-math.test.ts",
+    "test:intelligence": "tsx test/intelligence-privacy.test.ts",
     "test:broker-live": "node --env-file=.env.local scripts/broker-live-validation.mjs",
     "test:partner-lifecycle": "node --env-file=.env.local scripts/partner-lifecycle-validation.mjs"
   },

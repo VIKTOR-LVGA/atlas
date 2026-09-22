@@ -19,3 +19,14 @@ export async function reviewIntelligenceApplicationAction(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/control-center/intelligence");
 }
+
+export async function refreshIntelligenceSnapshotsAction() {
+  const { supabase } = await requireOperationsRole(["admin"]);
+  const { error } = await supabase.rpc("refresh_intelligence_snapshots", {
+    p_trigger_source: "manual",
+    p_period_days: 365,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/control-center/intelligence");
+  revalidatePath("/intelligence/dashboard");
+}
