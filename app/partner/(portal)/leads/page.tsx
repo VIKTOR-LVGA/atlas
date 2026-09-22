@@ -1,12 +1,14 @@
 import Link from "next/link";
-import { BriefcaseBusiness } from "lucide-react";
 import {
-  OperationsHeader,
   OperationsPanel,
   formatDate,
   operationsInput,
 } from "@/components/operations/OperationsUi";
-import { PartnerBadge, PartnerEmptyState } from "@/components/partner/PartnerEmptyState";
+import {
+  PartnerBadge,
+  PartnerEmptyState,
+  PartnerPageIntro,
+} from "@/components/partner/PartnerEmptyState";
 import { getBrokerWorkspace } from "@/lib/broker-operations";
 import {
   consultationStatusLabel,
@@ -31,6 +33,13 @@ const nextStatuses: Record<string, string[]> = {
   quoted: ["won", "lost", "in_review"],
 };
 
+const chip = (active: boolean) =>
+  `rounded-lg border px-3 py-1.5 text-[12px] transition ${
+    active
+      ? "border-accent bg-accent-soft text-accent shadow-[0_0_0_1px_color-mix(in_srgb,var(--accent)_30%,transparent)]"
+      : "border-border text-muted hover:border-accent/40 hover:text-foreground"
+  }`;
+
 export default async function BrokerLeadsPage({
   searchParams,
 }: {
@@ -44,35 +53,33 @@ export default async function BrokerLeadsPage({
   const filtered = stage
     ? leads.filter((lead) => (stage.statuses as readonly string[]).includes(lead.status))
     : leads;
+  const needsAction = leads.filter((l) =>
+    ["assigned", "submitted", "quoted"].includes(l.status)
+  ).length;
 
   return (
     <>
-      <OperationsHeader
+      <PartnerPageIntro
+        area="leads"
         eyebrow="Pipeline"
         title="Richieste assegnate"
-        description="Vedi solo le richieste affidate al tuo profilo broker. Cambia stato in sicurezza dal menu."
+        description="Solo le consulenze affidate al tuo profilo. Cambia stato in sicurezza dal menu."
+        actions={
+          needsAction > 0 ? (
+            <PartnerBadge tone="warn">{needsAction} da lavorare</PartnerBadge>
+          ) : null
+        }
       />
 
       <div className="mb-4 flex flex-wrap gap-2">
-        <Link
-          href="/partner/leads"
-          className={`rounded-lg border px-3 py-1.5 text-[12px] ${
-            statusFilter === "all"
-              ? "border-accent bg-accent-soft text-accent"
-              : "border-border text-muted"
-          }`}
-        >
+        <Link href="/partner/leads" className={chip(statusFilter === "all")}>
           Tutte ({leads.length})
         </Link>
         {stages.map((row) => (
           <Link
             key={row.id}
             href={`/partner/leads?status=${row.id}`}
-            className={`rounded-lg border px-3 py-1.5 text-[12px] ${
-              statusFilter === row.id
-                ? "border-accent bg-accent-soft text-accent"
-                : "border-border text-muted"
-            }`}
+            className={chip(statusFilter === row.id)}
           >
             {row.label} ({row.count})
           </Link>
@@ -82,7 +89,7 @@ export default async function BrokerLeadsPage({
       <OperationsPanel title={`${filtered.length} richieste`}>
         {!filtered.length ? (
           <PartnerEmptyState
-            icon={BriefcaseBusiness}
+            area="leads"
             title="Nessuna richiesta"
             description={
               stage
@@ -106,8 +113,12 @@ export default async function BrokerLeadsPage({
               <tbody className="divide-y divide-border">
                 {filtered.map((lead) => {
                   const transitions = nextStatuses[lead.status] ?? [];
+                  const urgent = ["assigned", "submitted"].includes(lead.status);
                   return (
-                    <tr key={lead.id}>
+                    <tr
+                      key={lead.id}
+                      className={urgent ? "bg-[color-mix(in_srgb,var(--accent)_4%,transparent)]" : undefined}
+                    >
                       <td className="py-3">
                         <Link
                           className="font-semibold text-accent"
@@ -120,7 +131,7 @@ export default async function BrokerLeadsPage({
                         </p>
                       </td>
                       <td className="py-3">
-                        <PartnerBadge tone="accent">
+                        <PartnerBadge tone={urgent ? "warn" : "accent"}>
                           {consultationStatusLabel(lead.status)}
                         </PartnerBadge>
                       </td>
@@ -128,7 +139,7 @@ export default async function BrokerLeadsPage({
                       <td className="py-3">
                         {contactMethodLabel(lead.preferredContactMethod)}
                       </td>
-                      <td className="py-3">{formatDate(lead.updatedAt)}</td>
+                      <td className="py-3 tabular-nums">{formatDate(lead.updatedAt)}</td>
                       <td className="py-3">
                         {transitions.length ? (
                           <form

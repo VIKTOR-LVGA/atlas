@@ -161,7 +161,13 @@ export function SwitzerlandChoropleth({
             }}
             aria-label="Metrica mappa"
           >
-            {metrics.map((key) => (
+            {metrics
+              .filter((key) =>
+                showAtlasShare
+                  ? true
+                  : key !== "atlasRevenue" && key !== "grossCommission"
+              )
+              .map((key) => (
               <option key={key} value={key}>
                 {METRIC_LABELS[key]}
               </option>
@@ -272,7 +278,7 @@ export function SwitzerlandChoropleth({
           ) : null}
         </div>
 
-        <div className="rounded-xl border border-border bg-card-muted/30 p-4 text-[12px]">
+        <div className="rounded-xl border border-border bg-[linear-gradient(160deg,color-mix(in_srgb,var(--accent)_6%,transparent),color-mix(in_srgb,var(--card-muted)_40%,transparent))] p-4 text-[12px]">
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
             {activeCode ? cantonLabel(activeCode) : "Seleziona un cantone"}
           </p>
@@ -291,8 +297,14 @@ export function SwitzerlandChoropleth({
                   ["consultations", "Consulenze"],
                   ["clients", "Clienti"],
                   ["contracts", "Contratti"],
-                  showAtlasShare ? ["atlasRevenue", "ATLAS Revenue"] : ["brokerRevenue", "Ricavo broker"],
-                  ["grossCommission", "Commissioni lorde"],
+                  showAtlasShare
+                    ? ["atlasRevenue", "ATLAS Revenue"]
+                    : ["brokerRevenue", "Ricavo broker"],
+                  ...(showAtlasShare
+                    ? ([["grossCommission", "Commissioni lorde"]] as Array<
+                        [MapMetricKey, string]
+                      >)
+                    : []),
                 ] as Array<[MapMetricKey, string]>
               ).map(([key, label]) => (
                 <div key={key} className="flex items-center justify-between gap-3">

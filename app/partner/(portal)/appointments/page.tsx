@@ -1,11 +1,13 @@
 import Link from "next/link";
-import { CalendarDays } from "lucide-react";
 import {
-  OperationsHeader,
   OperationsPanel,
   formatDate,
 } from "@/components/operations/OperationsUi";
-import { PartnerBadge, PartnerEmptyState } from "@/components/partner/PartnerEmptyState";
+import {
+  PartnerBadge,
+  PartnerEmptyState,
+  PartnerPageIntro,
+} from "@/components/partner/PartnerEmptyState";
 import { getBrokerWorkspace } from "@/lib/broker-operations";
 import {
   appointmentChannelLabel,
@@ -42,13 +44,23 @@ export default async function PartnerAppointmentsPage({
     return acc;
   }, {});
   const days = Object.keys(byDay).sort().slice(0, 14);
+  const todayKey = dayKey(new Date().toISOString());
+  const todayCount = byDay[todayKey]?.length ?? 0;
 
   return (
     <>
-      <OperationsHeader
+      <PartnerPageIntro
+        area="appointments"
         eyebrow="Agenda"
         title="Appuntamenti"
         description="Solo gli appuntamenti legati ai tuoi mandati assegnati."
+        actions={
+          todayCount > 0 ? (
+            <PartnerBadge tone="warn">{todayCount} oggi</PartnerBadge>
+          ) : (
+            <PartnerBadge tone="neutral">{upcoming.length} in agenda</PartnerBadge>
+          )
+        }
       />
 
       <div className="mb-4 flex flex-wrap gap-2 text-[12px]">
@@ -59,10 +71,10 @@ export default async function PartnerAppointmentsPage({
           <Link
             key={value}
             href={`/partner/appointments?view=${value}`}
-            className={`rounded-lg border px-3 py-1.5 ${
+            className={`rounded-lg border px-3.5 py-1.5 transition ${
               view === value
-                ? "border-accent bg-accent-soft text-accent"
-                : "border-border text-muted"
+                ? "border-accent bg-accent-soft text-accent shadow-[0_0_0_1px_color-mix(in_srgb,var(--accent)_30%,transparent)]"
+                : "border-border text-muted hover:border-accent/40 hover:text-foreground"
             }`}
           >
             {label}
@@ -72,7 +84,7 @@ export default async function PartnerAppointmentsPage({
 
       {!appointments.length ? (
         <PartnerEmptyState
-          icon={CalendarDays}
+          area="appointments"
           title="Nessun appuntamento programmato"
           description="Fissa il prossimo incontro dalle richieste assegnate."
           action={{ href: "/partner/leads", label: "Vai alle richieste" }}
@@ -95,7 +107,7 @@ export default async function PartnerAppointmentsPage({
                     <Link
                       key={String(row.id)}
                       href={`/partner/leads/${row.consultation_request_id}`}
-                      className="block rounded-lg border border-border p-3 text-[12px] hover:border-accent"
+                      className="block rounded-lg border border-border p-3 text-[12px] transition hover:border-accent/50"
                     >
                       <div className="flex items-center justify-between gap-3">
                         <p className="font-semibold">{row.clientName ?? "Cliente"}</p>
@@ -114,7 +126,7 @@ export default async function PartnerAppointmentsPage({
             ))
           ) : (
             <PartnerEmptyState
-              icon={CalendarDays}
+              area="appointments"
               title="Nessun appuntamento imminente"
               description="Gli appuntamenti futuri appariranno raggruppati per giorno."
             />
@@ -123,26 +135,31 @@ export default async function PartnerAppointmentsPage({
       ) : (
         <OperationsPanel title={`${appointments.length} appuntamenti`}>
           <div className="space-y-2">
-            {appointments.map((row) => (
-              <Link
-                key={String(row.id)}
-                href={`/partner/leads/${row.consultation_request_id}`}
-                className="block rounded-lg border border-border p-3 text-[12px] hover:border-accent"
-              >
-                <p className="font-semibold">
-                  {row.clientName ?? "Cliente"}
-                  <span className="float-right">
-                    <PartnerBadge tone="accent">
-                      {appointmentStatusLabel(String(row.status))}
-                    </PartnerBadge>
-                  </span>
-                </p>
-                <p className="mt-1 text-[10px] text-muted">
-                  {formatDate(String(row.scheduled_at))} ·{" "}
-                  {appointmentChannelLabel(String(row.channel))} · {row.duration_minutes} min
-                </p>
-              </Link>
-            ))}
+            {appointments.map((row) => {
+              const isToday = dayKey(String(row.scheduled_at)) === todayKey;
+              return (
+                <Link
+                  key={String(row.id)}
+                  href={`/partner/leads/${row.consultation_request_id}`}
+                  className="block rounded-xl border border-border bg-card p-3.5 text-[12px] transition hover:border-accent/50"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="font-semibold">{row.clientName ?? "Cliente"}</p>
+                    <div className="flex flex-wrap justify-end gap-1.5">
+                      {isToday ? <PartnerBadge tone="warn">Oggi</PartnerBadge> : null}
+                      <PartnerBadge tone="accent">
+                        {appointmentStatusLabel(String(row.status))}
+                      </PartnerBadge>
+                    </div>
+                  </div>
+                  <p className="mt-1.5 text-[10px] text-muted">
+                    {formatDate(String(row.scheduled_at))} ·{" "}
+                    {appointmentChannelLabel(String(row.channel))} · {row.duration_minutes}{" "}
+                    min
+                  </p>
+                </Link>
+              );
+            })}
           </div>
         </OperationsPanel>
       )}

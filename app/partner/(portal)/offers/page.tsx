@@ -1,12 +1,14 @@
 import Link from "next/link";
-import { ScrollText } from "lucide-react";
 import {
-  OperationsHeader,
   OperationsPanel,
   formatChf,
   formatDate,
 } from "@/components/operations/OperationsUi";
-import { PartnerBadge, PartnerEmptyState } from "@/components/partner/PartnerEmptyState";
+import {
+  PartnerBadge,
+  PartnerEmptyState,
+  PartnerPageIntro,
+} from "@/components/partner/PartnerEmptyState";
 import { getBrokerWorkspace } from "@/lib/broker-operations";
 import { offerStatusLabel } from "@/lib/operations-labels";
 
@@ -31,13 +33,22 @@ export default async function PartnerOffersPage({
   const { offers } = await getBrokerWorkspace();
   const filtered =
     status === "all" ? offers : offers.filter((row) => String(row.status) === status);
+  const waiting = offers.filter((row) =>
+    ["draft", "proposed", "sent"].includes(String(row.status))
+  ).length;
 
   return (
     <>
-      <OperationsHeader
+      <PartnerPageIntro
+        area="offers"
         eyebrow="Proposte"
         title="Offerte"
         description="Offerte emesse sui tuoi lead. Nessuna quota ATLAS esposta qui."
+        actions={
+          waiting > 0 ? (
+            <PartnerBadge tone="warn">{waiting} in attesa</PartnerBadge>
+          ) : null
+        }
       />
 
       <div className="mb-4 flex flex-wrap gap-2 text-[12px]">
@@ -45,10 +56,10 @@ export default async function PartnerOffersPage({
           <Link
             key={value}
             href={value === "all" ? "/partner/offers" : `/partner/offers?status=${value}`}
-            className={`rounded-lg border px-3 py-1.5 ${
+            className={`rounded-lg border px-3.5 py-1.5 transition ${
               status === value
-                ? "border-accent bg-accent-soft text-accent"
-                : "border-border text-muted"
+                ? "border-accent bg-accent-soft text-accent shadow-[0_0_0_1px_color-mix(in_srgb,var(--accent)_30%,transparent)]"
+                : "border-border text-muted hover:border-accent/40 hover:text-foreground"
             }`}
           >
             {label}
@@ -59,7 +70,7 @@ export default async function PartnerOffersPage({
       <OperationsPanel title={`${filtered.length} offerte`}>
         {!filtered.length ? (
           <PartnerEmptyState
-            icon={ScrollText}
+            area="offers"
             title="Nessuna offerta"
             description="Crea la prima offerta dal dettaglio di una richiesta."
             action={{ href: "/partner/leads", label: "Vai alle richieste" }}
@@ -77,28 +88,33 @@ export default async function PartnerOffersPage({
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {filtered.map((row) => (
-                  <tr key={String(row.id)}>
-                    <td className="py-2">
-                      <Link
-                        href={`/partner/leads/${row.consultation_request_id}`}
-                        className="font-semibold text-accent"
-                      >
-                        {row.clientName ?? "Cliente"} · {row.insurer} · {row.product}
-                      </Link>
-                    </td>
-                    <td>{row.policy_category}</td>
-                    <td>
-                      {row.premium_amount != null ? formatChf(row.premium_amount) : "—"}
-                    </td>
-                    <td>
-                      <PartnerBadge tone="accent">
-                        {offerStatusLabel(String(row.status))}
-                      </PartnerBadge>
-                    </td>
-                    <td>{formatDate(String(row.created_at))}</td>
-                  </tr>
-                ))}
+                {filtered.map((row) => {
+                  const pending = ["draft", "proposed", "sent"].includes(
+                    String(row.status)
+                  );
+                  return (
+                    <tr key={String(row.id)}>
+                      <td className="py-2.5">
+                        <Link
+                          href={`/partner/leads/${row.consultation_request_id}`}
+                          className="font-semibold text-accent"
+                        >
+                          {row.clientName ?? "Cliente"} · {row.insurer} · {row.product}
+                        </Link>
+                      </td>
+                      <td>{row.policy_category}</td>
+                      <td className="tabular-nums">
+                        {row.premium_amount != null ? formatChf(row.premium_amount) : "—"}
+                      </td>
+                      <td>
+                        <PartnerBadge tone={pending ? "warn" : "accent"}>
+                          {offerStatusLabel(String(row.status))}
+                        </PartnerBadge>
+                      </td>
+                      <td className="tabular-nums">{formatDate(String(row.created_at))}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

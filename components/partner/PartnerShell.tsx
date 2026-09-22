@@ -4,16 +4,17 @@ import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  BarChart3,
   BriefcaseBusiness,
   CalendarDays,
   FileSignature,
   LayoutDashboard,
+  LineChart,
   LogOut,
   Search,
   ScrollText,
   UserRound,
   Users,
+  Wallet,
 } from "lucide-react";
 import { logout } from "@/app/(app)/actions";
 import { AtlasBrandLogo } from "@/components/brand/AtlasBrandLogo";
@@ -34,8 +35,8 @@ const icons = {
   appointments: CalendarDays,
   offers: ScrollText,
   contracts: FileSignature,
-  revenue: BarChart3,
-  analytics: BarChart3,
+  revenue: Wallet,
+  analytics: LineChart,
   profile: UserRound,
 };
 

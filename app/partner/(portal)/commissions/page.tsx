@@ -1,11 +1,13 @@
-import { Wallet } from "lucide-react";
 import {
-  OperationsHeader,
+  OperationsMetric,
   OperationsPanel,
   formatChf,
   formatDate,
 } from "@/components/operations/OperationsUi";
-import { PartnerEmptyState } from "@/components/partner/PartnerEmptyState";
+import {
+  PartnerEmptyState,
+  PartnerPageIntro,
+} from "@/components/partner/PartnerEmptyState";
 import { SimpleLineChart } from "@/components/charts/SimpleCharts";
 import { getBrokerCommissionLedger, getBrokerWorkspace } from "@/lib/broker-operations";
 import { commissionStatusLabel, commissionTypeLabel } from "@/lib/operations-labels";
@@ -73,41 +75,31 @@ export default async function BrokerCommissionsPage() {
 
   return (
     <>
-      <OperationsHeader
+      <PartnerPageIntro
+        area="commissions"
         eyebrow="Centro commissioni"
         title="Commissioni"
         description="Solo la tua quota broker e le rettifiche. La quota ATLAS non è visibile qui."
       />
 
       <div className="mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-[11px] text-muted">Attese</p>
-          <p className="mt-2 text-xl font-semibold">
-            {formatChf(workspace.revenue.expectedShare)}
-          </p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-[11px] text-muted">Maturate / lorde</p>
-          <p className="mt-2 text-xl font-semibold">
-            {formatChf(workspace.revenue.brokerShare)}
-          </p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-[11px] text-muted">Pagate</p>
-          <p className="mt-2 text-xl font-semibold">
-            {formatChf(workspace.revenue.paidShare)}
-          </p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-[11px] text-muted">Storni</p>
-          <p className="mt-2 text-xl font-semibold">
-            {formatChf(workspace.revenue.clawbackShare)}
-          </p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-[11px] text-muted">Rinnovi (netto)</p>
-          <p className="mt-2 text-xl font-semibold">{formatChf(renewals)}</p>
-        </div>
+        <OperationsMetric
+          label="Attese"
+          value={formatChf(workspace.revenue.expectedShare)}
+        />
+        <OperationsMetric
+          label="Maturate / lorde"
+          value={formatChf(workspace.revenue.brokerShare)}
+        />
+        <OperationsMetric
+          label="Pagate"
+          value={formatChf(workspace.revenue.paidShare)}
+        />
+        <OperationsMetric
+          label="Storni"
+          value={formatChf(workspace.revenue.clawbackShare)}
+        />
+        <OperationsMetric label="Rinnovi (netto)" value={formatChf(renewals)} />
       </div>
 
       <div className="mb-5 grid gap-5 xl:grid-cols-2">
@@ -152,7 +144,7 @@ export default async function BrokerCommissionsPage() {
       <OperationsPanel title="Ledger personale">
         {!ledger.length ? (
           <PartnerEmptyState
-            icon={Wallet}
+            area="commissions"
             title="Nessuna commissione"
             description="Le commissioni appariranno quando i contratti verranno attribuiti."
           />
@@ -193,10 +185,12 @@ export default async function BrokerCommissionsPage() {
                       </td>
                       <td>{commissionTypeLabel(row.commission_type)}</td>
                       <td>{commissionStatusLabel(row.status)}</td>
-                      <td>{formatChf(row.broker_share)}</td>
-                      <td>{formatChf(row.broker_adjustments)}</td>
-                      <td className="font-semibold">{formatChf(row.net_broker_share)}</td>
-                      <td>{formatDate(row.earned_at)}</td>
+                      <td className="tabular-nums">{formatChf(row.broker_share)}</td>
+                      <td className="tabular-nums">{formatChf(row.broker_adjustments)}</td>
+                      <td className="font-semibold tabular-nums">
+                        {formatChf(row.net_broker_share)}
+                      </td>
+                      <td className="tabular-nums">{formatDate(row.earned_at)}</td>
                     </tr>
                   )
                 )}

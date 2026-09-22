@@ -1,12 +1,16 @@
 import Link from "next/link";
 import {
-  OperationsHeader,
   OperationsMetric,
   OperationsPanel,
   formatChf,
 } from "@/components/operations/OperationsUi";
-import { SimpleBarChart, SimpleFunnel, SimpleLineChart } from "@/components/charts/SimpleCharts";
+import {
+  SimpleBarChart,
+  SimpleFunnel,
+  SimpleLineChart,
+} from "@/components/charts/SimpleCharts";
 import { SwitzerlandChoropleth } from "@/components/maps/SwitzerlandChoropleth";
+import { PartnerPageIntro } from "@/components/partner/PartnerEmptyState";
 import { getBrokerWorkspace } from "@/lib/broker-operations";
 import { getCantonAggregates } from "@/lib/partner-applications";
 import { pct } from "@/lib/analytics-period";
@@ -114,15 +118,41 @@ export default async function PartnerAnalyticsPage({
           : 12;
   const seriesSlice = monthly.slice(-months);
 
+  const openOffers = workspace.offers.filter((o) =>
+    ["draft", "proposed", "sent"].includes(String(o.status))
+  ).length;
+
+  const insightParts: string[] = [];
+  if (workspace.leads.length === 0) {
+    insightParts.push(
+      "Quando inizierai a ricevere richieste, qui vedrai conversione, trend e performance territoriale."
+    );
+  } else if (decided > 0) {
+    insightParts.push(
+      `Conversione su lead decisi: ${pct(completed, decided)}% (${completed}/${decided}).`
+    );
+  }
+  if (workspace.revenue.expectedShare > 0) {
+    insightParts.push(
+      `${formatChf(workspace.revenue.expectedShare)} in attesa — verifica lo stato in Commissioni.`
+    );
+  }
+  if (openOffers > 0) {
+    insightParts.push(
+      `${openOffers} offerte aperte richiedono follow-up o risposta cliente.`
+    );
+  }
+
   return (
     <>
-      <OperationsHeader
+      <PartnerPageIntro
+        area="analytics"
         eyebrow="Performance"
         title="Analytics partner"
         description="Solo i tuoi dati assegnati. La quota ATLAS non è esposta in questo portale."
       />
 
-      <div className="mb-4 flex flex-wrap gap-2 text-[12px]">
+      <div className="mb-5 flex flex-wrap gap-2 text-[12px]">
         {[
           ["3m", "3M"],
           ["6m", "6M"],
@@ -132,10 +162,10 @@ export default async function PartnerAnalyticsPage({
           <Link
             key={value}
             href={`/partner/analytics?range=${value}`}
-            className={`rounded-lg border px-3 py-1.5 ${
+            className={`rounded-lg border px-3.5 py-1.5 transition ${
               range === value
-                ? "border-accent bg-accent-soft text-accent"
-                : "border-border text-muted"
+                ? "border-accent bg-accent-soft text-accent shadow-[0_0_0_1px_color-mix(in_srgb,var(--accent)_35%,transparent)]"
+                : "border-border text-muted hover:border-accent/40 hover:text-foreground"
             }`}
           >
             {label}
@@ -143,71 +173,104 @@ export default async function PartnerAnalyticsPage({
         ))}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        <OperationsMetric
-          label="Tasso di conversione"
-          value={`${pct(completed, decided)}%`}
-          detail={`${completed} su ${decided || 0} decisi`}
-        />
-        <OperationsMetric
-          label="Quota broker"
-          value={formatChf(workspace.revenue.brokerShare)}
-        />
-        <OperationsMetric
-          label="Attese"
-          value={formatChf(workspace.revenue.expectedShare)}
-        />
-        <OperationsMetric
-          label="Pagate"
-          value={formatChf(workspace.revenue.paidShare)}
-        />
-        <OperationsMetric
-          label="Media / contratto"
-          value={formatChf(avgPerContract)}
-          detail={`${workspace.contracts.length} contratti`}
-        />
-      </div>
+      <section>
+        <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted">
+          KPI principali
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          <OperationsMetric
+            label="Tasso di conversione"
+            value={`${pct(completed, decided)}%`}
+            detail={`${completed} su ${decided || 0} decisi`}
+          />
+          <OperationsMetric
+            label="Quota broker"
+            value={formatChf(workspace.revenue.brokerShare)}
+          />
+          <OperationsMetric
+            label="Attese"
+            value={formatChf(workspace.revenue.expectedShare)}
+          />
+          <OperationsMetric
+            label="Pagate"
+            value={formatChf(workspace.revenue.paidShare)}
+          />
+          <OperationsMetric
+            label="Media / contratto"
+            value={formatChf(avgPerContract)}
+            detail={`${workspace.contracts.length} contratti`}
+          />
+        </div>
+      </section>
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-2">
-        <SimpleFunnel title="Funnel operativo" steps={funnel} />
-        <SimpleLineChart
-          title="Andamento temporale — quota broker"
-          series={[
-            { label: "Quota broker", values: seriesSlice.map((r) => r.broker) },
-            {
-              label: "Netto",
-              values: seriesSlice.map((r) => r.net),
-              color: "var(--muted-foreground)",
-            },
-          ]}
-          emptyLabel="Nessuna serie temporale nel periodo selezionato."
-        />
-      </div>
+      {insightParts.length > 0 ? (
+        <div className="mt-5">
+          <OperationsPanel title="Insight operativo">
+            <ul className="space-y-2 text-[12px] text-muted">
+              {insightParts.map((line) => (
+                <li key={line} className="flex gap-2">
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+                  <span>{line}</span>
+                </li>
+              ))}
+            </ul>
+          </OperationsPanel>
+        </div>
+      ) : null}
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-2">
-        <SimpleBarChart
-          title="Performance per categoria — contratti"
-          points={Object.entries(byCategory)
-            .filter(([, value]) => value.contracts > 0 || value.offers > 0)
-            .map(([label, value]) => ({
-              label,
-              value: value.contracts,
-            }))}
-          emptyLabel="Nessuna categoria con dati nel periodo."
-        />
-        <SimpleBarChart
-          title="Performance per compagnia — offerte"
-          points={Object.entries(byInsurer)
-            .filter(([, value]) => value.offers > 0 || value.contracts > 0)
-            .map(([label, value]) => ({
-              label,
-              value: value.offers,
-            }))}
-          emptyLabel="Nessuna compagnia con dati nel periodo."
-        />
-      </div>
+      <section className="mt-6">
+        <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted">
+          Overview & funnel
+        </p>
+        <div className="grid gap-5 xl:grid-cols-2">
+          <SimpleFunnel title="Funnel operativo" steps={funnel} />
+          <SimpleLineChart
+            title="Andamento temporale — quota broker"
+            series={[
+              { label: "Quota broker", values: seriesSlice.map((r) => r.broker) },
+              {
+                label: "Netto",
+                values: seriesSlice.map((r) => r.net),
+                color: "var(--muted-foreground)",
+              },
+            ]}
+            emptyLabel="Nessuna serie temporale nel periodo selezionato."
+          />
+        </div>
+      </section>
 
-      <div className="mt-5">
+      <section className="mt-6">
+        <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted">
+          Categorie & compagnie
+        </p>
+        <div className="grid gap-5 xl:grid-cols-2">
+          <SimpleBarChart
+            title="Performance per categoria — contratti"
+            points={Object.entries(byCategory)
+              .filter(([, value]) => value.contracts > 0 || value.offers > 0)
+              .map(([label, value]) => ({
+                label,
+                value: value.contracts,
+              }))}
+            emptyLabel="Nessuna categoria con dati nel periodo."
+          />
+          <SimpleBarChart
+            title="Performance per compagnia — offerte"
+            points={Object.entries(byInsurer)
+              .filter(([, value]) => value.offers > 0 || value.contracts > 0)
+              .map(([label, value]) => ({
+                label,
+                value: value.offers,
+              }))}
+            emptyLabel="Nessuna compagnia con dati nel periodo."
+          />
+        </div>
+      </section>
+
+      <section className="mt-6">
+        <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted">
+          Geografia
+        </p>
         <SwitzerlandChoropleth
           title="Portafoglio geografico"
           data={cantons}
@@ -215,13 +278,16 @@ export default async function PartnerAnalyticsPage({
           metrics={["leads", "clients", "contracts", "brokerRevenue"]}
           emptyHint="Il tuo portafoglio geografico apparirà qui quando riceverai le prime richieste."
           showRanking
+          showAtlasShare={false}
         />
-      </div>
+      </section>
 
-      <div className="mt-5">
+      <section className="mt-6">
         <OperationsPanel title="Dettaglio categorie">
           {!Object.keys(byCategory).length ? (
-            <p className="text-[12px] text-muted">Nessuna categoria ancora.</p>
+            <p className="text-[12px] text-muted">
+              Quando creerai offerte e contratti, qui vedrai conversione per ramo.
+            </p>
           ) : (
             <table className="w-full text-left text-[12px]">
               <thead className="text-[10px] uppercase text-muted">
@@ -235,17 +301,19 @@ export default async function PartnerAnalyticsPage({
               <tbody className="divide-y divide-border">
                 {Object.entries(byCategory).map(([label, value]) => (
                   <tr key={label}>
-                    <td className="py-2">{label}</td>
-                    <td>{value.offers}</td>
-                    <td>{value.contracts}</td>
-                    <td>{pct(value.contracts, value.offers)}%</td>
+                    <td className="py-2.5 font-medium">{label}</td>
+                    <td className="tabular-nums">{value.offers}</td>
+                    <td className="tabular-nums">{value.contracts}</td>
+                    <td className="tabular-nums text-accent">
+                      {pct(value.contracts, value.offers)}%
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           )}
         </OperationsPanel>
-      </div>
+      </section>
     </>
   );
 }
