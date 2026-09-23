@@ -34,9 +34,8 @@ const sections = [
     body: [
       "Nessun dato viene condiviso con un consulente senza una tua richiesta esplicita e senza consenso, che non è preselezionato.",
       "Quando invii una richiesta di revisione scegli tu quali polizze e quali documenti rendere visibili.",
-      "Il consulente assegnato vede solo gli elementi selezionati, oltre ai contatti necessari per ricontattarti. Non può consultare il resto del tuo portafoglio.",
-      "Un consulente diverso da quello assegnato non vede né la richiesta né i dati condivisi.",
-      "Le annotazioni interne del consulente e i dati economici dell'intermediazione non sono visibili nel tuo account.",
+      "ATLAS gestisce la richiesta; un consulente partner potrà essere coinvolto solo successivamente e solo rispetto agli elementi che hai scelto di condividere.",
+      "Nessun accesso automatico al resto del tuo portafoglio.",
     ],
   },
   {

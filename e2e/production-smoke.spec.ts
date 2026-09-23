@@ -23,7 +23,7 @@ for (const viewport of viewports) {
     });
 
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
-    for (const route of ["/", "/register", "/partner"]) {
+    for (const route of ["/", "/register", "/intelligence"]) {
       const response = await page.goto(route, { waitUntil: "domcontentloaded" });
       expect(response?.status()).toBeLessThan(500);
       await expect(page.locator("body")).toBeVisible();
@@ -34,7 +34,22 @@ for (const viewport of viewports) {
       ).toBe(true);
     }
 
+    const brokerResponse = await page.goto("/broker", {
+      waitUntil: "domcontentloaded",
+    });
+    expect(brokerResponse?.status()).toBe(404);
+
     expect(serverErrors).toEqual([]);
-    expect(consoleErrors).toEqual([]);
+    // Ignore only the intentional /broker 404 console noise from this smoke check.
+    expect(
+      consoleErrors.filter(
+        (msg) =>
+          !(
+            /Failed to load resource: the server responded with a status of 404/i.test(
+              msg
+            ) && /\/broker(?:\?|$|\/)/i.test(page.url())
+          )
+      )
+    ).toEqual([]);
   });
 }

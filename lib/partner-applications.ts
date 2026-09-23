@@ -101,6 +101,9 @@ export async function getCurrentPartnerApplication() {
 }
 
 export async function submitPartnerApplication(input: PartnerApplicationInput) {
+  const { assertBrokerPortalEnabled } = await import("@/lib/broker-portal");
+  assertBrokerPortalEnabled();
+
   const identity = await getOperationsIdentity();
   if (!identity.user) throw new OperationsInputError("Accedi per inviare la candidatura.");
   if (identity.role !== "consumer") {

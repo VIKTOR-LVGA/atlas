@@ -7,14 +7,14 @@ function labelOf(map: Record<string, string>, value: string | null | undefined) 
 }
 
 export const consultationStatusLabels: Record<string, string> = {
-  submitted: "Da assegnare",
-  assigned: "Da contattare",
+  submitted: "Richiesta ricevuta",
+  assigned: "In gestione",
   contacted: "Contattato",
   consultation_scheduled: "Appuntamento fissato",
-  in_review: "In analisi",
+  in_review: "In revisione",
   quoted: "Offerta inviata",
-  won: "Conclusa",
-  lost: "Persa",
+  won: "Completata",
+  lost: "Chiusa",
   completed: "Completata",
   cancelled: "Annullata",
 };

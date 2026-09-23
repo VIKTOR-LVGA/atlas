@@ -101,8 +101,8 @@ export function ConsumerConsultationDetail({ consultationId, initialTab, data }:
   }, [consultationId, data.unreadFromBroker]);
 
   const brokerLabel = useMemo(() => {
-    if (!data.broker) return "In assegnazione";
-    return data.broker.display_name || data.broker.company_name || "Consulente ATLAS";
+    if (!data.broker) return "In gestione da ATLAS";
+    return data.broker.display_name || data.broker.company_name || "Consulente partner ATLAS";
   }, [data.broker]);
 
   return (

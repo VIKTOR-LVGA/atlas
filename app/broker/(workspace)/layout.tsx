@@ -1,4 +1,5 @@
 import { PartnerShell } from "@/components/partner/PartnerShell";
+import { assertBrokerPortalEnabled } from "@/lib/broker-portal";
 import { getOperationsIdentity } from "@/lib/operations-access";
 import { redirect } from "next/navigation";
 
@@ -7,6 +8,8 @@ export default async function BrokerWorkspaceLayout({
 }: {
   children: React.ReactNode;
 }) {
+  assertBrokerPortalEnabled();
+
   const identity = await getOperationsIdentity();
   if (!identity.user) redirect("/login?next=%2Fbroker%2Fdashboard");
   if (identity.role !== "broker" || !identity.broker) {

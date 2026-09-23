@@ -77,14 +77,18 @@ export default function LoginPageClient() {
 
       const next = searchParams.get("next");
       const metaIntent = data.user?.user_metadata?.registration_intent;
-      const brokerIntent = metaIntent === "broker" || metaIntent === "partner";
+
+      const { data: roleValue } = await supabase.rpc("current_user_role");
+      if (roleValue === "broker") {
+        router.push("/broker-unavailable");
+        router.refresh();
+        return;
+      }
 
       if (next) {
         router.push(getSafeAuthRedirect(next));
       } else if (intent === "intelligence" || metaIntent === "intelligence") {
         router.push(await resolveIntelligenceDestination(supabase));
-      } else if (brokerIntent) {
-        router.push("/partner/apply");
       } else {
         router.push("/dashboard");
       }

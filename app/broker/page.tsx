@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Briefcase, CalendarDays, FileCheck2, Shield, Wallet } from "lucide-react";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { LandingNav } from "@/components/landing/LandingNav";
+import { assertBrokerPortalEnabled } from "@/lib/broker-portal";
 import { getOperationsIdentity } from "@/lib/operations-access";
 import { redirect } from "next/navigation";
 
@@ -35,6 +36,8 @@ const benefits = [
 ];
 
 export default async function BrokerPublicPage() {
+  assertBrokerPortalEnabled();
+
   const identity = await getOperationsIdentity();
   if (identity.role === "broker" && identity.broker) {
     redirect("/broker/dashboard");

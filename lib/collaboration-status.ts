@@ -6,15 +6,15 @@
 /** Canonical DB statuses (do not invent values that violate consultation_requests_status_check). */
 export function consumerConsultationStatusLabel(status: string): string {
   const map: Record<string, string> = {
-    submitted: "Richiesta inviata",
-    assigned: "Consulente assegnato",
+    submitted: "Richiesta ricevuta",
+    assigned: "In gestione",
     contacted: "In contatto",
     consultation_scheduled: "Appuntamento",
     in_review: "In revisione",
     quoted: "Offerta ricevuta",
-    won: "Conclusa",
+    won: "Completata",
     lost: "Chiusa",
-    completed: "Conclusa",
+    completed: "Completata",
     cancelled: "Annullata",
   };
   return map[status] ?? status;

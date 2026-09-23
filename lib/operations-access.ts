@@ -1,6 +1,7 @@
 import "server-only";
 
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { isBrokerPortalEnabled } from "@/lib/broker-portal-flags";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import type { AtlasUserRole, BrokerIdentity } from "@/lib/types";
 
@@ -13,7 +14,9 @@ export class OperationsAccessError extends Error {
 
 export async function getOperationsIdentity() {
   const supabase = await getSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) return { supabase, user: null, role: null, broker: null };
 
@@ -51,8 +54,23 @@ export async function getOperationsIdentity() {
 export async function requireOperationsRole(allowed: AtlasUserRole[]) {
   const identity = await getOperationsIdentity();
   if (!identity.user) redirect("/login");
+
+  // Hibernated Broker portal: deny broker-only ops; keep admin paths working.
+  if (
+    identity.role === "broker" &&
+    !isBrokerPortalEnabled() &&
+    allowed.includes("broker")
+  ) {
+    if (allowed.includes("admin")) {
+      redirect("/dashboard");
+    }
+    notFound();
+  }
+
   if (!identity.role || !allowed.includes(identity.role)) {
-    if (identity.role === "broker") redirect("/broker/dashboard");
+    if (identity.role === "broker" && isBrokerPortalEnabled()) {
+      redirect("/broker/dashboard");
+    }
     if (identity.role === "admin") redirect("/control-center");
     redirect("/dashboard");
   }
@@ -64,6 +82,13 @@ export async function assertOperationsRole(allowed: AtlasUserRole[]) {
   const identity = await getOperationsIdentity();
   if (!identity.user || !identity.role || !allowed.includes(identity.role)) {
     throw new OperationsAccessError();
+  }
+  if (
+    identity.role === "broker" &&
+    !isBrokerPortalEnabled() &&
+    allowed.includes("broker")
+  ) {
+    throw new OperationsAccessError("Broker portal non disponibile.");
   }
   return identity;
 }

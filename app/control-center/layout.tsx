@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { OperationsShell } from "@/components/operations/OperationsShell";
+import { isBrokerPortalEnabled } from "@/lib/broker-portal-flags";
 import { getOperationsIdentity } from "@/lib/operations-access";
 
 const nav = [
@@ -32,7 +33,9 @@ export default async function ControlCenterLayout({
   const identity = await getOperationsIdentity();
   if (!identity.user) redirect("/login?next=%2Fcontrol-center");
   if (identity.role !== "admin") {
-    if (identity.role === "broker") redirect("/broker/dashboard");
+    if (identity.role === "broker" && isBrokerPortalEnabled()) {
+      redirect("/broker/dashboard");
+    }
     redirect("/dashboard");
   }
 

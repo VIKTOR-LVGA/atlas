@@ -266,34 +266,14 @@ test.describe.serial("Atlas authenticated journeys", () => {
     }
   });
 
-  test("consumer submits a partner application and remains pending", async ({ page }) => {
+  test("consumer partner application route is hibernated", async ({ page }) => {
     test.setTimeout(60_000);
     await login(page);
     await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
-    await page.goto("/partner/apply");
-    await expect(
-      page.getByRole("heading", { name: "Richiedi l'accesso al Broker Workspace" })
-    ).toBeVisible();
-    await page.getByLabel("Nome", { exact: true }).fill("Atlas");
-    await page.getByLabel("Cognome", { exact: true }).fill("Browser");
-    await page.getByLabel("Email professionale").fill(account.email);
-    await page.getByLabel("Telefono").fill("+41790000000");
-    await page.getByLabel("Cantone principale").selectOption("TI");
-    await page.getByRole("checkbox", { name: "Ticino", exact: true }).check();
-    await page.getByLabel(/Acconsento al trattamento/).check();
-    await page.getByLabel(/Accetto le condizioni Partner/).check();
-    await page.getByLabel(/Dichiaro che le informazioni/).check();
-    await page.getByRole("button", { name: "Invia candidatura" }).click();
-    await expect(page).toHaveURL(/\/partner\/status$/, { timeout: 20_000 });
-    await expect(page.getByRole("heading", { name: "In revisione" })).toBeVisible();
-    await expect(
-      page
-        .getByLabel("Avanzamento candidatura")
-        .getByText("Richiesta ricevuta", { exact: false })
-    ).toBeVisible();
-
-    await page.goto("/partner/dashboard");
-    await expect(page).toHaveURL(/\/partner\/status$/);
+    const response = await page.goto("/partner/apply", {
+      waitUntil: "domcontentloaded",
+    });
+    expect(response?.status()).toBe(404);
   });
 
   test("logout clears the session and protected routes remain blocked", async ({ page }) => {

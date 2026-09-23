@@ -94,6 +94,9 @@ export async function createConsultationRequest(input: ConsultationRequestInput)
     source_opportunity_id: input.sourceOpportunityId ?? null,
     review_reason: input.reviewReason?.slice(0, 80) ?? null,
     review_reason_detail: input.reviewReasonDetail?.trim().slice(0, 500) || null,
+    // Explicit: no automatic broker assignment while Broker portal is hibernated.
+    assigned_broker_id: null,
+    status: "submitted",
   }).select("id, status, request_type, message, preferred_contact_method, preferred_contact_time, consent_given_at, privacy_version, source_opportunity_id, created_at, updated_at, closed_at").single();
   if (error || !data) throw new ConsultationDataError("Richiesta non inviata.");
   const sharedResources = (input.sharedResources ?? []).filter(

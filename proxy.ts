@@ -1,6 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSafeAuthRedirect, isProductRoute } from "@/lib/auth-redirect";
+import {
+  isBrokerPortalEnabled,
+  isBrokerPortalPath,
+} from "@/lib/broker-portal-flags";
 import { getSupabaseConfig } from "@/lib/supabase/config";
 
 function redirectWithAuthCookies(
@@ -52,6 +56,14 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
   const pathname = request.nextUrl.pathname;
 
+  // Hibernate Broker Workspace + legacy Partner portal (code retained).
+  if (!isBrokerPortalEnabled() && isBrokerPortalPath(pathname)) {
+    return new NextResponse("Not Found", {
+      status: 404,
+      headers: { "content-type": "text/plain; charset=utf-8" },
+    });
+  }
+
   if (!user && isProductRoute(pathname)) {
     const nextPath = `${pathname}${request.nextUrl.search}`;
     const search = `?next=${encodeURIComponent(nextPath)}`;
@@ -78,10 +90,11 @@ export async function proxy(request: NextRequest) {
       pathname === "/login"
         ? request.nextUrl.searchParams.get("intent")
         : null;
-    // Intelligence intent: bounce via status page (approved→dashboard, pending→status, else→apply)
     const destination =
       requestedNext
-        ? getSafeAuthRedirect(requestedNext)
+        ? getSafeAuthRedirect(requestedNext, {
+            brokerPortalEnabled: isBrokerPortalEnabled(),
+          })
         : intent === "intelligence"
           ? "/intelligence/apply/status"
           : getSafeAuthRedirect(null);

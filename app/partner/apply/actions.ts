@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { assertBrokerPortalEnabled } from "@/lib/broker-portal";
 import { OperationsInputError } from "@/lib/operations-errors";
 import {
   submitPartnerApplication,
@@ -17,6 +18,7 @@ export async function submitPartnerApplicationAction(
   _prev: PartnerApplyState,
   formData: FormData
 ): Promise<PartnerApplyState> {
+  assertBrokerPortalEnabled();
   try {
     const consent = formData.get("consent") === "on";
     const termsAccepted = formData.get("terms") === "on";

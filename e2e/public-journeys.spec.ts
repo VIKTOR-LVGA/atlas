@@ -18,6 +18,12 @@ test("login next param rejects open redirects", () => {
   expect(getSafeAuthRedirect("/intelligence/apply/status")).toBe(
     "/intelligence/apply/status"
   );
+  // Broker portal hibernated: broker/partner next targets are not trusted by default
+  expect(getSafeAuthRedirect("/broker/dashboard")).toBe("/dashboard");
+  expect(getSafeAuthRedirect("/partner/apply")).toBe("/dashboard");
+  expect(
+    getSafeAuthRedirect("/broker/dashboard", { brokerPortalEnabled: true })
+  ).toBe("/broker/dashboard");
 });
 
 test("recovery errors prefer actionable backend states", () => {
@@ -30,26 +36,35 @@ test("recovery errors prefer actionable backend states", () => {
 });
 
 test.describe("Atlas public journeys", () => {
-  test("homepage is loadable", async ({ page }) => {
+  test("homepage is loadable and has no Broker CTAs", async ({ page }) => {
     const response = await page.goto("/");
     expect(response?.ok()).toBeTruthy();
     await waitForClientHydration(page);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expect(page.getByRole("link", { name: "Inizia gratis" }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: "Accedi" }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /Per i broker/i })).toHaveCount(0);
+    await expect(page.getByText(/Nessun broker/i)).toHaveCount(0);
+    const body = await page.locator("body").innerText();
+    expect(body.toLowerCase()).not.toMatch(/broker workspace/);
   });
 
-  test("registration validates empty and mismatched passwords", async ({ page }) => {
+  test("navbar and footer omit Broker links", async ({ page }) => {
+    await page.goto("/");
+    await waitForClientHydration(page);
+    await expect(page.getByRole("link", { name: "Per i broker" })).toHaveCount(0);
+    await expect(page.locator('a[href="/broker"]')).toHaveCount(0);
+    await expect(page.locator('a[href="/partner/apply"]')).toHaveCount(0);
+  });
+
+  test("registration is consumer-only", async ({ page }) => {
     await page.goto("/register");
     await waitForClientHydration(page);
-    await expect(page.getByText("Privato", { exact: true })).toBeVisible();
-    await expect(page.getByText("Broker assicurativo", { exact: true })).toBeVisible();
-    await page.getByText("Broker assicurativo", { exact: true }).click();
-    await expect(page.getByText(/Broker Workspace sarà disponibile/)).toBeVisible();
+    await expect(page.getByText("Broker assicurativo", { exact: true })).toHaveCount(0);
+    await expect(page.getByText("Privato", { exact: true })).toHaveCount(0);
     await expect(
       page.getByRole("link", { name: "Richiedi accesso ad ATLAS Intelligence" })
-    ).toBeVisible();
-    await page.getByText("Privato", { exact: true }).click();
+    ).toHaveAttribute("href", "/intelligence/apply");
     await page.getByRole("button", { name: "Crea account" }).click();
     await expect(page.getByText("Inserisci il tuo nome completo.")).toBeVisible();
     await expect(page.getByText("Inserisci la tua email.")).toBeVisible();
@@ -60,6 +75,29 @@ test.describe("Atlas public journeys", () => {
     await page.getByLabel("Conferma password").fill("AuditTest8");
     await page.getByRole("button", { name: "Crea account" }).click();
     await expect(page.getByText("Le password non coincidono.")).toBeVisible();
+  });
+
+  test("hibernated Broker portal routes return 404", async ({ page }) => {
+    for (const path of [
+      "/broker",
+      "/broker/dashboard",
+      "/partner",
+      "/partner/apply",
+      "/partner/status",
+      "/partner/dashboard",
+    ]) {
+      const response = await page.goto(path, { waitUntil: "domcontentloaded" });
+      expect(response?.status(), path).toBe(404);
+    }
+  });
+
+  test("Intelligence routes do not depend on /partner", async ({ page }) => {
+    for (const path of ["/intelligence", "/intelligence/apply"]) {
+      const response = await page.goto(path, { waitUntil: "domcontentloaded" });
+      expect(response?.ok(), path).toBeTruthy();
+      await expect(page).not.toHaveURL(/\/partner/);
+    }
+    await expect(page.locator('a[href^="/partner"]')).toHaveCount(0);
   });
 
   test("login validates empty fields", async ({ page }) => {
@@ -114,10 +152,9 @@ test.describe("Atlas public journeys", () => {
       "href",
       "/intelligence/apply"
     );
-    await expect(page.getByRole("link", { name: "Accedi" }).first()).toHaveAttribute(
-      "href",
-      "/login?intent=intelligence"
-    );
+    await expect(
+      page.locator('a[href="/login?intent=intelligence"]')
+    ).toHaveCount(1);
 
     await page.goto("/register");
     await waitForClientHydration(page);

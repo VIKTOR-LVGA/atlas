@@ -295,8 +295,9 @@ export function ConsultingInterestCta({
               className="mt-0.5"
               aria-label="Consenso alla revisione"
             />
-            Confermo di voler condividere gli elementi selezionati con il consulente assegnato
-            per questa revisione. Il consenso non è preselezionato.
+            Confermo di voler condividere gli elementi selezionati con ATLAS per questa
+            revisione. Un consulente partner potrà essere coinvolto solo rispetto a quanto
+            scelgo di condividere. Il consenso non è preselezionato.
           </label>
           <div className="flex flex-col gap-2 sm:flex-row">
             <button

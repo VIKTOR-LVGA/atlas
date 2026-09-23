@@ -31,19 +31,18 @@ const sections = [
     title: "Revisione con un consulente",
     body: [
       "La revisione è facoltativa, gratuita per te e parte solo da una tua richiesta esplicita.",
-      "Scegli tu quali dati rendere visibili al consulente assegnato.",
+      "Scegli tu quali dati rendere visibili; ATLAS gestisce la richiesta e può coinvolgere un consulente partner fuori dalla piattaforma.",
       "Una richiesta non comporta alcun obbligo di acquisto e non è un preventivo.",
-      "Se decidi di stipulare un contratto, il rapporto assicurativo è tra te e la compagnia; ATLAS può ricevere una remunerazione dall'intermediazione.",
+      "Se in futuro decidi di stipulare un contratto, il rapporto assicurativo è tra te e la compagnia.",
     ],
   },
   {
     id: "partner",
-    title: "Condizioni Partner",
+    title: "Partner e Intelligence",
     body: [
-      "La candidatura Partner è soggetta a verifica e approvazione ATLAS; la creazione dell'account non attribuisce automaticamente il ruolo broker.",
-      "Il Partner può trattare esclusivamente richieste e risorse assegnate o condivise esplicitamente e deve rispettare riservatezza, protezione dei dati e obblighi professionali applicabili.",
-      "ATLAS può sospendere l'accesso Partner per motivi di sicurezza, conformità o uso improprio, preservando i dati storici soggetti a obblighi di conservazione.",
-      "Commissioni e attribuzioni economiche sono registrate secondo gli accordi applicabili e non costituiscono una promessa di volumi, lead o guadagni.",
+      "L'accesso ad ATLAS Intelligence per compagnie e partner B2B è soggetto a candidatura e approvazione ATLAS.",
+      "La creazione di un account consumer non attribuisce accesso Intelligence né ruoli operativi aggiuntivi.",
+      "ATLAS può sospendere accessi partner/Intelligence per motivi di sicurezza, conformità o uso improprio.",
     ],
   },
   {

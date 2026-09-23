@@ -37,7 +37,7 @@ export default async function IntelligenceSwitchingPage() {
           soppresse.
         </p>
         <IntelligenceMethodNote>
-          {INTELLIGENCE_REPRESENTATIVENESS_NOTE} Solo switch confermati (broker / contratto /
+          {INTELLIGENCE_REPRESENTATIVENESS_NOTE} Solo switch confermati (contratto /
           dichiarazione). Net observed switching ≠ acquisizione di mercato svizzera.
         </IntelligenceMethodNote>
       </header>

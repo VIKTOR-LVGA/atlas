@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { assertBrokerPortalEnabled } from "@/lib/broker-portal";
 import { getOperationsIdentity } from "@/lib/operations-access";
 import { getCurrentPartnerApplication } from "@/lib/partner-applications";
 import { cantonLabel } from "@/lib/swiss-cantons";
@@ -43,6 +44,8 @@ const copy: Record<
 };
 
 export default async function PartnerStatusPage() {
+  assertBrokerPortalEnabled();
+
   const identity = await getOperationsIdentity();
   if (!identity.user) redirect("/login?next=%2Fpartner%2Fstatus");
   if (identity.role === "broker") redirect("/broker/dashboard");

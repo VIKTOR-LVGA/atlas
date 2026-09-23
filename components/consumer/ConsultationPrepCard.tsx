@@ -2,15 +2,15 @@ import Link from "next/link";
 import type { ConsultationRequest } from "@/lib/types";
 
 const statusLabels: Record<string, string> = {
-  submitted: "Richiesta inviata, in attesa di assegnazione",
-  assigned: "Assegnata a un consulente partner",
-  contacted: "Il consulente ti ha contattato",
+  submitted: "Richiesta ricevuta",
+  assigned: "In gestione da ATLAS",
+  contacted: "Ti abbiamo contattato",
   consultation_scheduled: "Appuntamento fissato",
-  in_review: "Revisione in corso",
+  in_review: "In revisione",
   quoted: "Hai ricevuto una proposta",
   won: "Pratica conclusa",
   lost: "Pratica chiusa senza seguito",
-  completed: "Revisione completata",
+  completed: "Completata",
   cancelled: "Richiesta annullata",
 };
 

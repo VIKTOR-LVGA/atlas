@@ -28,7 +28,7 @@ const pillars = [
     icon: Eye,
     title: "Trasparente",
     description:
-      "Nessuna vendita di polizze. Nessun broker. Solo analisi indipendente.",
+      "Le tue assicurazioni, finalmente chiare.",
   },
 ];
 

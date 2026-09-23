@@ -29,14 +29,26 @@ test.describe("collaboration route gates", () => {
     await expect(page).toHaveURL(/\/login/);
   });
 
-  test("anonymous broker request redirects to login", async ({ page }) => {
-    await page.goto("/broker/requests/00000000-0000-0000-0000-000000000001");
-    await expect(page).toHaveURL(/\/login/);
+  test("anonymous broker request is unreachable while portal hibernated", async ({
+    page,
+  }) => {
+    const response = await page.goto(
+      "/broker/requests/00000000-0000-0000-0000-000000000001",
+      { waitUntil: "domcontentloaded" }
+    );
+    expect(response?.status()).toBe(404);
   });
 });
 
 test.describe("collaboration authenticated", () => {
-  test.skip(!process.env.ATLAS_BROKER_E2E_RUN_ID, "Requires seeded broker E2E users");
+  test.skip(
+    !process.env.ATLAS_BROKER_E2E_RUN_ID ||
+      !(
+        process.env.ENABLE_BROKER_PORTAL === "true" ||
+        process.env.ATLAS_FLAG_BROKER_PORTAL === "1"
+      ),
+    "Requires Broker portal enabled + seeded E2E users"
+  );
 
   test("broker lands in workspace dashboard", async ({ page }) => {
     await login(page, "broker-a");

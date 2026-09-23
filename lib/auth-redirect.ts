@@ -60,6 +60,15 @@ export function isPublicIntelligencePath(pathname: string) {
   );
 }
 
+function isBrokerishPath(pathname: string) {
+  return (
+    pathname === "/broker" ||
+    pathname.startsWith("/broker/") ||
+    pathname === "/partner" ||
+    pathname.startsWith("/partner/")
+  );
+}
+
 export function isProductRoute(pathname: string) {
   if (publicExactRoutes.has(pathname)) return false;
   if (isPublicIntelligencePath(pathname)) return false;
@@ -71,8 +80,12 @@ export function isProductRoute(pathname: string) {
 /**
  * Only in-app product paths are allowed after login.
  * Rejects protocol-relative, external, and auth entry URLs.
+ * When Broker portal is hibernated, broker/partner next targets fall back to dashboard.
  */
-export function getSafeAuthRedirect(next: string | null | undefined): string {
+export function getSafeAuthRedirect(
+  next: string | null | undefined,
+  options?: { brokerPortalEnabled?: boolean }
+): string {
   if (!next) {
     return "/dashboard";
   }
@@ -92,6 +105,12 @@ export function getSafeAuthRedirect(next: string | null | undefined): string {
     const url = new URL(trimmed, "http://atlas.local");
 
     if (url.origin !== "http://atlas.local" || url.username || url.password) {
+      return "/dashboard";
+    }
+
+    // Default false matches feature-flag hibernation (ENABLE_BROKER_PORTAL off).
+    const brokerEnabled = options?.brokerPortalEnabled ?? false;
+    if (!brokerEnabled && isBrokerishPath(url.pathname)) {
       return "/dashboard";
     }
 

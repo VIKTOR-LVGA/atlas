@@ -16,13 +16,8 @@ import {
 } from "@/lib/auth-validation";
 import { cn } from "@/lib/utils";
 
-/** Account type on public registration. Intelligence partners use a separate CTA. */
-type RegistrationType = "consumer" | "broker";
-
 export default function RegisterPage() {
   const router = useRouter();
-  const [registrationType, setRegistrationType] =
-    useState<RegistrationType>("consumer");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -61,18 +56,16 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      // Keep legacy metadata value "partner" for older clients that still read it,
-      // and also set "broker" so new login routing can prefer the broker intent.
-      const isBroker = registrationType === "broker";
-      const redirectPath = isBroker ? "/partner/apply" : "/dashboard";
+      // Public signup is consumer-only. Broker role cannot be self-selected.
+      // Ignore any client-side attempts to pass role=broker / registration_intent=broker.
       const { data, error: authError } = await getSupabaseBrowserClient().auth.signUp({
         email: email.trim(),
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}${redirectPath}`,
+          emailRedirectTo: `${window.location.origin}/dashboard`,
           data: {
             full_name: fullName.trim(),
-            registration_intent: isBroker ? "broker" : "consumer",
+            registration_intent: "consumer",
           },
         },
       });
@@ -83,15 +76,13 @@ export default function RegisterPage() {
       }
 
       if (data.session) {
-        router.push(redirectPath);
+        router.push("/dashboard");
         router.refresh();
         return;
       }
 
       setSuccess(
-        isBroker
-          ? "Account creato. Conferma l'email per completare la candidatura broker."
-          : "Account creato. Controlla la tua email per confermare l'account, poi accedi."
+        "Account creato. Controlla la tua email per confermare l'account, poi accedi."
       );
     } catch {
       setError("Impossibile connettersi al servizio di autenticazione.");
@@ -103,76 +94,16 @@ export default function RegisterPage() {
   return (
     <AuthLayout
       title="Crea account"
-      subtitle="Scegli come vuoi utilizzare ATLAS."
+      subtitle="Inizia a organizzare le tue assicurazioni con ATLAS."
     >
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         <AuthMessage variant="error" message={error} />
         <AuthMessage variant="success" message={success} />
 
-        <fieldset>
-          <legend className="text-[12px] font-semibold text-foreground">
-            Tipo di account
-          </legend>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
-            <label
-              className={cn(
-                "cursor-pointer rounded-xl border p-3 transition",
-                registrationType === "consumer"
-                  ? "border-accent bg-accent-soft"
-                  : "border-border bg-card-muted/40 hover:border-accent/50"
-              )}
-            >
-              <input
-                type="radio"
-                name="registration_type"
-                value="consumer"
-                checked={registrationType === "consumer"}
-                onChange={() => setRegistrationType("consumer")}
-                className="sr-only"
-              />
-              <span className="block text-[13px] font-semibold text-foreground">
-                Privato
-              </span>
-              <span className="mt-1 block text-[11px] leading-relaxed text-muted">
-                Gestisci le tue assicurazioni con ATLAS.
-              </span>
-            </label>
-            <label
-              className={cn(
-                "cursor-pointer rounded-xl border p-3 transition",
-                registrationType === "broker"
-                  ? "border-accent bg-accent-soft"
-                  : "border-border bg-card-muted/40 hover:border-accent/50"
-              )}
-            >
-              <input
-                type="radio"
-                name="registration_type"
-                value="broker"
-                checked={registrationType === "broker"}
-                onChange={() => setRegistrationType("broker")}
-                className="sr-only"
-              />
-              <span className="block text-[13px] font-semibold text-foreground">
-                Broker assicurativo
-              </span>
-              <span className="mt-1 block text-[11px] leading-relaxed text-muted">
-                Ricevi e gestisci le richieste di revisione assegnate da ATLAS.
-              </span>
-            </label>
-          </div>
-          {registrationType === "broker" ? (
-            <p className="mt-2 text-[11px] leading-relaxed text-muted">
-              Dopo la creazione dell&apos;account potrai completare la candidatura
-              professionale. Il Broker Workspace sarà disponibile dopo
-              l&apos;approvazione di ATLAS.
-            </p>
-          ) : null}
-        </fieldset>
-
         <AuthFormField
           id="fullName"
           label="Nome completo"
+          type="text"
           value={fullName}
           onChange={setFullName}
           error={fieldErrors.fullName}
@@ -228,41 +159,39 @@ export default function RegisterPage() {
           {loading ? (
             <span className="flex items-center gap-2">
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              Creazione account...
+              Creazione in corso...
             </span>
-          ) : registrationType === "broker" ? (
-            "Crea account e continua"
           ) : (
             "Crea account"
           )}
         </button>
       </form>
 
-      <div className="mt-6 rounded-xl border border-dashed border-border bg-card-muted/30 px-4 py-3 text-center">
-        <p className="text-[12px] text-muted">
+      <div className="mt-6 rounded-xl border border-border bg-card/40 px-4 py-3 text-[12px] leading-relaxed text-muted">
+        <p className="font-medium text-foreground">
           Rappresenti una compagnia assicurativa o un partner B2B?
         </p>
         <Link
           href="/intelligence/apply"
-          className="mt-1.5 inline-block text-[13px] font-medium text-accent hover:text-accent-hover"
+          className="mt-1 inline-block font-medium text-accent hover:text-accent-hover"
         >
           Richiedi accesso ad ATLAS Intelligence
         </Link>
       </div>
 
-      <p className="mt-5 text-center text-[12px] leading-relaxed text-muted">
+      <p className="mt-6 text-center text-[12px] leading-relaxed text-muted">
         Creando un account accetti i{" "}
-        <Link href="/terms" className="font-medium text-accent hover:text-accent-hover">
+        <Link href="/terms" className="text-accent hover:text-accent-hover">
           termini di utilizzo
         </Link>{" "}
         e l&apos;
-        <Link href="/privacy" className="font-medium text-accent hover:text-accent-hover">
+        <Link href="/privacy" className="text-accent hover:text-accent-hover">
           informativa privacy
         </Link>
         . Nessun dato viene condiviso con un consulente senza una tua richiesta.
       </p>
 
-      <p className="mt-6 text-center text-[13px] text-muted">
+      <p className="mt-4 text-center text-[13px] text-muted">
         Hai già un account?{" "}
         <Link href="/login" className="font-medium text-accent hover:text-accent-hover">
           Accedi

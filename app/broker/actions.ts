@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { assertBrokerPortalEnabled } from "@/lib/broker-portal";
 import { requireOperationsRole } from "@/lib/operations-access";
 
 function value(formData: FormData, key: string) {
@@ -21,8 +22,15 @@ function revalidateLead(requestId: string) {
   revalidatePath("/broker");
 }
 
+async function requireBrokerPortalAction(
+  roles: Array<"broker" | "admin"> = ["broker"]
+) {
+  assertBrokerPortalEnabled();
+  return requireOperationsRole(roles);
+}
+
 export async function transitionLeadAction(formData: FormData) {
-  const { supabase } = await requireOperationsRole(["broker"]);
+  const { supabase } = await requireBrokerPortalAction();
   const requestId = required(formData, "request_id");
   const { error } = await supabase.rpc("transition_consultation_status", {
     p_consultation_request_id: requestId,
@@ -33,7 +41,7 @@ export async function transitionLeadAction(formData: FormData) {
 }
 
 export async function addBrokerNoteAction(formData: FormData) {
-  const { supabase, broker } = await requireOperationsRole(["broker"]);
+  const { supabase, broker } = await requireBrokerPortalAction();
   if (!broker) throw new Error("Profilo broker mancante.");
   const requestId = required(formData, "request_id");
   const { error } = await supabase.from("broker_notes").insert({
@@ -46,7 +54,7 @@ export async function addBrokerNoteAction(formData: FormData) {
 }
 
 export async function scheduleAppointmentAction(formData: FormData) {
-  const { supabase, broker, user } = await requireOperationsRole(["broker"]);
+  const { supabase, broker, user } = await requireBrokerPortalAction();
   if (!broker) throw new Error("Profilo broker mancante.");
   const requestId = required(formData, "request_id");
   const scheduledAt = new Date(required(formData, "scheduled_at")).toISOString();
@@ -111,7 +119,7 @@ export async function scheduleAppointmentAction(formData: FormData) {
 }
 
 export async function createOfferAction(formData: FormData) {
-  const { supabase, broker } = await requireOperationsRole(["broker"]);
+  const { supabase, broker } = await requireBrokerPortalAction();
   if (!broker) throw new Error("Profilo broker mancante.");
   const requestId = required(formData, "request_id");
   const premium = value(formData, "premium_amount");
@@ -137,7 +145,7 @@ export async function createOfferAction(formData: FormData) {
 }
 
 export async function updateOfferStatusAction(formData: FormData) {
-  const { supabase, broker } = await requireOperationsRole(["broker"]);
+  const { supabase, broker } = await requireBrokerPortalAction();
   if (!broker) throw new Error("Profilo broker mancante.");
   const requestId = required(formData, "request_id");
   const status = required(formData, "status");
@@ -207,7 +215,7 @@ export async function updateOfferStatusAction(formData: FormData) {
 }
 
 export async function createContractAction(formData: FormData) {
-  const { supabase, broker } = await requireOperationsRole(["broker"]);
+  const { supabase, broker } = await requireBrokerPortalAction();
   if (!broker) throw new Error("Profilo broker mancante.");
   const requestId = required(formData, "request_id");
   const { data: request, error: requestError } = await supabase
@@ -274,7 +282,7 @@ export async function createContractAction(formData: FormData) {
 }
 
 export async function brokerRespondAssignmentAction(formData: FormData) {
-  const { supabase } = await requireOperationsRole(["broker"]);
+  const { supabase } = await requireBrokerPortalAction();
   const requestId = required(formData, "request_id");
   const decision = required(formData, "decision");
   const reason = String(formData.get("reason") ?? "").trim() || null;
@@ -288,7 +296,7 @@ export async function brokerRespondAssignmentAction(formData: FormData) {
 }
 
 export async function brokerRespondAppointmentAction(formData: FormData) {
-  const { supabase, broker, user } = await requireOperationsRole(["broker"]);
+  const { supabase, broker, user } = await requireBrokerPortalAction();
   if (!broker) throw new Error("Profilo broker mancante.");
   const requestId = required(formData, "request_id");
   const appointmentId = required(formData, "appointment_id");
@@ -376,7 +384,7 @@ export async function brokerRespondAppointmentAction(formData: FormData) {
 }
 
 export async function sendConsultationMessageAction(formData: FormData) {
-  const { supabase, user, role } = await requireOperationsRole(["broker", "admin"]);
+  const { supabase, user, role } = await requireBrokerPortalAction(["broker", "admin"]);
   const requestId = required(formData, "request_id");
   const body = required(formData, "body").slice(0, 8000);
   const { error } = await supabase.from("consultation_messages").insert({
@@ -409,7 +417,7 @@ export async function sendConsultationMessageAction(formData: FormData) {
 }
 
 export async function uploadOfferQuotePdfAction(formData: FormData) {
-  const { supabase, broker } = await requireOperationsRole(["broker"]);
+  const { supabase, broker } = await requireBrokerPortalAction();
   if (!broker) throw new Error("Profilo broker mancante.");
   const requestId = required(formData, "request_id");
   const offerId = required(formData, "offer_id");
@@ -479,7 +487,7 @@ export async function verifyOfferQuoteAction(formData: FormData) {
 }
 
 export async function createOfferRevisionAction(formData: FormData) {
-  const { supabase } = await requireOperationsRole(["broker"]);
+  const { supabase } = await requireBrokerPortalAction();
   const requestId = required(formData, "request_id");
   const offerId = required(formData, "offer_id");
   const { error } = await supabase.rpc("create_insurance_offer_revision", {

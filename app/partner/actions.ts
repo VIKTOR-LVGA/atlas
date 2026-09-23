@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { assertBrokerPortalEnabled } from "@/lib/broker-portal";
 import { requireOperationsRole } from "@/lib/operations-access";
 
 function value(formData: FormData, key: string) {
@@ -21,8 +22,14 @@ function revalidateLead(requestId: string) {
   revalidatePath("/broker");
 }
 
+async function requireLegacyPartnerBroker() {
+  assertBrokerPortalEnabled();
+  return requireOperationsRole(["broker"]);
+}
+
+/** @deprecated Legacy Partner Portal actions — gated by broker portal flag. */
 export async function transitionLeadAction(formData: FormData) {
-  const { supabase } = await requireOperationsRole(["broker"]);
+  const { supabase } = await requireLegacyPartnerBroker();
   const requestId = required(formData, "request_id");
   const { error } = await supabase.rpc("transition_consultation_status", {
     p_consultation_request_id: requestId,
@@ -33,7 +40,7 @@ export async function transitionLeadAction(formData: FormData) {
 }
 
 export async function addBrokerNoteAction(formData: FormData) {
-  const { supabase, broker } = await requireOperationsRole(["broker"]);
+  const { supabase, broker } = await requireLegacyPartnerBroker();
   if (!broker) throw new Error("Profilo broker mancante.");
   const requestId = required(formData, "request_id");
   const { error } = await supabase.from("broker_notes").insert({
@@ -46,7 +53,7 @@ export async function addBrokerNoteAction(formData: FormData) {
 }
 
 export async function scheduleAppointmentAction(formData: FormData) {
-  const { supabase, broker } = await requireOperationsRole(["broker"]);
+  const { supabase, broker } = await requireLegacyPartnerBroker();
   if (!broker) throw new Error("Profilo broker mancante.");
   const requestId = required(formData, "request_id");
   const { error } = await supabase.from("consultation_appointments").insert({
@@ -64,7 +71,7 @@ export async function scheduleAppointmentAction(formData: FormData) {
 }
 
 export async function createOfferAction(formData: FormData) {
-  const { supabase, broker } = await requireOperationsRole(["broker"]);
+  const { supabase, broker } = await requireLegacyPartnerBroker();
   if (!broker) throw new Error("Profilo broker mancante.");
   const requestId = required(formData, "request_id");
   const premium = value(formData, "premium_amount");
@@ -84,7 +91,7 @@ export async function createOfferAction(formData: FormData) {
 }
 
 export async function updateOfferStatusAction(formData: FormData) {
-  const { supabase, broker } = await requireOperationsRole(["broker"]);
+  const { supabase, broker } = await requireLegacyPartnerBroker();
   if (!broker) throw new Error("Profilo broker mancante.");
   const requestId = required(formData, "request_id");
   const status = required(formData, "status");
@@ -109,7 +116,7 @@ export async function updateOfferStatusAction(formData: FormData) {
 }
 
 export async function createContractAction(formData: FormData) {
-  const { supabase, broker } = await requireOperationsRole(["broker"]);
+  const { supabase, broker } = await requireLegacyPartnerBroker();
   if (!broker) throw new Error("Profilo broker mancante.");
   const requestId = required(formData, "request_id");
   const { data: request, error: requestError } = await supabase

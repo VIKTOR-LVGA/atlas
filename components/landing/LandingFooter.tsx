@@ -26,16 +26,8 @@ export function LandingFooter() {
               </p>
               <ul className="mt-4 space-y-2.5 text-[var(--landing-muted)]">
                 <li>
-                  <Link
-                    href="/register"
-                    className="transition hover:text-[var(--landing-text)]"
-                  >
+                  <Link href="/register" className="transition hover:text-[var(--landing-text)]">
                     Inizia gratis
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/broker" className="transition hover:text-[var(--landing-text)]">
-                    Per i broker
                   </Link>
                 </li>
                 <li>

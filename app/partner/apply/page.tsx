@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { PartnerApplyForm } from "@/components/partner/PartnerApplyForm";
+import { assertBrokerPortalEnabled } from "@/lib/broker-portal";
 import { getOperationsIdentity } from "@/lib/operations-access";
 import { getCurrentPartnerApplication } from "@/lib/partner-applications";
 import { SWISS_CANTON_CODES, CANTON_LABELS } from "@/lib/swiss-cantons";
@@ -7,6 +8,8 @@ import { SWISS_CANTON_CODES, CANTON_LABELS } from "@/lib/swiss-cantons";
 export const metadata = { title: "Candidatura broker | ATLAS" };
 
 export default async function PartnerApplyPage() {
+  assertBrokerPortalEnabled();
+
   const identity = await getOperationsIdentity();
   if (!identity.user) {
     redirect("/login?next=%2Fpartner%2Fapply");

@@ -43,7 +43,7 @@ export default async function ControlCenterIntelligencePage() {
       <OperationsHeader
         eyebrow="B2B"
         title="Intelligence Partners"
-        description="Approvazione compagnie, entitlement moduli e salute snapshot. Separato dai Broker Workspace."
+        description="Approvazione compagnie, entitlement moduli e salute snapshot. Separato dal Consumer e da Intelligence."
       />
 
       <div className="mb-5 grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
