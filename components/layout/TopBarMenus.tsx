@@ -8,6 +8,7 @@ import {
   LogOut,
   Settings,
   ShieldCheck,
+  Sparkles,
   Target,
 } from "lucide-react";
 import { logout } from "@/app/(app)/actions";
@@ -63,13 +64,17 @@ function HelpMenuPanel() {
         <BookOpen className="h-3.5 w-3.5" />
         Home
       </TopBarPopoverItem>
+      <TopBarPopoverItem href="/atlas">
+        <Sparkles className="h-3.5 w-3.5" />
+        ATLAS
+      </TopBarPopoverItem>
       <TopBarPopoverItem href="/documents">
         <FileText className="h-3.5 w-3.5" />
         Documenti
       </TopBarPopoverItem>
-      <TopBarPopoverItem href="/opportunities">
+      <TopBarPopoverItem href="/activity?tab=actions">
         <Target className="h-3.5 w-3.5" />
-        Opportunità
+        Attività
       </TopBarPopoverItem>
       <TopBarPopoverItem href="/settings">
         <Settings className="h-3.5 w-3.5" />
@@ -158,6 +163,14 @@ export function TopBarProfileMenu() {
       <TopBarPopoverItem href="/policies">
         <FileText className="h-3.5 w-3.5" />
         Polizze
+      </TopBarPopoverItem>
+      <TopBarPopoverItem href="/atlas">
+        <Sparkles className="h-3.5 w-3.5" />
+        ATLAS
+      </TopBarPopoverItem>
+      <TopBarPopoverItem href="/documents">
+        <FileText className="h-3.5 w-3.5" />
+        Documenti
       </TopBarPopoverItem>
       <TopBarPopoverItem href="/settings">
         <Settings className="h-3.5 w-3.5" />

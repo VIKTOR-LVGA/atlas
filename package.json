@@ -9,6 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test",
+    "test:insurance-os": "tsx test/insurance-os.test.ts",
     "test:experience": "tsx test/policy-experience-opportunities.test.ts",
     "test:knowledge": "tsx test/insurance-knowledge.test.ts && tsx test/zurich-motor-classifier.test.ts && tsx test/zurich-motor-extraction.test.ts && tsx test/motor-policy-recovery.test.ts && tsx test/multi-insurer-classifier.test.ts && tsx test/policy-experience-opportunities.test.ts && tsx lib/insurance-knowledge-regression.ts",
     "test:classifier": "tsx test/zurich-motor-classifier.test.ts && tsx test/multi-insurer-classifier.test.ts && tsx test/zurich-motor-extraction.test.ts && tsx test/motor-policy-recovery.test.ts",
@@ -29,7 +30,8 @@
     "next": "^16.3.5",
     "pdf2json": "^4.0.3",
     "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react-dom": "^19.2.6",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",

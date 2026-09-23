@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  IconAnalysis,
   IconDashboard,
-  IconDocuments,
   IconPolicies,
   IconSettings,
   IconSparkle,
@@ -19,8 +19,8 @@ import { cn } from "@/lib/utils";
 const icons: Record<ConsumerNavId, typeof IconDashboard> = {
   home: IconDashboard,
   policies: IconPolicies,
-  documents: IconDocuments,
-  opportunities: IconSparkle,
+  atlas: IconSparkle,
+  activity: IconAnalysis,
   profile: IconSettings,
 };
 

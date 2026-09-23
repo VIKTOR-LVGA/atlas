@@ -154,7 +154,7 @@ test.describe.serial("Atlas authenticated journeys", () => {
     ).toBeVisible();
   });
 
-  test("policies list, opportunities, wallet and mobile nav work", async ({ page }) => {
+  test("policies list, activity, wallet and mobile nav work", async ({ page }) => {
     test.setTimeout(90_000);
     expect(policyId).not.toBe("");
     await login(page);
@@ -169,13 +169,8 @@ test.describe.serial("Atlas authenticated journeys", () => {
     await expect(page.getByText("Overview")).toBeVisible();
     await expect(page.getByText("Costi")).toBeVisible();
 
-    await page.goto("/opportunities");
-    await expect(page.getByRole("heading", { name: "Opportunità" })).toBeVisible();
-    await expect(page.getByText("Controlla polizza").first()).toBeVisible();
-    await page.getByRole("button", { name: "Segna come vista" }).first().click();
-    await expect(page.getByRole("status").first()).toContainText("letta");
-    await page.getByRole("button", { name: "Archivia" }).first().click();
-    await expect(page.getByRole("status").first()).toContainText("archiviata");
+    await page.goto("/activity?tab=actions");
+    await expect(page.getByRole("heading", { name: "Attività" })).toBeVisible();
 
     await page.goto("/documents");
     await expect(page.getByRole("heading", { name: "Wallet documenti" })).toBeVisible();
@@ -185,7 +180,8 @@ test.describe.serial("Atlas authenticated journeys", () => {
     const mobileNav = page.getByRole("navigation", { name: "Navigazione principale" });
     await expect(mobileNav.getByRole("link", { name: "Home" })).toBeVisible();
     await expect(mobileNav.getByRole("link", { name: "Polizze" })).toBeVisible();
-    await expect(mobileNav.getByRole("link", { name: "Opportunità" })).toBeVisible();
+    await expect(mobileNav.getByRole("link", { name: "ATLAS" })).toBeVisible();
+    await expect(mobileNav.getByRole("link", { name: "Attività" })).toBeVisible();
     await expect(mobileNav.getByRole("link", { name: "Profilo" })).toBeVisible();
   });
 

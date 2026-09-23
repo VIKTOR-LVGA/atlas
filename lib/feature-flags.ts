@@ -12,6 +12,12 @@ const DEFAULTS = {
   intelligence_csv_export: false,
   email_notifications: false,
   partner_choropleth_money: true,
+  /** Insurance Operating System surfaces */
+  coverage_intelligence: true,
+  ask_atlas: true,
+  claims: true,
+  annual_checkup: true,
+  benchmarks: true,
 } as const;
 
 export type AtlasFeatureFlag = keyof typeof DEFAULTS;
@@ -44,5 +50,10 @@ export function featureFlagsSnapshot(): Record<AtlasFeatureFlag, boolean> {
     intelligence_csv_export: isFeatureEnabled("intelligence_csv_export"),
     email_notifications: isFeatureEnabled("email_notifications"),
     partner_choropleth_money: isFeatureEnabled("partner_choropleth_money"),
+    coverage_intelligence: isFeatureEnabled("coverage_intelligence"),
+    ask_atlas: isFeatureEnabled("ask_atlas"),
+    claims: isFeatureEnabled("claims"),
+    annual_checkup: isFeatureEnabled("annual_checkup"),
+    benchmarks: isFeatureEnabled("benchmarks"),
   };
 }

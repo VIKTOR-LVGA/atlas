@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import { AtlasBrandLogo } from "@/components/brand/AtlasBrandLogo";
 import { useCurrentProfile } from "@/components/profile/ProfileProvider";
 import {
+  IconAnalysis,
   IconDashboard,
-  IconDocuments,
   IconPolicies,
   IconSettings,
   IconSparkle,
@@ -22,8 +22,8 @@ import { cn } from "@/lib/utils";
 const icons: Record<ConsumerNavId, typeof IconDashboard> = {
   home: IconDashboard,
   policies: IconPolicies,
-  documents: IconDocuments,
-  opportunities: IconSparkle,
+  atlas: IconSparkle,
+  activity: IconAnalysis,
   profile: IconSettings,
 };
 

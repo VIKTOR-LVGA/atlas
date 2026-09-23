@@ -447,7 +447,18 @@ export type PersistedOpportunityType =
   | "missing_premium"
   | "missing_document"
   | "incomplete_policy"
-  | "periodic_review";
+  | "periodic_review"
+  | "upcoming_renewal"
+  | "cancellation_deadline"
+  | "document_obsolete"
+  | "parsing_incomplete"
+  | "coverage_needs_verification"
+  | "possible_overlap"
+  | "premium_changed"
+  | "policy_without_current_document"
+  | "consultation_pending"
+  | "claim_open"
+  | "update_needed";
 
 export interface PersistedOpportunity {
   id: string;

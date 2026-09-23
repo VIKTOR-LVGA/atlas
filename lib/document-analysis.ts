@@ -645,6 +645,33 @@ export async function analyzeCurrentUserDocument(
     await syncExtractedPolicyCoverages(policy, processingDocument.id);
     await updateCurrentUserDocumentStatus(processingDocument.id, "analyzed");
     await clearCurrentUserDocumentAnalysisError(processingDocument.id);
+
+    try {
+      const { recordTimelineEvent } = await import("@/lib/insurance-os/timeline");
+      await recordTimelineEvent({
+        eventType: "parsing_completed",
+        title: "Documento analizzato",
+        description: processingDocument.fileName,
+        entityType: "document",
+        entityId: processingDocument.id,
+        policyId: policy.id,
+        documentId: processingDocument.id,
+        idempotencyKey: `parsing_completed:${processingDocument.id}:${policy.id}`,
+      });
+      await recordTimelineEvent({
+        eventType: "policy_added",
+        title: "Polizza aggiornata dal documento",
+        description: policy.provider,
+        entityType: "policy",
+        entityId: policy.id,
+        policyId: policy.id,
+        documentId: processingDocument.id,
+        idempotencyKey: `policy_from_doc:${policy.id}:${processingDocument.id}`,
+      });
+    } catch {
+      /* timeline must not fail analysis */
+    }
+
     const dbMs = elapsedMs(dbStartedAt);
 
     logAnalysisTiming({
