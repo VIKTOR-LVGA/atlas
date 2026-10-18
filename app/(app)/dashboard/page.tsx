@@ -145,6 +145,13 @@ export default async function DashboardPage() {
   const overlapCount = attentionItems.filter(
     (item) => item.type === "possible_overlap"
   ).length;
+  const insurers = [
+    ...new Set(
+      policies
+        .map((policy) => policy.provider.trim())
+        .filter(Boolean)
+    ),
+  ].sort((a, b) => a.localeCompare(b, "it-CH"));
 
   const previewCategories = [...coverageMap.categories]
     .sort((a, b) => STATUS_WEIGHT[a.status] - STATUS_WEIGHT[b.status])
@@ -183,6 +190,7 @@ export default async function DashboardPage() {
         data={{
           annualCost: premiums.annual,
           monthlyCost: premiums.monthly,
+          insurers,
           activePolicies: activeCount,
           totalPolicies: policies.length,
           coveredAreas: coverageMap.summary.coveredCount,

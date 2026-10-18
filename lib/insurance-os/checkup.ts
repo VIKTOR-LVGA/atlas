@@ -85,7 +85,7 @@ export function buildAnnualCheckup(input: {
 
   const upcomingDeadlines: string[] = [];
   for (const p of input.policies) {
-    const d = getPolicyDeadlineDate(p);
+    const d = getPolicyDeadlineDate(p, now);
     if (!d) continue;
     const startOfToday = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
     const daysUntil = Math.round((d.timestamp - startOfToday) / (1000 * 60 * 60 * 24));

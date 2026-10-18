@@ -50,6 +50,10 @@ import type {
   PolicyDocumentExtractionResult,
   PolicyDocumentExtractor,
 } from "@/lib/document-analysis";
+import {
+  getOpenAIExtractionSignal,
+  isOpenAITimeout,
+} from "@/lib/openai-request";
 
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
 const DEFAULT_STRONG_EXTRACTION_MODEL = "gpt-5.2";
@@ -1116,6 +1120,7 @@ async function callOpenAIForPolicyExtraction(
   try {
     response = await fetch(OPENAI_RESPONSES_URL, {
       method: "POST",
+      signal: getOpenAIExtractionSignal(),
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
@@ -1151,17 +1156,23 @@ async function callOpenAIForPolicyExtraction(
       }),
     });
   } catch (error) {
+    const timedOut = isOpenAITimeout(error);
     const message =
       error instanceof Error ? error.message : "Unknown fetch error";
 
     logPolicyAnalysisError("openai_request_network_failed", {
       documentId: document.id,
       model,
-      error: message,
+      error: timedOut ? "request_timeout" : message,
     });
 
     throw new OpenAIPolicyExtractionError(
-      `OpenAI request failed before HTTP response: ${message}`
+      timedOut
+        ? "OpenAI request timed out"
+        : `OpenAI request failed before HTTP response: ${message}`,
+      timedOut
+        ? "L'analisi AI ha impiegato troppo tempo. Riprova tra poco."
+        : "Analisi AI temporaneamente non disponibile. Riprova tra poco."
     );
   }
 

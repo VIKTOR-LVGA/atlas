@@ -33,6 +33,7 @@ export type CoverageMapCategoryView = {
   status: CoverageMapStatus;
   policies: CoverageMapPolicyRef[];
   coverages: CoverageMapFact[];
+  conditional: CoverageMapFact[];
   exclusions: CoverageMapFact[];
   needsVerification: CoverageMapFact[];
   explanation: string;

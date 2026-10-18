@@ -45,7 +45,9 @@ function resolveStatus(input: {
 }): CoverageMapStatus {
   if (input.policies.length === 0) return "no_policy_found";
 
-  const included = input.coverages.filter((c) => c.coverageStatus === "included");
+  const documentedIncluded = input.coverages.filter(
+    (c) => c.coverageStatus === "included" && c.provenance === "explicit"
+  );
   const unknown = input.coverages.filter(
     (c) =>
       c.coverageStatus === "unknown" ||
@@ -53,11 +55,11 @@ function resolveStatus(input: {
       (c.confidence != null && c.confidence < 50)
   );
 
-  if (included.length === 0 && input.coverages.length === 0) {
+  if (input.coverages.length === 0) {
     return "partially_known";
   }
   if (unknown.length > 0) return "needs_verification";
-  if (included.length > 0) return "covered";
+  if (documentedIncluded.length > 0) return "covered";
   return "partially_known";
 }
 
@@ -84,12 +86,17 @@ export function buildCoverageMap(input: {
 
     const status = resolveStatus({ policies, coverages });
     const facts = coverages.map((c) => toFact(c));
-    const included = facts.filter((f) => f.status === "included" || f.status === "conditional");
+    const included = facts.filter(
+      (f) => f.status === "included" && f.verificationStatus !== "needs_verification"
+    );
+    const conditional = facts.filter((f) => f.status === "conditional");
     const exclusions = facts.filter((f) => f.status === "excluded");
     const needsVerification = facts.filter(
       (f) =>
-        f.verificationStatus === "needs_verification" ||
-        f.verificationStatus === "missing"
+        f.status === "unknown" ||
+        f.status === "included" &&
+          (f.verificationStatus === "needs_verification" ||
+            f.verificationStatus === "missing")
     );
 
     return {
@@ -106,6 +113,7 @@ export function buildCoverageMap(input: {
         deductible: p.deductible,
       })),
       coverages: included,
+      conditional,
       exclusions,
       needsVerification,
       explanation:

@@ -140,7 +140,7 @@ export function buildIntelligenceOpportunities(input: {
 
   for (const policy of input.policies) {
     const typeLabel = getPolicyTypeLabel(policy.policyType, policy.policyCategoryLabel);
-    const deadline = getPolicyDeadlineDate(policy);
+    const deadline = getPolicyDeadlineDate(policy, now);
 
     if (deadline) {
       const startOfToday = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());

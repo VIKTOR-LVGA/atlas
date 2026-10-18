@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   canonicalCoverageTaxonomy,
@@ -85,7 +85,22 @@ for (const category of requiredCategories) {
   );
 }
 
-assert.equal(insuranceDocumentTypes.length, 11);
+assert.equal(insuranceDocumentTypes.length, 13);
+const migrationSql = readdirSync(resolve(process.cwd(), "supabase/migrations"))
+  .filter((name) => name.endsWith(".sql"))
+  .sort()
+  .map((name) => readFileSync(resolve(process.cwd(), "supabase/migrations", name), "utf8"))
+  .join("\n");
+const latestDocumentConstraint = migrationSql
+  .split("documents_document_type_check")
+  .at(-1) ?? "";
+for (const documentType of insuranceDocumentTypes) {
+  assert.match(
+    latestDocumentConstraint,
+    new RegExp(`['\"]${documentType}['\"]`),
+    `database document type constraint missing ${documentType}`
+  );
+}
 assert.ok(canonicalCoverageTaxonomy.length >= 55);
 assert.equal(new Set(canonicalCoverageTaxonomy.map((item) => item.canonicalType)).size, canonicalCoverageTaxonomy.length);
 

@@ -154,6 +154,23 @@ test.describe.serial("Atlas authenticated journeys", () => {
     ).toBeVisible();
   });
 
+  test("dashboard totals and Ask ATLAS use the saved portfolio", async ({ page }) => {
+    expect(policyId).not.toBe("");
+    await login(page);
+    await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
+
+    await expect(page.getByText("Costo annuo noto", { exact: true })).toBeVisible();
+    await expect(page.getByText(/CHF\s*260(?:\.00)?/).first()).toBeVisible();
+    await expect(page.getByText("Compagnie", { exact: true })).toBeVisible();
+
+    await page.goto("/atlas/ask");
+    await page.getByLabel("La tua domanda").fill("Quanto pago in totale all’anno?");
+    await page.getByRole("button", { name: "Chiedi ad ATLAS" }).click();
+    await expect(page.getByText(/Costo annuale noto/i)).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText(/CHF\s*260(?:\.00)?/).first()).toBeVisible();
+    await expect(page.getByText("Fonti nei tuoi documenti")).toBeVisible();
+  });
+
   test("policies list, activity, wallet and mobile nav work", async ({ page }) => {
     test.setTimeout(90_000);
     expect(policyId).not.toBe("");
@@ -232,6 +249,27 @@ test.describe.serial("Atlas authenticated journeys", () => {
     const response = await page.request.get(`/documents/${documentId}/download`);
     expect(response.ok()).toBeTruthy();
     expect(response.headers()["content-type"]).toContain("application/pdf");
+
+    await page.goto("/documents");
+    await page.locator('input[type="file"]').setInputFiles({
+      name: `atlas-browser-copy-${runId}.pdf`,
+      mimeType: "application/pdf",
+      buffer: Buffer.from(
+        "%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n"
+      ),
+    });
+    await page
+      .getByRole("button", { name: "Carica e prepara per l'analisi" })
+      .click();
+    await expect(page.getByRole("alert")).toContainText(/già presente/i, {
+      timeout: 20_000,
+    });
+
+    await page.goto(`/documents/${documentId}`);
+    await page.getByRole("button", { name: "Analizza documento" }).click();
+    await expect(page.getByRole("alert")).toContainText(/testo leggibile|versione digitale/i, {
+      timeout: 30_000,
+    });
   });
 
   test("policy and document can be deleted", async ({ page }) => {

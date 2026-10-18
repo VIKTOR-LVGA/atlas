@@ -11,6 +11,8 @@ import {
 import { verificationFromProvenance, softCoveragePhrase } from "../lib/insurance-os/verification";
 import { MIN_BENCHMARK_COHORT_SIZE } from "../lib/insurance-os/flags";
 import type { PolicyCoverage, UserPolicy } from "../lib/types";
+import { sumPortfolioPremiums } from "../lib/premium-totals";
+import { getUpcomingDeadlines } from "../lib/policy-schedule";
 
 function policy(partial: Partial<UserPolicy> & { id: string }): UserPolicy {
   return {
@@ -118,6 +120,98 @@ function main() {
   assert.ok(
     map.categories.find((c) => c.id === "travel")?.explanation.includes("non trova")
   );
+
+  const conditionalMap = buildCoverageMap({
+    policies: [policy({ id: "conditional", policyType: "travel" })],
+    coverages: [
+      coverage({
+        id: "conditional-coverage",
+        policyId: "conditional",
+        insuranceCategory: "travel",
+        coverageStatus: "conditional",
+      }),
+    ],
+  });
+  const travel = conditionalMap.categories.find((c) => c.id === "travel");
+  assert.equal(travel?.coverages.length, 0);
+  assert.equal(travel?.conditional.length, 1);
+  assert.equal(travel?.status, "partially_known");
+
+  const inferredMap = buildCoverageMap({
+    policies: [policy({ id: "inferred", policyType: "household" })],
+    coverages: [
+      coverage({
+        id: "inferred-coverage",
+        policyId: "inferred",
+        provenance: "derived",
+      }),
+    ],
+  });
+  assert.equal(
+    inferredMap.categories.find((c) => c.id === "household")?.status,
+    "partially_known",
+    "derived coverage must not be presented as document-confirmed"
+  );
+
+  const uncertainIncludedMap = buildCoverageMap({
+    policies: [policy({ id: "uncertain", policyType: "household" })],
+    coverages: [
+      coverage({
+        id: "uncertain-coverage",
+        policyId: "uncertain",
+        provenance: "unknown",
+        coverageStatus: "included",
+      }),
+    ],
+  });
+  const uncertainHousehold = uncertainIncludedMap.categories.find(
+    (c) => c.id === "household"
+  );
+  assert.equal(uncertainHousehold?.coverages.length, 0);
+  assert.equal(uncertainHousehold?.needsVerification.length, 1);
+
+  const familyPremium = sumPortfolioPremiums([
+    policy({
+      id: "family-health",
+      policyType: "health",
+      premiumAmount: 940,
+      premiumFrequency: "monthly",
+      details: {
+        premium_summary: { total_monthly: 940, total_annual: 11_280 },
+        insured_people: [
+          { name: "Adulto", premium_amount: 620 },
+          { name: "Bambino", premium_amount: 320 },
+        ],
+      },
+    }),
+  ]);
+  assert.equal(familyPremium.annual, 11_280, "family premium must be counted once");
+
+  const deadlines = getUpcomingDeadlines(
+    [
+      policy({
+        id: "cancel",
+        endDate: "2027-12-31",
+        renewalDate: "2027-12-31",
+        details: { cancellation_deadline: "2027-09-30" },
+      }),
+    ],
+    new Date("2027-01-01T12:00:00Z")
+  );
+  assert.equal(deadlines[0]?.kind, "cancellation");
+  assert.equal(deadlines[1]?.kind, "renewal");
+
+  const futureDeadline = getUpcomingDeadlines(
+    [
+      policy({
+        id: "past-cancellation",
+        renewalDate: "2027-12-31",
+        details: { cancellation_deadline: "2026-09-30" },
+      }),
+    ],
+    new Date("2027-01-01T12:00:00Z")
+  );
+  assert.equal(futureDeadline[0]?.kind, "renewal", "past dates must not hide future ones");
 
   const overlaps = detectPossibleOverlaps([
     policy({ id: "a", policyType: "travel", provider: "A" }),

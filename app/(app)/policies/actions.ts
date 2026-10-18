@@ -495,10 +495,11 @@ export async function confirmPolicyReviewAction(
     }
 
     revalidatePolicyViews(policy.id, policy.documentId);
-    redirect(`/policies/${policyId}?confirmed=1`);
   } catch (error) {
     return getPolicyErrorState(error) as ConfirmPolicyReviewActionState;
   }
+
+  redirect(`/policies/${policyId}?confirmed=1`);
 }
 
 export async function assignCoverageToInsuredPerson(
@@ -595,7 +596,6 @@ export async function assignCoverageToInsuredPerson(
     ]);
 
     revalidatePolicyViews(policyId, policy.documentId);
-    redirect(`/policies/${policyId}?assigned=1`);
   } catch (error) {
     if (error instanceof CoverageAssignmentError) {
       return {
@@ -606,6 +606,8 @@ export async function assignCoverageToInsuredPerson(
 
     return getPolicyErrorState(error) as AssignCoverageActionState;
   }
+
+  redirect(`/policies/${policyId}?assigned=1`);
 }
 
 export async function assignCoverageToInsuredPersonAction(

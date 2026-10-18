@@ -4,10 +4,14 @@ import { createHash } from "crypto";
 import { softCoveragePhrase, type VerificationStatus } from "@/lib/insurance-os/verification";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import type { PolicyCoverage, UserDocument, UserPolicy } from "@/lib/types";
-import { sumPortfolioPremiums } from "@/lib/premium-totals";
+import {
+  getPolicyAnnualPremium,
+  sumPortfolioPremiums,
+} from "@/lib/premium-totals";
 import { getPolicyTypeLabel } from "@/lib/policy-types";
 import { getUpcomingDeadlines } from "@/lib/policy-schedule";
 import { formatCHF } from "@/lib/utils";
+import { getAskAtlasSignal } from "@/lib/openai-request";
 
 import type {
   AskAtlasResult,
@@ -111,6 +115,10 @@ function answerFromStructure(question: string, ctx: PortfolioContext): AskAtlasR
   if (
     /quanto pago|premio totale|costo annuale|spendo|totale all.?anno|annual premium/i.test(q)
   ) {
+    const policiesWithPremium = ctx.policies.filter(
+      (policy) => getPolicyAnnualPremium(policy) !== null
+    );
+    const missingPremiumCount = ctx.policies.length - policiesWithPremium.length;
     if (premiums.annual === null) {
       return {
         answer:
@@ -121,7 +129,7 @@ function answerFromStructure(question: string, ctx: PortfolioContext): AskAtlasR
           verificationStatus: "missing",
           insufficientData: true,
         },
-        sources,
+        sources: [],
         verificationStatus: "missing",
       };
     }
@@ -137,16 +145,30 @@ function answerFromStructure(question: string, ctx: PortfolioContext): AskAtlasR
             body: "Somma basata solo sulle polizze con premio noto. Non è un consiglio finanziario.",
           },
         ],
-        verificationStatus: "inferred",
-        insufficientData: false,
+        verificationStatus:
+          missingPremiumCount > 0 ? "needs_verification" : "inferred",
+        insufficientData: missingPremiumCount > 0,
       },
-      sources,
-      verificationStatus: "inferred",
+      sources: policiesWithPremium.slice(0, 8).map((p) => ({
+        kind: "policy" as const,
+        id: p.id,
+        label: `${p.provider} · ${getPolicyTypeLabel(p.policyType, p.policyCategoryLabel)}`,
+        href: `/policies/${p.id}`,
+      })),
+      verificationStatus:
+        missingPremiumCount > 0 ? "needs_verification" : "inferred",
     };
   }
 
   if (/franchigia|deductible|franchise/i.test(q)) {
-    const withDed = ctx.policies.filter((p) => p.deductible != null);
+    const asksAboutCar = /auto|automobil|veicol|macchina|motor/i.test(q);
+    const asksAboutHealth = /salute|sanitari|malatt|lamal|lca|kvg|vvg/i.test(q);
+    const relevantPolicies = asksAboutCar
+      ? ctx.policies.filter((p) => p.policyType === "car")
+      : asksAboutHealth
+        ? ctx.policies.filter((p) => p.policyType === "health")
+        : ctx.policies;
+    const withDed = relevantPolicies.filter((p) => p.deductible != null);
     if (withDed.length === 0) {
       return {
         answer:
@@ -186,7 +208,10 @@ function answerFromStructure(question: string, ctx: PortfolioContext): AskAtlasR
   }
 
   if (/scad|rinnov|disdett|prossimi \d+ mesi|quando posso/i.test(q)) {
-    const deadlines = getUpcomingDeadlines(ctx.policies, new Date(), 10);
+    const asksAboutCancellation = /disdett|annull|rescission/i.test(q);
+    const deadlines = getUpcomingDeadlines(ctx.policies, new Date(), 10).filter(
+      (deadline) => !asksAboutCancellation || deadline.kind === "cancellation"
+    );
     if (deadlines.length === 0) {
       return {
         answer:
@@ -494,6 +519,7 @@ Se i fatti non bastano, dillo chiaramente.`;
 
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
+    signal: getAskAtlasSignal(),
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",

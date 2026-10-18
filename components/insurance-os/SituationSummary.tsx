@@ -5,6 +5,7 @@ import { formatCHF } from "@/lib/utils";
 export type SituationSummaryInput = {
   annualCost: number | null;
   monthlyCost: number | null;
+  insurers: string[];
   activePolicies: number;
   totalPolicies: number;
   coveredAreas: number | null;
@@ -36,6 +37,17 @@ export function SituationSummary({ data }: { data: SituationSummaryInput }) {
       label: "Polizze attive",
       value: String(data.activePolicies),
       hint: `${data.totalPolicies} nel portafoglio`,
+    });
+  }
+
+  if (data.insurers.length > 0) {
+    tiles.push({
+      label: "Compagnie",
+      value: String(data.insurers.length),
+      hint:
+        data.insurers.length <= 2
+          ? data.insurers.join(" · ")
+          : `${data.insurers.slice(0, 2).join(" · ")} +${data.insurers.length - 2}`,
     });
   }
 

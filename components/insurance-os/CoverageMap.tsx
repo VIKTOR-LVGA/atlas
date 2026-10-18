@@ -31,12 +31,24 @@ const statusRing: Record<CoverageMapStatus, string> = {
 };
 
 function FactRow({ fact }: { fact: CoverageMapFact }) {
+  const statusLabel =
+    fact.status === "conditional"
+      ? "Soggetta a condizioni"
+      : fact.status === "excluded"
+        ? fact.verificationStatus === "confirmed"
+          ? "Esclusione documentata"
+          : "Esclusione da verificare"
+        : fact.status === "unknown"
+          ? "Informazione insufficiente"
+          : "Inclusa";
+
   return (
     <li className="flex items-start justify-between gap-3 py-2">
       <div className="min-w-0">
         <p className="text-[13px] font-medium text-foreground">{fact.label}</p>
         <p className="mt-0.5 text-[11px] text-muted">
           {[
+            statusLabel,
             fact.limit != null ? `Limite ${fact.limit.toLocaleString("it-CH")}` : null,
             fact.deductible != null
               ? `Franchigia ${fact.deductible.toLocaleString("it-CH")}`
@@ -61,6 +73,7 @@ function CategoryDetail({ category }: { category: CoverageMapCategoryView }) {
   const hasContent =
     category.policies.length > 0 ||
     category.coverages.length > 0 ||
+    category.conditional.length > 0 ||
     category.exclusions.length > 0 ||
     category.needsVerification.length > 0;
 
@@ -98,6 +111,17 @@ function CategoryDetail({ category }: { category: CoverageMapCategoryView }) {
           <p className="atlas-section-eyebrow">Coperture trovate</p>
           <ul className="mt-1 divide-y divide-border-subtle">
             {category.coverages.slice(0, 8).map((fact) => (
+              <FactRow key={fact.id} fact={fact} />
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {category.conditional.length > 0 ? (
+        <div className="mt-4">
+          <p className="atlas-section-eyebrow">Coperture soggette a condizioni</p>
+          <ul className="mt-1 divide-y divide-border-subtle">
+            {category.conditional.slice(0, 8).map((fact) => (
               <FactRow key={fact.id} fact={fact} />
             ))}
           </ul>
@@ -169,6 +193,7 @@ export function CoverageMap({
           const open = openId === category.id;
           const factCount =
             category.coverages.length +
+            category.conditional.length +
             category.exclusions.length +
             category.needsVerification.length;
 

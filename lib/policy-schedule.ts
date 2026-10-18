@@ -5,7 +5,7 @@ export type PolicyDeadline = {
   policyId: string;
   label: string;
   date: string;
-  kind: "renewal" | "end";
+  kind: "cancellation" | "renewal" | "end";
   daysUntil: number;
 };
 
@@ -14,25 +14,35 @@ function parsePolicyDate(value: string) {
   return Number.isFinite(timestamp) ? timestamp : null;
 }
 
-export function getPolicyDeadlineDate(policy: UserPolicy) {
+function getPolicyDeadlineCandidates(policy: UserPolicy) {
+  const cancellationValue = policy.details.cancellation_deadline;
+  const cancellation = cancellationValue
+    ? parsePolicyDate(cancellationValue)
+    : null;
   const renewal = policy.renewalDate ? parsePolicyDate(policy.renewalDate) : null;
   const end = policy.endDate ? parsePolicyDate(policy.endDate) : null;
+  return [
+    cancellation !== null && cancellationValue
+      ? { date: cancellationValue, kind: "cancellation" as const, timestamp: cancellation }
+      : null,
+    renewal !== null && policy.renewalDate
+      ? { date: policy.renewalDate, kind: "renewal" as const, timestamp: renewal }
+      : null,
+    end !== null && policy.endDate
+      ? { date: policy.endDate, kind: "end" as const, timestamp: end }
+      : null,
+  ].filter((item): item is NonNullable<typeof item> => item !== null);
+}
 
-  if (renewal !== null && end !== null) {
-    return renewal <= end
-      ? { date: policy.renewalDate as string, kind: "renewal" as const, timestamp: renewal }
-      : { date: policy.endDate as string, kind: "end" as const, timestamp: end };
-  }
+export function getPolicyDeadlineDate(policy: UserPolicy, now?: Date) {
+  const startOfToday = now
+    ? Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
+    : null;
+  const candidates = getPolicyDeadlineCandidates(policy).filter(
+    (candidate) => startOfToday === null || candidate.timestamp >= startOfToday
+  );
 
-  if (renewal !== null && policy.renewalDate) {
-    return { date: policy.renewalDate, kind: "renewal" as const, timestamp: renewal };
-  }
-
-  if (end !== null && policy.endDate) {
-    return { date: policy.endDate, kind: "end" as const, timestamp: end };
-  }
-
-  return null;
+  return candidates.sort((a, b) => a.timestamp - b.timestamp)[0] ?? null;
 }
 
 export function getUpcomingDeadlines(
@@ -47,24 +57,27 @@ export function getUpcomingDeadlines(
   );
 
   return policies
-    .map((policy) => {
-      const deadline = getPolicyDeadlineDate(policy);
-      if (!deadline) {
-        return null;
-      }
-
+    .flatMap((policy) =>
+      getPolicyDeadlineCandidates(policy).map((deadline) => {
       const daysUntil = Math.round(
         (deadline.timestamp - startOfToday) / (1000 * 60 * 60 * 24)
       );
 
       return {
         policyId: policy.id,
-        label: getPolicyTypeLabel(policy.policyType, policy.policyCategoryLabel),
+        label: `${getPolicyTypeLabel(policy.policyType, policy.policyCategoryLabel)} · ${
+          deadline.kind === "cancellation"
+            ? "termine di disdetta"
+            : deadline.kind === "renewal"
+              ? "rinnovo"
+              : "scadenza"
+        }`,
         date: deadline.date,
         kind: deadline.kind,
         daysUntil,
       } satisfies PolicyDeadline;
-    })
+      })
+    )
     .filter((item): item is PolicyDeadline => item !== null && item.daysUntil >= 0)
     .sort((a, b) => a.daysUntil - b.daysUntil)
     .slice(0, limit);
