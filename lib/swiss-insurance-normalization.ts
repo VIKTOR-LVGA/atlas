@@ -289,6 +289,16 @@ function normalizeSearchText(value: string) {
     .trim();
 }
 
+function includesSearchPhrase(source: string, value: string) {
+  const normalizedValue = normalizeSearchText(value);
+
+  if (!normalizedValue) {
+    return false;
+  }
+
+  return ` ${source} `.includes(` ${normalizedValue} `);
+}
+
 function uniqueStrings(values: string[]) {
   return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
 }
@@ -345,16 +355,35 @@ export function normalizeSwissPolicyClassification(
   const directSubtype = isSwissPolicySubtype(normalizedValue)
     ? normalizedValue
     : null;
-  const matchedDefinition =
-    (directSubtype &&
-      policySubtypeDefinitions.find(
+  const directDefinition = directSubtype
+    ? policySubtypeDefinitions.find(
         (definition) => definition.subtype === directSubtype
-      )) ||
-    policySubtypeDefinitions.find((definition) =>
-      definition.keywords.some((keyword) =>
-        source.includes(normalizeSearchText(keyword))
       )
+    : null;
+  const rankedMatches = policySubtypeDefinitions
+    .map((definition, index) => {
+      const matchedKeywords = definition.keywords.filter((keyword) =>
+        includesSearchPhrase(source, keyword)
+      );
+
+      return {
+        definition,
+        index,
+        matchedKeywords,
+        specificity: matchedKeywords.reduce(
+          (sum, keyword) => sum + normalizeSearchText(keyword).length,
+          0
+        ),
+      };
+    })
+    .filter((match) => match.matchedKeywords.length > 0)
+    .sort(
+      (a, b) =>
+        b.matchedKeywords.length - a.matchedKeywords.length ||
+        b.specificity - a.specificity ||
+        a.index - b.index
     );
+  const matchedDefinition = directDefinition ?? rankedMatches[0]?.definition;
 
   if (matchedDefinition) {
     return {
@@ -362,7 +391,7 @@ export function normalizeSwissPolicyClassification(
       subtype: matchedDefinition.subtype,
       categoryLabel: matchedDefinition.label,
       matchedKeywords: matchedDefinition.keywords.filter((keyword) =>
-        source.includes(normalizeSearchText(keyword))
+        includesSearchPhrase(source, keyword)
       ),
     };
   }
@@ -383,7 +412,7 @@ export function getSwissInsuranceKeywords(text: string, limit = 24) {
   );
 
   return uniqueStrings([...providerKeywords, ...subtypeKeywords])
-    .filter((keyword) => source.includes(normalizeSearchText(keyword)))
+    .filter((keyword) => includesSearchPhrase(source, keyword))
     .slice(0, limit);
 }
 

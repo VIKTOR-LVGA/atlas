@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import {
+  buildExtractionKnowledgeContext,
   canonicalCoverageTaxonomy,
   canPersistAsPersonalPolicy,
   classifyInsuranceDocument,
@@ -61,6 +62,23 @@ assert.equal(
 );
 assert.equal(canPersistAsPersonalPolicy(zurichMotor.type), true);
 assert.equal(zurichMotor.embeddedGeneralConditionsReference, true);
+
+const privateMotorContext = buildExtractionKnowledgeContext(
+  "polizza-auto-privata.pdf",
+  [
+    "Polizza veicoli a motore",
+    "Prodotto Auto Privata Completa",
+    "Veicolo Volvo XC40",
+    "Casco collisione e casco parziale",
+    "Responsabilita civile verso terzi",
+  ].join("\n")
+);
+assert.equal(
+  privateMotorContext.policyTypeGuess,
+  "car",
+  "'Auto Privata' must not be mistaken for private hospital coverage"
+);
+assert.notEqual(privateMotorContext.subtypeGuess, "hospital");
 
 const requiredCategories = [
   "vehicle",
