@@ -46,7 +46,6 @@ const STATUS_WEIGHT: Record<CoverageMapCategoryView["status"], number> = {
 };
 
 export default async function DashboardPage() {
-  const dashboardFetchStartedAt = performance.now();
   const [profile, policies, documents, consultationRequests, coverages, changes, claims] =
     await Promise.all([
       getCurrentProfile(),
@@ -57,9 +56,6 @@ export default async function DashboardPage() {
       listRecentPolicyChanges(10),
       listCurrentUserClaims(),
     ]);
-  if (process.env.ATLAS_PERF_LOG === "1") {
-    console.info("[atlas:perf] dashboard_fetch_ms", Math.round(performance.now() - dashboardFetchStartedAt));
-  }
 
   const name = getProfileShortName(profile);
   const greeting = greetingForZurich();
@@ -72,7 +68,6 @@ export default async function DashboardPage() {
   const coverageMap = buildCoverageMap({ policies, coverages });
   const openClaims = claims.filter((claim) => claim.status !== "closed");
 
-  const actionsStartedAt = performance.now();
   const attentionItems = await syncAttentionItems({
     policies,
     documents,
@@ -81,9 +76,6 @@ export default async function DashboardPage() {
     openClaimCount: openClaims.length,
     pendingConsultation: activeConsultation !== null,
   });
-  if (process.env.ATLAS_PERF_LOG === "1") {
-    console.info("[atlas:perf] dashboard_actions_ms", Math.round(performance.now() - actionsStartedAt));
-  }
 
   // The snapshot is a cache, not part of the rendered answer: never block the page on it.
   after(async () => {
@@ -179,7 +171,7 @@ export default async function DashboardPage() {
       </header>
 
       <p className="rounded-xl border border-border bg-card-muted px-3 py-2.5 text-[12px] leading-relaxed text-muted-foreground">
-        ATLAS è in fase pilota: le informazioni estratte dall'AI vanno sempre confrontate con i documenti originali.
+        ATLAS è in fase pilota: le informazioni estratte dall&apos;AI vanno sempre confrontate con i documenti originali.
       </p>
 
       {activeConsultation ? (
