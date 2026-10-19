@@ -1,13 +1,12 @@
 import Link from "next/link";
-import { ArrowRight, FilePlus2, MessagesSquare, ShieldCheck, Sparkles } from "lucide-react";
+import { ShieldCheck, Sparkles } from "lucide-react";
+import { AtlasReferenceDashboard } from "@/components/dashboard/AtlasReferenceDashboard";
 import { AtlasAlpineHero } from "@/components/visual/AtlasAlpineHero";
 import { after } from "next/server";
 import { ActionCenter } from "@/components/insurance-os/ActionCenter";
 import { CoverageMap } from "@/components/insurance-os/CoverageMap";
-import { SituationSummary } from "@/components/insurance-os/SituationSummary";
 import { ConsultationPrepCard } from "@/components/consumer/ConsultationPrepCard";
 import { ConsumerSection, EmptyState } from "@/components/consumer/EmptyState";
-import { PolicyConsumerCard } from "@/components/policies/PolicyConsumerCard";
 import { consumerConsultationStatusLabel } from "@/lib/collaboration-status";
 import { listCurrentUserConsultationRequests } from "@/lib/consultations";
 import { getCurrentUserDocuments } from "@/lib/documents";
@@ -23,7 +22,6 @@ import { listRecentPolicyChanges } from "@/lib/insurance-os/policy-diff";
 import { getCurrentUserPolicies } from "@/lib/policies";
 import { getPolicyStatusLabel } from "@/lib/policy-consumer-display";
 import {
-  formatScheduleDate,
   getUpcomingDeadlines,
   greetingForZurich,
 } from "@/lib/policy-schedule";
@@ -93,6 +91,8 @@ export default async function DashboardPage() {
       <div className="space-y-8">
         <AtlasAlpineHero greeting={greeting} name={name} empty />
 
+        <AtlasReferenceDashboard policies={[]} documents={documents} deadlines={[]} activeCount={0} annualPremium={null} needsVerification={coverageMap.summary.needsVerificationCount} />
+
         <EmptyState
           title="La prima cosa da fare"
           description="Carica il PDF della tua assicurazione. ATLAS ti aiuta a leggerlo, poi sei tu a confermare i dati."
@@ -127,22 +127,10 @@ export default async function DashboardPage() {
   const activeCount = policies.filter(
     (policy) => getPolicyStatusLabel(policy) === "Attiva"
   ).length;
-  const overlapCount = attentionItems.filter(
-    (item) => item.type === "possible_overlap"
-  ).length;
-  const insurers = [
-    ...new Set(
-      policies
-        .map((policy) => policy.provider.trim())
-        .filter(Boolean)
-    ),
-  ].sort((a, b) => a.localeCompare(b, "it-CH"));
-
   const previewCategories = [...coverageMap.categories]
     .sort((a, b) => STATUS_WEIGHT[a.status] - STATUS_WEIGHT[b.status])
     .slice(0, 6);
 
-  const recentDocuments = documents.slice(0, 3);
 
   return (
     <div className="space-y-7">
@@ -171,51 +159,14 @@ export default async function DashboardPage() {
         </div>
       ) : null}
 
-      <SituationSummary
-        data={{
-          annualCost: premiums.annual,
-          monthlyCost: premiums.monthly,
-          insurers,
-          activePolicies: activeCount,
-          totalPolicies: policies.length,
-          coveredAreas: coverageMap.summary.coveredCount,
-          needsVerificationCount: coverageMap.summary.needsVerificationCount,
-          overlapCount,
-          nextDeadline,
-        }}
+      <AtlasReferenceDashboard
+        policies={policies}
+        documents={documents}
+        deadlines={deadlines}
+        activeCount={activeCount}
+        annualPremium={premiums.annual}
+        needsVerification={coverageMap.summary.needsVerificationCount}
       />
-      <section aria-label="Azioni veloci" className="grid gap-3 sm:grid-cols-3">
-        {[
-          {href:"/documents",Icon:FilePlus2,title:"Carica un PDF",detail:"Aggiungi una polizza al portafoglio"},
-          {href:"/policies",Icon:ShieldCheck,title:"Le tue polizze",detail:"Controlla premi e scadenze"},
-          {href:"/atlas/ask",Icon:MessagesSquare,title:"Chiedi ad ATLAS",detail:"Capisci ciò che non è chiaro"},
-        ].map(({href,Icon,title,detail})=>(
-          <Link key={href} href={href} className="atlas-premium-tile atlas-consumer-press flex items-center gap-3.5 p-4 sm:flex-col sm:items-start sm:p-5">
-            <span className="atlas-pill-icon shrink-0"><Icon className="h-5 w-5" aria-hidden/></span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-[14px] font-bold text-foreground">{title}</span>
-              <span className="mt-0.5 block text-[11px] leading-snug text-muted">{detail}</span>
-            </span>
-            <ArrowRight className="h-4 w-4 shrink-0 text-accent sm:hidden" aria-hidden/>
-          </Link>
-        ))}
-      </section>
-
-      <ConsumerSection
-        title="Le tue polizze"
-        action={
-          <Link href="/policies" className="text-[13px] font-medium text-accent">
-            Vedi tutte
-          </Link>
-        }
-      >
-        <div className="grid gap-3 md:grid-cols-2">
-          {policies.slice(0, 4).map((policy) => (
-            <PolicyConsumerCard key={policy.id} policy={policy} />
-          ))}
-        </div>
-      </ConsumerSection>
-
 
       <ConsumerSection
         title="Da controllare"
@@ -282,38 +233,6 @@ export default async function DashboardPage() {
         </div>
       </ConsumerSection>
 
-      {deadlines.length > 0 ? (
-        <ConsumerSection
-          title="Prossimi appuntamenti"
-          action={
-            <Link href="/policies" className="text-[13px] font-medium text-accent">
-              Vedi tutte
-            </Link>
-          }
-        >
-          <ul className="atlas-consumer-card divide-y divide-border-subtle overflow-hidden">
-            {deadlines.map((item) => (
-              <li key={`${item.policyId}-${item.date}`}>
-                <Link
-                  href={`/policies/${item.policyId}`}
-                  className="flex min-h-14 items-center justify-between gap-3 px-4 py-3 transition hover:bg-card-muted"
-                >
-                  <span>
-                    <span className="block text-[13px] font-semibold text-foreground">
-                      {formatScheduleDate(item.date)}
-                    </span>
-                    <span className="text-[12px] text-muted">{item.label}</span>
-                  </span>
-                  <span className="text-[12px] text-muted">
-                    {item.daysUntil === 0 ? "Oggi" : `tra ${item.daysUntil} g`}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </ConsumerSection>
-      ) : null}
-
       <section className="atlas-consumer-card atlas-consumer-press px-4 py-5">
         <p className="atlas-section-eyebrow">Check-up</p>
         <p className="mt-1.5 text-[15px] font-semibold tracking-tight text-foreground">
@@ -330,35 +249,6 @@ export default async function DashboardPage() {
           Apri il check-up
         </Link>
       </section>
-
-      {recentDocuments.length > 0 ? (
-        <ConsumerSection
-          title="Documenti recenti"
-          action={
-            <Link href="/documents" className="text-[13px] font-medium text-accent">
-              Wallet
-            </Link>
-          }
-        >
-          <ul className="atlas-consumer-card divide-y divide-border-subtle overflow-hidden">
-            {recentDocuments.map((document) => (
-              <li key={document.id}>
-                <Link
-                  href={`/documents/${document.id}`}
-                  className="flex min-h-14 items-center justify-between gap-3 px-4 py-3 transition hover:bg-card-muted"
-                >
-                  <span className="min-w-0 truncate text-[13px] font-medium text-foreground">
-                    {document.fileName}
-                  </span>
-                  <span className="shrink-0 text-[12px] text-muted">
-                    {document.recognizedInsurer ?? "Compagnia da confermare"}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </ConsumerSection>
-      ) : null}
 
       <ConsultationPrepCard request={activeConsultation} />
     </div>
