@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight, CalendarDays } from "lucide-react";
 import { TypedPolicyIcon, typedPolicyIconStyles } from "@/lib/policy-display";
+import { AtlasPolicyArtwork } from "@/components/visual/AtlasPolicyArtwork";
 import { getPolicyProductName, getPolicyStatusLabel } from "@/lib/policy-consumer-display";
 import { getVisualCategoryForPolicy } from "@/lib/policy-visual-categories";
 import { getPolicyAnnualPremium, premiumFrequencyLabels } from "@/lib/premium-totals";
@@ -17,7 +18,7 @@ export function PolicyConsumerCard({policy}:{policy:UserPolicy}){
   const premium=annual!==null?formatCHF(annual)+" / anno":
     policy.premiumAmount!==null?formatCHF(policy.premiumAmount)+" / "+premiumFrequencyLabels[policy.premiumFrequency]:"Premio da verificare";
   return (
-    <article className="atlas-consumer-card atlas-consumer-press group flex min-h-[205px] flex-col justify-between p-5 sm:p-6">
+    <article className="atlas-consumer-card atlas-consumer-press group flex min-h-[214px] flex-col justify-between p-5 sm:p-6">
       <div className="flex items-start justify-between gap-3">
         <span className={cn("flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px]",typedPolicyIconStyles[policy.policyType])}>
           <TypedPolicyIcon policyType={policy.policyType} className="h-[23px] w-[23px]"/>
@@ -26,10 +27,13 @@ export function PolicyConsumerCard({policy}:{policy:UserPolicy}){
           {policy.requiresReview?"Da verificare":status}
         </span>
       </div>
-      <div className="mt-4">
-        <p className="text-[10px] font-bold uppercase tracking-[.13em] text-muted">{category.label}</p>
-        <h3 className="mt-1 truncate text-[18px] font-bold tracking-[-.035em] text-foreground">{policy.provider||"Compagnia da indicare"}</h3>
-        {productName?<p className="mt-0.5 truncate text-[12px] text-muted-foreground">{productName}</p>:null}
+      <div className="mt-3 flex min-w-0 items-center justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-bold uppercase tracking-[.13em] text-muted">{category.label}</p>
+          <h3 className="mt-1 truncate text-[18px] font-bold tracking-[-.035em] text-foreground">{policy.provider||"Compagnia da indicare"}</h3>
+          {productName?<p className="mt-0.5 line-clamp-2 text-[12px] text-muted-foreground">{productName}</p>:null}
+        </div>
+        <AtlasPolicyArtwork category={category.id}/>
       </div>
       <div className="mt-5 flex items-end justify-between gap-2 border-t border-border-subtle pt-4">
         <div className="min-w-0">

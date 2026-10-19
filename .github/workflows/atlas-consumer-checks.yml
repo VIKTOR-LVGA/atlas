@@ -4,10 +4,12 @@ on:
   push:
     branches:
       - 'release/**'
+      - 'design/**'
   pull_request:
     branches:
       - 'release/**'
       - 'fix/**'
+      - 'design/**'
 
 permissions:
   contents: read

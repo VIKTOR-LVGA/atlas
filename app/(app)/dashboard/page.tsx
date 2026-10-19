@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, FilePlus2, MessagesSquare, ShieldCheck, Sparkles } from "lucide-react";
+import { AtlasAlpineHero } from "@/components/visual/AtlasAlpineHero";
 import { after } from "next/server";
 import { ActionCenter } from "@/components/insurance-os/ActionCenter";
 import { CoverageMap } from "@/components/insurance-os/CoverageMap";
@@ -90,13 +91,7 @@ export default async function DashboardPage() {
   if (policies.length === 0) {
     return (
       <div className="space-y-8">
-        <header className="atlas-consumer-hero px-6 py-7 sm:px-9 sm:py-10">
-          <p className="atlas-premium-eyebrow">Benvenuto nel tuo spazio</p>
-          <h1 className="atlas-premium-title mt-3">{greeting}, {name}</h1>
-          <p className="mt-3 max-w-lg text-[14px] leading-relaxed text-muted-foreground sm:text-[15px]">
-            Mettiamo ordine nelle tue assicurazioni. Basta iniziare da una polizza.
-          </p>
-        </header>
+        <AtlasAlpineHero greeting={greeting} name={name} empty />
 
         <EmptyState
           title="La prima cosa da fare"
@@ -151,16 +146,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-7">
-      <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="atlas-premium-eyebrow">Il tuo spazio personale</p>
-          <h1 className="atlas-premium-title mt-2">{greeting}, {name}</h1>
-          <p className="mt-2 text-[14px] text-muted-foreground">Ecco la tua situazione assicurativa, senza complicazioni.</p>
-        </div>
-        <Link href="/documents" className="atlas-btn-primary inline-flex min-h-12 items-center gap-2 px-5 text-[13px]">
-          <FilePlus2 className="h-4 w-4" aria-hidden/> Aggiungi una polizza
-        </Link>
-      </header>
+      <AtlasAlpineHero greeting={greeting} name={name} />
 
       <p className="flex items-start gap-2 rounded-2xl bg-card-muted px-4 py-3 text-[12px] leading-relaxed text-muted-foreground">
         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden/>

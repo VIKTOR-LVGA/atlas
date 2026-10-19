@@ -1365,3 +1365,126 @@ body { -webkit-font-smoothing: antialiased; }
 @media (prefers-reduced-motion: reduce) {
   .atlas-sidebar-link, .atlas-mobile-tab, .atlas-consumer-press { transition: none; }
 }
+
+
+/* ─────────────────────────────────────────────────────────────────────
+   ATLAS V2: approved illustration-led visual direction
+   Source-authored CSS and interface graphics; no static mockup screenshots.
+   ───────────────────────────────────────────────────────────────────── */
+.atlas-v2-landing-hero {
+  background: radial-gradient(ellipse 46% 65% at 79% 40%, #e3ebff 0%, transparent 76%),
+              linear-gradient(125deg, #ffffff 0%, #f8faff 52%, #edf3ff 100%);
+}
+.atlas-v2-hero-glow {
+  background: radial-gradient(ellipse 40% 34% at 70% 73%, rgba(97,118,241,.11), transparent 75%);
+}
+.atlas-gradient-heading {
+  background: linear-gradient(108deg, #4052df 0%, #386cf5 54%, #8777ed 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.atlas-v2-primary-cta {
+  background: linear-gradient(130deg, #3358f1 0%, #5061f5 52%, #654ced 100%);
+  box-shadow: 0 12px 25px rgba(56, 79, 222, .20);
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+}
+.atlas-v2-primary-cta:hover { filter: brightness(1.035); box-shadow: 0 14px 32px rgba(56,79,222,.28); transform: translateY(-1px); }
+.atlas-v2-primary-cta:focus-visible { outline: 3px solid #a1b6ff; outline-offset: 3px; }
+
+.atlas-visual-stage { height: 545px; isolation: isolate; }
+.atlas-visual-halo {
+  position: absolute; inset: 12% 1% 9% 2%;
+  border-radius: 47% 53% 52% 48%;
+  background: radial-gradient(ellipse at 55% 50%, rgba(110,151,255,.27), rgba(206,218,255,.23) 50%, transparent 72%);
+  filter: blur(10px);
+}
+.atlas-visual-ring {
+  position: absolute; border: 1.2px solid rgba(149,167,245,.26);
+  border-radius: 50%; transform: rotate(-23deg); z-index: -1;
+}
+.atlas-visual-ring-first { width: 445px; height: 275px; top: 130px; left: 45px; }
+.atlas-visual-ring-second { width: 310px; height: 450px; top: 33px; left: 130px; transform: rotate(31deg); }
+.atlas-visual-paper {
+  position: absolute; width: 225px; height: 292px; padding: 23px;
+  background: rgba(255,255,255,.92);
+  border: 1px solid #e1e8ff;
+  border-radius: 23px;
+  box-shadow: 0 24px 58px rgba(69,96,174,.12);
+}
+.atlas-visual-paper-back { left: 29px; top: 100px; transform: rotate(-16deg); opacity: .80; }
+.atlas-visual-paper-front { left: 62px; top: 147px; transform: rotate(-9deg); }
+.atlas-visual-phone {
+  position: absolute; width: 236px; height: 450px; top: 29px; right: 68px;
+  border: 8px solid #fdfdff; border-radius: 37px;
+  padding: 0 16px 17px; background: linear-gradient(155deg, #fff 25%, #f0f4ff 100%);
+  box-shadow: inset 0 0 0 2px #d8e1fa, 0 34px 75px rgba(42,70,143,.22), 0 0 0 1px rgba(83,111,194,.14);
+  transform: rotate(6deg); z-index: 2;
+}
+.atlas-visual-notch { width: 64px; height: 15px; border-radius: 0 0 14px 14px; background: #1b2b51; position: absolute; left: 50%; top: 0; transform: translateX(-50%); }
+.atlas-visual-floating {
+  position: absolute; z-index: 3; display: flex; align-items: center; gap: 10px;
+  padding: 10px 15px; background: rgba(255,255,255,.96);
+  border: 1px solid #e7edfe; border-radius: 17px;
+  box-shadow: 0 18px 45px rgba(56,81,154,.13); backdrop-filter: blur(12px);
+}
+.atlas-visual-floating-top { top: 95px; right: 0; transform: rotate(-5deg); }
+.atlas-visual-floating-bottom { bottom: 55px; left: 0; transform: rotate(4deg); }
+.atlas-visual-disclaimer {
+  position: absolute; bottom: 5px; right: 0; color: #92a0bd;
+  font-size: 10px; font-weight: 600; letter-spacing: .02em;
+}
+.atlas-v2-final-cta {
+  border: 1px solid #dce5fd;
+  background: radial-gradient(ellipse 55% 100% at 92% 50%, #dce7ff 0%, transparent 75%),
+              linear-gradient(120deg, #ffffff 8%, #f0f5ff 100%);
+  box-shadow: 0 18px 70px rgba(38,66,135,.08);
+}
+.atlas-v2-cta-art { min-height: 235px; }
+.atlas-v2-swiss-banner {
+  background-image: linear-gradient(90deg, rgba(244,248,255,.97) 0%, rgba(239,245,255,.95) 36%, rgba(241,246,255,.46) 69%, rgba(236,244,255,.07) 100%), url("/brand/atlas-hero-switzerland.png");
+  background-repeat: no-repeat; background-size: cover; background-position: center 45%;
+  border: 1px solid #dce5f8;
+}
+.atlas-v2-policy-art {
+  position: relative; width: 116px; height: 95px; flex-shrink: 0;
+  border-radius: 16px; overflow: hidden;
+}
+.atlas-v2-policy-art svg { width: 100%; height: 100%; display: block; }
+.atlas-v2-feature-tile {
+  border: 1px solid var(--border); background: var(--card);
+  border-radius: 23px; box-shadow: var(--shadow-card);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.atlas-v2-feature-tile:hover { transform: translateY(-3px); box-shadow: var(--shadow-card-hover); }
+.atlas-v2-feature-tile:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.atlas-v2-dossier-art {
+  background: radial-gradient(circle at 50% 40%, #f4f5ff, #e4ebff 55%, #d7e5ff);
+}
+@media (max-width: 700px) {
+  .atlas-visual-stage { height: 397px; max-width: 390px; }
+  .atlas-visual-halo { inset: 10% 4% 8%; }
+  .atlas-visual-ring-first { width: 290px; height: 185px; top: 105px; left: 34px; }
+  .atlas-visual-ring-second { width: 210px; height: 305px; top: 26px; left: 95px; }
+  .atlas-visual-paper { width: 163px; height: 210px; padding: 15px; border-radius: 17px; }
+  .atlas-visual-paper-back { left: 14px; top: 80px; }
+  .atlas-visual-paper-front { left: 31px; top: 113px; }
+  .atlas-visual-phone { width: 174px; height: 348px; right: 30px; top: 7px; padding: 0 10px 12px; border-width: 5px; border-radius: 28px; }
+  .atlas-visual-phone .mt-8 { margin-top: 20px; }
+  .atlas-visual-phone .mt-6 { margin-top: 14px; }
+  .atlas-visual-phone .mt-5 { margin-top: 12px; }
+  .atlas-visual-phone .text-\\[23px\\] { font-size: 19px; }
+  .atlas-visual-floating { padding: 6px 8px; gap: 5px; border-radius: 12px; }
+  .atlas-visual-floating-top { top: 60px; right: -2px; }
+  .atlas-visual-floating-bottom { bottom: 22px; left: 0; }
+  .atlas-v2-cta-art { min-height: 190px; }
+  .atlas-v2-policy-art { width: 88px; height: 76px; }
+  .atlas-v2-swiss-banner {
+    background-image: linear-gradient(90deg, rgba(245,249,255,.97) 0%, rgba(242,247,255,.82) 55%, rgba(243,247,255,.4) 100%), url("/brand/atlas-hero-switzerland.png");
+    background-position: 65% center;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .atlas-v2-primary-cta, .atlas-v2-feature-tile { transition: none; }
+  .atlas-v2-primary-cta:hover, .atlas-v2-feature-tile:hover { transform: none; }
+}
