@@ -17,8 +17,7 @@ import {
   getProcessingStaleBeforeIso,
   isDocumentProcessingStale,
 } from "@/lib/document-analysis-state";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
-import { getCurrentRequestAuth } from "@/lib/supabase/server";
+import { getCurrentRequestAuth, getSupabaseServerClient } from "@/lib/supabase/server";
 
 export { ANALYSIS_PROCESSING_STALE_MINUTES, isDocumentProcessingStale } from "@/lib/document-analysis-state";
 
