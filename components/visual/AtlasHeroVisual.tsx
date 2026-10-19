@@ -1,4 +1,4 @@
-import { Bell, CalendarDays, CarFront, Check, ChevronRight, FileText, Heart, Home, Plus, ShieldCheck, Sparkles, UploadCloud } from "lucide-react";
+import { Bell, CalendarDays, CarFront, Check, ChevronRight, FileText, Heart, Home, Plus, ShieldCheck, Sparkles } from "lucide-react";
 
 /**
  * Reference-faithful composition for the ATLAS marketing hero.

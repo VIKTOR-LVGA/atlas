@@ -4,7 +4,7 @@ import { AtlasPolicyArtwork } from "@/components/visual/AtlasPolicyArtwork";
 import { getVisualCategoryForPolicy } from "@/lib/policy-visual-categories";
 import { getPolicyProductName, getPolicyStatusLabel } from "@/lib/policy-consumer-display";
 import { getPolicyAnnualPremium } from "@/lib/premium-totals";
-import { formatScheduleDate, formatScheduleDateFull, type PolicyDeadline } from "@/lib/policy-schedule";
+import { formatScheduleDate, type PolicyDeadline } from "@/lib/policy-schedule";
 import { formatCHF, formatFileSize } from "@/lib/utils";
 import type { UserDocument, UserPolicy } from "@/lib/types";
 
@@ -56,7 +56,7 @@ export function AtlasReferenceDashboard({policies,documents,deadlines,activeCoun
                         <span className="mt-1 block truncate text-[11px] text-muted-foreground">{policy.provider||"Compagnia da verificare"}{getPolicyProductName(policy)?` · ${getPolicyProductName(policy)}`:""}</span>
                         <span className="mt-1.5 block truncate text-[10px] text-muted">{premium!==null?`${formatCHF(premium)} / anno`:"Premio non disponibile"}</span>
                       </span>
-                      <span className="hidden shrink-0 sm:block"><AtlasPolicyArtwork category={category.id}/></span>
+                      <span className="shrink-0"><AtlasPolicyArtwork category={category.id}/></span>
                       <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-card text-accent shadow-sm"><ChevronRight className="h-4 w-4" aria-hidden/></span>
                     </Link>
                   </li>
