@@ -27,4 +27,9 @@ jobs:
       - run: npm run typecheck
       - run: npm run test:knowledge
       - run: npm run test:insurance-os
+      - run: npm run test:financial
+      - run: npm run test:intelligence
+      - run: npm run test:staging-safety
       - run: npm run verify:migrations
+      # Audit runtime dependencies separately from developer tooling.
+      - run: npm audit --omit=dev --audit-level=high
