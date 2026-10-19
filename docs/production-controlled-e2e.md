@@ -14,10 +14,12 @@ was created locally on 2026-10-19. It contains the application schema and data,
 Auth data, role settings, Storage metadata, and every Storage object found at
 backup time. Its SHA-256, decryption, and archive structure were verified.
 
-The restore was not executed because the workstation has neither a local
-PostgreSQL server nor Docker/Podman. Production write tests and both pending
-migrations remain blocked until the operator accepts this verification level or
-performs an isolated restore. The existing `SUPABASE_SECRET_KEY` was verified
+An isolated PostgreSQL 17 restore was completed on 2026-10-19. The application
+schema, all application data, functions, triggers, constraints, grants, and RLS
+were restored and checked. Auth and Storage payloads were verified separately
+because their service schemas are managed by Supabase. Full results and the
+off-device recovery procedure are documented in
+`docs/backup-restore-verification.md`. The existing `SUPABASE_SECRET_KEY` was verified
 with a read-only Auth Admin request and is stored only in the ignored,
 mode-`0600` file `.env.production-e2e.local`.
 
