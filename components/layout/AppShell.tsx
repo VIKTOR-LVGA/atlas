@@ -21,7 +21,7 @@ export function AppShell({ profile, children }: AppShellProps) {
         <div className="flex w-full min-w-0 max-w-full flex-1 flex-col">
           <TopBar />
           <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
-            <div className="atlas-contained mx-auto w-full px-4 pb-[calc(6.75rem+env(safe-area-inset-bottom))] pt-6 sm:px-7 sm:pt-8 lg:px-10 lg:pb-12 lg:pt-10">
+            <div className="atlas-contained mx-auto w-full px-4 pb-[calc(6.75rem+env(safe-area-inset-bottom))] pt-4 sm:px-7 sm:pt-6 lg:px-6 lg:pb-10 lg:pt-6 xl:px-9">
               {children}
             </div>
           </main>

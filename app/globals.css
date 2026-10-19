@@ -1488,3 +1488,178 @@ body { -webkit-font-smoothing: antialiased; }
   .atlas-v2-primary-cta, .atlas-v2-feature-tile { transition: none; }
   .atlas-v2-primary-cta:hover, .atlas-v2-feature-tile:hover { transform: none; }
 }
+
+
+/* ── ATLAS reference-faithful landing: white-blue luxury and illustrated phone ── */
+.atlas-ref-landing { background:linear-gradient(118deg,#fdfefe 4%,#f7faff 55%,#ebf1ff 100%); }
+.atlas-ref-soft-glow { background:radial-gradient(ellipse 45% 62% at 72% 37%,rgba(158,185,255,.22),transparent 85%); }
+.atlas-ref-gradient-title { color:#4267f4;background:linear-gradient(100deg,#3552eb 8%,#557cfb 65%,#899ff6);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent; }
+.atlas-ref-cta { background:linear-gradient(120deg,#3556f3 0%,#4b60f8 90%);box-shadow:0 9px 25px rgba(58,80,229,.20);transition:transform .18s,box-shadow .18s; }
+.atlas-ref-cta:hover { transform:translateY(-1px);box-shadow:0 14px 32px rgba(58,80,229,.24); }
+.atlas-ref-benefit-icon { display:flex;align-items:center;justify-content:center;flex-shrink:0;width:39px;height:39px;border-radius:14px;background:#edf1ff;color:#4769ee; }
+.atlas-ref-feature-tray { border-radius:30px;background:rgba(255,255,255,.75);border:1px solid rgba(221,232,255,.8);box-shadow:0 18px 48px rgba(77,101,155,.065); }
+.atlas-ref-feature-card { background:#fff;border:1px solid #e8edfa;box-shadow:0 11px 30px rgba(65,88,143,.055);transition:transform .18s,box-shadow .18s; }
+.atlas-ref-feature-card:hover { transform:translateY(-3px);box-shadow:0 18px 38px rgba(65,88,143,.095); }
+.atlas-ref-feature-icon { display:grid;place-items:center;width:49px;height:49px;border-radius:17px;background:#edf1ff;color:#3763f0; }
+.atlas-ref-feature-icon-purple { background:#f1e9ff;color:#784bed; }
+.atlas-ref-feature-icon-mint { background:#e6f8f0;color:#25aa79; }
+.atlas-ref-feature-icon-orange { background:#fff0e8;color:#e78242; }
+.atlas-ref-visual { height:610px;min-width:0;max-width:720px;margin-inline:auto; }
+.atlas-ref-visual::before { content:"";position:absolute;left:6%;right:0;top:4%;bottom:8%;z-index:-3;border-radius:50%;background:radial-gradient(ellipse,rgba(113,145,255,.30),rgba(213,225,255,.18) 52%,transparent 75%);filter:blur(18px); }
+.atlas-ref-pedestal { position:absolute;z-index:-1;bottom:33px;left:17%;right:4%;height:80px;border:1px solid rgba(230,239,255,.9);border-radius:50% 50% 18% 18%;background:linear-gradient(150deg,#f9fbff 15%,#dce8ff 70%,#f8fbff);box-shadow:0 17px 36px rgba(86,115,198,.09);transform:skewX(-9deg); }
+.atlas-ref-ribbon { position:absolute;z-index:-2;pointer-events:none;border:2px solid rgba(92,129,255,.22);border-radius:50%; }
+.atlas-ref-ribbon-one { width:490px;height:330px;top:115px;left:18%;transform:rotate(-25deg); }
+.atlas-ref-ribbon-two { width:400px;height:410px;top:100px;left:25%;transform:rotate(24deg); }
+.atlas-ref-phone {position:absolute;z-index:4;top:16px;left:36%;width:248px;height:548px;padding:6px;border-radius:45px;border:3px solid #becbe4;background:linear-gradient(125deg,#eaf0ff,#ffffff 46%,#becdeb);box-shadow:inset 0 0 0 2px #fff,0 30px 68px rgba(43,67,135,.24),10px 10px 20px rgba(52,91,187,.08);transform:rotate(5deg);}
+.atlas-ref-phone-inner {position:relative;height:100%;overflow:hidden;border:2px solid #d4def5;border-radius:36px;padding:5px 14px 14px;background:linear-gradient(180deg,#fff 54%,#f4f7ff 100%);color:#1c2852;}
+.atlas-ref-island {position:absolute;top:4px;left:50%;transform:translateX(-50%);width:88px;height:20px;border-radius:20px;background:#0d1732;}
+.atlas-ref-phone-nav {position:absolute;bottom:11px;left:13px;right:13px;display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid #e8ecf8;color:#9aa5bb;}
+.atlas-ref-phone-nav small {font-size:6.7px;}
+.atlas-ref-document {position:absolute;z-index:1;width:185px;height:238px;padding:21px;background:rgba(255,255,255,.87);border:1px solid rgba(255,255,255,.94);border-radius:24px;box-shadow:0 19px 38px rgba(49,90,190,.13);backdrop-filter:blur(12px);}
+.atlas-ref-document-back {left:11%;top:121px;transform:rotate(-17deg);}
+.atlas-ref-document-front {left:16%;top:172px;transform:rotate(-10deg);font-size:14px;}
+.atlas-ref-float {position:absolute;z-index:7;display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid rgba(232,238,255,.96);border-radius:17px;background:rgba(255,255,255,.94);box-shadow:0 16px 40px rgba(54,86,164,.14);backdrop-filter:blur(14px);}
+.atlas-ref-analyzing {left:4%;bottom:115px;transform:rotate(-5deg);}
+.atlas-ref-tag {right:0;width:173px;}
+.atlas-ref-tag-house {top:96px;transform:rotate(-8deg);}
+.atlas-ref-tag-car {top:208px;right:-1%;transform:rotate(-3deg);}
+.atlas-ref-tag-health {top:320px;right:1%;transform:rotate(5deg);}
+.atlas-ref-glass-shield {position:absolute;z-index:8;width:151px;height:164px;right:7%;bottom:23px;filter:drop-shadow(0 18px 18px rgba(39,94,215,.25));transform:rotate(9deg);}
+.atlas-ref-art-note {position:absolute;right:3%;bottom:0;font-size:9px;color:#8a9ab9;letter-spacing:.04em;}
+@media (min-width: 1280px) {
+ .atlas-ref-visual {height:630px;}
+ .atlas-ref-phone {width:267px;height:566px;left:36%;}
+ .atlas-ref-tag {width:193px;}
+}
+@media (max-width: 1100px) {
+ .atlas-ref-visual {height:530px;max-width:580px;}
+ .atlas-ref-phone {width:224px;height:498px;left:32%;}
+ .atlas-ref-tag {right:0;width:156px;}
+ .atlas-ref-document {width:160px;height:213px;}
+ .atlas-ref-glass-shield {width:129px;height:148px;right:4%;}
+}
+@media (max-width: 740px) {
+ .atlas-ref-visual {height:460px;max-width:420px;}
+ .atlas-ref-phone {width:190px;height:436px;left:31%;top:7px;border-radius:36px;transform:rotate(4deg);}
+ .atlas-ref-phone-inner {border-radius:29px;padding-inline:9px;}
+ .atlas-ref-phone-inner h3 {font-size:19px;}
+ .atlas-ref-phone-inner .mt-7 {margin-top:17px;}
+ .atlas-ref-phone-inner .mt-6 {margin-top:15px;}
+ .atlas-ref-phone-inner .mt-5 {margin-top:12px;}
+ .atlas-ref-phone-inner .mt-2\.5 {margin-top:7px;}
+ .atlas-ref-phone-inner .space-y-2 > :not([hidden]) ~ :not([hidden]) {margin-top:6px;}
+ .atlas-ref-phone-inner .rounded-xl {padding:5px;}
+ .atlas-ref-phone-inner .rounded-xl p {margin-top:6px;}
+ .atlas-ref-phone-nav {bottom:7px;left:8px;right:8px;}
+ .atlas-ref-phone-nav svg {width:12px;height:12px;}
+ .atlas-ref-document {width:130px;height:186px;padding:14px;border-radius:17px;}
+ .atlas-ref-document-back {left:5%;top:90px;}
+ .atlas-ref-document-front {left:11%;top:144px;}
+ .atlas-ref-ribbon-one {width:330px;height:205px;left:6%;top:130px;}
+ .atlas-ref-ribbon-two {width:240px;height:330px;left:17%;top:55px;}
+ .atlas-ref-tag {width:119px;gap:5px;padding:7px;border-radius:13px;}
+ .atlas-ref-tag strong {font-size:9px;}
+ .atlas-ref-tag small {font-size:7px;}
+ .atlas-ref-tag .h-11 {width:29px;height:29px;border-radius:9px;}
+ .atlas-ref-tag .h-11 svg {width:16px;height:16px;}
+ .atlas-ref-tag-house {top:72px;right:-1%;}
+ .atlas-ref-tag-car {top:165px;right:-3%;}
+ .atlas-ref-tag-health {top:253px;right:-1%;}
+ .atlas-ref-analyzing {bottom:48px;left:0;gap:6px;padding:7px;}
+ .atlas-ref-analyzing strong {font-size:9px;}
+ .atlas-ref-analyzing .h-10 {width:28px;height:28px;border-radius:9px;}
+ .atlas-ref-analyzing .h-10 svg {width:17px;height:17px;}
+ .atlas-ref-glass-shield {width:100px;height:113px;bottom:18px;right:0;}
+ .atlas-ref-pedestal {bottom:25px;height:40px;}
+ .atlas-ref-art-note {display:none;}
+}
+@media (max-width: 390px) {
+ .atlas-ref-visual {height:402px;}
+ .atlas-ref-phone {width:171px;height:397px;left:30%;}
+ .atlas-ref-phone-inner .mt-7 {margin-top:13px;}
+ .atlas-ref-document {left:5%;width:116px;height:167px;}
+ .atlas-ref-tag {right:-2%;width:106px;}
+ .atlas-ref-tag-car {right:-3%;}
+ .atlas-ref-glass-shield {width:82px;height:95px;bottom:25px;}
+}
+@media (prefers-reduced-motion: reduce) {
+ .atlas-ref-cta,.atlas-ref-feature-card{transition:none;}
+ .atlas-ref-cta:hover,.atlas-ref-feature-card:hover{transform:none;}
+}
+
+/* The dashboard visual hierarchy reproduces the approved reference:
+   scenic hero -> 4 quiet stats -> policy rows + reminders/documents. */
+.atlas-ref-alpine-hero {
+ background-image:linear-gradient(90deg,rgba(229,235,255,.96) 0%,rgba(230,237,255,.90) 23%,rgba(226,237,255,.44) 54%,rgba(223,236,255,.07) 100%),url("/brand/atlas-hero-switzerland.png");
+ background-size:cover;background-position:center 45%;
+ border:1px solid rgba(204,220,248,.8);
+ box-shadow:0 12px 29px rgba(61,96,164,.08);
+}
+.atlas-ref-alpine-shade {background:linear-gradient(0deg,rgba(204,222,250,.10),transparent 55%);}
+.atlas-ref-stat,.atlas-ref-dashboard-panel {
+ background:var(--card);border:1px solid var(--border);
+ box-shadow:0 5px 19px rgba(34,53,101,.045);color:var(--foreground);
+}
+.atlas-ref-stat {transition:transform .15s ease,box-shadow .15s ease;}
+.atlas-ref-stat:hover{transform:translateY(-2px);box-shadow:0 10px 27px rgba(34,53,101,.09);}
+.atlas-ref-dashboard-panel {border-radius:22px;}
+.atlas-ref-policy-row .atlas-v2-policy-art{width:115px;height:88px;border-radius:12px;}
+.atlas-ref-sidebar-promo{background:linear-gradient(150deg,#d4e0ff,#edf3ff);}
+.atlas-ref-dashboard-panel a:focus-visible,.atlas-ref-stat:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+@media(max-width:640px){
+ .atlas-ref-alpine-hero{min-height:230px;background-image:linear-gradient(90deg,rgba(239,243,255,.93) 0%,rgba(231,239,255,.82) 54%,rgba(228,240,255,.10) 100%),url("/brand/atlas-hero-switzerland.png");background-position:65% center;}
+}
+@media(prefers-reduced-motion: reduce){.atlas-ref-stat{transition:none}.atlas-ref-stat:hover{transform:none}}
+
+
+/* Reference onboarding: two working-scale illustrative phone screens */
+.atlas-ref-upload-showcase {
+ background:radial-gradient(ellipse 66% 74% at 51% 67%,rgba(181,204,255,.42),transparent 79%),linear-gradient(135deg,#f4f7ff 0%,#eef3ff 75%,#dfe9ff 100%);
+}
+.atlas-ref-upload-glow {background:radial-gradient(ellipse 40% 40% at 48% 50%,rgba(127,157,255,.21),transparent 80%);}
+.atlas-ref-upload-device {
+ width:220px;height:463px;flex-shrink:0;padding:6px;
+ border:3px solid #cbd5e9;border-radius:37px;
+ background:linear-gradient(145deg,#f5f9ff,#fff 45%,#acbddb);
+ box-shadow:0 20px 58px rgba(51,78,146,.20),inset 0 0 0 1px #fff;
+}
+.atlas-ref-upload-device-front {width:239px;height:492px;transform:rotate(3deg);}
+.atlas-ref-upload-device-inner {position:relative;height:100%;overflow:hidden;border-radius:29px;padding:7px 14px;background:linear-gradient(165deg,#fff,#f7f9ff);border:1px solid #e6eaf4;}
+.atlas-ref-upload-island {position:absolute;top:0;left:50%;transform:translateX(-50%);width:78px;height:16px;border-radius:0 0 13px 13px;background:#0d1b35;}
+@media(max-width:650px) {
+ .atlas-ref-upload-showcase {min-height:500px;padding-inline:10px;}
+ .atlas-ref-upload-device-front {width:220px;height:475px;transform:none;}
+ .atlas-ref-upload-device:not(.atlas-ref-upload-device-front){display:none;}
+}
+
+.atlas-contained { max-width: 1340px; }
+.atlas-ref-policy-row .atlas-v2-policy-art { width:92px;height:72px; }
+@media(min-width:640px){.atlas-ref-policy-row .atlas-v2-policy-art{width:120px;height:90px}}
+
+
+/* Public marketing follows the approved bright-white references consistently,
+   independently of the account's app-only dark preference. Authenticated pages
+   continue to obey the chosen theme. */
+[data-theme="dark"] .landing {
+  --background:#f7f9ff;
+  --foreground:#142038;
+  --card:#ffffff;
+  --card-muted:#f5f7fb;
+  --muted:#78849b;
+  --muted-foreground:#59657b;
+  --border:#e6eaf1;
+  --border-subtle:#edf0f6;
+  --accent:#3157e9;
+  --accent-soft:#ebf0ff;
+  --landing-bg:#f8faff;
+  --landing-bg-mid:#f2f5fe;
+  --landing-bg-elevated:#ffffff;
+  --landing-surface:rgba(255,255,255,.95);
+  --landing-border:#e2e9f5;
+  --landing-border-bright:#d9e4fa;
+  --landing-text:#142038;
+  --landing-muted:#64718a;
+  --landing-accent:#3157e9;
+  --landing-accent-bright:#3157e9;
+  --landing-hero-text:#142038;
+}

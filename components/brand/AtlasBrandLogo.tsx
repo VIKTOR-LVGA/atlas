@@ -22,14 +22,7 @@ export function AtlasBrandLogo({
     variant === "landing" ? (
       <div className={cn("flex min-w-0 items-center gap-2.5", className)}>
         <AtlasBrandMark className="h-9 w-9 shrink-0 sm:h-10 sm:w-10" />
-        <div className="min-w-0 leading-none">
-          <p className="text-[14px] font-semibold tracking-tight text-[var(--landing-text)] sm:text-[15px]">
-            ATLAS
-          </p>
-          <p className="mt-0.5 text-[9px] font-medium uppercase tracking-[0.18em] text-[var(--landing-muted)] sm:text-[10px]">
-            AI Insurance
-          </p>
-        </div>
+        <span className="text-[17px] font-extrabold tracking-[.21em] text-[var(--landing-text)] sm:text-[20px]">ATLAS</span>
       </div>
     ) : variant === "lockup" ? (
       <Image

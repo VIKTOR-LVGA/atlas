@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, Plus } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { AtlasBrandLogo } from "@/components/brand/AtlasBrandLogo";
 import {
   TopBarHelpMenu,
@@ -18,10 +18,10 @@ export function TopBar() {
         <AtlasBrandLogo variant="stacked" compact />
       </Link>
 
-      <div className="hidden min-w-0 items-center gap-2 lg:flex">
-        <span className="text-[12px] font-semibold text-muted">Il tuo portafoglio assicurativo</span>
-        <ArrowUpRight className="h-3.5 w-3.5 text-muted" aria-hidden />
-      </div>
+      <form action="/search" method="GET" role="search" className="hidden w-full max-w-[480px] items-center gap-2 rounded-[18px] bg-card-muted px-4 py-2.5 lg:flex">
+        <Search className="h-[18px] w-[18px] shrink-0 text-[#6e7f9c]" aria-hidden/>
+        <input type="search" name="q" maxLength={80} aria-label="Cerca polizze e documenti" placeholder="Cerca polizze, documenti..." className="w-full min-w-0 bg-transparent text-[12px] text-foreground outline-none placeholder:text-muted"/>
+      </form>
       <div className="flex min-w-0 items-center justify-end gap-1 sm:gap-1.5">
         <Link href="/documents" className="atlas-btn-primary mr-2 hidden items-center gap-2 px-3.5 text-[12px] sm:inline-flex">
           <Plus className="h-3.5 w-3.5" aria-hidden /> Carica PDF
