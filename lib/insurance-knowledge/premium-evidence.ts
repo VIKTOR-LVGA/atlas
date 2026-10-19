@@ -23,9 +23,15 @@ function parseAmount(input: string): number | null {
  */
 export function findExplicitSwissPremiumTotal(text: string): ExplicitPremiumTotal | null {
   const matches: Array<ExplicitPremiumTotal & { priority: number }> = [];
-  for (const line of text.split(/\r?\n/)) {
+  const lines = text.split(/\r?\n/);
+  for (let i = 0; i < lines.length; i += 1) {
+    // pdf2json may emit a table label and its monetary value on adjacent lines.
+    // Only join an immediately following standalone CHF amount; never a freeform row.
+    const next = lines[i + 1] ?? "";
+    const isAmountOnly = /^\s*(?:CHF\s*)?[0-9][0-9'’ .]*[.,][0-9]{2}\s*$/.test(next);
+    const alternatives = isAmountOnly ? [lines[i], lines[i] + " " + next.trim()] : [lines[i]];
     for (const item of totalPatterns) {
-      const match = line.match(item.pattern);
+      const match = alternatives.map((line) => line.match(item.pattern)).find(Boolean);
       if (!match) continue;
       const amount = parseAmount(match[2]);
       if (amount !== null) matches.push({
