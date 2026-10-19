@@ -1,6 +1,6 @@
 import "server-only";
 
-import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getCurrentRequestAuth } from "@/lib/supabase/server";
 import type { ConsultationRequest } from "@/lib/types";
 
 export const CONSULTATION_PRIVACY_VERSION = "atlas-consultation-2026-09";
@@ -45,8 +45,7 @@ function toConsultation(row: Record<string, unknown>): ConsultationRequest {
 }
 
 async function current() {
-  const supabase = await getSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { supabase, user } = await getCurrentRequestAuth();
   if (!user) throw new ConsultationDataError("Accedi di nuovo per continuare.");
   return { supabase, user };
 }
