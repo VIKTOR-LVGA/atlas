@@ -5,9 +5,7 @@ import { AtlasBrandLogo } from "@/components/brand/AtlasBrandLogo";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 const links = [
-  { href: "#product", label: "Prodotto" },
   { href: "#how-it-works", label: "Come funziona" },
-  { href: "/intelligence", label: "Intelligence" },
   { href: "#security", label: "Sicurezza" },
   { href: "#faq", label: "FAQ" },
 ];

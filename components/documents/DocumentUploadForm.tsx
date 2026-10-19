@@ -225,8 +225,9 @@ export function DocumentUploadForm() {
               Atlas preparerà il documento per l&apos;analisi AI.
             </p>
             <p className="mt-2 w-full max-w-full px-1 text-[11px] leading-snug text-muted-foreground">
-              Dopo il caricamento potrai avviare l&apos;analisi e creare una bozza
-              polizza.
+              Dopo il caricamento potrai avviare l&apos;analisi e verificare la bozza.
+              Se il PDF è una scansione senza testo selezionabile, potrebbe servire
+              una versione digitale oppure l&apos;inserimento manuale.
             </p>
 
             <p className="mt-4 inline-flex flex-wrap items-center justify-center gap-2 text-[10px] font-medium uppercase tracking-wide text-muted">

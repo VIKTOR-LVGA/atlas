@@ -32,6 +32,13 @@ const sections = [
     ],
   },
   {
+    title: "Domande ad ATLAS e simulazioni",
+    body: [
+      "Quando fai una domanda o simuli uno scenario, ATLAS usa i dati pertinenti del tuo portafoglio per formulare la risposta; quando è necessaria una generazione AI, può trasmettere la domanda e il contesto selezionato al servizio OpenAI.",
+      "Le risposte automatiche sono informative: le coperture, i limiti e le esclusioni devono essere verificati sui documenti assicurativi originali.",
+    ],
+  },
+  {
     title: "Condivisione con un consulente",
     body: [
       "Nessun dato viene condiviso con un consulente senza una tua richiesta esplicita e senza consenso, che non è preselezionato.",
