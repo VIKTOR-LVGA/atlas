@@ -1,68 +1,21 @@
-import { Eye, Lock, Server, ShieldCheck } from "lucide-react";
-import { LandingTrustVisual } from "@/components/landing/LandingTrustVisual";
-import {
-  LandingSection,
-  LandingSectionHeader,
-} from "@/components/landing/LandingSection";
-
-const pillars = [
-  {
-    icon: Lock,
-    title: "Accesso riservato",
-    description:
-      "I documenti e le schede polizza restano nel tuo account, con controlli di accesso applicativi.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Revisione prima dell'uso",
-    description:
-      "Le bozze AI richiedono conferma: niente dati trattati come definitivi senza la tua verifica.",
-  },
-  {
-    icon: Server,
-    title: "Pensato per la Svizzera",
-    description:
-      "Flussi e campi orientati alle polizze svizzere, con attenzione alla privacy dei documenti.",
-  },
-  {
-    icon: Eye,
-    title: "Trasparente",
-    description:
-      "Le tue assicurazioni, finalmente chiare.",
-  },
+import { Eye, FileCheck2, LockKeyhole } from "lucide-react";
+import { LandingSection, LandingSectionHeader } from "@/components/landing/LandingSection";
+const pillars=[
+ {Icon:LockKeyhole,title:"Uno spazio privato",body:"Le polizze e i documenti sono associati al tuo account, con controlli di accesso."},
+ {Icon:FileCheck2,title:"Dati da verificare",body:"L'AI può sbagliare o non leggere tutto: ATLAS ti chiede di controllare il PDF originale."},
+ {Icon:Eye,title:"Solo quello che sappiamo",body:"Quando un valore manca o è ambiguo, viene segnalato. Non inventiamo premi o coperture."},
 ];
-
-export function LandingTrust() {
-  return (
-    <LandingSection id="security" tone="lift" className="py-20 md:py-28">
-      <div className="mx-auto grid max-w-6xl items-center gap-14 px-6 lg:grid-cols-2">
-        <div className="relative flex justify-center lg:justify-start">
-          <LandingTrustVisual />
-        </div>
-
-        <div>
-          <LandingSectionHeader
-            eyebrow="Fiducia"
-            title="I tuoi documenti. Il tuo portfolio."
-            description="Atlas non è un intermediario assicurativo. Non ti contatteranno compagnie per venderti polizze. Il prodotto serve a darti chiarezza su ciò che hai già."
-          />
-
-          <div className="mt-10 grid gap-3 sm:grid-cols-2">
-            {pillars.map((pillar) => (
-              <div
-                key={pillar.title}
-                className="landing-glass rounded-xl p-4 transition hover:border-white/12"
-              >
-                <pillar.icon className="h-5 w-5 text-indigo-400" />
-                <p className="mt-3 font-medium text-white">{pillar.title}</p>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted">
-                  {pillar.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </LandingSection>
-  );
+export function LandingTrust(){
+ return <LandingSection id="security" tone="base" className="py-16 md:py-24">
+  <div className="mx-auto max-w-6xl px-5 sm:px-8">
+   <LandingSectionHeader eyebrow="Trasparenza" title="La fiducia nasce dalla chiarezza." description="Le polizze sono documenti importanti. ATLAS ti aiuta a comprenderli, senza sostituirli."/>
+   <div className="mt-10 grid gap-4 md:grid-cols-3">
+    {pillars.map(({Icon,title,body})=><div key={title} className="atlas-premium-tile p-6 sm:p-7">
+     <span className="atlas-pill-icon"><Icon className="h-5 w-5"/></span>
+     <h3 className="mt-5 text-[17px] font-bold tracking-tight text-foreground">{title}</h3>
+     <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{body}</p>
+    </div>)}
+   </div>
+  </div>
+ </LandingSection>;
 }

@@ -1,71 +1,24 @@
-import { LineChart, Sparkles, Upload, UserCheck } from "lucide-react";
-import {
-  LandingSection,
-  LandingSectionHeader,
-} from "@/components/landing/LandingSection";
-
-const steps = [
-  {
-    icon: Upload,
-    title: "Carica",
-    description:
-      "Carichi i PDF delle polizze in modo sicuro. Atlas li conserva nel tuo archivio privato.",
-  },
-  {
-    icon: Sparkles,
-    title: "Estrazione AI",
-    description:
-      "L'AI legge il documento, normalizza i dati svizzeri e struttura persone, coperture e premi.",
-  },
-  {
-    icon: UserCheck,
-    title: "Revisione",
-    description:
-      "Verifichi bozze AI, assegni coperture alle persone corrette e confermi la polizza.",
-  },
-  {
-    icon: LineChart,
-    title: "Portfolio",
-    description:
-      "Leggi, organizza e revisioni le polizze; Atlas prepara il portfolio per futuri confronti quando i dati saranno verificati.",
-  },
+import { ArrowRight, CheckCheck, FileUp, ScanSearch } from "lucide-react";
+import { LandingSection, LandingSectionHeader } from "@/components/landing/LandingSection";
+const steps=[
+ {Icon:FileUp,title:"Carica il PDF",text:"Scegli il documento assicurativo dal tuo telefono o dal computer."},
+ {Icon:ScanSearch,title:"Leggi la bozza AI",text:"ATLAS identifica i dati che riesce a trovare e segnala quelli incerti."},
+ {Icon:CheckCheck,title:"Verifica e organizza",text:"Controlla il PDF originale e conferma ciò che vuoi salvare."}
 ];
-
-export function LandingHowItWorks() {
-  return (
-    <LandingSection id="how-it-works" tone="deep" className="py-20 md:py-28">
-      <div className="mx-auto max-w-6xl px-6">
-        <LandingSectionHeader
-          eyebrow="Come funziona"
-          title="Dalla polizza alla chiarezza in 4 passi"
-          description="Ogni fase corrisponde a funzionalità già presenti in Atlas — non a promesse future."
-          align="center"
-        />
-
-        <div className="relative mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
-          <div
-            className="absolute left-[8%] right-[8%] top-9 hidden h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent lg:block"
-            aria-hidden
-          />
-          {steps.map((step, index) => (
-            <div
-              key={step.title}
-              className="landing-glass group relative rounded-2xl p-6 transition hover:border-white/15"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-indigo-500/20 bg-indigo-500/10 text-indigo-300 transition group-hover:bg-indigo-500/15">
-                <step.icon className="h-5 w-5" />
-              </div>
-              <p className="mt-5 text-[11px] font-semibold uppercase tracking-wider text-indigo-400/90">
-                Passo {index + 1}
-              </p>
-              <h3 className="mt-2 text-lg font-semibold text-white">{step.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted">
-                {step.description}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </LandingSection>
-  );
+export function LandingHowItWorks(){
+ return <LandingSection id="how-it-works" tone="lift" className="py-16 md:py-24">
+  <div className="mx-auto max-w-6xl px-5 sm:px-8">
+   <LandingSectionHeader eyebrow="Come funziona" title="Tre passi. Tutto più chiaro." description="Non devi conoscere il linguaggio assicurativo per cominciare." align="center"/>
+   <ol className="mt-10 grid gap-4 md:grid-cols-3">
+    {steps.map(({Icon,title,text},i)=>(
+     <li key={title} className="atlas-premium-tile p-6 sm:p-7">
+      <span className="flex items-center justify-between"><span className="atlas-pill-icon"><Icon className="h-5 w-5"/></span><span className="text-[13px] font-bold text-muted">0{i+1}</span></span>
+      <h3 className="mt-5 text-[19px] font-bold tracking-tight text-foreground">{title}</h3>
+      <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{text}</p>
+      {i<2?<ArrowRight className="mt-5 h-4 w-4 text-accent" aria-hidden/>:null}
+     </li>
+    ))}
+   </ol>
+  </div>
+ </LandingSection>;
 }

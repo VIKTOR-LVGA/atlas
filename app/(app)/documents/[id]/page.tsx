@@ -71,12 +71,12 @@ export default async function DocumentDetailPage({ params }: PageProps) {
         {(!linkedPolicy && (document.status === "uploaded" ||
           document.status === "failed" ||
           canPersistAsPersonalPolicy(document.documentType))) ? (
-          <section className="rounded-2xl border border-accent/20 bg-accent-soft/30 p-4 sm:flex sm:items-center sm:justify-between sm:gap-4">
+          <section className="atlas-consumer-hero rounded-[25px] border border-border p-5 sm:flex sm:items-center sm:justify-between sm:gap-5 sm:p-7">
             <div className="mb-3 sm:mb-0">
-              <p className="text-[14px] font-semibold text-foreground">
+              <p className="text-[18px] font-bold tracking-tight text-foreground">
                 {document.status === "analyzed" ? "Vuoi rianalizzare la bozza?" : document.status === "failed" ? "Riprendiamo da qui" : "Pronto per analizzare il documento?"}
               </p>
-              <p className="mt-1 text-[12px] leading-relaxed text-muted">
+              <p className="mt-2 text-[13px] leading-relaxed text-muted">
                 {"ATLAS propone una bozza da verificare. Il PDF originale rimane la fonte principale."}
               </p>
             </div>
@@ -94,7 +94,7 @@ export default async function DocumentDetailPage({ params }: PageProps) {
         {view.nextAction.kind !== "wait" &&
           view.nextAction.href &&
           view.nextAction.href !== `/documents/${document.id}` ? (
-          <div className="atlas-action-strip flex flex-col gap-3 rounded-xl border border-accent/20 bg-accent-soft/30 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="atlas-action-strip flex flex-col gap-3 rounded-[22px] border border-border bg-card px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-accent">
                 Prossima azione

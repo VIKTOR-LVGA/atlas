@@ -25,7 +25,7 @@ export function PolicyExperienceTabs({
   return (
     <nav
       aria-label="Sezioni polizza"
-      className="sticky top-0 z-20 -mx-1 overflow-x-auto border-b border-border bg-[color-mix(in_srgb,var(--background)_92%,transparent)] px-1 backdrop-blur-md"
+      className="sticky top-0 z-20 -mx-1 overflow-x-auto border-b border-border bg-[color-mix(in_srgb,var(--background)_95%,transparent)] px-1 backdrop-blur-xl"
     >
       <ul className="flex min-w-max gap-1 py-2">
         {TABS.map((tab) => {
@@ -37,7 +37,7 @@ export function PolicyExperienceTabs({
                 scroll={false}
                 aria-current={selected ? "page" : undefined}
                 className={cn(
-                  "inline-flex min-h-10 items-center rounded-lg px-3 text-[12px] font-medium transition-colors sm:text-[13px]",
+                  "inline-flex min-h-12 items-center rounded-[13px] px-4 text-[12px] font-semibold transition-colors sm:text-[13px]",
                   selected
                     ? "bg-accent-soft text-accent"
                     : "text-muted hover:bg-card-muted hover:text-foreground"

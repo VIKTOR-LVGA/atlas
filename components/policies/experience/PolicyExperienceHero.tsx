@@ -28,9 +28,9 @@ function CategoryVisual({ policyType }: { policyType: string }) {
   return (
     <div
       aria-hidden
-      className="relative flex h-28 w-full items-center justify-center overflow-hidden rounded-2xl sm:h-36 sm:w-40"
+      className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-[23px] sm:h-32 sm:w-36"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,color-mix(in_srgb,var(--accent)_35%,transparent),transparent_55%),linear-gradient(160deg,color-mix(in_srgb,var(--accent)_12%,transparent),transparent)]" />
+      <div className="absolute inset-0 bg-accent-soft" />
       <div className="relative text-accent">{icon}</div>
     </div>
   );
@@ -59,20 +59,20 @@ export function PolicyExperienceHero({ policy }: { policy: UserPolicy }) {
       : null;
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
-      <div className="grid gap-4 p-4 sm:grid-cols-[1fr_auto] sm:p-5">
+    <section className="atlas-consumer-hero overflow-hidden rounded-[26px] border border-border shadow-[var(--shadow-card)]">
+      <div className="grid gap-6 p-6 sm:grid-cols-[1fr_auto] sm:items-center sm:p-8">
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">
+          <p className="atlas-premium-eyebrow">
             {(policy.provider || "Assicuratore").toUpperCase()} · {category.label}
           </p>
-          <h1 className="mt-2 text-[24px] font-semibold tracking-tight text-foreground sm:text-[28px]">
+          <h1 className="atlas-premium-title mt-2">
             {headline}
           </h1>
           {subline ? (
             <p className="mt-1 text-[13px] text-muted">{subline}</p>
           ) : null}
 
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-6 flex flex-wrap gap-2">
             {isMotor && vehicle.plate ? (
               <span className="rounded-lg border border-border bg-[color-mix(in_srgb,var(--background)_60%,transparent)] px-2.5 py-1 text-[12px] font-semibold tracking-wide text-foreground">
                 {vehicle.plate}
