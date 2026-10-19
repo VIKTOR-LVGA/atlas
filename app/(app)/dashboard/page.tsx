@@ -136,6 +136,15 @@ export default async function DashboardPage() {
     <div className="space-y-7">
       <AtlasAlpineHero greeting={greeting} name={name} />
 
+      <AtlasReferenceDashboard
+        policies={policies}
+        documents={documents}
+        deadlines={deadlines}
+        activeCount={activeCount}
+        annualPremium={premiums.annual}
+        needsVerification={coverageMap.summary.needsVerificationCount}
+      />
+
       <p className="flex items-start gap-2 rounded-2xl bg-card-muted px-4 py-3 text-[12px] leading-relaxed text-muted-foreground">
         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden/>
         Versione pilota: i dati analizzati dall&apos;AI richiedono sempre conferma sui documenti originali.
@@ -158,15 +167,6 @@ export default async function DashboardPage() {
           </Link>
         </div>
       ) : null}
-
-      <AtlasReferenceDashboard
-        policies={policies}
-        documents={documents}
-        deadlines={deadlines}
-        activeCount={activeCount}
-        annualPremium={premiums.annual}
-        needsVerification={coverageMap.summary.needsVerificationCount}
-      />
 
       <ConsumerSection
         title="Da controllare"

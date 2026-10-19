@@ -1635,3 +1635,31 @@ body { -webkit-font-smoothing: antialiased; }
 .atlas-contained { max-width: 1340px; }
 .atlas-ref-policy-row .atlas-v2-policy-art { width:92px;height:72px; }
 @media(min-width:640px){.atlas-ref-policy-row .atlas-v2-policy-art{width:120px;height:90px}}
+
+
+/* Public marketing follows the approved bright-white references consistently,
+   independently of the account's app-only dark preference. Authenticated pages
+   continue to obey the chosen theme. */
+[data-theme="dark"] .landing {
+  --background:#f7f9ff;
+  --foreground:#142038;
+  --card:#ffffff;
+  --card-muted:#f5f7fb;
+  --muted:#78849b;
+  --muted-foreground:#59657b;
+  --border:#e6eaf1;
+  --border-subtle:#edf0f6;
+  --accent:#3157e9;
+  --accent-soft:#ebf0ff;
+  --landing-bg:#f8faff;
+  --landing-bg-mid:#f2f5fe;
+  --landing-bg-elevated:#ffffff;
+  --landing-surface:rgba(255,255,255,.95);
+  --landing-border:#e2e9f5;
+  --landing-border-bright:#d9e4fa;
+  --landing-text:#142038;
+  --landing-muted:#64718a;
+  --landing-accent:#3157e9;
+  --landing-accent-bright:#3157e9;
+  --landing-hero-text:#142038;
+}
