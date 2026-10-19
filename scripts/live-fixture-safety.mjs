@@ -8,7 +8,8 @@
  *   ATLAS_ALLOW_PROD_FIXTURES=1
  *   ATLAS_CLEANUP_AFTER=1
  *   ATLAS_PROD_BACKUP_VERIFIED=1
- * and provide SUPABASE_SERVICE_ROLE_KEY for deterministic Auth cleanup.
+ * and provide SUPABASE_SECRET_KEY (preferred) or the legacy
+ * SUPABASE_SERVICE_ROLE_KEY for deterministic Auth cleanup.
  *
  * The current controlled run uses the existing Production project only after
  * all recovery and cleanup preconditions have been independently verified.
@@ -16,6 +17,14 @@
 import assert from "node:assert/strict";
 
 export const ATLAS_PRODUCTION_PROJECT_REF = "ycjltpxxetxvuptwlxlr";
+
+export function getSupabaseAdminKey(env = process.env) {
+  return (
+    env.SUPABASE_SECRET_KEY?.trim() ||
+    env.SUPABASE_SERVICE_ROLE_KEY?.trim() ||
+    ""
+  );
+}
 
 export function isAtlasProductionUrl(url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "") {
   return url.includes(ATLAS_PRODUCTION_PROJECT_REF);
@@ -39,6 +48,7 @@ export function getSupabaseProjectRef(
 export function assertLiveFixtureSafety(scriptName = "validation") {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
   const projectRef = getSupabaseProjectRef(url);
+  const adminKey = getSupabaseAdminKey();
 
   if (!projectRef) {
     if (/^https?:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(url)) {
@@ -66,8 +76,8 @@ export function assertLiveFixtureSafety(scriptName = "validation") {
       `${scriptName}: staging fixture runs require ATLAS_CLEANUP_AFTER=1.`
     );
     assert.ok(
-      process.env.SUPABASE_SERVICE_ROLE_KEY,
-      `${scriptName}: SUPABASE_SERVICE_ROLE_KEY is required for staging cleanup.`
+      adminKey,
+      `${scriptName}: SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY is required for staging cleanup.`
     );
     return;
   }
@@ -77,12 +87,12 @@ export function assertLiveFixtureSafety(scriptName = "validation") {
   const backupVerified = process.env.ATLAS_PROD_BACKUP_VERIFIED === "1";
 
   assert.ok(
-    allow && cleanup && backupVerified && process.env.SUPABASE_SERVICE_ROLE_KEY,
+    allow && cleanup && backupVerified && adminKey,
     [
       `${scriptName}: refused to create fixtures on ATLAS Production.`,
       `Project ${ATLAS_PRODUCTION_PROJECT_REF} is the live shared database.`,
       `A short, self-cleaning QA run requires ATLAS_ALLOW_PROD_FIXTURES=1, ATLAS_CLEANUP_AFTER=1,`,
-      `ATLAS_PROD_BACKUP_VERIFIED=1 and SUPABASE_SERVICE_ROLE_KEY.`,
+      `ATLAS_PROD_BACKUP_VERIFIED=1 and SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY.`,
     ].join(" ")
   );
 

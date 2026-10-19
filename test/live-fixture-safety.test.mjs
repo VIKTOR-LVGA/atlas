@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import {
   assertLiveFixtureSafety,
   getSupabaseProjectRef,
+  getSupabaseAdminKey,
 } from "../scripts/live-fixture-safety.mjs";
 
 const original = {
@@ -11,6 +12,7 @@ const original = {
   allowProduction: process.env.ATLAS_ALLOW_PROD_FIXTURES,
   backupVerified: process.env.ATLAS_PROD_BACKUP_VERIFIED,
   serviceRole: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  secretKey: process.env.SUPABASE_SECRET_KEY,
 };
 
 function setEnvironment(values) {
@@ -24,6 +26,13 @@ try {
   assert.equal(
     getSupabaseProjectRef("https://abcdefghijklmnopqrst.supabase.co"),
     "abcdefghijklmnopqrst"
+  );
+  assert.equal(
+    getSupabaseAdminKey({
+      SUPABASE_SECRET_KEY: "preferred-secret",
+      SUPABASE_SERVICE_ROLE_KEY: "legacy-service-role",
+    }),
+    "preferred-secret"
   );
 
   setEnvironment({
@@ -49,9 +58,12 @@ try {
   assert.doesNotThrow(() => assertLiveFixtureSafety("test"));
 
   delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+  process.env.SUPABASE_SECRET_KEY = "staging-secret-test-value";
+  assert.doesNotThrow(() => assertLiveFixtureSafety("test"));
+  delete process.env.SUPABASE_SECRET_KEY;
   assert.throws(
     () => assertLiveFixtureSafety("test"),
-    /SUPABASE_SERVICE_ROLE_KEY is required/
+    /SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY is required/
   );
 
   setEnvironment({
@@ -74,7 +86,7 @@ try {
   delete process.env.SUPABASE_SERVICE_ROLE_KEY;
   assert.throws(
     () => assertLiveFixtureSafety("test"),
-    /SUPABASE_SERVICE_ROLE_KEY/
+    /SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY/
   );
 
   console.info("PASS live fixture environment safety");
@@ -86,5 +98,6 @@ try {
     ATLAS_ALLOW_PROD_FIXTURES: original.allowProduction,
     ATLAS_PROD_BACKUP_VERIFIED: original.backupVerified,
     SUPABASE_SERVICE_ROLE_KEY: original.serviceRole,
+    SUPABASE_SECRET_KEY: original.secretKey,
   });
 }

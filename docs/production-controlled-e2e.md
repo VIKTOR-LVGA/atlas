@@ -5,16 +5,21 @@ The project is Production. The definitive validation decision is to use only
 short-lived synthetic data in this existing project; no staging project should
 be created for this run.
 
-## Current stop condition
+## Current control status
 
 `supabase backups list --project-ref ycjltpxxetxvuptwlxlr --output json`
 returned `backups: null` and `pitr_enabled: false` on 2026-10-19. A recoverable
-backup has therefore not been demonstrated. Production write tests and both
-pending migrations must remain blocked until backup recovery is independently
-verified.
+automatic backup has therefore not been demonstrated. A manual encrypted backup
+was created locally on 2026-10-19. It contains the application schema and data,
+Auth data, role settings, Storage metadata, and every Storage object found at
+backup time. Its SHA-256, decryption, and archive structure were verified.
 
-The local environment also lacks `SUPABASE_SERVICE_ROLE_KEY`, so Auth users
-cannot be guaranteed to be removed after a failed or interrupted run.
+The restore was not executed because the workstation has neither a local
+PostgreSQL server nor Docker/Podman. Production write tests and both pending
+migrations remain blocked until the operator accepts this verification level or
+performs an isolated restore. The existing `SUPABASE_SECRET_KEY` was verified
+with a read-only Auth Admin request and is stored only in the ignored,
+mode-`0600` file `.env.production-e2e.local`.
 
 ## Required evidence before any write
 
@@ -24,7 +29,8 @@ cannot be guaranteed to be removed after a failed or interrupted run.
    restorable recovery point.
 3. Run `supabase/preflight/20261018_production_readonly.sql` with a read-only
    database role and save the complete output outside the repository.
-4. Provide `SUPABASE_SERVICE_ROLE_KEY` only in the local shell. Never expose it
+4. Provide `SUPABASE_SECRET_KEY` (preferred) or `SUPABASE_SERVICE_ROLE_KEY` only
+   in the local shell. Never expose it
    through `NEXT_PUBLIC_*`, Vercel, logs, screenshots, or committed files.
 5. Set a unique `ATLAS_E2E_RUN_ID`. Use at most two accounts, five PDFs and ten
    OpenAI requests. Every row note/source key and Storage path must include the
@@ -42,7 +48,8 @@ The fixture guard requires all four controls for Production:
 ATLAS_ALLOW_PROD_FIXTURES=1
 ATLAS_CLEANUP_AFTER=1
 ATLAS_PROD_BACKUP_VERIFIED=1
-SUPABASE_SERVICE_ROLE_KEY=<local only>
+SUPABASE_SECRET_KEY=<local only; preferred>
+# SUPABASE_SERVICE_ROLE_KEY=<legacy fallback>
 ```
 
 The backup flag is an operator attestation, not a backup mechanism. It may be

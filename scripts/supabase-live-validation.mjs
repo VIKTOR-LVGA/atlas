@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import {
   assertLiveFixtureSafety,
+  getSupabaseAdminKey,
   isAtlasProductionUrl,
 } from "./live-fixture-safety.mjs";
 
@@ -13,9 +14,9 @@ const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 const allowConsultationFixtures =
   !isAtlasProductionUrl(url) && process.env.ATLAS_SKIP_CONSULTATION !== "1";
 const isProduction = isAtlasProductionUrl(url);
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const adminClient = serviceRoleKey
-  ? createClient(url, serviceRoleKey, {
+const adminKey = getSupabaseAdminKey();
+const adminClient = adminKey
+  ? createClient(url, adminKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     })
   : null;
@@ -538,7 +539,7 @@ async function main() {
   await Promise.all([clientA.auth.signOut(), clientB.auth.signOut()]);
   assert.notEqual(userA.id, userB.id);
 
-  if (process.env.ATLAS_CLEANUP_AFTER === "1" && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  if (process.env.ATLAS_CLEANUP_AFTER === "1" && adminKey) {
     const admin = adminClient;
     assert.ok(admin, "cleanup admin client is required");
     for (const user of [userA, userB]) {
@@ -548,7 +549,7 @@ async function main() {
     console.log("PASS auth users deleted after fixture run");
   } else if (process.env.ATLAS_CLEANUP_AFTER === "1") {
     console.warn(
-      "ATLAS_CLEANUP_AFTER=1 but SUPABASE_SERVICE_ROLE_KEY missing — auth users left behind"
+      "ATLAS_CLEANUP_AFTER=1 but SUPABASE_SECRET_KEY/SUPABASE_SERVICE_ROLE_KEY missing — auth users left behind"
     );
   }
 

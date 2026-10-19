@@ -5,7 +5,8 @@ import { resolve } from "node:path";
 const enabled = process.env.ATLAS_STAGING_E2E === "1";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "";
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+const adminKey =
+  process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 const stagingRef = process.env.ATLAS_STAGING_PROJECT_REF ?? "";
 const productionRef = "ycjltpxxetxvuptwlxlr";
 const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
@@ -45,7 +46,7 @@ function assertStagingConfiguration() {
   expect(stagingRef).not.toBe("");
   expect(ref).toBe(stagingRef);
   expect(publishableKey).not.toBe("");
-  expect(serviceRoleKey).not.toBe("");
+  expect(adminKey).not.toBe("");
   expect(process.env.ATLAS_CLEANUP_AFTER).toBe("1");
 }
 
@@ -87,9 +88,9 @@ test.describe.serial("ATLAS real staging journey", () => {
   });
 
   test.afterAll(async () => {
-    if (!enabled || !serviceRoleKey || !supabaseUrl) return;
+    if (!enabled || !adminKey || !supabaseUrl) return;
 
-    const admin = createClient(supabaseUrl, serviceRoleKey, {
+    const admin = createClient(supabaseUrl, adminKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
     const { data, error } = await admin.auth.admin.listUsers({
