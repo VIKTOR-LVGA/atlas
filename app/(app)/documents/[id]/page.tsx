@@ -86,7 +86,6 @@ export default async function DocumentDetailPage({ params }: PageProps) {
                 documentStatus={document.status}
                 documentType={document.documentType}
                 updatedAt={document.updatedAt}
-                linkedPolicyId={linkedPolicy?.id ?? null}
               />
             </div>
           </section>
