@@ -187,11 +187,11 @@ export default function RegisterPage() {
 
       <p className="mt-6 text-center text-[12px] leading-relaxed text-muted">
         Creando un account accetti i{" "}
-        <Link href="/terms" className="text-accent hover:text-accent-hover">
+        <Link href="/terms" className="text-accent underline underline-offset-2 hover:text-accent-hover">
           termini di utilizzo
         </Link>{" "}
         e l&apos;
-        <Link href="/privacy" className="text-accent hover:text-accent-hover">
+        <Link href="/privacy" className="text-accent underline underline-offset-2 hover:text-accent-hover">
           informativa privacy
         </Link>
         . Nessun dato viene condiviso con un consulente senza una tua richiesta.

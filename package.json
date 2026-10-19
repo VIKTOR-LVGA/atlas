@@ -18,7 +18,7 @@
     "test:staging-safety": "node test/live-fixture-safety.test.mjs",
     "test:supabase-live": "node --env-file-if-exists=.env.local --env-file-if-exists=.env.production-e2e.local scripts/supabase-live-validation.mjs",
     "test:financial": "tsx test/commission-math.test.ts",
-    "test:intelligence": "tsx test/intelligence-privacy.test.ts && tsx test/insurer-canonical.test.ts",
+    "test:intelligence": "tsx test/intelligence-privacy.test.ts && tsx test/insurer-canonical.test.ts && tsx test/intelligence-apply-validation.test.ts",
     "test:security": "node --env-file=.env.local scripts/collaboration-security-validation.mjs",
     "test:collaboration": "node --env-file=.env.local scripts/collaboration-finalization-qa.mjs",
     "test:pilot": "npm run test:intelligence && npm run test:financial && node scripts/verify-migrations.mjs && node --env-file=.env.local scripts/intelligence-qa.mjs",

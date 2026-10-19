@@ -35,9 +35,9 @@ export function LandingHero() {
             </a>
           </div>
           <div className="mt-9 grid grid-cols-3 gap-2 sm:mt-11 sm:gap-5">
-            <div className="flex items-start gap-2"><span className="atlas-ref-benefit-icon"><FileText className="h-5 w-5"/></span><span><strong className="block text-[11px] text-[#1b2c57] sm:text-[12px]">Carica le polizze</strong><small className="mt-1 block text-[10px] leading-snug text-[#7a88a4]">Documenti PDF</small></span></div>
-            <div className="flex items-start gap-2"><span className="atlas-ref-benefit-icon"><Sparkles className="h-5 w-5"/></span><span><strong className="block text-[11px] text-[#1b2c57] sm:text-[12px]">Analisi con AI</strong><small className="mt-1 block text-[10px] leading-snug text-[#7a88a4]">Dati da verificare</small></span></div>
-            <div className="flex items-start gap-2"><span className="atlas-ref-benefit-icon"><ShieldCheck className="h-5 w-5"/></span><span><strong className="block text-[11px] text-[#1b2c57] sm:text-[12px]">Sempre con te</strong><small className="mt-1 block text-[10px] leading-snug text-[#7a88a4]">Archivio privato</small></span></div>
+            <div className="flex items-start gap-2"><span className="atlas-ref-benefit-icon"><FileText className="h-5 w-5"/></span><span><strong className="block text-[11px] text-[#1b2c57] sm:text-[12px]">Carica le polizze</strong><small className="mt-1 block text-[10px] leading-snug text-[#5f6f8c]">Documenti PDF</small></span></div>
+            <div className="flex items-start gap-2"><span className="atlas-ref-benefit-icon"><Sparkles className="h-5 w-5"/></span><span><strong className="block text-[11px] text-[#1b2c57] sm:text-[12px]">Analisi con AI</strong><small className="mt-1 block text-[10px] leading-snug text-[#5f6f8c]">Dati da verificare</small></span></div>
+            <div className="flex items-start gap-2"><span className="atlas-ref-benefit-icon"><ShieldCheck className="h-5 w-5"/></span><span><strong className="block text-[11px] text-[#1b2c57] sm:text-[12px]">Sempre con te</strong><small className="mt-1 block text-[10px] leading-snug text-[#5f6f8c]">Archivio privato</small></span></div>
           </div>
         </div>
         <AtlasHeroVisual/>
@@ -50,7 +50,7 @@ export function LandingHero() {
               <div className="mt-5 flex items-end gap-3">
                 <div className="min-w-0 flex-1">
                   <h2 className="text-[15px] font-bold leading-snug tracking-[-.025em] text-[#182648]">{title}</h2>
-                  <p className="mt-2 text-[12px] leading-relaxed text-[#74819c]">{description}</p>
+                  <p className="mt-2 text-[12px] leading-relaxed text-[#596981]">{description}</p>
                 </div>
                 <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#eff3fb] text-[#243b74] group-hover:bg-[#4265f3] group-hover:text-white"><ArrowRight className="h-4 w-4" aria-hidden/></span>
               </div>

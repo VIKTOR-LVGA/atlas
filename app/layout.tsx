@@ -16,6 +16,12 @@ export const metadata: Metadata = {
   },
   description:
     "Piattaforma di intelligence assicurativa per organizzare polizze svizzere, verificare coperture e preparare il portfolio.",
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: { index: false, follow: false },
+  },
+  manifest: "/manifest.webmanifest",
 };
 
 const themeInitScript = `(function(){try{var k="${THEME_STORAGE_KEY}";var s=localStorage.getItem(k);var t=s==="light"||s==="dark"?s:(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","light");}})();`;

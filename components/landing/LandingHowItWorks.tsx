@@ -19,7 +19,7 @@ export function LandingHowItWorks(){
           <ol className="mt-8 space-y-4">
             {stages.map(({number,title,description})=>(
               <li key={number} className="flex items-start gap-4">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[14px] bg-[#e8edff] text-[13px] font-extrabold text-[#435fec]">{number}</span>
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[14px] bg-[#e8edff] text-[13px] font-extrabold text-[#3854db]">{number}</span>
                 <span><strong className="block text-[15px] font-bold text-foreground">{title}</strong><span className="mt-1 block text-[13px] leading-relaxed text-muted-foreground">{description}</span></span>
               </li>
             ))}
@@ -38,7 +38,7 @@ export function LandingHowItWorks(){
               <h3 className="mt-8 text-[23px] font-extrabold tracking-[-.05em] text-[#162348]">Ciao Martina 👋</h3>
               <p className="mt-1 text-[11px] text-[#7b89a5]">Le tue polizze, tutte insieme.</p>
               <div className="mt-5 grid grid-cols-3 gap-1.5">
-                {[{v:"3",l:"Polizze"},{v:"CHF",l:"Premi"},{v:"2",l:"Scadenze"}].map(i=><div key={i.l} className="rounded-xl bg-[#f1f4ff] px-2 py-3"><strong className="block text-[14px] text-[#1b2c58]">{i.v}</strong><small className="text-[8px] text-[#7e8caa]">{i.l}</small></div>)}
+                {[{v:"3",l:"Polizze"},{v:"CHF",l:"Premi"},{v:"2",l:"Scadenze"}].map(i=><div key={i.l} className="rounded-xl bg-[#f1f4ff] px-2 py-3"><strong className="block text-[14px] text-[#1b2c58]">{i.v}</strong><small className="text-[8px] text-[#5d6d88]">{i.l}</small></div>)}
               </div>
               <p className="mt-7 text-[13px] font-bold text-[#1c2e57]">Le tue polizze</p>
               <div className="mt-3 space-y-2.5">
@@ -58,7 +58,7 @@ export function LandingHowItWorks(){
               <div className="mt-6 flex h-[185px] flex-col items-center justify-center rounded-[21px] border-2 border-dashed border-[#cbd9ff] bg-[#f8faff]">
                 <span className="grid h-[60px] w-[60px] place-items-center rounded-[22px] bg-[#e7edff] text-[#4968f6]"><UploadCloud className="h-8 w-8"/></span>
                 <strong className="mt-4 text-[12px] text-[#27385e]">Seleziona un documento</strong>
-                <small className="mt-2 text-[9px] text-[#8d99b4]">PDF · massimo 10 MB</small>
+                <small className="mt-2 text-[9px] text-[#62708a]">PDF · massimo 10 MB</small>
               </div>
               <div className="mt-5 rounded-[15px] bg-[#f3f5fe] px-4 py-3">
                 {[{Icon:FileText,t:"Il PDF originale"},{Icon:Sparkles,t:"La bozza AI"},{Icon:CheckCircle2,t:"La tua conferma"}].map(({Icon,t})=><div key={t} className="flex items-center gap-2 py-1.5 text-[10px] text-[#536482]"><Icon className="h-4 w-4 text-[#556bec]"/>{t}</div>)}

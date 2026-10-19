@@ -10,6 +10,7 @@ export const productRoutes = [
   "/atlas",
   "/activity",
   "/claims",
+  "/search",
   "/settings",
   "/broker/dashboard",
   "/broker/requests",

@@ -82,10 +82,7 @@ export async function proxy(request: NextRequest) {
 
   // Hibernate Broker Workspace + legacy Partner portal (code retained).
   if (!isBrokerPortalEnabled() && isBrokerPortalPath(pathname)) {
-    return new NextResponse("Not Found", {
-      status: 404,
-      headers: { "content-type": "text/plain; charset=utf-8" },
-    });
+    return redirectWithAuthCookies(request, "/broker-unavailable", authResponse);
   }
 
   if (!user && isProductRoute(pathname)) {
@@ -146,6 +143,10 @@ export const config = {
     "/consulting/:path*",
     "/opportunities/:path*",
     "/settings/:path*",
+    "/activity/:path*",
+    "/atlas/:path*",
+    "/claims/:path*",
+    "/search/:path*",
     "/broker",
     "/broker/:path*",
     "/intelligence",
@@ -153,6 +154,7 @@ export const config = {
     "/admin",
     "/admin/:path*",
     "/partner/apply",
+    "/partner",
     "/partner/status",
     "/partner/dashboard",
     "/partner/dashboard/:path*",
