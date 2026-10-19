@@ -13,7 +13,7 @@ export function LandingDashboardPreview() {
           <div className="flex items-start justify-between"><p className="text-[11px] font-semibold text-white/70">LA TUA SITUAZIONE</p><ShieldCheck className="h-5 w-5 text-white/70"/></div>
           <p className="mt-4 text-[13px] text-white/75">Polizze nel portafoglio</p>
           <div className="mt-1 flex items-end justify-between"><p className="text-[38px] font-bold leading-none tracking-[-.05em]">3</p><span className="rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-semibold text-white">Esempio</span></div>
-          <p className="mt-5 text-[11px] leading-relaxed text-white/70">Il tuo quadro in un colpo d'occhio. I premi reali compaiono solo quando verificati.</p>
+          <p className="mt-5 text-[11px] leading-relaxed text-white/70">Il tuo quadro in un colpo d&apos;occhio. I premi reali compaiono solo quando verificati.</p>
         </div>
         <div className="mt-5 grid grid-cols-2 gap-3">
           <div className="rounded-[19px] border border-border bg-card-muted p-4"><span className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-accent-soft text-accent"><Check className="h-4 w-4"/></span><p className="mt-3 text-[11px] text-muted">Documenti</p><p className="text-[20px] font-bold tracking-tight">3 caricati</p></div>
