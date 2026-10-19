@@ -7,8 +7,7 @@ import {
   toTypedPolicyType,
 } from "@/lib/policy-types";
 import { DataFetchError } from "@/lib/data-fetch";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
-import { getCurrentRequestAuth } from "@/lib/supabase/server";
+import { getCurrentRequestAuth, getSupabaseServerClient } from "@/lib/supabase/server";
 import type {
   PolicyCreationMetadata,
   PolicyInput,
