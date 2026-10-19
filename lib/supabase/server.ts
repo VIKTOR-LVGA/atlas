@@ -1,7 +1,7 @@
 import "server-only";
 
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { getSupabaseConfig } from "@/lib/supabase/config";
 
 export async function getSupabaseServerClient() {
@@ -10,7 +10,7 @@ export async function getSupabaseServerClient() {
 
   return createServerClient(url, publishableKey, {
     cookieOptions: {
-      secure: process.env.NODE_ENV === "production",
+      secure: (await headers()).get("x-forwarded-proto") === "https" || process.env.VERCEL === "1",
     },
     cookies: {
       getAll() {
