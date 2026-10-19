@@ -31,7 +31,7 @@ export async function proxy(request: NextRequest) {
 
   const supabase = createServerClient(url, publishableKey, {
     cookieOptions: {
-      secure: process.env.NODE_ENV === "production",
+      secure: request.nextUrl.protocol === "https:",
     },
     cookies: {
       getAll() {
@@ -51,9 +51,29 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Do not keep retrying an irrecoverably invalid refresh token.
+  const { data: userData, error: authError } = await supabase.auth.getUser();
+  let user = userData.user;
+  const invalidRefreshToken =
+    authError?.code === "refresh_token_not_found" ||
+    authError?.code === "refresh_token_already_used" ||
+    authError?.code === "invalid_refresh_token";
+  if (invalidRefreshToken) {
+    user = null;
+    const projectRef = new URL(url).hostname.split(".")[0];
+    const authCookiePrefix = `sb-${projectRef}-auth-token`;
+    for (const cookie of request.cookies.getAll()) {
+      if (cookie.name === authCookiePrefix || cookie.name.startsWith(`${authCookiePrefix}.`)) {
+        request.cookies.delete(cookie.name);
+        authResponse.cookies.set(cookie.name, "", {
+          path: "/",
+          maxAge: 0,
+          secure: request.nextUrl.protocol === "https:",
+          sameSite: "lax",
+        });
+      }
+    }
+  }
   const pathname = request.nextUrl.pathname;
 
   // Hibernate Broker Workspace + legacy Partner portal (code retained).

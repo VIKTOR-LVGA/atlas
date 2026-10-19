@@ -8,7 +8,7 @@ export function getSupabaseBrowserClient() {
 
   return createBrowserClient(url, publishableKey, {
     cookieOptions: {
-      secure: process.env.NODE_ENV === "production",
+      secure: typeof window !== "undefined" && window.location.protocol === "https:",
     },
   });
 }
