@@ -6,8 +6,7 @@ import {
 import type { CoverageMapResult } from "@/lib/insurance-os/coverage-map-types";
 import type { PolicyChangeEvent } from "@/lib/insurance-os/policy-diff-types";
 import type { AttentionItem } from "@/lib/insurance-os/shared-types";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
-import { getCurrentRequestAuth } from "@/lib/supabase/server";
+import { getCurrentRequestAuth, getSupabaseServerClient } from "@/lib/supabase/server";
 import type { UserDocument, UserPolicy } from "@/lib/types";
 
 export type { AttentionItem, AttentionItemType, AttentionPriority } from "@/lib/insurance-os/shared-types";
