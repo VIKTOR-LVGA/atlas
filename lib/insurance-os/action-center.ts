@@ -6,7 +6,7 @@ import {
 import type { CoverageMapResult } from "@/lib/insurance-os/coverage-map-types";
 import type { PolicyChangeEvent } from "@/lib/insurance-os/policy-diff-types";
 import type { AttentionItem } from "@/lib/insurance-os/shared-types";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getCurrentRequestAuth, getSupabaseServerClient } from "@/lib/supabase/server";
 import type { UserDocument, UserPolicy } from "@/lib/types";
 
 export type { AttentionItem, AttentionItemType, AttentionPriority } from "@/lib/insurance-os/shared-types";
@@ -20,10 +20,7 @@ export async function syncAttentionItems(input: {
   openClaimCount?: number;
   pendingConsultation?: boolean;
 }) {
-  const supabase = await getSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getCurrentRequestAuth();
   if (!user) return [];
 
   const candidates = buildAttentionCandidates(input);
@@ -56,25 +53,25 @@ export async function syncAttentionItems(input: {
     .eq("user_id", user.id)
     .in("status", ["new", "seen"]);
 
-  for (const row of existing ?? []) {
-    const key = row.source_key as string | null;
-    if (key && !activeKeys.has(key)) {
-      await supabase
-        .from("opportunities")
-        .update({ status: "resolved", resolved_at: new Date().toISOString() })
-        .eq("id", row.id)
-        .eq("user_id", user.id);
-    }
+  const staleIds = (existing ?? [])
+    .filter((row) => row.source_key && !activeKeys.has(String(row.source_key)))
+    .map((row) => String(row.id));
+
+  // Resolve stale actions in one user-scoped request, not N serial round trips.
+  if (staleIds.length > 0) {
+    await supabase
+      .from("opportunities")
+      .update({ status: "resolved", resolved_at: new Date().toISOString() })
+      .eq("user_id", user.id)
+      .in("status", ["new", "seen"])
+      .in("id", staleIds);
   }
 
   return listAttentionItems();
 }
 
 export async function listAttentionItems(): Promise<AttentionItem[]> {
-  const supabase = await getSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getCurrentRequestAuth();
   if (!user) return [];
 
   const { data, error } = await supabase

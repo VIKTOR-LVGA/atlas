@@ -1,7 +1,7 @@
 import "server-only";
 
 import { createHash } from "crypto";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getCurrentRequestAuth, getSupabaseServerClient } from "@/lib/supabase/server";
 import type { PolicyChangeEvent, PolicyChangeType } from "@/lib/insurance-os/policy-diff-types";
 import type { VerificationStatus } from "@/lib/insurance-os/verification";
 import type { UserPolicy } from "@/lib/types";
@@ -167,10 +167,7 @@ export async function persistPolicyChangeEvents(
 }
 
 export async function listRecentPolicyChanges(limit = 20): Promise<PolicyChangeEvent[]> {
-  const supabase = await getSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getCurrentRequestAuth();
   if (!user) return [];
 
   const { data, error } = await supabase

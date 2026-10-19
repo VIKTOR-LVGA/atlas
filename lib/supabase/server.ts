@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cache } from "react";
+
 import { createServerClient } from "@supabase/ssr";
 import { cookies, headers } from "next/headers";
 import { getSupabaseConfig } from "@/lib/supabase/config";
@@ -28,3 +30,18 @@ export async function getSupabaseServerClient() {
     },
   });
 }
+
+/**
+ * One verified Supabase auth lookup per React server render request.
+ * The cache is request-scoped, not process-global: credentials and user data
+ * are never shared across users or requests. Keep mutation paths uncached.
+ */
+export const getCurrentRequestAuth = cache(async () => {
+  const authStartedAt = performance.now();
+  const supabase = await getSupabaseServerClient();
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (process.env.ATLAS_PERF_LOG === "1") {
+    console.info("[atlas:perf] render_auth_ms", Math.round(performance.now() - authStartedAt));
+  }
+  return { supabase, user: error ? null : user };
+});

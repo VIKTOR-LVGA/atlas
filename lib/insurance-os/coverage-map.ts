@@ -2,7 +2,7 @@ import "server-only";
 
 export { buildCoverageMap } from "@/lib/insurance-os/coverage-map-core";
 import type { CoverageMapResult } from "@/lib/insurance-os/coverage-map-types";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getCurrentRequestAuth, getSupabaseServerClient } from "@/lib/supabase/server";
 import type { PolicyCoverage } from "@/lib/types";
 
 export type {
@@ -49,10 +49,7 @@ function mapCoverageRow(row: Record<string, unknown>): PolicyCoverage {
 }
 
 export async function listCurrentUserPolicyCoverages(): Promise<PolicyCoverage[]> {
-  const supabase = await getSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getCurrentRequestAuth();
   if (!user) return [];
 
   const { data, error } = await supabase

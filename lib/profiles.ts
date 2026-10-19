@@ -9,7 +9,7 @@ import type {
   ProfileDateFormat,
   ProfileLanguage,
 } from "@/lib/types";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getCurrentRequestAuth, getSupabaseServerClient } from "@/lib/supabase/server";
 
 const profileSelect =
   "id, full_name, email, avatar_url, phone, language, currency, date_format, notification_email, notification_push, notification_sms, created_at, updated_at";
@@ -117,10 +117,7 @@ function getAuthFallbackProfile(user: User): CurrentProfile {
 }
 
 export const getCurrentProfile = cache(async (): Promise<CurrentProfile | null> => {
-  const supabase = await getSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getCurrentRequestAuth();
 
   if (!user) {
     return null;

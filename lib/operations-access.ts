@@ -2,7 +2,7 @@ import "server-only";
 
 import { notFound, redirect } from "next/navigation";
 import { isBrokerPortalEnabled } from "@/lib/broker-portal-flags";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getCurrentRequestAuth } from "@/lib/supabase/server";
 import type { AtlasUserRole, BrokerIdentity } from "@/lib/types";
 
 export class OperationsAccessError extends Error {
@@ -13,10 +13,7 @@ export class OperationsAccessError extends Error {
 }
 
 export async function getOperationsIdentity() {
-  const supabase = await getSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getCurrentRequestAuth();
 
   if (!user) return { supabase, user: null, role: null, broker: null };
 

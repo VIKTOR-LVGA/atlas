@@ -52,7 +52,11 @@ export async function proxy(request: NextRequest) {
   });
 
   // Do not keep retrying an irrecoverably invalid refresh token.
+  const authStartedAt = performance.now();
   const { data: userData, error: authError } = await supabase.auth.getUser();
+  if (process.env.ATLAS_PERF_LOG === "1") {
+    console.info("[atlas:perf] proxy_auth_ms", Math.round(performance.now() - authStartedAt));
+  }
   let user = userData.user;
   const invalidRefreshToken =
     authError?.code === "refresh_token_not_found" ||
