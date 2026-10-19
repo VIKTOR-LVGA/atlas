@@ -16,6 +16,7 @@ import {
   DocumentUploadError,
   DuplicateDocumentUploadError,
   uploadUserDocument,
+  registerDirectUploadedDocument,
 } from "@/lib/documents";
 
 export type UploadDocumentActionState = {
@@ -65,6 +66,42 @@ export async function uploadDocumentAction(
         error instanceof DocumentUploadError
           ? error.message
           : "Upload non riuscito. Riprova tra poco.",
+    };
+  }
+}
+
+/**
+ * Small JSON action: bytes were already uploaded directly to private Storage.
+ */
+export async function finalizeDirectDocumentUploadAction(input: {
+  filePath: string;
+  fileName: string;
+}): Promise<UploadDocumentActionState> {
+  if (
+    typeof input?.filePath !== "string" ||
+    typeof input?.fileName !== "string" ||
+    input.filePath.length > 260 ||
+    input.fileName.length > 255
+  ) return { status: "error", message: "Informazioni file non valide." };
+
+  try {
+    const document = await registerDirectUploadedDocument(input);
+    revalidatePath("/documents");
+    revalidatePath("/dashboard");
+    return {
+      status: "success",
+      message: "Documento caricato con successo.",
+      documentId: document.id,
+    };
+  } catch (error) {
+    if (error instanceof DuplicateDocumentUploadError) {
+      return { status: "error", message: error.message, documentId: error.existingDocumentId };
+    }
+    return {
+      status: "error",
+      message: error instanceof DocumentUploadError
+        ? error.message
+        : "Registrazione non riuscita. Riprova tra poco.",
     };
   }
 }
