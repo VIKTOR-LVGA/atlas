@@ -24,8 +24,8 @@ const sections = [
   {
     title: "Estrazione automatica dai documenti",
     body: [
-      "Quando carichi un PDF, il testo del documento viene analizzato per proporre una bozza di polizza.",
-      "Il risultato è una proposta da verificare: ATLAS conserva sempre la dicitura originale e l'indicazione della provenienza.",
+      "Il caricamento conserva il PDF nel tuo archivio privato. Quando avvii l'analisi AI, il testo del documento viene elaborato tramite il servizio esterno OpenAI per proporre una bozza di polizza.",
+      "L'analisi può essere incompleta o contenere errori. Controlla sempre la polizza originale, i premi e le coperture prima di confermare o prendere decisioni.",
       "Condizioni generali, fatture e materiale informativo vengono archiviati e classificati, ma non creano automaticamente una copertura sul tuo profilo.",
     ],
   },

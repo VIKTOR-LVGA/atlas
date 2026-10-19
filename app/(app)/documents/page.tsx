@@ -28,7 +28,7 @@ export default async function DocumentsPage() {
       <section className="atlas-consumer-card px-4 py-4 sm:px-5">
         <h2 className="text-[15px] font-semibold text-foreground">Aggiungi un PDF</h2>
         <p className="mt-1 text-[12px] text-muted">
-          Il file resta privato. Dopo il caricamento aprilo per avviare l’analisi AI.
+          Il PDF resta nel tuo archivio privato. L’analisi AI, avviata solo su tua richiesta, elabora il testo tramite OpenAI.
         </p>
         <div className="mt-4">
           <DocumentUploadForm />

@@ -178,6 +178,10 @@ export default async function DashboardPage() {
         </div>
       </header>
 
+      <p className="rounded-xl border border-border bg-card-muted px-3 py-2.5 text-[12px] leading-relaxed text-muted-foreground">
+        ATLAS è in fase pilota: le informazioni estratte dall'AI vanno sempre confrontate con i documenti originali.
+      </p>
+
       {activeConsultation ? (
         <div
           className="atlas-consumer-card px-4 py-4"
