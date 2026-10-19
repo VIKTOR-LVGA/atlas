@@ -17,8 +17,8 @@ export function EmptyState({
   secondaryHref?: string;
 }) {
   return (
-    <div className="atlas-consumer-card px-5 py-10 text-center sm:px-8">
-      <p className="text-[17px] font-semibold tracking-tight text-foreground">{title}</p>
+    <div className="atlas-consumer-card px-6 py-11 text-center sm:px-10 sm:py-14">
+      <p className="text-[21px] font-bold tracking-[-.035em] text-foreground">{title}</p>
       <p className="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-muted">
         {description}
       </p>
@@ -75,7 +75,7 @@ export function ConsumerSection({
   return (
     <section className={cn("min-w-0", className)}>
       <div className="mb-3 flex items-end justify-between gap-3">
-        <h2 className="text-[15px] font-semibold tracking-tight text-foreground">{title}</h2>
+        <h2 className="text-[19px] font-bold tracking-[-.035em] text-foreground">{title}</h2>
         {action}
       </div>
       {children}

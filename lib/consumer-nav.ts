@@ -13,7 +13,7 @@ export type ConsumerNavItem = {
   desktopLabel: string;
 };
 
-/** Five primary tabs. Documents remain a first-class route, linked from Home/ATLAS. */
+/** Five simple primary tabs across desktop and mobile. */
 export const consumerNavItems: ConsumerNavItem[] = [
   {
     id: "home",

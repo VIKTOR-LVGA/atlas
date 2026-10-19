@@ -4,30 +4,30 @@
 :root,
 [data-theme="light"] {
   color-scheme: light;
-  --background: #f1f5f9;
-  --foreground: #0f172a;
+  --background: #f7f8fb;
+  --foreground: #142038;
   --card: #ffffff;
   --card-elevated: #ffffff;
-  --card-muted: #f8fafc;
-  --muted: #64748b;
-  --muted-foreground: #475569;
-  --border: #e2e8f0;
-  --border-subtle: #f1f5f9;
-  --accent: #4f46e5;
-  --accent-hover: #4338ca;
-  --accent-soft: #eef2ff;
+  --card-muted: #f5f7fb;
+  --muted: #78849b;
+  --muted-foreground: #59657b;
+  --border: #e6eaf1;
+  --border-subtle: #edf0f6;
+  --accent: #3157e9;
+  --accent-hover: #2448cf;
+  --accent-soft: #ebf0ff;
   --accent-foreground: #ffffff;
   --glow-primary: rgba(99, 102, 241, 0.12);
   --glow-secondary: rgba(56, 189, 248, 0.08);
-  --sidebar: #f8fafc;
-  --sidebar-border: #e2e8f0;
-  --nav-active-bg: #eef2ff;
-  --nav-active-text: #4338ca;
-  --nav-active-icon: #4f46e5;
+  --sidebar: #ffffff;
+  --sidebar-border: #e9edf5;
+  --nav-active-bg: #ebf0ff;
+  --nav-active-text: #2448cf;
+  --nav-active-icon: #3157e9;
   --overlay: rgba(15, 23, 42, 0.2);
   --input-bg: #ffffff;
-  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 16px rgba(15, 23, 42, 0.05);
-  --shadow-card-hover: 0 2px 4px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-card: 0 2px 8px rgba(31, 44, 78, 0.025), 0 14px 40px rgba(31, 44, 78, 0.04);
+  --shadow-card-hover: 0 6px 24px rgba(31, 44, 78, 0.08), 0 18px 44px rgba(31, 44, 78, 0.05);
   --scrollbar: #cbd5e1;
   --success-bg: rgba(16, 185, 129, 0.1);
   --success-border: rgba(16, 185, 129, 0.25);
@@ -1237,4 +1237,131 @@ body {
 .atlas-consumer-card a:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
+}
+
+/* --------------------------------------------------------------------------
+   ATLAS Atelier / consumer design system
+   Calm Apple-like whitespace + Revolut-like financial legibility.
+   Tokens remain compatible with the original dark theme and all portal routes.
+   -------------------------------------------------------------------------- */
+:root, [data-theme="light"] {
+  --atlas-ink: #142038;
+  --atlas-sky: #edf3ff;
+  --atlas-pill: #eef2fa;
+  --atlas-hero-ink: #17284b;
+}
+[data-theme="dark"] {
+  --atlas-ink: #f1f5ff;
+  --atlas-sky: #1b2b4d;
+  --atlas-pill: #202b40;
+  --atlas-hero-ink: #f2f5ff;
+}
+body { -webkit-font-smoothing: antialiased; }
+.atlas-contained { max-width: 1180px; }
+.atlas-app-canvas {
+  background: radial-gradient(ellipse 80% 35% at 50% 0%, rgba(210,225,255,.28), transparent 82%), var(--background);
+}
+.atlas-consumer-card,
+.atlas-surface-card,
+.atlas-consumer-hero {
+  border-radius: 1.55rem;
+  border-color: var(--border);
+  box-shadow: var(--shadow-card);
+}
+.atlas-consumer-hero {
+  background: linear-gradient(145deg, var(--card) 0%, var(--card) 52%, var(--atlas-sky) 160%);
+}
+[data-theme="dark"] .atlas-consumer-hero {
+  background: linear-gradient(145deg, var(--card) 5%, var(--card-elevated) 75%, var(--atlas-sky) 180%);
+}
+.atlas-btn-primary {
+  min-height: 2.75rem;
+  border-radius: 0.95rem;
+  font-weight: 650;
+  box-shadow: 0 7px 20px rgba(49, 87, 233, .15);
+}
+.atlas-btn-secondary { min-height: 2.75rem; border-radius: .95rem; font-weight: 600; }
+.atlas-premium-eyebrow {
+  font-size: .68rem;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  font-weight: 750;
+}
+.atlas-premium-title {
+  font-size: clamp(1.72rem, 3.1vw, 2.6rem);
+  line-height: 1.13;
+  letter-spacing: -.045em;
+  font-weight: 730;
+  color: var(--foreground);
+}
+.atlas-premium-tile {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 1.4rem;
+  box-shadow: var(--shadow-card);
+}
+.atlas-soft-surface { background: var(--atlas-sky); border: 1px solid color-mix(in srgb, var(--accent) 12%, var(--border)); }
+.atlas-bottom-dock {
+  border: 1px solid var(--border);
+  box-shadow: 0 -3px 30px rgba(16, 33, 65, .09);
+  background: color-mix(in srgb, var(--card) 93%, transparent);
+}
+.atlas-sidebar-panel { background: var(--sidebar); }
+.atlas-sidebar-link { transition: background-color 180ms ease, color 180ms ease, transform 160ms ease; }
+.atlas-sidebar-link:active { transform: scale(.98); }
+.atlas-mobile-tab { transition: color 180ms ease, background-color 180ms ease; }
+.atlas-mobile-tab:active { transform: scale(.97); }
+.atlas-pill-icon {
+  display: inline-flex; width: 2.75rem; height: 2.75rem;
+  align-items: center; justify-content: center;
+  border-radius: 1rem; background: var(--accent-soft); color: var(--accent);
+}
+.atlas-marketing-headline {
+  color: var(--landing-text);
+  font-weight: 750;
+  font-size: clamp(2.8rem, 6.6vw, 5.3rem);
+  letter-spacing: -.062em;
+  line-height: 1.01;
+}
+.atlas-marketing-lead { font-size: clamp(1.02rem, 1.8vw, 1.2rem); line-height: 1.7; color: var(--landing-muted); }
+.atlas-demo-window {
+  background: var(--card);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: 2rem;
+  box-shadow: 0 24px 90px rgba(25, 48, 89, .13);
+}
+.atlas-demo-muted { background: var(--card-muted); }
+[data-theme="light"] .landing {
+  --landing-bg: #f7f8fb;
+  --landing-bg-mid: #f3f5fa;
+  --landing-bg-elevated: #ffffff;
+  --landing-surface: rgba(255, 255, 255, .95);
+  --landing-border: #e6eaf1;
+  --landing-border-bright: #dfe5ef;
+  --landing-text: #142038;
+  --landing-muted: #64718a;
+  --landing-accent: #3157e9;
+  --landing-accent-bright: #3157e9;
+}
+[data-theme="dark"] .landing {
+  --landing-bg: #0b1019;
+  --landing-bg-mid: #111b2b;
+  --landing-bg-elevated: #151f2f;
+  --landing-surface: rgba(22, 34, 51, .93);
+  --landing-border: rgba(255,255,255,.10);
+  --landing-border-bright: rgba(255,255,255,.16);
+  --landing-text: #f3f6ff;
+  --landing-muted: #a7b5ca;
+  --landing-accent: #7895ff;
+  --landing-accent-bright: #a6b9ff;
+}
+.landing-hero-stage-glow, .landing-glow-orb { display: none; }
+.landing-btn-gradient { background: var(--accent); box-shadow: 0 12px 28px rgba(49,87,233,.19); font-weight: 650; }
+.landing-hero-accent { color: var(--landing-accent); text-shadow: none; }
+.landing-nav { background: color-mix(in srgb, var(--landing-bg) 92%, transparent); }
+[data-theme="light"] .landing-section-tone-glow { background: var(--landing-bg); }
+@media (prefers-reduced-motion: reduce) {
+  .atlas-sidebar-link, .atlas-mobile-tab, .atlas-consumer-press { transition: none; }
 }

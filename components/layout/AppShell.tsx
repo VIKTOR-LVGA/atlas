@@ -16,12 +16,12 @@ export function AppShell({ profile, children }: AppShellProps) {
   return (
     <ProfileProvider profile={profile}>
       <NavigationFeedback />
-      <div className="flex min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-background lg:flex-row">
+      <div className="atlas-app-canvas flex min-h-screen w-full max-w-[100vw] overflow-x-hidden lg:flex-row">
         <Sidebar />
         <div className="flex w-full min-w-0 max-w-full flex-1 flex-col">
           <TopBar />
           <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
-            <div className="atlas-contained mx-auto w-full max-w-[1120px] px-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 sm:pt-8 lg:pb-10">
+            <div className="atlas-contained mx-auto w-full px-4 pb-[calc(6.75rem+env(safe-area-inset-bottom))] pt-6 sm:px-7 sm:pt-8 lg:px-10 lg:pb-12 lg:pt-10">
               {children}
             </div>
           </main>
