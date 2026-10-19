@@ -7,6 +7,10 @@ import {
 import { logExtractionSummaryDebug } from "@/lib/extraction-debug";
 import { resolveExtractionConfidence } from "@/lib/extraction-confidence";
 import {
+  enrichHealthCoverageEvidence,
+  reconcileHealthPremiumOverview,
+} from "@/lib/health-premium-reconciliation";
+import {
   syncInsuredPeopleCoverageOwnership,
   syncPrudentAssignedCoverageOwnership,
 } from "@/lib/extraction-ownership-sync";
@@ -323,6 +327,12 @@ export function enrichSwissPolicyExtraction(
       enrichedDetails.premium_summary?.total_monthly ??
       null;
 
+    enrichedDetails = reconcileHealthPremiumOverview(
+      enrichedDetails,
+      extractedText,
+      familyPremium
+    );
+    enrichedDetails = enrichHealthCoverageEvidence(enrichedDetails, extractedText);
     enrichedDetails = enrichHealthPolicyOwnership(enrichedDetails, familyPremium);
     enrichedDetails = syncPrudentAssignedCoverageOwnership(enrichedDetails);
     enrichedDetails = syncInsuredPeopleCoverageOwnership(enrichedDetails);

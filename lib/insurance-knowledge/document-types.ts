@@ -378,6 +378,7 @@ export function scorePersonalContractSignals(text: string): PersonalContractSign
 export function classifyInsuranceDocument(text: string): DocumentClassification {
   const sample = text.slice(0, 80000);
   const normalized = normalizeKnowledgeText(sample);
+  const normalizedHeader = normalizeKnowledgeText(sample.slice(0, 1400));
   const personal = scorePersonalContractSignals(sample);
 
   const ranked = signals
@@ -404,6 +405,44 @@ export function classifyInsuranceDocument(text: string): DocumentClassification 
       candidate.type === "supplementary_conditions"
   );
   const policyCandidate = ranked.find((candidate) => candidate.type === "policy");
+
+  const conditionsDocumentHeader =
+    normalizedHeader.includes("condizioni generali di assicurazione") ||
+    normalizedHeader.includes("condizioni generali d assicurazione") ||
+    normalizedHeader.includes("allgemeine versicherungsbedingungen") ||
+    normalizedHeader.includes("conditions generales d assurance");
+  const individualizedAnchors = new Set([
+    "policy_number",
+    "contract_dates",
+    "license_plate",
+    "personal_policy_title",
+  ]);
+  const hasIndividualizedAnchor = personal.evidence.some((signal) =>
+    individualizedAnchors.has(signal)
+  );
+
+  // Product booklets often contain words such as "contraente", "veicolo",
+  // premiums and deductibles while describing hypothetical contract terms.
+  // A CGA title at the beginning of the document must win unless the document
+  // also contains a concrete contract identifier, date, plate or personal title.
+  if (
+    conditionsDocumentHeader &&
+    conditions &&
+    conditions.score >= 4 &&
+    !hasIndividualizedAnchor
+  ) {
+    return {
+      type: conditions.type,
+      confidence: Math.min(99, 72 + conditions.score * 5),
+      evidence: conditions.evidence.slice(0, 6),
+      personalContractScore: personal.score,
+      embeddedGeneralConditionsReference: false,
+      reasoningSignals: [
+        "conditions_document_header",
+        ...conditions.evidence.slice(0, 4),
+      ],
+    };
+  }
 
   // Strong personal-contract evidence wins over CGA citations inside a personal policy.
   const PERSONAL_POLICY_THRESHOLD = 8;

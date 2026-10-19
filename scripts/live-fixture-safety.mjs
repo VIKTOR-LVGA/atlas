@@ -7,8 +7,11 @@
  * To intentionally run fixture scripts against Production you MUST set BOTH:
  *   ATLAS_ALLOW_PROD_FIXTURES=1
  *   ATLAS_CLEANUP_AFTER=1
+ *   ATLAS_PROD_BACKUP_VERIFIED=1
+ * and provide SUPABASE_SERVICE_ROLE_KEY for deterministic Auth cleanup.
  *
- * Prefer a dedicated staging Supabase project (P2).
+ * The current controlled run uses the existing Production project only after
+ * all recovery and cleanup preconditions have been independently verified.
  */
 import assert from "node:assert/strict";
 
@@ -71,14 +74,15 @@ export function assertLiveFixtureSafety(scriptName = "validation") {
 
   const allow = process.env.ATLAS_ALLOW_PROD_FIXTURES === "1";
   const cleanup = process.env.ATLAS_CLEANUP_AFTER === "1";
+  const backupVerified = process.env.ATLAS_PROD_BACKUP_VERIFIED === "1";
 
   assert.ok(
-    allow && cleanup,
+    allow && cleanup && backupVerified && process.env.SUPABASE_SERVICE_ROLE_KEY,
     [
       `${scriptName}: refused to create fixtures on ATLAS Production.`,
       `Project ${ATLAS_PRODUCTION_PROJECT_REF} is the live shared database.`,
-      `Set ATLAS_ALLOW_PROD_FIXTURES=1 and ATLAS_CLEANUP_AFTER=1 only for short, self-cleaning QA runs.`,
-      `Prefer a separate staging Supabase project (documented as P2).`,
+      `A short, self-cleaning QA run requires ATLAS_ALLOW_PROD_FIXTURES=1, ATLAS_CLEANUP_AFTER=1,`,
+      `ATLAS_PROD_BACKUP_VERIFIED=1 and SUPABASE_SERVICE_ROLE_KEY.`,
     ].join(" ")
   );
 

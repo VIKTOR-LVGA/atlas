@@ -48,3 +48,4 @@ next-env.d.ts
 
 # local broker validation artifacts
 .atlas-broker-live.json
+.atlas-production-e2e-*.json

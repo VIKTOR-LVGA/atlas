@@ -1,4 +1,9 @@
-# ATLAS Supabase staging runbook
+# ATLAS Supabase staging runbook (not active for the current validation)
+
+The current production-hardening decision explicitly keeps validation on the
+existing Production project with tightly controlled synthetic data and forbids
+creating a new staging project. Follow `docs/production-controlled-e2e.md` for
+the current run. The material below is retained only as a future staging design.
 
 ATLAS staging must be a separate Supabase project. A Vercel Preview that points
 to the Production project is not a staging environment.

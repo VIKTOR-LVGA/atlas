@@ -38,6 +38,28 @@ const pureCga = classifyInsuranceDocument(fixture("axa-auto-cga-it.txt"));
 assert.equal(pureCga.type, "general_conditions");
 assert.equal(canPersistAsPersonalPolicy(pureCga.type), false);
 
+// Regression from Zurich CGA edition 08/2025. Generic contract terminology in
+// a product booklet must not be treated as proof of an individual policy.
+const zurichCgaHeader = `
+Assicurazione di veicoli a motore
+Informazioni per la clientela
+Condizioni generali di assicurazione (CGA)
+Edizione 08/2025
+Panoramica dei prodotti
+Responsabilita civile incl. protezione bonus
+Casco totale e casco parziale
+Il premio si basa sull'estensione assicurativa scelta dal contraente.
+La franchigia concordata figura nella polizza.
+Il veicolo assicurato e le persone assicurate sono indicati nella polizza.
+`;
+const zurichCga = classifyInsuranceDocument(zurichCgaHeader);
+assert.equal(zurichCga.type, "general_conditions");
+assert.equal(canPersistAsPersonalPolicy(zurichCga.type), false);
+assert.ok(
+  zurichCga.reasoningSignals?.includes("conditions_document_header"),
+  "CGA header must explain the non-policy classification"
+);
+
 // Structural Swiss motor signals without Zurich-specific IDs.
 const genericMotor = `
 La mia assicurazione auto

@@ -42,6 +42,13 @@ function detailsCoverages(details: PolicyDetails) {
   return Array.isArray(details.coverages) ? details.coverages : [];
 }
 
+function assertApprox(actual: number | null | undefined, expected: number, label: string) {
+  assert.ok(
+    actual !== null && actual !== undefined && Math.abs(actual - expected) < 0.01,
+    `${label}: expected ${expected}, got ${actual}`
+  );
+}
+
 async function extractFixture(path: string, id: string) {
   const text = await extractReadableTextFromPdf(await readFile(path));
   const classification = classifyInsuranceDocument(text);
@@ -65,6 +72,79 @@ async function main() {
     true,
     `Complete fixture classified as ${complete.classification.type}`
   );
+
+  // Parse the small synthetic fixtures before large/encrypted official PDFs.
+  // pdf2json keeps process-global parser state that complex documents can poison.
+  const incomplete = await extractFixture(
+    incompleteFixture,
+    "synthetic-incomplete"
+  );
+  assert.equal(
+    incomplete.result.draft.premiumAmount,
+    null,
+    "Incomplete fixture must not invent a premium"
+  );
+  assert.equal(
+    incomplete.result.draft.endDate,
+    null,
+    "Incomplete fixture must not invent an end date"
+  );
+  assert.equal(
+    incomplete.result.draft.renewalDate,
+    null,
+    "Incomplete fixture must not invent a renewal date"
+  );
+
+  let officialHelsanaSummary: Record<string, unknown> | null = null;
+  const officialHelsanaPath = process.env.ATLAS_OFFICIAL_HELSANA_PDF?.trim();
+  if (officialHelsanaPath) {
+    const helsana = await extractFixture(officialHelsanaPath, "official-helsana-readonly");
+    assert.equal(helsana.classification.type, "policy");
+    assert.equal(helsana.result.draft.provider, "Helsana");
+    assert.equal(helsana.result.draft.policyType, "health");
+    assert.equal(helsana.result.draft.premiumFrequency, "monthly");
+    assertApprox(helsana.result.draft.premiumAmount, 863.55, "Helsana family total");
+
+    const people = Array.isArray(helsana.result.draft.details.insured_people)
+      ? helsana.result.draft.details.insured_people
+      : [];
+    const expected = new Map([
+      ["Charles Muster", [340.7, 287.85, 52.85]],
+      ["Isabella Muster", [353.8, 292.75, 61.05]],
+      ["Melanie Muster", [169.05, 126.65, 42.4]],
+    ]);
+    assert.equal(people.length, 3, "Helsana must contain exactly three insured people");
+    for (const person of people) {
+      const amounts = expected.get(person.name ?? "");
+      assert.ok(amounts, `Unexpected insured person ${person.name}`);
+      assertApprox(person.total_monthly_premium, amounts[0], `${person.name} total`);
+      assertApprox(person.base_premium, amounts[1], `${person.name} LAMal`);
+      assertApprox(person.complementary_premium, amounts[2], `${person.name} LCA`);
+      assert.ok((person.coverages?.length ?? 0) >= 2, `${person.name} coverages missing`);
+      for (const coverage of person.coverages ?? []) {
+        assert.equal(
+          coverage.insured_person_name,
+          person.name,
+          `Coverage assigned to wrong person for ${person.name}`
+        );
+        assert.ok(coverage.source_page, `Coverage source page missing for ${person.name}`);
+        assert.ok(coverage.evidence, `Coverage evidence missing for ${person.name}`);
+      }
+    }
+    assertApprox(
+      people.reduce((sum, person) => sum + (person.total_monthly_premium ?? 0), 0),
+      863.55,
+      "Helsana sum of insured totals"
+    );
+    officialHelsanaSummary = {
+      classification: helsana.classification.type,
+      premiumAmount: helsana.result.draft.premiumAmount,
+      insuredPeople: people.length,
+      coverageCounts: people.map((person) => person.coverages?.length ?? 0),
+      confidence: helsana.result.draft.extractionConfidence,
+    };
+  }
+
   assert.equal(complete.result.draft.policyType, "car");
   assert.equal(complete.result.draft.policyNumber, "SYN-MOTOR-2026-0001");
   assert.equal(complete.result.draft.premiumFrequency, "annual");
@@ -88,25 +168,22 @@ async function main() {
     "Expected at least one coverage with document evidence"
   );
 
-  const incomplete = await extractFixture(
-    incompleteFixture,
-    "synthetic-incomplete"
-  );
-  assert.equal(
-    incomplete.result.draft.premiumAmount,
-    null,
-    "Incomplete fixture must not invent a premium"
-  );
-  assert.equal(
-    incomplete.result.draft.endDate,
-    null,
-    "Incomplete fixture must not invent an end date"
-  );
-  assert.equal(
-    incomplete.result.draft.renewalDate,
-    null,
-    "Incomplete fixture must not invent a renewal date"
-  );
+  // Keep the encrypted official CGA last. pdf2json has process-global parser
+  // state and this document can otherwise poison a subsequent PDF parse.
+  let officialZurichSummary: Record<string, unknown> | null = null;
+  const officialZurichPath = process.env.ATLAS_OFFICIAL_ZURICH_CGA_PDF?.trim();
+  if (officialZurichPath) {
+    const text = await extractReadableTextFromPdf(await readFile(officialZurichPath));
+    const classification = classifyInsuranceDocument(text);
+    assert.equal(classification.type, "general_conditions");
+    assert.equal(canPersistAsPersonalPolicy(classification.type), false);
+    officialZurichSummary = {
+      classification: classification.type,
+      createsPersonalPolicy: false,
+      confidence: classification.confidence,
+      reasoningSignals: classification.reasoningSignals,
+    };
+  }
 
   console.log(
     JSON.stringify(
@@ -125,6 +202,8 @@ async function main() {
           premiumAmount: incomplete.result.draft.premiumAmount,
           confidence: incomplete.result.draft.extractionConfidence,
         },
+        officialHelsana: officialHelsanaSummary,
+        officialZurichCga: officialZurichSummary,
       },
       null,
       2

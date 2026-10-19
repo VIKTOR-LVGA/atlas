@@ -249,6 +249,7 @@ def build_incomplete():
         title="Estratto assicurativo sintetico incompleto ATLAS",
         author="ATLAS Insurance QA",
         invariant=1,
+        pageCompression=0,
     )
     story = [
         Paragraph("HELVETICA CASA SA", s["AtlasMeta"]),
@@ -290,6 +291,12 @@ def build_incomplete():
         Paragraph(
             "Fine dell'estratto sintetico. Richiedere la polizza completa prima di prendere decisioni assicurative.",
             s["AtlasMeta"],
+        ),
+        PageBreak(),
+        Paragraph("Appendice intenzionalmente priva di dati", s["AtlasTitle"]),
+        Paragraph(
+            "Nessun premio, scadenza, rinnovo o dettaglio di copertura aggiuntivo e disponibile in questo documento sintetico.",
+            s["AtlasBody"],
         ),
     ]
     doc.build(story, onFirstPage=footer, onLaterPages=footer)

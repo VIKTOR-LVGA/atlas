@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "documents": [
+    {
+      "id": "helsana-family-example-2024",
+      "fileName": "versicherungspolice-beispiel.pdf",
+      "availability": "provided-locally",
+      "sha256": "2b2b7c2f4c7a48764321e07f92aae28143586bcf7042d8c21936c9b9759337f4",
+      "sourceUrl": "https://www.helsana.ch/dam/it/pdf/privati/opuscoli/polizza-assicurativa-esempio.pdf",
+      "expected": {
+        "documentType": "policy",
+        "provider": "Helsana",
+        "premiumAmount": 863.55,
+        "premiumFrequency": "monthly",
+        "insuredPeople": [
+          { "name": "Charles Muster", "total": 340.7, "base": 287.85, "complementary": 52.85 },
+          { "name": "Isabella Muster", "total": 353.8, "base": 292.75, "complementary": 61.05 },
+          { "name": "Melanie Muster", "total": 169.05, "base": 126.65, "complementary": 42.4 }
+        ]
+      }
+    },
+    {
+      "id": "zurich-motor-cga-2025",
+      "fileName": "cga assicurazione veicoli a motore auto.pdf",
+      "availability": "provided-locally",
+      "sha256": "ab393d9c97bebb27f993de5f6f20b1a64a5c4b0f4ee98de3abb442d8a8b91e91",
+      "sourceUrl": "https://www.zurich.ch/-/media/zurich-site/content/privatkunden/fahrzeuge-reisen/dokumente/avb-motorfahrzeug-versicherung/cga-assicurazione-veicoli-a-motore-auto.pdf?sc_lang=it",
+      "expected": {
+        "documentType": "general_conditions",
+        "createsPersonalPolicy": false,
+        "premiumAmount": null,
+        "policyNumber": null
+      }
+    },
+    {
+      "id": "kpt-policy-example-requested",
+      "fileName": "kpt-policy-example.pdf",
+      "availability": "missing-local-file",
+      "sha256": null,
+      "sourceUrl": "https://www.kpt.ch/-/media/kpt/portal/meine-kpt/dokumente/ihre-police.pdf?sc_lang=it&vs=2",
+      "expectedFromBriefUnverified": {
+        "year": 2026,
+        "baseMonthly": 535.1,
+        "complementaryMonthly": 32.25,
+        "totalMonthly": 567.35,
+        "franchise": 2500
+      }
+    }
+  ]
+}

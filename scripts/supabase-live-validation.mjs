@@ -1,12 +1,28 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
-import { assertLiveFixtureSafety } from "./live-fixture-safety.mjs";
+import {
+  assertLiveFixtureSafety,
+  isAtlasProductionUrl,
+} from "./live-fixture-safety.mjs";
 
 assertLiveFixtureSafety("supabase-live-validation");
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+const allowConsultationFixtures =
+  !isAtlasProductionUrl(url) && process.env.ATLAS_SKIP_CONSULTATION !== "1";
+const isProduction = isAtlasProductionUrl(url);
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const adminClient = serviceRoleKey
+  ? createClient(url, serviceRoleKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    })
+  : null;
+const cleanupLedger = {
+  userIds: [],
+  storagePaths: [],
+};
 
 assert.ok(url, "NEXT_PUBLIC_SUPABASE_URL is required");
 assert.ok(
@@ -37,6 +53,26 @@ function checkNoError(error, context) {
 }
 
 async function createUser(client, credentials) {
+  if (isProduction) {
+    assert.ok(adminClient, "Production Auth creation requires the admin client");
+    const { data, error } = await adminClient.auth.admin.createUser({
+      email: credentials.email,
+      password: credentials.password,
+      email_confirm: true,
+      user_metadata: { full_name: credentials.fullName },
+    });
+    checkNoError(error, `admin create user ${credentials.email}`);
+    assert.ok(data.user, "admin user creation must return a user");
+    cleanupLedger.userIds.push(data.user.id);
+
+    const { error: loginError } = await client.auth.signInWithPassword({
+      email: credentials.email,
+      password: credentials.password,
+    });
+    checkNoError(loginError, `login created user ${credentials.email}`);
+    return data.user;
+  }
+
   const { data, error } = await client.auth.signUp({
     email: credentials.email,
     password: credentials.password,
@@ -46,7 +82,26 @@ async function createUser(client, credentials) {
   checkNoError(error, `signup ${credentials.email}`);
   assert.ok(data.user, "signup must return a user");
   assert.ok(data.session, "email signup must return a live session");
+  cleanupLedger.userIds.push(data.user.id);
   return data.user;
+}
+
+async function emergencyCleanup() {
+  if (!adminClient || process.env.ATLAS_CLEANUP_AFTER !== "1") return;
+
+  if (cleanupLedger.storagePaths.length > 0) {
+    const { error } = await adminClient.storage
+      .from("policy-documents")
+      .remove([...new Set(cleanupLedger.storagePaths)]);
+    if (error) console.error(`FAIL emergency storage cleanup: ${error.message}`);
+  }
+
+  for (const userId of [...new Set(cleanupLedger.userIds)]) {
+    const { error } = await adminClient.auth.admin.deleteUser(userId);
+    if (error && !/not found/i.test(error.message)) {
+      console.error(`FAIL emergency Auth cleanup ${userId}: ${error.message}`);
+    }
+  }
 }
 
 async function assertCrossUserCrudIsolation(client, table, id) {
@@ -148,6 +203,7 @@ async function main() {
       upsert: false,
     });
   checkNoError(storageUploadError, "storage upload");
+  cleanupLedger.storagePaths.push(filePath);
 
   const { data: createdDocument, error: documentCreateError } = await clientA
     .from("documents")
@@ -263,31 +319,37 @@ async function main() {
   checkNoError(opportunityError, "opportunity create");
   opportunityId = opportunity.id;
 
-  const { data: consultation, error: consultationError } = await clientA
-    .from("consultation_requests")
-    .insert({
-      user_id: userA.id,
-      request_type: "portfolio_review",
-      message: "Richiesta E2E",
-      preferred_contact_method: "email",
-      consent_given_at: new Date().toISOString(),
-      privacy_version: "2026-09",
-      source_opportunity_id: opportunityId,
-    })
-    .select("id, status, assigned_broker_id")
-    .single();
-  checkNoError(consultationError, "consultation request create");
-  consultationId = consultation.id;
-  assert.equal(consultation.status, "submitted");
-  assert.equal(consultation.assigned_broker_id, null);
+  if (allowConsultationFixtures) {
+    const { data: consultation, error: consultationError } = await clientA
+      .from("consultation_requests")
+      .insert({
+        user_id: userA.id,
+        request_type: "portfolio_review",
+        message: "Richiesta E2E",
+        preferred_contact_method: "email",
+        consent_given_at: new Date().toISOString(),
+        privacy_version: "2026-09",
+        source_opportunity_id: opportunityId,
+      })
+      .select("id, status, assigned_broker_id")
+      .single();
+    checkNoError(consultationError, "consultation request create");
+    consultationId = consultation.id;
+    assert.equal(consultation.status, "submitted");
+    assert.equal(consultation.assigned_broker_id, null);
 
-  const { data: events, error: eventsError } = await clientA
-    .from("consultation_events")
-    .select("event_type")
-    .eq("consultation_request_id", consultationId);
-  checkNoError(eventsError, "consultation submission audit event");
-  assert.deepEqual(events.map((event) => event.event_type), ["request_submitted"]);
-  console.log("PASS household, canonical coverage, opportunity, consultation persistence");
+    const { data: events, error: eventsError } = await clientA
+      .from("consultation_events")
+      .select("event_type")
+      .eq("consultation_request_id", consultationId);
+    checkNoError(eventsError, "consultation submission audit event");
+    assert.deepEqual(events.map((event) => event.event_type), ["request_submitted"]);
+  }
+  console.log(
+    allowConsultationFixtures
+      ? "PASS household, canonical coverage, opportunity, consultation persistence"
+      : "PASS household, canonical coverage, opportunity; consultation side effects skipped"
+  );
 
   const { data: signed, error: signedError } = await clientA.storage
     .from("policy-documents")
@@ -376,31 +438,33 @@ async function main() {
   checkNoError(crossPolicyMemberDeleteError, "policy_members cross-user delete");
   assert.deepEqual(crossPolicyMemberDelete, []);
 
-  const { data: crossConsultation, error: crossConsultationError } = await clientB
-    .from("consultation_requests")
-    .select("id")
-    .eq("id", consultationId);
-  checkNoError(crossConsultationError, "consultation cross-user select");
-  assert.deepEqual(crossConsultation, []);
+  if (consultationId) {
+    const { data: crossConsultation, error: crossConsultationError } = await clientB
+      .from("consultation_requests")
+      .select("id")
+      .eq("id", consultationId);
+    checkNoError(crossConsultationError, "consultation cross-user select");
+    assert.deepEqual(crossConsultation, []);
 
-  const { error: crossConsultationUpdateError } = await clientB
-    .from("consultation_requests")
-    .update({ message: "forbidden" })
-    .eq("id", consultationId);
-  assert.ok(crossConsultationUpdateError, "consultation update must be denied to consumers");
+    const { error: crossConsultationUpdateError } = await clientB
+      .from("consultation_requests")
+      .update({ message: "forbidden" })
+      .eq("id", consultationId);
+    assert.ok(crossConsultationUpdateError, "consultation update must be denied to consumers");
 
-  const { error: crossConsultationDeleteError } = await clientB
-    .from("consultation_requests")
-    .delete()
-    .eq("id", consultationId);
-  assert.ok(crossConsultationDeleteError, "consultation delete must be denied to consumers");
+    const { error: crossConsultationDeleteError } = await clientB
+      .from("consultation_requests")
+      .delete()
+      .eq("id", consultationId);
+    assert.ok(crossConsultationDeleteError, "consultation delete must be denied to consumers");
 
-  const { data: crossEvents, error: crossEventsError } = await clientB
-    .from("consultation_events")
-    .select("id")
-    .eq("consultation_request_id", consultationId);
-  checkNoError(crossEventsError, "consultation events cross-user select");
-  assert.deepEqual(crossEvents, []);
+    const { data: crossEvents, error: crossEventsError } = await clientB
+      .from("consultation_events")
+      .select("id")
+      .eq("consultation_request_id", consultationId);
+    checkNoError(crossEventsError, "consultation events cross-user select");
+    assert.deepEqual(crossEvents, []);
+  }
 
   const { error: foreignOpportunityError } = await clientB
     .from("opportunities")
@@ -475,9 +539,8 @@ async function main() {
   assert.notEqual(userA.id, userB.id);
 
   if (process.env.ATLAS_CLEANUP_AFTER === "1" && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    const admin = createClient(url, process.env.SUPABASE_SERVICE_ROLE_KEY, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    });
+    const admin = adminClient;
+    assert.ok(admin, "cleanup admin client is required");
     for (const user of [userA, userB]) {
       const { error } = await admin.auth.admin.deleteUser(user.id);
       checkNoError(error, `auth cleanup ${user.email}`);
@@ -492,7 +555,8 @@ async function main() {
   console.log("PASS ATLAS Supabase live validation complete");
 }
 
-main().catch((error) => {
+main().catch(async (error) => {
+  await emergencyCleanup();
   console.error(`FAIL ${error instanceof Error ? error.message : String(error)}`);
   process.exitCode = 1;
 });
