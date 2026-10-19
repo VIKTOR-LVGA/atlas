@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ArrowUpRight, ShieldCheck } from "lucide-react";
 import { LandingSection, LandingSectionHeader } from "@/components/landing/LandingSection";
 import { AtlasPolicyArtwork } from "@/components/visual/AtlasPolicyArtwork";
@@ -22,7 +23,7 @@ export function LandingProductShowcase() {
         />
         <div className="mt-9 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {categories.map(category=>(
-            <article key={category.id} className="atlas-v2-feature-tile flex min-w-0 flex-col overflow-hidden p-4 sm:p-5">
+            <Link key={category.id} href="/register" aria-label={`Inizia a organizzare le polizze: ${category.title}`} className="atlas-v2-feature-tile flex min-w-0 flex-col overflow-hidden p-4 sm:p-5">
               <div className="flex min-h-[122px] items-center justify-center rounded-[18px] bg-[var(--card-muted)]">
                 <div className="scale-[1.13] sm:scale-[1.33]"><AtlasPolicyArtwork category={category.id}/></div>
               </div>
@@ -31,7 +32,7 @@ export function LandingProductShowcase() {
               <span className="mt-3 inline-flex items-center gap-2 text-[11px] font-bold text-accent">
                 <ShieldCheck className="h-4 w-4" aria-hidden /> Organizza le tue polizze <ArrowUpRight className="h-3.5 w-3.5" aria-hidden/>
               </span>
-            </article>
+            </Link>
           ))}
         </div>
         <p className="mt-5 text-[11px] leading-relaxed text-muted-foreground">Illustrazioni delle categorie. ATLAS non emette polizze assicurative: aiuta a comprendere e organizzare quelle esistenti.</p>
