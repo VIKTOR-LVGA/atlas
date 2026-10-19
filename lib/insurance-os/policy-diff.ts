@@ -1,8 +1,7 @@
 import "server-only";
 
 import { createHash } from "crypto";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
-import { getCurrentRequestAuth } from "@/lib/supabase/server";
+import { getCurrentRequestAuth, getSupabaseServerClient } from "@/lib/supabase/server";
 import type { PolicyChangeEvent, PolicyChangeType } from "@/lib/insurance-os/policy-diff-types";
 import type { VerificationStatus } from "@/lib/insurance-os/verification";
 import type { UserPolicy } from "@/lib/types";
