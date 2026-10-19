@@ -17,28 +17,36 @@ export const metadata = {
  */
 export default async function BrokerUnavailablePage() {
   const identity = await getOperationsIdentity();
-  if (!identity.user) redirect("/login");
 
-  if (identity.role === "admin") redirect("/control-center");
-  if (identity.role !== "broker") redirect("/dashboard");
-  if (isBrokerPortalEnabled()) redirect("/broker/dashboard");
+  if (identity.user) {
+    if (identity.role === "admin") redirect("/control-center");
+    if (identity.role !== "broker") redirect("/dashboard");
+    if (isBrokerPortalEnabled()) redirect("/broker/dashboard");
+  }
 
   return (
     <AuthLayout
       title="Area operativa non disponibile"
-      subtitle="Il tuo account professionale resta attivo, ma l'area operativa dedicata è temporaneamente sospesa."
+      subtitle="L'area operativa dedicata ai partner è temporaneamente sospesa."
     >
       <div className="space-y-4 text-[13px] leading-relaxed text-muted">
         <p>
-          Non stiamo modificando il tuo ruolo. Non hai accesso ai dossier di revisione
-          degli utenti finché questa area non viene riattivata da ATLAS.
+          {identity.user
+            ? "Il tuo account professionale resta attivo e il tuo ruolo non cambia. Non hai accesso ai dossier di revisione degli utenti finché questa area non viene riattivata da ATLAS."
+            : "I collegamenti storici dell'area partner non sono più attivi. ATLAS non offre un dashboard alternativo su questo indirizzo."}
         </p>
         <p>Per assistenza sul tuo account professionale, contatta il team ATLAS.</p>
-        <form action={logout} className="pt-2">
-          <button type="submit" className="atlas-btn-primary w-full py-2.5 text-[14px]">
-            Esci
-          </button>
-        </form>
+        {identity.user ? (
+          <form action={logout} className="pt-2">
+            <button type="submit" className="atlas-btn-primary w-full py-2.5 text-[14px]">
+              Esci
+            </button>
+          </form>
+        ) : (
+          <Link href="/login" className="atlas-btn-primary flex w-full justify-center py-2.5 text-[14px]">
+            Accedi al tuo account
+          </Link>
+        )}
         <p className="text-center text-[12px]">
           <Link href="/" className="text-accent hover:text-accent-hover">
             Torna alla home

@@ -39,17 +39,17 @@ export function LandingFooter() {
                   </Link>
                 </li>
                 <li>
-                  <a href="#product" className="transition hover:text-[var(--landing-text)]">
+                  <Link href="/#product" className="transition hover:text-[var(--landing-text)]">
                     Funzionalità
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#how-it-works"
+                  <Link
+                    href="/#how-it-works"
                     className="transition hover:text-[var(--landing-text)]"
                   >
                     Come funziona
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -64,14 +64,14 @@ export function LandingFooter() {
                   </Link>
                 </li>
                 <li>
-                  <a href="#security" className="transition hover:text-[var(--landing-text)]">
+                  <Link href="/#security" className="transition hover:text-[var(--landing-text)]">
                     Sicurezza
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#faq" className="transition hover:text-[var(--landing-text)]">
+                  <Link href="/#faq" className="transition hover:text-[var(--landing-text)]">
                     FAQ
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -98,7 +98,7 @@ export function LandingFooter() {
           <p className="text-xs text-[var(--landing-muted)]">
             © {new Date().getFullYear()} Atlas · Svizzera
           </p>
-          <p className="text-xs text-[var(--landing-muted)] opacity-80">
+          <p className="text-xs text-[var(--landing-muted)]">
             Documentazione legale in revisione
           </p>
         </div>

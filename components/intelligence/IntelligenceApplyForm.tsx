@@ -1,21 +1,21 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useMemo, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { mapSupabaseAuthError } from "@/lib/auth-errors";
-import {
-  validateConfirmPassword,
-  validateEmail,
-  validatePassword,
-} from "@/lib/auth-validation";
 import {
   INTELLIGENCE_COMPANY_TYPES,
   INTELLIGENCE_MODULE_LABELS,
   INTELLIGENCE_MODULES,
   type IntelligenceModule,
 } from "@/lib/intelligence/constants";
+import {
+  validateIntelligenceApplication,
+  type IntelligenceApplicationErrors,
+  type IntelligenceApplicationField,
+} from "@/lib/intelligence/apply-validation";
 import { SWISS_CANTON_CODES, CANTON_LABELS } from "@/lib/swiss-cantons";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +27,23 @@ type Prefill = {
 
 const inputClass =
   "mt-1 w-full rounded-xl border border-[var(--landing-border)] bg-[var(--landing-surface)] px-3 py-2.5 text-[13px] text-[var(--landing-text)] outline-none focus:border-[var(--landing-accent-bright)]";
+
+function fieldClass(error?: string) {
+  return cn(
+    inputClass,
+    error &&
+      "border-[var(--danger-text)] focus:border-[var(--danger-text)] focus:ring-2 focus:ring-[var(--danger-border)]"
+  );
+}
+
+function FieldError({ id, message }: { id: string; message?: string }) {
+  if (!message) return null;
+  return (
+    <p id={id} className="mt-1.5 text-[12px] text-[var(--danger-text)]">
+      {message}
+    </p>
+  );
+}
 
 export function IntelligenceApplyForm({
   isAuthenticated,
@@ -55,9 +72,12 @@ export function IntelligenceApplyForm({
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [consent, setConsent] = useState(false);
+  const [fieldErrors, setFieldErrors] =
+    useState<IntelligenceApplicationErrors>({});
   const [error, setError] = useState("");
   const [existingAccount, setExistingAccount] = useState(false);
   const [loading, setLoading] = useState(false);
+  const errorSummaryRef = useRef<HTMLDivElement>(null);
 
   const loginHref = useMemo(() => {
     const next = encodeURIComponent("/intelligence/apply");
@@ -68,6 +88,16 @@ export function IntelligenceApplyForm({
     setModules((prev) =>
       prev.includes(mod) ? prev.filter((m) => m !== mod) : [...prev, mod]
     );
+    clearFieldError("modules");
+  }
+
+  function clearFieldError(field: IntelligenceApplicationField) {
+    setFieldErrors((current) => {
+      if (!current[field]) return current;
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -75,39 +105,24 @@ export function IntelligenceApplyForm({
     setError("");
     setExistingAccount(false);
 
-    const emailError = validateEmail(email);
-    if (!firstName.trim() || !lastName.trim()) {
-      setError("Nome e cognome sono obbligatori.");
-      return;
-    }
-    if (emailError) {
-      setError(emailError);
-      return;
-    }
-    if (!companyName.trim()) {
-      setError("Il nome azienda è obbligatorio.");
-      return;
-    }
-    if (!reason.trim() || reason.trim().length < 20) {
-      setError("Descrivi in almeno 20 caratteri come vorresti utilizzare ATLAS Intelligence.");
-      return;
-    }
-    if (modules.length === 0) {
-      setError("Seleziona almeno un'area di interesse.");
-      return;
-    }
-    if (!consent) {
-      setError("Il consenso al trattamento dei dati è obbligatorio.");
-      return;
-    }
+    const validationErrors = validateIntelligenceApplication({
+      firstName,
+      lastName,
+      email,
+      companyName,
+      website,
+      reason,
+      modules,
+      consent,
+      isAuthenticated,
+      password,
+      confirmPassword,
+    });
+    setFieldErrors(validationErrors);
 
-    if (!isAuthenticated) {
-      const passwordError = validatePassword(password);
-      const confirmError = validateConfirmPassword(password, confirmPassword);
-      if (passwordError || confirmError) {
-        setError(passwordError || confirmError || "Password non valida.");
-        return;
-      }
+    if (Object.keys(validationErrors).length > 0) {
+      requestAnimationFrame(() => errorSummaryRef.current?.focus());
+      return;
     }
 
     setLoading(true);
@@ -218,8 +233,21 @@ export function IntelligenceApplyForm({
 
   return (
     <form onSubmit={handleSubmit} className="mt-8 space-y-8" noValidate>
+      {Object.keys(fieldErrors).length > 0 ? (
+        <div
+          ref={errorSummaryRef}
+          role="alert"
+          tabIndex={-1}
+          className="atlas-alert-danger rounded-xl px-4 py-3 text-[13px] outline-none focus:ring-2 focus:ring-[var(--danger-border)]"
+        >
+          <p className="font-semibold">Controlla i campi evidenziati.</p>
+          <p className="mt-1 text-[12px]">
+            Sono presenti {Object.keys(fieldErrors).length} errori nella candidatura.
+          </p>
+        </div>
+      ) : null}
       {error ? (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-[13px] text-red-200">
+        <div role="alert" className="atlas-alert-danger rounded-xl px-4 py-3 text-[13px]">
           <p>{error}</p>
           {existingAccount ? (
             <Link href={loginHref} className="mt-2 inline-block font-medium text-[var(--landing-accent-bright)]">
@@ -237,34 +265,52 @@ export function IntelligenceApplyForm({
           <label className="block text-[12px] text-[var(--landing-muted)]">
             Nome
             <input
-              className={inputClass}
+              className={fieldClass(fieldErrors.firstName)}
               value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
+              onChange={(e) => {
+                setFirstName(e.target.value);
+                clearFieldError("firstName");
+              }}
+              aria-invalid={Boolean(fieldErrors.firstName)}
+              aria-describedby={fieldErrors.firstName ? "first-name-error" : undefined}
               required
               disabled={loading}
             />
+            <FieldError id="first-name-error" message={fieldErrors.firstName} />
           </label>
           <label className="block text-[12px] text-[var(--landing-muted)]">
             Cognome
             <input
-              className={inputClass}
+              className={fieldClass(fieldErrors.lastName)}
               value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
+              onChange={(e) => {
+                setLastName(e.target.value);
+                clearFieldError("lastName");
+              }}
+              aria-invalid={Boolean(fieldErrors.lastName)}
+              aria-describedby={fieldErrors.lastName ? "last-name-error" : undefined}
               required
               disabled={loading}
             />
+            <FieldError id="last-name-error" message={fieldErrors.lastName} />
           </label>
         </div>
         <label className="block text-[12px] text-[var(--landing-muted)]">
           Email professionale
           <input
             type="email"
-            className={inputClass}
+            className={fieldClass(fieldErrors.email)}
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              clearFieldError("email");
+            }}
+            aria-invalid={Boolean(fieldErrors.email)}
+            aria-describedby={fieldErrors.email ? "email-error" : undefined}
             required
             disabled={loading || (isAuthenticated && Boolean(prefill?.email))}
           />
+          <FieldError id="email-error" message={fieldErrors.email} />
         </label>
         <label className="block text-[12px] text-[var(--landing-muted)]">
           Ruolo / funzione
@@ -285,12 +331,18 @@ export function IntelligenceApplyForm({
         <label className="block text-[12px] text-[var(--landing-muted)]">
           Nome azienda
           <input
-            className={inputClass}
+            className={fieldClass(fieldErrors.companyName)}
             value={companyName}
-            onChange={(e) => setCompanyName(e.target.value)}
+            onChange={(e) => {
+              setCompanyName(e.target.value);
+              clearFieldError("companyName");
+            }}
+            aria-invalid={Boolean(fieldErrors.companyName)}
+            aria-describedby={fieldErrors.companyName ? "company-name-error" : undefined}
             required
             disabled={loading}
           />
+          <FieldError id="company-name-error" message={fieldErrors.companyName} />
         </label>
         <label className="block text-[12px] text-[var(--landing-muted)]">
           Ragione sociale, se diversa
@@ -319,12 +371,18 @@ export function IntelligenceApplyForm({
         <label className="block text-[12px] text-[var(--landing-muted)]">
           Sito web
           <input
-            className={inputClass}
+            className={fieldClass(fieldErrors.website)}
             value={website}
-            onChange={(e) => setWebsite(e.target.value)}
+            onChange={(e) => {
+              setWebsite(e.target.value);
+              clearFieldError("website");
+            }}
+            aria-invalid={Boolean(fieldErrors.website)}
+            aria-describedby={fieldErrors.website ? "website-error" : undefined}
             placeholder="https://"
             disabled={loading}
           />
+          <FieldError id="website-error" message={fieldErrors.website} />
         </label>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block text-[12px] text-[var(--landing-muted)]">
@@ -366,7 +424,11 @@ export function IntelligenceApplyForm({
         <p className="text-[12px] text-[var(--landing-muted)]">
           Quali aree di ATLAS Intelligence ti interessano?
         </p>
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div
+          className="grid gap-2 sm:grid-cols-2"
+          role="group"
+          aria-describedby={fieldErrors.modules ? "modules-error" : undefined}
+        >
           {INTELLIGENCE_MODULES.map((mod) => (
             <label
               key={mod}
@@ -377,12 +439,15 @@ export function IntelligenceApplyForm({
                 className="mt-0.5"
                 checked={modules.includes(mod)}
                 onChange={() => toggleModule(mod)}
+                aria-invalid={Boolean(fieldErrors.modules)}
+                aria-describedby={fieldErrors.modules ? "modules-error" : undefined}
                 disabled={loading}
               />
               {INTELLIGENCE_MODULE_LABELS[mod]}
             </label>
           ))}
         </div>
+        <FieldError id="modules-error" message={fieldErrors.modules} />
       </section>
 
       <section className="space-y-3">
@@ -392,12 +457,18 @@ export function IntelligenceApplyForm({
         <label className="block text-[12px] text-[var(--landing-muted)]">
           Come vorresti utilizzare ATLAS Intelligence?
           <textarea
-            className={cn(inputClass, "min-h-[110px]")}
+            className={cn(fieldClass(fieldErrors.reason), "min-h-[110px]")}
             value={reason}
-            onChange={(e) => setReason(e.target.value)}
+            onChange={(e) => {
+              setReason(e.target.value);
+              clearFieldError("reason");
+            }}
+            aria-invalid={Boolean(fieldErrors.reason)}
+            aria-describedby={fieldErrors.reason ? "reason-error" : undefined}
             required
             disabled={loading}
           />
+          <FieldError id="reason-error" message={fieldErrors.reason} />
         </label>
       </section>
 
@@ -413,22 +484,39 @@ export function IntelligenceApplyForm({
             Password
             <input
               type="password"
-              className={inputClass}
+              className={fieldClass(fieldErrors.password)}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                clearFieldError("password");
+              }}
+              aria-invalid={Boolean(fieldErrors.password)}
+              aria-describedby={fieldErrors.password ? "password-error" : undefined}
               autoComplete="new-password"
               disabled={loading}
             />
+            <FieldError id="password-error" message={fieldErrors.password} />
           </label>
           <label className="block text-[12px] text-[var(--landing-muted)]">
             Conferma password
             <input
               type="password"
-              className={inputClass}
+              className={fieldClass(fieldErrors.confirmPassword)}
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                clearFieldError("confirmPassword");
+              }}
+              aria-invalid={Boolean(fieldErrors.confirmPassword)}
+              aria-describedby={
+                fieldErrors.confirmPassword ? "confirm-password-error" : undefined
+              }
               autoComplete="new-password"
               disabled={loading}
+            />
+            <FieldError
+              id="confirm-password-error"
+              message={fieldErrors.confirmPassword}
             />
           </label>
           <p className="text-[11px] text-[var(--landing-muted)]">
@@ -440,17 +528,25 @@ export function IntelligenceApplyForm({
         </section>
       ) : null}
 
-      <label className="flex items-start gap-2 text-[12px] text-[var(--landing-muted)]">
-        <input
-          type="checkbox"
-          className="mt-1"
-          checked={consent}
-          onChange={(e) => setConsent(e.target.checked)}
-          disabled={loading}
-        />
-        Acconsento al trattamento dei dati per la valutazione della candidatura
-        Intelligence. Nessun accesso automatico ai dati consumer.
-      </label>
+      <div>
+        <label className="flex items-start gap-2 text-[12px] text-[var(--landing-muted)]">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={consent}
+            onChange={(e) => {
+              setConsent(e.target.checked);
+              clearFieldError("consent");
+            }}
+            aria-invalid={Boolean(fieldErrors.consent)}
+            aria-describedby={fieldErrors.consent ? "consent-error" : undefined}
+            disabled={loading}
+          />
+          Acconsento al trattamento dei dati per la valutazione della candidatura
+          Intelligence. Nessun accesso automatico ai dati consumer.
+        </label>
+        <FieldError id="consent-error" message={fieldErrors.consent} />
+      </div>
 
       <button
         type="submit"

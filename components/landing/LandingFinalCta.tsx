@@ -30,7 +30,7 @@ export function LandingFinalCta() {
               <div className="absolute bottom-4 left-0 -rotate-6 rounded-[25px] border border-[#d7e1ff] bg-white px-6 py-5 shadow-[0_20px_60px_rgba(46,74,130,.14)]">
                 <span className="flex h-12 w-12 items-center justify-center rounded-[16px] bg-[#e7edff] text-[#4c60ea]"><Sparkles className="h-6 w-6"/></span>
                 <p className="mt-3 text-[13px] font-bold text-[#172544]">ATLAS AI</p>
-                <p className="mt-1 text-[11px] text-[#7c89a5]">Una bozza da controllare</p>
+                <p className="mt-1 text-[11px] text-[#5f6f8c]">Una bozza da controllare</p>
               </div>
               <div className="absolute bottom-0 right-5 flex h-12 w-12 items-center justify-center rounded-[18px] bg-[#e0f7ee] text-[#29a37b] shadow-sm"><CheckCircle2 className="h-6 w-6"/></div>
             </div>

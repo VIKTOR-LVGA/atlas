@@ -5,9 +5,9 @@ import { AtlasBrandLogo } from "@/components/brand/AtlasBrandLogo";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 const links = [
-  { href: "#how-it-works", label: "Come funziona" },
-  { href: "#security", label: "Sicurezza" },
-  { href: "#faq", label: "FAQ" },
+  { href: "/#how-it-works", label: "Come funziona" },
+  { href: "/#security", label: "Sicurezza" },
+  { href: "/#faq", label: "FAQ" },
 ];
 
 export function LandingNav() {
@@ -19,25 +19,15 @@ export function LandingNav() {
         </Link>
 
         <nav className="hidden items-center gap-7 text-sm text-[var(--landing-muted)] md:flex">
-          {links.map((link) =>
-            link.href.startsWith("/") ? (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="transition hover:text-[var(--landing-text)]"
-              >
-                {link.label}
-              </Link>
-            ) : (
-              <a
-                key={link.href}
-                href={link.href}
-                className="transition hover:text-[var(--landing-text)]"
-              >
-                {link.label}
-              </a>
-            )
-          )}
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="transition hover:text-[var(--landing-text)]"
+            >
+              {link.label}
+            </Link>
+          ))}
         </nav>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">

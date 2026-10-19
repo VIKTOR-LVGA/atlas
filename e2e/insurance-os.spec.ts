@@ -7,22 +7,31 @@ test.describe("Insurance OS routes", () => {
     expect(getSafeAuthRedirect("/atlas/ask")).toBe("/atlas/ask");
     expect(getSafeAuthRedirect("/activity")).toBe("/activity");
     expect(getSafeAuthRedirect("/claims/new")).toBe("/claims/new");
+    expect(getSafeAuthRedirect("/search?q=franchise")).toBe(
+      "/search?q=franchise"
+    );
     expect(getSafeAuthRedirect("/opportunities")).toBe("/opportunities");
   });
 
   test("unauthenticated product routes redirect to login", async ({ page }) => {
     await page.goto("/atlas");
-    await expect(page).toHaveURL(/\/login/);
+    expect(new URL(page.url()).searchParams.get("next")).toBe("/atlas");
     await page.goto("/activity");
-    await expect(page).toHaveURL(/\/login/);
+    expect(new URL(page.url()).searchParams.get("next")).toBe("/activity");
     await page.goto("/claims/new");
-    await expect(page).toHaveURL(/\/login/);
+    expect(new URL(page.url()).searchParams.get("next")).toBe("/claims/new");
+    await page.goto("/search?q=franchise");
+    expect(new URL(page.url()).searchParams.get("next")).toBe(
+      "/search?q=franchise"
+    );
   });
 
-  test("broker portal still 404", async ({ page }) => {
+  test("broker portal is explicitly unavailable", async ({ page }) => {
     const broker = await page.goto("/broker");
-    expect(broker?.status()).toBe(404);
+    expect(broker?.ok()).toBeTruthy();
+    await expect(page).toHaveURL(/\/broker-unavailable$/);
     const partner = await page.goto("/partner");
-    expect(partner?.status()).toBe(404);
+    expect(partner?.ok()).toBeTruthy();
+    await expect(page).toHaveURL(/\/broker-unavailable$/);
   });
 });
