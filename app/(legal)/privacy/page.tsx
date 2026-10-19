@@ -1,3 +1,5 @@
+const supportEmail = process.env.NEXT_PUBLIC_ATLAS_SUPPORT_EMAIL?.trim();
+
 export const metadata = {
   title: "Privacy (bozza)",
   robots: { index: false, follow: false },
@@ -87,8 +89,16 @@ export default function PrivacyDraftPage() {
       <section>
         <h2 className="text-[16px] font-semibold tracking-tight text-foreground">Contatti</h2>
         <p className="mt-3 text-[13px] leading-relaxed text-muted">
-          Per domande sul trattamento dei dati durante il pilot, scrivi al referente ATLAS che
-          ti ha invitato.
+          {supportEmail ? (
+            <>
+              Per richieste sulla privacy e assistenza scrivi a{" "}
+              <a className="font-medium text-accent underline" href={"mailto:" + supportEmail}>
+                {supportEmail}
+              </a>.
+            </>
+          ) : (
+            "Per richieste sulla privacy o assistenza, contatta il referente ATLAS che ti ha invitato."
+          )}
         </p>
       </section>
     </article>

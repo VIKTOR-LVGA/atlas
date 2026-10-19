@@ -1,0 +1,30 @@
+name: ATLAS consumer checks
+
+on:
+  push:
+    branches:
+      - 'release/**'
+  pull_request:
+    branches:
+      - 'release/**'
+      - 'fix/**'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364e46b32 # v4.2.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test:knowledge
+      - run: npm run test:insurance-os
+      - run: npm run verify:migrations

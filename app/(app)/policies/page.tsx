@@ -12,7 +12,7 @@ export default async function PoliciesPage() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col gap-4 rounded-3xl border border-border bg-card p-5 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between">
+      <header className="atlas-consumer-hero flex flex-col gap-4 rounded-3xl border border-border p-5 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <h1 className="text-[24px] font-semibold tracking-tight text-foreground">Le mie polizze</h1>
           <p className="mt-1 text-[13px] text-muted">

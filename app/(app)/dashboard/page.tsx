@@ -151,7 +151,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-7">
-      <header className="relative flex flex-col gap-4 overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between sm:p-6">
+      <header className="atlas-consumer-hero relative flex flex-col gap-4 overflow-hidden rounded-3xl border border-border p-5 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div>
           <h1 className="text-[26px] font-semibold tracking-tight text-foreground sm:text-[30px]">
             {greeting}, {name}
