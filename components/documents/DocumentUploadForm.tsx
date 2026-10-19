@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useRef, useState } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import {
   AlertCircle,
   CheckCircle2,
@@ -11,9 +11,10 @@ import {
   Upload,
 } from "lucide-react";
 import {
-  uploadDocumentAction,
+  finalizeDirectDocumentUploadAction,
   type UploadDocumentActionState,
 } from "@/app/(app)/documents/actions";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { cn } from "@/lib/utils";
 
 const MAX_FILE_SIZE_LABEL = "10 MB";
@@ -36,10 +37,8 @@ export function DocumentUploadForm() {
   const [dragging, setDragging] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState("");
   const [dismissedSuccess, setDismissedSuccess] = useState(false);
-  const [state, formAction, pending] = useActionState(
-    uploadDocumentAction,
-    initialState
-  );
+  const [state, setState] = useState<UploadDocumentActionState>(initialState);
+  const [pending, setPending] = useState(false);
 
   const showSuccessPanel = state.status === "success" && !dismissedSuccess;
   const successDocumentId = state.documentId ?? null;
@@ -68,6 +67,64 @@ export function DocumentUploadForm() {
     setDismissedSuccess(false);
   }
 
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (pending) return;
+    const file = inputRef.current?.files?.[0];
+    if (!file) {
+      setState({ status: "error", message: "Seleziona un PDF da caricare." });
+      return;
+    }
+    if (file.size === 0 || file.size > 10 * 1024 * 1024) {
+      setState({ status: "error", message: "Seleziona un PDF non vuoto, massimo 10 MB." });
+      return;
+    }
+
+    setState(initialState);
+    setPending(true);
+    setDismissedSuccess(false);
+    try {
+      if ((await file.slice(0, 5).text()) !== "%PDF-") {
+        setState({ status: "error", message: "Il file non sembra un PDF valido." });
+        return;
+      }
+
+      const supabase = getSupabaseBrowserClient();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (!user || authError) {
+        setState({ status: "error", message: "Sessione scaduta. Accedi nuovamente." });
+        return;
+      }
+
+      // Browser -> user's private Supabase bucket, bypassing Vercel's
+      // 4.5 MB request limit. Storage RLS restricts this user-ID prefix.
+      const filePath = user.id + "/" + crypto.randomUUID() + ".pdf";
+      const { error: uploadError } = await supabase.storage
+        .from("policy-documents")
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          contentType: "application/pdf",
+          upsert: false,
+        });
+      if (uploadError) {
+        setState({ status: "error", message: "Caricamento non riuscito. Riprova o contatta il supporto." });
+        return;
+      }
+
+      const result = await finalizeDirectDocumentUploadAction({ filePath, fileName: file.name });
+      // Do not delete from the browser after an ambiguous response: a
+      // successful DB insert could have been committed before a network error.
+      setState(result);
+    } catch {
+      // Never delete uploaded files on transport failure: the DB registration
+      // might have succeeded even if the response to the browser was lost.
+      setState({ status: "error", message: "Connessione interrotta. Controlla l'archivio prima di riprovare." });
+    } finally {
+      setPending(false);
+    }
+  }
+
   function handleReset() {
     setDismissedSuccess(true);
     setSelectedFileName("");
@@ -79,7 +136,7 @@ export function DocumentUploadForm() {
 
   return (
     <form
-      action={formAction}
+      onSubmit={handleSubmit}
       className="atlas-stack-tight min-w-0"
       aria-busy={pending}
     >
@@ -225,8 +282,9 @@ export function DocumentUploadForm() {
               Atlas preparerà il documento per l&apos;analisi AI.
             </p>
             <p className="mt-2 w-full max-w-full px-1 text-[11px] leading-snug text-muted-foreground">
-              Dopo il caricamento potrai avviare l&apos;analisi e creare una bozza
-              polizza.
+              Dopo il caricamento potrai avviare l&apos;analisi e verificare la bozza.
+              Se il PDF è una scansione senza testo selezionabile, potrebbe servire
+              una versione digitale oppure l&apos;inserimento manuale.
             </p>
 
             <p className="mt-4 inline-flex flex-wrap items-center justify-center gap-2 text-[10px] font-medium uppercase tracking-wide text-muted">

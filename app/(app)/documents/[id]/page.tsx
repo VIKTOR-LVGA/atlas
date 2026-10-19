@@ -22,7 +22,7 @@ import {
   getPoliciesByDocumentId,
 } from "@/lib/document-intelligence";
 import { getCurrentUserPolicies } from "@/lib/policies";
-import { insuranceDocumentTypeLabels } from "@/lib/insurance-knowledge";
+import { canPersistAsPersonalPolicy, insuranceDocumentTypeLabels } from "@/lib/insurance-knowledge";
 import { formatDateTime, formatFileSize, formatRelativeTime } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
@@ -68,7 +68,32 @@ export default async function DocumentDetailPage({ params }: PageProps) {
           }
         />
 
-        {view.nextAction.kind !== "wait" && view.nextAction.href ? (
+        {(!linkedPolicy && (document.status === "uploaded" ||
+          document.status === "failed" ||
+          canPersistAsPersonalPolicy(document.documentType))) ? (
+          <section className="rounded-2xl border border-accent/20 bg-accent-soft/30 p-4 sm:flex sm:items-center sm:justify-between sm:gap-4">
+            <div className="mb-3 sm:mb-0">
+              <p className="text-[14px] font-semibold text-foreground">
+                {document.status === "analyzed" ? "Vuoi rianalizzare la bozza?" : document.status === "failed" ? "Riprendiamo da qui" : "Pronto per analizzare il documento?"}
+              </p>
+              <p className="mt-1 text-[12px] leading-relaxed text-muted">
+                {"ATLAS propone una bozza da verificare. Il PDF originale rimane la fonte principale."}
+              </p>
+            </div>
+            <div className="w-full shrink-0 sm:w-52">
+              <DocumentAnalysisForm
+                documentId={document.id}
+                documentStatus={document.status}
+                documentType={document.documentType}
+                updatedAt={document.updatedAt}
+              />
+            </div>
+          </section>
+        ) : null}
+
+        {view.nextAction.kind !== "wait" &&
+          view.nextAction.href &&
+          view.nextAction.href !== `/documents/${document.id}` ? (
           <div className="atlas-action-strip flex flex-col gap-3 rounded-xl border border-accent/20 bg-accent-soft/30 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-accent">
@@ -160,13 +185,6 @@ export default async function DocumentDetailPage({ params }: PageProps) {
 
             <SectionCard title="Azioni" padding="sm">
               <ActionBar>
-                <DocumentAnalysisForm
-                  documentId={document.id}
-                  documentStatus={document.status}
-                  documentType={document.documentType}
-                  updatedAt={document.updatedAt}
-                  linkedPolicyId={linkedPolicy?.id ?? null}
-                />
                 {!linkedPolicy ? (
                   <ActionButton
                     href={`/policies/new?documentId=${document.id}`}

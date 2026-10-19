@@ -1225,3 +1225,16 @@ body {
     transform: none;
   }
 }
+
+/* First-user pilot: restrained Swiss-editorial header, aligned with the existing theme. */
+.atlas-consumer-hero {
+  background: radial-gradient(480px 240px at 100% 0%, rgba(99, 102, 241, 0.10), transparent 75%), var(--card);
+}
+[data-theme="dark"] .atlas-consumer-hero {
+  background: radial-gradient(480px 240px at 100% 0%, rgba(129, 140, 248, 0.13), transparent 75%), var(--card);
+}
+.atlas-consumer-hero a:focus-visible,
+.atlas-consumer-card a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}

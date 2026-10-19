@@ -40,6 +40,7 @@ import {
   swissPolicySubtypes,
 } from "@/lib/swiss-insurance-normalization";
 import type { PolicyFieldConfidenceKey } from "@/lib/types";
+import { findExplicitSwissPremiumTotal } from "@/lib/insurance-knowledge/premium-evidence";
 import type {
   PolicyDetails,
   PolicyPremiumFrequency,
@@ -124,6 +125,10 @@ const EXTRACTION_INSTRUCTIONS = [
   "Distinguish LAMal premiums, cantonal subsidies/RIPAM, discounts and the actual payable amount. Do not subtract a subsidy unless the document includes it in the stated payable total.",
   "Do not infer accident inclusion from general Swiss law. Record with/without accident per person only when explicitly printed.",
   "Follow table row and column headers before assigning premiums, deductibles, insured persons or limits. Keep evidence strictly tied to the actual PDF.",
+  "KPT and similar contracts: when a final combined payable total such as Totale mensile LAMal + LCA is printed, use it once. LAMal and LCA subtotals, environmental refunds and discounts are already included.",
+  "Do not mistake historical expiry dates in examples or old supplemental conditions for a currently active personal policy cancellation date.",
+  "A final CHF 0.00 premium is a real free coverage, not missing data; never substitute a gross or reference premium.",
+  "Facsimiles and synthetic teaching examples must be clearly identified as nonbinding in the notes.",
   "Add extraction_metadata.matched_keywords, inferred_sections, and warnings only for real ambiguity — not routine multi-person policies. Dates: YYYY-MM-DD. Currency usually CHF.",
 ].join(" ");
 const premiumFrequencies = [
@@ -972,7 +977,7 @@ function normalizeOpenAIExtraction(
   );
   const provider =
     providerNormalization.provider ??
-    document.fileName.replace(/\.pdf$/i, "").slice(0, 80);
+    "Compagnia da verificare";
   const coverageKind =
     isSwissPolicySubtype(payload.policy_subtype ?? "")
       ? payload.policy_subtype
@@ -1070,16 +1075,40 @@ function normalizeOpenAIExtraction(
     normalizeDate(payload.renewal_date) ?? "missing"
   );
 
-  const details = sanitizePolicyDetails(policyType, detailsSource) as PolicyDetails;
   const premiumPeriodMissing =
     normalizeNullableNumber(payload.premium_amount) !== null &&
     !premiumFrequencies.includes(payload.premium_frequency as PolicyPremiumFrequency);
+  const explicitPremium = findExplicitSwissPremiumTotal(extractedText);
+  const modelAmount = normalizeNullableNumber(payload.premium_amount);
+  const premiumMismatch = explicitPremium !== null && modelAmount !== null &&
+    (Math.abs(explicitPremium.amount - modelAmount) >= 0.025 ||
+     explicitPremium.frequency !== payload.premium_frequency);
+  const premiumNeedsVerification = premiumPeriodMissing || premiumMismatch;
+  if (premiumNeedsVerification) {
+    // Preserve raw product lines for review, but do not count ambiguous totals.
+    detailsSource.premium_summary = null;
+    mergeFieldConfidence(detailsSource, "premium_amount", null, 25, "Totale del premio da verificare", true);
+    const extractionMeta = getPayloadRecord(detailsSource.extraction_metadata);
+    const warnings = Array.isArray(extractionMeta.warnings) ? extractionMeta.warnings : [];
+    detailsSource.extraction_metadata = {
+      ...extractionMeta,
+      warnings: [...warnings, "Importo o periodicità discordante: verifica il totale sul PDF originale."],
+    };
+  }
+  const details = sanitizePolicyDetails(policyType, detailsSource) as PolicyDetails;
   const extractionNotesBase =
     normalizeNullableString(payload.extraction_notes) ??
     "Estrazione OpenAI completata. Verificare i dati prima di confermare la bozza.";
-  const extractionNotes = premiumPeriodMissing
+  let extractionNotes = premiumPeriodMissing
     ? `${extractionNotesBase} Importo premio presente, ma periodicità non verificabile: inserisci il premio manualmente dopo il controllo del PDF.`
     : extractionNotesBase;
+
+  if (premiumMismatch && explicitPremium) {
+    extractionNotes += " Il PDF riporta un totale esplicito di CHF " + explicitPremium.amount.toFixed(2) +
+      (explicitPremium.frequency === "monthly" ? " al mese" : " all\u0027anno") +
+      ", diverso dal valore rilevato. Correggi manualmente dopo aver verificato il PDF."; 
+  }
+
 
   return {
     processingMs: 0,
@@ -1092,7 +1121,7 @@ function normalizeOpenAIExtraction(
         (classification.subtype === "other" ? null : classification.categoryLabel),
       policyNumber: normalizeNullableString(payload.policy_number),
       // Never silently interpret a premium with unknown period as monthly.
-      premiumAmount: premiumPeriodMissing ? null : normalizeNullableNumber(payload.premium_amount),
+      premiumAmount: premiumNeedsVerification ? null : normalizeNullableNumber(payload.premium_amount),
       premiumFrequency: normalizePremiumFrequency(payload.premium_frequency),
       deductible: normalizeNullableNumber(payload.deductible),
       startDate: normalizeDate(payload.start_date),
@@ -1102,7 +1131,9 @@ function normalizeOpenAIExtraction(
       coverageAmount: normalizeNullableNumber(payload.coverage_amount),
       details,
       notes: null,
-      extractionConfidence: normalizeConfidence(payload.extraction_confidence),
+      extractionConfidence: premiumNeedsVerification
+        ? Math.min(49, normalizeConfidence(payload.extraction_confidence) ?? 49)
+        : normalizeConfidence(payload.extraction_confidence),
       extractionNotes,
     },
   };
@@ -1492,6 +1523,32 @@ export const openAIPolicyDocumentExtractor: PolicyDocumentExtractor = {
       modelUsed,
       fallbackUsed,
     });
+    // Swiss enrichment and motor recovery must not silently reintroduce
+    // a premium rejected by cross-checking its period or printed final total.
+    if (
+      normalizeNullableNumber(payload.premium_amount) !== null &&
+      normalized.draft.premiumAmount === null
+    ) {
+      enriched.draft.premiumAmount = null;
+      enriched.draft.details.premium_summary = null;
+      enriched.draft.extractionConfidence = Math.min(
+        49, enriched.draft.extractionConfidence ?? 49
+      );
+    }
+    if (compaction.wasTruncated) {
+      enriched.draft.extractionNotes = [
+        enriched.draft.extractionNotes,
+        "Documento lungo: alcune sezioni potrebbero non essere state analizzate. Confronta tutte le pagine prima di confermare.",
+      ].filter(Boolean).join(" ");
+      enriched.draft.extractionConfidence = Math.min(enriched.draft.extractionConfidence ?? 65, 65);
+    }
+    if (/ESEMPIO DIDATTICO|NON È UNA POLIZZA VALIDA|NON E UNA POLIZZA VALIDA|FACSIMILE\s*\/\s*DATI DI TEST/i.test(text)) {
+      enriched.draft.extractionNotes = [
+        enriched.draft.extractionNotes,
+        "Questo PDF è un facsimile o documento sintetico: non rappresenta una copertura assicurativa attiva.",
+      ].filter(Boolean).join(" ");
+      enriched.draft.extractionConfidence = Math.min(enriched.draft.extractionConfidence ?? 49, 49);
+    }
     const normalizeMs = elapsedMs(normalizeStartedAt);
 
     logAnalysisTiming({

@@ -12,27 +12,31 @@ export default async function PoliciesPage() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <header className="atlas-consumer-hero flex flex-col gap-4 rounded-3xl border border-border p-5 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <h1 className="text-[24px] font-semibold tracking-tight text-foreground">Le mie polizze</h1>
           <p className="mt-1 text-[13px] text-muted">
-            Tutte le assicurazioni, organizzate per tipo.
+            Scopri quanto paghi e cosa prevede ogni polizza.
           </p>
         </div>
-        <Link
-          href="/policies/new"
-          className="atlas-btn-primary min-h-11 w-full px-4 text-[13px] sm:w-auto"
-        >
-          Aggiungi
-        </Link>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Link href="/documents" className="atlas-btn-primary min-h-11 w-full px-4 text-[13px] sm:w-auto">
+            Carica un PDF
+          </Link>
+          <Link href="/policies/new" className="atlas-btn-secondary min-h-11 w-full px-4 text-[13px] sm:w-auto">
+            Inserisci a mano
+          </Link>
+        </div>
       </header>
 
       {policies.length === 0 ? (
         <EmptyState
-          title="Nessuna polizza ancora"
-          description="Aggiungi la prima assicurazione per vedere premi, scadenze e documenti."
-          actionLabel="Aggiungi polizza"
-          actionHref="/policies/new"
+          title="Non hai ancora aggiunto polizze"
+          description="Parti da un PDF: ATLAS prepara una bozza da controllare, senza inventare dati mancanti."
+          actionLabel="Carica una polizza PDF"
+          actionHref="/documents"
+          secondaryLabel="Inserisci a mano"
+          secondaryHref="/policies/new"
         />
       ) : (
         <div className="space-y-7">

@@ -11,10 +11,12 @@ import {
 } from "@/lib/document-analysis";
 import {
   deleteCurrentUserDocument,
+  getCurrentUserDocumentById,
   DocumentManagementError,
   DocumentUploadError,
   DuplicateDocumentUploadError,
   uploadUserDocument,
+  registerDirectUploadedDocument,
 } from "@/lib/documents";
 
 export type UploadDocumentActionState = {
@@ -68,6 +70,42 @@ export async function uploadDocumentAction(
   }
 }
 
+/**
+ * Small JSON action: bytes were already uploaded directly to private Storage.
+ */
+export async function finalizeDirectDocumentUploadAction(input: {
+  filePath: string;
+  fileName: string;
+}): Promise<UploadDocumentActionState> {
+  if (
+    typeof input?.filePath !== "string" ||
+    typeof input?.fileName !== "string" ||
+    input.filePath.length > 260 ||
+    input.fileName.length > 255
+  ) return { status: "error", message: "Informazioni file non valide." };
+
+  try {
+    const document = await registerDirectUploadedDocument(input);
+    revalidatePath("/documents");
+    revalidatePath("/dashboard");
+    return {
+      status: "success",
+      message: "Documento caricato con successo.",
+      documentId: document.id,
+    };
+  } catch (error) {
+    if (error instanceof DuplicateDocumentUploadError) {
+      return { status: "error", message: error.message, documentId: error.existingDocumentId };
+    }
+    return {
+      status: "error",
+      message: error instanceof DocumentUploadError
+        ? error.message
+        : "Registrazione non riuscita. Riprova tra poco.",
+    };
+  }
+}
+
 export async function deleteDocumentAction(
   id: string,
   redirectTo: "/documents" | null,
@@ -115,8 +153,6 @@ export async function analyzeDocumentAction(
   _previousState: AnalyzeDocumentActionState,
   formData: FormData
 ): Promise<AnalyzeDocumentActionState> {
-  void formData;
-
   const actionStartedAt = performance.now();
   let policyId: string;
 
@@ -181,6 +217,16 @@ export async function submitDocumentAnalysisFeedbackAction(input: {
   if (!input.documentId || !DOCUMENT_FEEDBACK_REASONS.has(reason)) {
     return { ok: false };
   }
+
+  // Document IDs from a browser are untrusted; verify current ownership.
+  // getCurrentUserDocumentById scopes by authenticated user + user_id in SQL.
+  let document;
+  try {
+    document = await getCurrentUserDocumentById(input.documentId);
+  } catch {
+    return { ok: false };
+  }
+  if (!document) return { ok: false };
 
   const { logPolicyAnalysisInfo } = await import("@/lib/policy-analysis-logging");
   logPolicyAnalysisInfo("document_analysis_user_feedback", {

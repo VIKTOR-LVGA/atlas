@@ -1,3 +1,5 @@
+const supportEmail = process.env.NEXT_PUBLIC_ATLAS_SUPPORT_EMAIL?.trim();
+
 export const metadata = {
   title: "Privacy (bozza)",
   robots: { index: false, follow: false },
@@ -27,6 +29,13 @@ const sections = [
       "Il caricamento conserva il PDF nel tuo archivio privato. Quando avvii l'analisi AI, il testo del documento viene elaborato tramite il servizio esterno OpenAI per proporre una bozza di polizza.",
       "L'analisi può essere incompleta o contenere errori. Controlla sempre la polizza originale, i premi e le coperture prima di confermare o prendere decisioni.",
       "Condizioni generali, fatture e materiale informativo vengono archiviati e classificati, ma non creano automaticamente una copertura sul tuo profilo.",
+    ],
+  },
+  {
+    title: "Domande ad ATLAS e simulazioni",
+    body: [
+      "Quando fai una domanda o simuli uno scenario, ATLAS usa i dati pertinenti del tuo portafoglio per formulare la risposta; quando è necessaria una generazione AI, può trasmettere la domanda e il contesto selezionato al servizio OpenAI.",
+      "Le risposte automatiche sono informative: le coperture, i limiti e le esclusioni devono essere verificati sui documenti assicurativi originali.",
     ],
   },
   {
@@ -87,8 +96,16 @@ export default function PrivacyDraftPage() {
       <section>
         <h2 className="text-[16px] font-semibold tracking-tight text-foreground">Contatti</h2>
         <p className="mt-3 text-[13px] leading-relaxed text-muted">
-          Per domande sul trattamento dei dati durante il pilot, scrivi al referente ATLAS che
-          ti ha invitato.
+          {supportEmail ? (
+            <>
+              Per richieste sulla privacy e assistenza scrivi a{" "}
+              <a className="font-medium text-accent underline" href={"mailto:" + supportEmail}>
+                {supportEmail}
+              </a>.
+            </>
+          ) : (
+            "Per richieste sulla privacy o assistenza, contatta il referente ATLAS che ti ha invitato."
+          )}
         </p>
       </section>
     </article>

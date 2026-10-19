@@ -32,3 +32,37 @@ No 100% accuracy claims. Scanned/unreadable PDF and ambiguous clauses must be re
 - Off-device encrypted backup and independent password recovery not confirmed.
 - Vercel production-domain anonymous access must be tested.
 These are **release gates**, not issues solved by a successful Next.js build.
+
+## Additional regression safeguards
+- Swiss explicit printed contract-total cross-check flags inconsistencies for review without inventing data.
+- KPT *synthetic* fixture: CHF 535.10 LAMal + CHF 32.25 LCA = CHF 567.35/month.
+- A premium of exactly CHF 0 is a known free product, not a missing premium.
+- Run npm run test:knowledge and the authorized live OpenAI fixture suite before Production.
+
+## New-user Auth configuration still required in Supabase
+- SMTP: configure a real outbound provider for external addresses; default Supabase Auth SMTP is restricted.
+- Authentication → URL Configuration: configure the public Site URL and allowed /auth/callback redirect URLs for Production and localhost as needed.
+- Confirm signup email template: replace link with the SSR token-hash route based on the **configured SiteURL**:
+
+    {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email
+
+- Password recovery template can similarly use:
+
+    {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery
+
+- Verify on a genuine invited external test email before claiming account registration functional.
+- Source reference: https://supabase.com/docs/guides/getting-started/tutorials/with-nextjs
+- These route handlers are safe code preparation, **not** confirmation that external SMTP/template settings were changed.
+
+## Long and synthetic PDFs
+- The PDF text gate retains up to 48k characters before compaction to 32k.
+- If compaction drops text, the draft is marked for checking against the full PDF, with confidence capped at 65.
+- Synthetic/facsimile markers add a nonbinding-contract warning and cap confidence at 49; QA fixtures remain usable.
+
+## Private 10 MB PDF uploads
+- Browser now uploads directly to private Supabase Storage, respecting the existing RLS owner folder prefix; Vercel only receives small JSON metadata.
+- Server re-downloads and validates owner, UUID file path, document name, exact size, PDF signature and SHA-256 before inserting the document row.
+- No fallback to accepting forged client hashes, MIME type or user ID.
+- A failed DB insert is cleaned up; uncertain transport failures are **not** cleaned up automatically, to avoid deleting an otherwise registered PDF.
+- Deterministic safety tests for private object paths and long PDF filenames.
+- **Must verify against Production Storage using a synthetic PDF in controlled E2E before public uploads.**

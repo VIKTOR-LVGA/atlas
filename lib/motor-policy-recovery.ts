@@ -246,7 +246,11 @@ export function applySwissMotorRecovery(
   // keep amount as annual and coerce frequency to annual (payment cadence stays in details).
   let premiumAmount = result.draft.premiumAmount;
   let premiumFrequency = result.draft.premiumFrequency;
-  if (recovered.annualGrossPremium != null) {
+  // If validation rejected an ambiguous payable amount, do not repopulate it
+  // from a gross/reference annual figure. Review still has the original evidence.
+  const totalDisputed =
+    details.field_confidence?.premium_amount?.evidence === "Totale del premio da verificare";
+  if (recovered.annualGrossPremium != null && !totalDisputed) {
     const annual = recovered.annualGrossPremium;
     if (
       premiumAmount != null &&

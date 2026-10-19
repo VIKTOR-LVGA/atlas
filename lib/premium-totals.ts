@@ -41,7 +41,7 @@ export function getPolicyAnnualPremium(policy: UserPolicy): number | null {
   if (
     policy.premiumAmount !== null &&
     Number.isFinite(policy.premiumAmount) &&
-    policy.premiumAmount > 0
+    policy.premiumAmount >= 0
   ) {
     return toAnnualPremium(policy.premiumAmount, policy.premiumFrequency);
   }
@@ -49,10 +49,10 @@ export function getPolicyAnnualPremium(policy: UserPolicy): number | null {
   const summary = policy.details.premium_summary;
   const annual =
     summary?.total_annual ??
-    (summary?.final_monthly ? summary.final_monthly * 12 : null) ??
-    (summary?.total_monthly ? summary.total_monthly * 12 : null);
+    (summary?.final_monthly != null ? summary.final_monthly * 12 : null) ??
+    (summary?.total_monthly != null ? summary.total_monthly * 12 : null);
 
-  if (annual !== null && Number.isFinite(annual) && annual > 0) {
+  if (annual !== null && Number.isFinite(annual) && annual >= 0) {
     return annual;
   }
 

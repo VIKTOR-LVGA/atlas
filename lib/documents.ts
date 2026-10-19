@@ -3,6 +3,7 @@ import "server-only";
 import { createHash, randomUUID } from "node:crypto";
 import { cache } from "react";
 import type { DocumentStatus, UserDocument } from "@/lib/types";
+import { isOwnedDirectPdfPath, normalizeUploadedPdfName } from "@/lib/document-upload-validation";
 import {
   insuranceDocumentTypes,
   type InsuranceDocumentType,
@@ -295,6 +296,86 @@ export async function uploadUserDocument(file: File): Promise<UserDocument> {
     );
   }
 
+  return toUserDocument(document);
+}
+
+
+/**
+ * Finalizes a browser-to-Supabase upload without streaming its bytes through
+ * Vercel's 4.5 MB Function request limit.
+ * Uses only the current user's JWT and folder-scoped Storage RLS.
+ */
+export async function registerDirectUploadedDocument(input: {
+  filePath: string;
+  fileName: string;
+}): Promise<UserDocument> {
+  const supabase = await getSupabaseServerClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    throw new DocumentUploadError("Sessione scaduta. Accedi nuovamente.");
+  }
+
+  if (!isOwnedDirectPdfPath(input.filePath, user.id)) {
+    throw new DocumentUploadError("Percorso del documento non valido.");
+  }
+
+  const fileName = normalizeUploadedPdfName(input.fileName);
+  if (!fileName) {
+    throw new DocumentUploadError("Seleziona un PDF valido.");
+  }
+
+  // Do not overwrite or remove a previously registered object, even when the
+  // caller resends a forged path. Each upload gets a fresh random UUID.
+  const { data: alreadyRegistered, error: lookupError } = await supabase
+    .from("documents")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("file_path", input.filePath)
+    .maybeSingle();
+  if (lookupError) throw new DocumentUploadError("Impossibile verificare il documento.");
+  if (alreadyRegistered) throw new DuplicateDocumentUploadError(alreadyRegistered.id);
+
+  // Download is server-to-Storage, not a user-to-Vercel upload.
+  // Verify bytes instead of trusting the browser's content type or metadata.
+  const { data: blob, error: downloadError } = await supabase.storage
+    .from(POLICY_DOCUMENTS_BUCKET)
+    .download(input.filePath);
+  if (downloadError || !blob) {
+    throw new DocumentUploadError("File non trovato nello spazio privato. Riprova l'upload.");
+  }
+  if (blob.size === 0 || blob.size > MAX_POLICY_DOCUMENT_SIZE) {
+    throw new DocumentUploadError("Il PDF è vuoto o supera 10 MB.");
+  }
+
+  const bytes = Buffer.from(await blob.arrayBuffer());
+  if (bytes.subarray(0, PDF_SIGNATURE.length).toString("utf8") !== PDF_SIGNATURE) {
+    throw new DocumentUploadError("Il file caricato non è un PDF valido.");
+  }
+  const fileHash = computePdfSha256(bytes);
+  const duplicate = await findCurrentUserDocumentByHash(user.id, fileHash);
+  if (duplicate) {
+    await supabase.storage.from(POLICY_DOCUMENTS_BUCKET).remove([input.filePath]);
+    throw new DuplicateDocumentUploadError(duplicate.id);
+  }
+
+  const { data: document, error: insertError } = await supabase
+    .from("documents")
+    .insert({
+      user_id: user.id,
+      file_name: fileName,
+      file_path: input.filePath,
+      file_size: bytes.length,
+      mime_type: "application/pdf",
+      file_hash: fileHash,
+    })
+    .select(documentSelect)
+    .single();
+
+  if (insertError || !document) {
+    // A known insert failure can safely clean up this unregistered object.
+    await supabase.storage.from(POLICY_DOCUMENTS_BUCKET).remove([input.filePath]);
+    throw new DocumentUploadError("PDF ricevuto, ma registrazione non riuscita. Contatta il supporto.");
+  }
   return toUserDocument(document);
 }
 

@@ -23,12 +23,12 @@ export function SituationSummary({ data }: { data: SituationSummaryInput }) {
 
   if (data.annualCost !== null) {
     tiles.push({
-      label: "Costo annuo noto",
+      label: "Premi annuali rilevati",
       value: formatCHF(data.annualCost),
       hint:
         data.monthlyCost !== null
           ? `circa ${formatCHF(data.monthlyCost)} al mese`
-          : "dalle polizze con premio indicato",
+          : "solo per polizze con premio noto",
     });
   }
 

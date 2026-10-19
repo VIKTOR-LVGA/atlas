@@ -22,8 +22,9 @@ export function NavigationFeedback() {
       if (url.origin !== window.location.origin || url.pathname === window.location.pathname) return;
       setDestination(url.pathname);
     }
-    document.addEventListener("click", onClick);
-    return () => document.removeEventListener("click", onClick);
+    // Capture before Next.js Link handles and prevents the default click.
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
   }, []);
 
   useEffect(() => {

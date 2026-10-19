@@ -119,6 +119,8 @@ function answerFromStructure(question: string, ctx: PortfolioContext): AskAtlasR
       (policy) => getPolicyAnnualPremium(policy) !== null
     );
     const missingPremiumCount = ctx.policies.length - policiesWithPremium.length;
+    const unreviewedCount = policiesWithPremium.filter((policy) => policy.requiresReview).length;
+    const needsReview = missingPremiumCount > 0 || unreviewedCount > 0;
     if (premiums.annual === null) {
       return {
         answer:
@@ -134,19 +136,19 @@ function answerFromStructure(question: string, ctx: PortfolioContext): AskAtlasR
       };
     }
     return {
-      answer: `Dai documenti e dati caricati, il costo annuale noto è ${formatCHF(premiums.annual)}${
+      answer: `Dai documenti e dati caricati, la somma annua dei premi rilevati è ${formatCHF(premiums.annual)}${
         premiums.monthly != null ? ` (circa ${formatCHF(premiums.monthly)} al mese)` : ""
-      }. Se alcune polizze non hanno premio, il totale è parziale.`,
+      }. Sono esclusi i premi mancanti; i valori estratti dall’AI e non ancora confermati sono provvisori.`,
       structured: {
-        summary: `Costo annuale noto: ${formatCHF(premiums.annual)}`,
+        summary: `Premi annui rilevati: ${formatCHF(premiums.annual)}`,
         sections: [
           {
             title: "Nota",
-            body: "Somma basata solo sulle polizze con premio noto. Non è un consiglio finanziario.",
+            body: "Somma solo dei premi presenti nel portafoglio. Controlla le bozze AI prima di considerarla definitiva.",
           },
         ],
         verificationStatus:
-          missingPremiumCount > 0 ? "needs_verification" : "inferred",
+          needsReview ? "needs_verification" : "inferred",
         insufficientData: missingPremiumCount > 0,
       },
       sources: policiesWithPremium.slice(0, 8).map((p) => ({
@@ -156,7 +158,7 @@ function answerFromStructure(question: string, ctx: PortfolioContext): AskAtlasR
         href: `/policies/${p.id}`,
       })),
       verificationStatus:
-        missingPremiumCount > 0 ? "needs_verification" : "inferred",
+        needsReview ? "needs_verification" : "inferred",
     };
   }
 
