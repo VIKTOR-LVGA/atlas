@@ -1523,6 +1523,18 @@ export const openAIPolicyDocumentExtractor: PolicyDocumentExtractor = {
       modelUsed,
       fallbackUsed,
     });
+    // Swiss enrichment and motor recovery must not silently reintroduce
+    // a premium rejected by cross-checking its period or printed final total.
+    if (
+      normalizeNullableNumber(payload.premium_amount) !== null &&
+      normalized.draft.premiumAmount === null
+    ) {
+      enriched.draft.premiumAmount = null;
+      enriched.draft.details.premium_summary = null;
+      enriched.draft.extractionConfidence = Math.min(
+        49, enriched.draft.extractionConfidence ?? 49
+      );
+    }
     if (compaction.wasTruncated) {
       enriched.draft.extractionNotes = [
         enriched.draft.extractionNotes,
