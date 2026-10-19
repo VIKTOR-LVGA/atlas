@@ -32,3 +32,9 @@ No 100% accuracy claims. Scanned/unreadable PDF and ambiguous clauses must be re
 - Off-device encrypted backup and independent password recovery not confirmed.
 - Vercel production-domain anonymous access must be tested.
 These are **release gates**, not issues solved by a successful Next.js build.
+
+## Additional regression safeguards
+- Swiss explicit printed contract-total cross-check flags inconsistencies for review without inventing data.
+- KPT *synthetic* fixture: CHF 535.10 LAMal + CHF 32.25 LCA = CHF 567.35/month.
+- A premium of exactly CHF 0 is a known free product, not a missing premium.
+- Run npm run test:knowledge and the authorized live OpenAI fixture suite before Production.
