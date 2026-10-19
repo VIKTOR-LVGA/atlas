@@ -106,12 +106,6 @@
   --font-sans: var(--font-inter);
 }
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
@@ -1442,7 +1436,7 @@ body { -webkit-font-smoothing: antialiased; }
 }
 .atlas-v2-cta-art { min-height: 235px; }
 .atlas-v2-swiss-banner {
-  background-image: linear-gradient(90deg, rgba(244,248,255,.97) 0%, rgba(239,245,255,.95) 36%, rgba(241,246,255,.46) 69%, rgba(236,244,255,.07) 100%), url("/brand/atlas-hero-switzerland.png");
+  background-image: linear-gradient(90deg, rgba(244,248,255,.97) 0%, rgba(239,245,255,.95) 36%, rgba(241,246,255,.46) 69%, rgba(236,244,255,.07) 100%), url("/brand/atlas-alpine-lake-hero.webp");
   background-repeat: no-repeat; background-size: cover; background-position: center 45%;
   border: 1px solid #dce5f8;
 }
@@ -1473,14 +1467,14 @@ body { -webkit-font-smoothing: antialiased; }
   .atlas-visual-phone .mt-8 { margin-top: 20px; }
   .atlas-visual-phone .mt-6 { margin-top: 14px; }
   .atlas-visual-phone .mt-5 { margin-top: 12px; }
-  .atlas-visual-phone .text-\\[23px\\] { font-size: 19px; }
+  .atlas-visual-phone-title { font-size: 19px; }
   .atlas-visual-floating { padding: 6px 8px; gap: 5px; border-radius: 12px; }
   .atlas-visual-floating-top { top: 60px; right: -2px; }
   .atlas-visual-floating-bottom { bottom: 22px; left: 0; }
   .atlas-v2-cta-art { min-height: 190px; }
   .atlas-v2-policy-art { width: 88px; height: 76px; }
   .atlas-v2-swiss-banner {
-    background-image: linear-gradient(90deg, rgba(245,249,255,.97) 0%, rgba(242,247,255,.82) 55%, rgba(243,247,255,.4) 100%), url("/brand/atlas-hero-switzerland.png");
+    background-image: linear-gradient(90deg, rgba(245,249,255,.97) 0%, rgba(242,247,255,.82) 55%, rgba(243,247,255,.4) 100%), url("/brand/atlas-alpine-lake-hero.webp");
     background-position: 65% center;
   }
 }
@@ -1590,7 +1584,7 @@ body { -webkit-font-smoothing: antialiased; }
 /* The dashboard visual hierarchy reproduces the approved reference:
    scenic hero -> 4 quiet stats -> policy rows + reminders/documents. */
 .atlas-ref-alpine-hero {
- background-image:linear-gradient(90deg,rgba(229,235,255,.96) 0%,rgba(230,237,255,.90) 23%,rgba(226,237,255,.44) 54%,rgba(223,236,255,.07) 100%),url("/brand/atlas-hero-switzerland.png");
+ background-image:linear-gradient(90deg,rgba(229,235,255,.98) 0%,rgba(230,237,255,.90) 30%,rgba(226,237,255,.38) 58%,rgba(223,236,255,.05) 100%),url("/brand/atlas-alpine-lake-hero.webp");
  background-size:cover;background-position:center 45%;
  border:1px solid rgba(204,220,248,.8);
  box-shadow:0 12px 29px rgba(61,96,164,.08);
@@ -1607,7 +1601,7 @@ body { -webkit-font-smoothing: antialiased; }
 .atlas-ref-sidebar-promo{background:linear-gradient(150deg,#d4e0ff,#edf3ff);}
 .atlas-ref-dashboard-panel a:focus-visible,.atlas-ref-stat:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
 @media(max-width:640px){
- .atlas-ref-alpine-hero{min-height:230px;background-image:linear-gradient(90deg,rgba(239,243,255,.93) 0%,rgba(231,239,255,.82) 54%,rgba(228,240,255,.10) 100%),url("/brand/atlas-hero-switzerland.png");background-position:65% center;}
+ .atlas-ref-alpine-hero{min-height:230px;background-image:linear-gradient(90deg,rgba(239,243,255,.97) 0%,rgba(231,239,255,.93) 62%,rgba(228,240,255,.55) 100%),url("/brand/atlas-alpine-lake-hero.webp");background-position:72% center;}
 }
 @media(prefers-reduced-motion: reduce){.atlas-ref-stat{transition:none}.atlas-ref-stat:hover{transform:none}}
 
@@ -1662,4 +1656,29 @@ body { -webkit-font-smoothing: antialiased; }
   --landing-accent:#3157e9;
   --landing-accent-bright:#3157e9;
   --landing-hero-text:#142038;
+}
+
+/* Public marketing is intentionally light in both account themes. Keep the
+   high-specificity theme rules in sync so the sticky header cannot retain the
+   old dark surface while the rest of the page is light. */
+[data-theme="dark"] .landing .landing-nav,
+.landing .landing-nav {
+  background:color-mix(in srgb,#f8faff 92%,transparent);
+  border-color:#e2e9f5;
+  color:#142038;
+}
+
+/* Contain only the decorative compositions that can rotate beyond their own
+   box. The document itself is deliberately not clipped, so regressions remain
+   visible to responsive tests. */
+.atlas-ref-visual,
+.atlas-ref-upload-showcase,
+.atlas-ref-alpine-hero {
+  max-width:100%;
+}
+
+@media(max-width:420px){
+  .atlas-ref-policy-row .atlas-v2-policy-art{width:68px;height:58px;}
+  .atlas-ref-policy-row{gap:.55rem;}
+  .atlas-ref-policy-row > :last-child{display:none;}
 }

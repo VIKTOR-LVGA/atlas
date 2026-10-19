@@ -37,7 +37,7 @@ export function Sidebar(){
       </Link>
       <Link href="/atlas/ask" className="atlas-ref-sidebar-promo mt-6 block overflow-hidden rounded-[20px] border border-[#d9e5ff]">
         <div className="px-4 pt-5"><p className="text-[18px] font-extrabold leading-[1.18] tracking-[-.04em] text-[#122b62]">Protezione<br/>per ogni tuo<br/>domani.</p></div>
-        <div className="flex h-[125px] items-end justify-between bg-[url('/brand/atlas-trust-switzerland.png')] bg-cover bg-center px-4 pb-3"><span className="rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-bold text-[#26447a]">Chiedi ad ATLAS</span><ArrowUpRight className="h-4 w-4 text-[#2147a1]"/></div>
+        <div className="flex h-[125px] items-end justify-between bg-[url('/brand/atlas-alpine-lake-hero.webp')] bg-cover bg-[72%_center] px-4 pb-3"><span className="rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-bold text-[#26447a]">Chiedi ad ATLAS</span><ArrowUpRight className="h-4 w-4 text-[#2147a1]"/></div>
       </Link>
     </div>
     <Link href="/settings" className="mx-3 mb-4 mt-5 flex items-center gap-3 rounded-[15px] border border-border bg-card px-3 py-3 hover:bg-card-muted">

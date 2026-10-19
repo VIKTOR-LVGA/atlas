@@ -11,9 +11,9 @@ const advantages=[
 
 export function LandingHero() {
   return (
-    <section className="atlas-ref-landing relative isolate overflow-hidden">
+    <section className="atlas-ref-landing relative isolate overflow-clip">
       <div className="atlas-ref-soft-glow pointer-events-none absolute inset-0" aria-hidden />
-      <div className="relative mx-auto grid w-full max-w-[1430px] items-center gap-3 px-5 pb-4 pt-10 sm:px-8 sm:pt-16 lg:min-h-[680px] lg:grid-cols-[.95fr_1.05fr] lg:gap-2 lg:px-11 lg:pb-8 lg:pt-16">
+      <div className="relative mx-auto grid w-full min-w-0 max-w-[1430px] items-center gap-3 px-5 pb-4 pt-10 sm:px-8 sm:pt-16 lg:min-h-[680px] lg:grid-cols-[.95fr_1.05fr] lg:gap-2 lg:px-11 lg:pb-8 lg:pt-12">
         <div className="relative z-10 max-w-[660px] pb-3">
           <span className="inline-flex items-center rounded-full bg-[#e8eeff] px-4 py-2 text-[12px] font-semibold text-[#3658ec]">
             La tua vita, più protetta
@@ -34,7 +34,7 @@ export function LandingHero() {
               Scopri come funziona
             </a>
           </div>
-          <div className="mt-11 grid grid-cols-3 gap-3 sm:gap-5">
+          <div className="mt-9 grid grid-cols-3 gap-2 sm:mt-11 sm:gap-5">
             <div className="flex items-start gap-2"><span className="atlas-ref-benefit-icon"><FileText className="h-5 w-5"/></span><span><strong className="block text-[11px] text-[#1b2c57] sm:text-[12px]">Carica le polizze</strong><small className="mt-1 block text-[10px] leading-snug text-[#7a88a4]">Documenti PDF</small></span></div>
             <div className="flex items-start gap-2"><span className="atlas-ref-benefit-icon"><Sparkles className="h-5 w-5"/></span><span><strong className="block text-[11px] text-[#1b2c57] sm:text-[12px]">Analisi con AI</strong><small className="mt-1 block text-[10px] leading-snug text-[#7a88a4]">Dati da verificare</small></span></div>
             <div className="flex items-start gap-2"><span className="atlas-ref-benefit-icon"><ShieldCheck className="h-5 w-5"/></span><span><strong className="block text-[11px] text-[#1b2c57] sm:text-[12px]">Sempre con te</strong><small className="mt-1 block text-[10px] leading-snug text-[#7a88a4]">Archivio privato</small></span></div>

@@ -11,7 +11,7 @@ const icons: Record<ConsumerNavId, typeof IconDashboard> = {
 };
 export function BottomNav(){
   const pathname=usePathname();
-  return <nav aria-label="Navigazione principale" className="atlas-bottom-dock fixed inset-x-0 bottom-0 z-50 rounded-t-[24px] px-1 pt-1 backdrop-blur-xl lg:hidden"
+  return <nav aria-label="Navigazione principale" className="atlas-bottom-dock fixed inset-x-0 bottom-0 z-50 rounded-t-[24px] border-t border-border px-1 pt-1 backdrop-blur-xl lg:hidden"
     style={{paddingBottom:"max(.5rem,env(safe-area-inset-bottom))"}}>
     <ul className="mx-auto grid max-w-[560px] grid-cols-5 gap-0.5">
       {consumerNavItems.map(item=>{

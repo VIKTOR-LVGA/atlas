@@ -12,7 +12,7 @@ export default function HomePage() {
   return (
     <div className="landing min-h-screen">
       <LandingNav />
-      <main className="overflow-x-hidden">
+      <main className="min-w-0">
         <LandingHero />
         <LandingProductShowcase />
         <LandingHowItWorks />
