@@ -1631,3 +1631,7 @@ body { -webkit-font-smoothing: antialiased; }
  .atlas-ref-upload-device-front {width:220px;height:475px;transform:none;}
  .atlas-ref-upload-device:not(.atlas-ref-upload-device-front){display:none;}
 }
+
+.atlas-contained { max-width: 1340px; }
+.atlas-ref-policy-row .atlas-v2-policy-art { width:92px;height:72px; }
+@media(min-width:640px){.atlas-ref-policy-row .atlas-v2-policy-art{width:120px;height:90px}}

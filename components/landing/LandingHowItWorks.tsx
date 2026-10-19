@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Bell, CalendarDays, Check, CheckCircle2, ChevronRight, CloudUpload, FileText, Heart, Home, Plus, ShieldCheck, Sparkles, UploadCloud } from "lucide-react";
+import { ArrowRight, Bell, CheckCircle2, ChevronRight, FileText, Heart, Home, Plus, ShieldCheck, Sparkles, UploadCloud } from "lucide-react";
 import { LandingSection } from "@/components/landing/LandingSection";
 
 const stages=[
