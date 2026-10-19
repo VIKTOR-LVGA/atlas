@@ -3,6 +3,7 @@ import "server-only";
 import { recordTimelineEvent } from "@/lib/insurance-os/timeline";
 import { getPolicyTypeLabel } from "@/lib/policy-types";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getCurrentRequestAuth } from "@/lib/supabase/server";
 import type { UserPolicy } from "@/lib/types";
 
 export type ClaimStatus =
@@ -184,10 +185,7 @@ export async function createClaim(input: {
   peopleInvolved?: string | null;
   policies: UserPolicy[];
 }): Promise<InsuranceClaim> {
-  const supabase = await getSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getCurrentRequestAuth();
   if (!user) throw new Error("Accedi di nuovo per continuare.");
 
   const match = matchPoliciesForClaim(input.category, input.description, input.policies);
