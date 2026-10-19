@@ -2,8 +2,7 @@ import "server-only";
 
 export { buildCoverageMap } from "@/lib/insurance-os/coverage-map-core";
 import type { CoverageMapResult } from "@/lib/insurance-os/coverage-map-types";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
-import { getCurrentRequestAuth } from "@/lib/supabase/server";
+import { getCurrentRequestAuth, getSupabaseServerClient } from "@/lib/supabase/server";
 import type { PolicyCoverage } from "@/lib/types";
 
 export type {
