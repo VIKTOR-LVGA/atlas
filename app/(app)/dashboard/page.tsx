@@ -32,22 +32,9 @@ import { getCurrentProfile } from "@/lib/profiles";
 export const metadata = { title: "Home" };
 
 const ONBOARDING_STEPS = [
-  {
-    title: "Carichi i documenti",
-    body: "Polizze, condizioni generali, fatture di premio. Un PDF alla volta o tutti insieme.",
-  },
-  {
-    title: "ATLAS li legge",
-    body: "Estrae compagnia, premi, franchigie e coperture, indicando sempre da quale pagina arriva il dato.",
-  },
-  {
-    title: "Vedi il tuo quadro",
-    body: "Una mappa per aree della vita: cosa è coperto, cosa è da verificare, cosa manca.",
-  },
-  {
-    title: "Ti muovi con calma",
-    body: "Domande in linguaggio naturale, scenari «e se…», check-up e dossier sinistri.",
-  },
+  { title: "Carica un PDF", body: "Aggiungi una polizza dal telefono o dal computer." },
+  { title: "Controlla i dati", body: "ATLAS propone una bozza: verifica premi, persone e coperture prima di confermarla." },
+  { title: "Tieni tutto sotto controllo", body: "Ritrova costi, documenti, scadenze e domande in un solo posto." },
 ];
 
 const STATUS_WEIGHT: Record<CoverageMapCategoryView["status"], number> = {
@@ -114,19 +101,22 @@ export default async function DashboardPage() {
           <h1 className="text-[26px] font-semibold tracking-tight text-foreground sm:text-[30px]">
             {greeting}, {name}
           </h1>
+          <p className="mt-2 max-w-xl text-[14px] leading-relaxed text-muted-foreground">
+            Tutte le tue assicurazioni, più facili da capire. Comincia con una polizza.
+          </p>
         </header>
 
         <EmptyState
-          title="Costruiamo il tuo quadro assicurativo."
-          description="ATLAS parte dai tuoi documenti. Carica la prima polizza: da lì nasce tutto il resto."
-          actionLabel="Carica un documento"
+          title="La prima cosa da fare"
+          description="Carica il PDF della tua assicurazione. ATLAS ti aiuta a leggerlo, poi sei tu a confermare i dati."
+          actionLabel="Carica la prima polizza"
           actionHref="/documents"
-          secondaryLabel="Inserisci una polizza a mano"
+          secondaryLabel="Inseriscila a mano"
           secondaryHref="/policies/new"
         />
 
-        <ConsumerSection title="Come funziona">
-          <ol className="grid gap-2 sm:grid-cols-2">
+        <ConsumerSection title="Semplice, in tre passi">
+          <ol className="grid gap-2 sm:grid-cols-3">
             {ONBOARDING_STEPS.map((step, index) => (
               <li key={step.title} className="atlas-consumer-card px-4 py-4">
                 <p className="atlas-section-eyebrow">Passo {index + 1}</p>
@@ -169,11 +159,23 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-7">
-      <header>
-        <h1 className="text-[26px] font-semibold tracking-tight text-foreground sm:text-[30px]">
-          {greeting}, {name}
-        </h1>
-        <p className="mt-1 text-[15px] text-muted-foreground">La tua situazione assicurativa</p>
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-[26px] font-semibold tracking-tight text-foreground sm:text-[30px]">
+            {greeting}, {name}
+          </h1>
+          <p className="mt-1 text-[14px] text-muted-foreground">
+            Le tue assicurazioni, in parole semplici.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/documents" className="atlas-btn-primary min-h-11 px-4 text-[13px]">
+            Carica un PDF
+          </Link>
+          <Link href="/atlas/ask" className="atlas-btn-secondary min-h-11 px-4 text-[13px]">
+            Fai una domanda
+          </Link>
+        </div>
       </header>
 
       {activeConsultation ? (

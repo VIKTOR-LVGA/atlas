@@ -120,6 +120,10 @@ const EXTRACTION_INSTRUCTIONS = [
   "Do not add extraction_metadata.warnings about premium ambiguity when the document clearly states free/gratis/zero payable for that product.",
   "Per line: premium_gross (list/reference when applicable), discounts[], premium_final (= effective payable premium), franchise/deductible when shown, source_page, source_order.",
   "Populate field_confidence on important fields with value, confidence 0-100, uncertain true only when that field's evidence is weak, and a short evidence tag. Optional missing dates: use null with moderate confidence and uncertain false.",
+  "Identify premium frequency from the actual contract statement, not merely the payment schedule. Leave it null when unsupported; never assume monthly.",
+  "Distinguish LAMal premiums, cantonal subsidies/RIPAM, discounts and the actual payable amount. Do not subtract a subsidy unless the document includes it in the stated payable total.",
+  "Do not infer accident inclusion from general Swiss law. Record with/without accident per person only when explicitly printed.",
+  "Follow table row and column headers before assigning premiums, deductibles, insured persons or limits. Keep evidence strictly tied to the actual PDF.",
   "Add extraction_metadata.matched_keywords, inferred_sections, and warnings only for real ambiguity — not routine multi-person policies. Dates: YYYY-MM-DD. Currency usually CHF.",
 ].join(" ");
 const premiumFrequencies = [
@@ -347,7 +351,8 @@ function normalizeDate(value: unknown) {
     return null;
   }
 
-  return Number.isFinite(new Date(`${date}T00:00:00Z`).getTime())
+  const parsedDate = new Date(`${date}T00:00:00Z`);
+  return Number.isFinite(parsedDate.getTime()) && parsedDate.toISOString().slice(0, 10) === date
     ? date
     : null;
 }
@@ -1066,9 +1071,15 @@ function normalizeOpenAIExtraction(
   );
 
   const details = sanitizePolicyDetails(policyType, detailsSource) as PolicyDetails;
-  const extractionNotes =
+  const premiumPeriodMissing =
+    normalizeNullableNumber(payload.premium_amount) !== null &&
+    !premiumFrequencies.includes(payload.premium_frequency as PolicyPremiumFrequency);
+  const extractionNotesBase =
     normalizeNullableString(payload.extraction_notes) ??
     "Estrazione OpenAI completata. Verificare i dati prima di confermare la bozza.";
+  const extractionNotes = premiumPeriodMissing
+    ? `${extractionNotesBase} Importo premio presente, ma periodicità non verificabile: inserisci il premio manualmente dopo il controllo del PDF.`
+    : extractionNotesBase;
 
   return {
     processingMs: 0,
@@ -1080,7 +1091,8 @@ function normalizeOpenAIExtraction(
         normalizeNullableString(payload.policy_category_label) ??
         (classification.subtype === "other" ? null : classification.categoryLabel),
       policyNumber: normalizeNullableString(payload.policy_number),
-      premiumAmount: normalizeNullableNumber(payload.premium_amount),
+      // Never silently interpret a premium with unknown period as monthly.
+      premiumAmount: premiumPeriodMissing ? null : normalizeNullableNumber(payload.premium_amount),
       premiumFrequency: normalizePremiumFrequency(payload.premium_frequency),
       deductible: normalizeNullableNumber(payload.deductible),
       startDate: normalizeDate(payload.start_date),

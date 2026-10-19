@@ -112,7 +112,7 @@ export function DocumentUploadForm() {
           </p>
           <p className="mt-1.5 text-[12px] leading-relaxed text-muted">
             {state.message ||
-              "Il PDF è nel tuo archivio privato. Avvia l’analisi AI per creare la bozza polizza."}
+              "Il PDF è nel tuo archivio privato. Aprilo per avviare l’analisi AI e verificare la bozza."}
           </p>
           <div className="mt-5 flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-center">
             {successDocumentId ? (
@@ -122,14 +122,14 @@ export function DocumentUploadForm() {
                   className="atlas-btn-primary inline-flex min-h-[44px] items-center justify-center gap-2 px-4 py-2.5 text-[13px]"
                 >
                   <FileText className="h-4 w-4 shrink-0" />
-                  Apri documento
+                  Analizza il PDF
                 </Link>
                 <Link
-                  href={`/documents/${successDocumentId}`}
+                  href="/documents"
                   className="atlas-btn-secondary inline-flex min-h-[44px] items-center justify-center gap-2 px-4 py-2.5 text-[13px]"
                 >
-                  <Sparkles className="h-4 w-4 shrink-0" />
-                  Analizza documento
+                  <FileText className="h-4 w-4 shrink-0" />
+                  Vedi archivio
                 </Link>
               </>
             ) : (

@@ -12,6 +12,9 @@ export type CoverageNormalization = {
 
 export function normalizeCoverageLabel(label: string): CoverageNormalization {
   const normalized = normalizeKnowledgeText(label);
+  if (!normalized) {
+    return { canonicalType: null, category: null, originalLabel: label.trim(), confidence: 0, matchedAlias: null };
+  }
   let best:
     | { canonicalType: string; category: string; alias: string; score: number }
     | undefined;
@@ -19,8 +22,10 @@ export function normalizeCoverageLabel(label: string): CoverageNormalization {
   for (const definition of canonicalCoverageTaxonomy) {
     for (const alias of Object.values(definition.aliases).flat()) {
       const candidate = normalizeKnowledgeText(alias);
+      if (!candidate) continue;
       const exact = normalized === candidate;
-      const included = normalized.includes(candidate) || candidate.includes(normalized);
+      // Never classify a short, ambiguous input by matching a larger unrelated alias.
+      const included = exact || (candidate.length >= 4 && normalized.includes(candidate));
       if (!included) continue;
 
       const score = exact ? 1000 + candidate.length : candidate.length;
