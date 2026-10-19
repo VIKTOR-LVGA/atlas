@@ -2,8 +2,7 @@ import "server-only";
 
 import { recordTimelineEvent } from "@/lib/insurance-os/timeline";
 import { getPolicyTypeLabel } from "@/lib/policy-types";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
-import { getCurrentRequestAuth } from "@/lib/supabase/server";
+import { getCurrentRequestAuth, getSupabaseServerClient } from "@/lib/supabase/server";
 import type { UserPolicy } from "@/lib/types";
 
 export type ClaimStatus =
