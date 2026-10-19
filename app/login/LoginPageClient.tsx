@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { AuthFormField } from "@/components/auth/AuthFormField";
 import { AuthMessage } from "@/components/auth/AuthMessage";
@@ -13,7 +13,6 @@ import { validateEmail, validatePassword } from "@/lib/auth-validation";
 import { cn } from "@/lib/utils";
 
 export default function LoginPageClient() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const intent = searchParams.get("intent");
   const [email, setEmail] = useState("");
@@ -78,21 +77,27 @@ export default function LoginPageClient() {
       const next = searchParams.get("next");
       const metaIntent = data.user?.user_metadata?.registration_intent;
 
-      const { data: roleValue } = await supabase.rpc("current_user_role");
-      if (roleValue === "broker") {
-        router.push("/broker-unavailable");
-        router.refresh();
-        return;
+      // Navigation must happen only once after Supabase has persisted the
+      // auth cookie. A router.push() immediately followed by router.refresh()
+      // can duplicate server work and delay the first authenticated screen.
+      const destination = next
+        ? getSafeAuthRedirect(next)
+        : intent === "intelligence" || metaIntent === "intelligence"
+          ? await resolveIntelligenceDestination(supabase)
+          : "/dashboard";
+
+      // The consumer layout enforces Broker access on the server. Retain a
+      // preflight role check for Intelligence, which uses a separate layout.
+      if (destination.startsWith("/intelligence")) {
+        const { data: roleValue } = await supabase.rpc("current_user_role");
+        if (roleValue === "broker") {
+          window.location.replace("/broker-unavailable");
+          return;
+        }
       }
 
-      if (next) {
-        router.push(getSafeAuthRedirect(next));
-      } else if (intent === "intelligence" || metaIntent === "intelligence") {
-        router.push(await resolveIntelligenceDestination(supabase));
-      } else {
-        router.push("/dashboard");
-      }
-      router.refresh();
+      // A single full navigation also avoids stale unauthenticated RSC cache.
+      window.location.replace(destination);
     } catch {
       setError("Impossibile connettersi al servizio di autenticazione.");
     } finally {
