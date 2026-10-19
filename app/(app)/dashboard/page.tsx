@@ -107,7 +107,7 @@ export default async function DashboardPage() {
           secondaryHref="/policies/new"
         />
 
-        <ConsumerSection title="Semplice, in tre passi">
+        <ConsumerSection title="Tre passi per iniziare">
           <ol className="grid gap-2 sm:grid-cols-3">
             {ONBOARDING_STEPS.map((step, index) => (
               <li key={step.title} className="atlas-consumer-card px-4 py-4">
@@ -151,7 +151,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-7">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <header className="relative flex flex-col gap-4 overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div>
           <h1 className="text-[26px] font-semibold tracking-tight text-foreground sm:text-[30px]">
             {greeting}, {name}
@@ -207,7 +207,7 @@ export default async function DashboardPage() {
       />
 
       <ConsumerSection
-        title="Richiede la tua attenzione"
+        title="Da controllare"
         action={
           attentionItems.length > 5 ? (
             <Link
@@ -229,7 +229,7 @@ export default async function DashboardPage() {
       <section className="min-w-0">
         <div className="mb-3 flex items-end justify-between gap-3">
           <h2 className="text-[15px] font-semibold tracking-tight text-foreground">
-            Mappa delle coperture
+            Cosa risulta coperto
           </h2>
           <Link href="/atlas" className="text-[13px] font-medium text-accent">
             Mappa completa
@@ -242,7 +242,7 @@ export default async function DashboardPage() {
         />
       </section>
 
-      <ConsumerSection title="Chiedi ad ATLAS">
+      <ConsumerSection title="Vuoi capire meglio?">
         <div className="grid gap-2 sm:grid-cols-2">
           <Link
             href="/atlas/ask"
@@ -321,7 +321,7 @@ export default async function DashboardPage() {
       </section>
 
       <ConsumerSection
-        title="Polizze recenti"
+        title="Le tue polizze"
         action={
           <Link href="/policies" className="text-[13px] font-medium text-accent">
             Vedi tutte

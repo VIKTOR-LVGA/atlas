@@ -15,7 +15,7 @@ export function LandingHero() {
         <div className="max-w-[34rem] lg:pt-2">
           <p className="inline-flex items-center gap-2 rounded-full border border-[var(--landing-border)] bg-[var(--landing-surface)] px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--landing-muted)]">
             <span aria-hidden>🇨🇭</span>
-            AI per assicurazioni svizzere
+            Organizza le tue assicurazioni
           </p>
 
           <h1 className="landing-hero-headline mt-7">
@@ -26,8 +26,8 @@ export function LandingHero() {
           </h1>
 
           <p className="landing-hero-lead mt-6">
-            ATLAS è lo spazio gratuito dove vedi polizze, premi, scadenze e documenti
-            insieme — con chiarezza, senza un comparatore classico.
+            Carica le polizze, controlla i premi e ritrova le scadenze.
+            ATLAS ti aiuta a capire i documenti senza sostituire la polizza originale.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -52,7 +52,7 @@ export function LandingHero() {
             </li>
             <li className="flex items-center gap-2">
               <UserRound className="h-3.5 w-3.5 text-[var(--landing-accent-bright)]" />
-              I tuoi dati, solo tuoi
+              Decidi tu cosa caricare
             </li>
           </ul>
         </div>
