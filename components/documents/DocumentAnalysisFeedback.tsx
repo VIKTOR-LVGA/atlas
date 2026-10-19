@@ -27,13 +27,23 @@ export function DocumentAnalysisFeedback({
 }: DocumentAnalysisFeedbackProps) {
   const [open, setOpen] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState(false);
   const [pending, startTransition] = useTransition();
 
   function submit(reason: (typeof REASONS)[number]["id"]) {
+    setError(false);
     startTransition(async () => {
-      await submitDocumentAnalysisFeedbackAction({ documentId, reason });
-      setSent(true);
-      setOpen(false);
+      try {
+        const response = await submitDocumentAnalysisFeedbackAction({ documentId, reason });
+        if (!response.ok) {
+          setError(true);
+          return;
+        }
+        setSent(true);
+        setOpen(false);
+      } catch {
+        setError(true);
+      }
     });
   }
 
@@ -55,6 +65,11 @@ export function DocumentAnalysisFeedback({
         <MessageSquareWarning className="h-3.5 w-3.5" aria-hidden />
         Dato errato / segnala classificazione
       </button>
+      {error ? (
+        <p role="alert" className="text-[12px] text-[var(--danger-text)]">
+          Segnalazione non inviata. Aggiorna la pagina e riprova.
+        </p>
+      ) : null}
       {open ? (
         <div className="flex flex-wrap gap-1.5">
           {REASONS.map((reason) => (

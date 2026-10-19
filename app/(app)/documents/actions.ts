@@ -11,6 +11,7 @@ import {
 } from "@/lib/document-analysis";
 import {
   deleteCurrentUserDocument,
+  getCurrentUserDocumentById,
   DocumentManagementError,
   DocumentUploadError,
   DuplicateDocumentUploadError,
@@ -115,8 +116,6 @@ export async function analyzeDocumentAction(
   _previousState: AnalyzeDocumentActionState,
   formData: FormData
 ): Promise<AnalyzeDocumentActionState> {
-  void formData;
-
   const actionStartedAt = performance.now();
   let policyId: string;
 
@@ -181,6 +180,16 @@ export async function submitDocumentAnalysisFeedbackAction(input: {
   if (!input.documentId || !DOCUMENT_FEEDBACK_REASONS.has(reason)) {
     return { ok: false };
   }
+
+  // Document IDs from a browser are untrusted; verify current ownership.
+  // getCurrentUserDocumentById scopes by authenticated user + user_id in SQL.
+  let document;
+  try {
+    document = await getCurrentUserDocumentById(input.documentId);
+  } catch {
+    return { ok: false };
+  }
+  if (!document) return { ok: false };
 
   const { logPolicyAnalysisInfo } = await import("@/lib/policy-analysis-logging");
   logPolicyAnalysisInfo("document_analysis_user_feedback", {

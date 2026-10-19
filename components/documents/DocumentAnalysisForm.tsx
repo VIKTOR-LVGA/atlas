@@ -148,7 +148,7 @@ export function DocumentAnalysisForm({
 
         <button
           type="submit"
-          disabled={!showAnalyze && !showRecreate}
+          disabled={busy || (!showAnalyze && !showRecreate)}
           title={primaryLabel}
           aria-label={variant === "icon" ? primaryLabel : undefined}
           onClick={showRecreate ? handleRecreateClick : undefined}
