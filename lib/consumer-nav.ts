@@ -1,6 +1,7 @@
 export type ConsumerNavId =
   | "home"
   | "policies"
+  | "documents"
   | "atlas"
   | "activity"
   | "profile";
@@ -27,16 +28,16 @@ export const consumerNavItems: ConsumerNavItem[] = [
     desktopLabel: "Polizze",
   },
   {
+    id: "documents",
+    href: "/documents",
+    mobileLabel: "Documenti",
+    desktopLabel: "Documenti",
+  },
+  {
     id: "atlas",
     href: "/atlas",
     mobileLabel: "ATLAS",
     desktopLabel: "ATLAS",
-  },
-  {
-    id: "activity",
-    href: "/activity",
-    mobileLabel: "Attività",
-    desktopLabel: "Attività",
   },
   {
     id: "profile",

@@ -1,6 +1,7 @@
 "use client";
 
 import { BottomNav } from "@/components/layout/BottomNav";
+import { NavigationFeedback } from "@/components/layout/NavigationFeedback";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { TopBar } from "@/components/layout/TopBar";
 import { ProfileProvider } from "@/components/profile/ProfileProvider";
@@ -14,6 +15,7 @@ interface AppShellProps {
 export function AppShell({ profile, children }: AppShellProps) {
   return (
     <ProfileProvider profile={profile}>
+      <NavigationFeedback />
       <div className="flex min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-background lg:flex-row">
         <Sidebar />
         <div className="flex w-full min-w-0 max-w-full flex-1 flex-col">

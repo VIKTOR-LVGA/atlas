@@ -11,6 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 type TopBarPopoverProps = {
@@ -212,9 +213,9 @@ export function TopBarPopoverItem({
 
   if (href) {
     return (
-      <a role="menuitem" href={href} className={className} onClick={onSelect}>
+      <Link role="menuitem" href={href} className={className} onClick={onSelect}>
         {children}
-      </a>
+      </Link>
     );
   }
 

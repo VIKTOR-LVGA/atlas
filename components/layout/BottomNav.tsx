@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   IconAnalysis,
   IconDashboard,
+  IconDocuments,
   IconPolicies,
   IconSettings,
   IconSparkle,
@@ -19,6 +20,7 @@ import { cn } from "@/lib/utils";
 const icons: Record<ConsumerNavId, typeof IconDashboard> = {
   home: IconDashboard,
   policies: IconPolicies,
+  documents: IconDocuments,
   atlas: IconSparkle,
   activity: IconAnalysis,
   profile: IconSettings,
@@ -43,9 +45,9 @@ export function BottomNav() {
               <Link
                 href={item.href}
                 className={cn(
-                  "flex min-h-[3.25rem] flex-col items-center justify-center gap-0.5 rounded-xl px-1 text-[10px] font-medium transition",
+                  "flex min-h-[3.5rem] flex-col items-center justify-center gap-0.5 rounded-xl px-1 text-[11px] font-semibold transition-colors active:scale-[0.98]",
                   active
-                    ? "text-accent"
+                    ? "bg-accent-soft text-accent"
                     : "text-muted hover:text-foreground"
                 )}
                 aria-current={active ? "page" : undefined}
