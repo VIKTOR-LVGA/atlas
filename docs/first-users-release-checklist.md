@@ -38,3 +38,18 @@ These are **release gates**, not issues solved by a successful Next.js build.
 - KPT *synthetic* fixture: CHF 535.10 LAMal + CHF 32.25 LCA = CHF 567.35/month.
 - A premium of exactly CHF 0 is a known free product, not a missing premium.
 - Run npm run test:knowledge and the authorized live OpenAI fixture suite before Production.
+
+## New-user Auth configuration still required in Supabase
+- SMTP: configure a real outbound provider for external addresses; default Supabase Auth SMTP is restricted.
+- Authentication → URL Configuration: configure the public Site URL and allowed /auth/callback redirect URLs for Production and localhost as needed.
+- Confirm signup email template: replace link with the SSR token-hash route based on the **configured SiteURL**:
+
+    {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email
+
+- Password recovery template can similarly use:
+
+    {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery
+
+- Verify on a genuine invited external test email before claiming account registration functional.
+- Source reference: https://supabase.com/docs/guides/getting-started/tutorials/with-nextjs
+- These route handlers are safe code preparation, **not** confirmation that external SMTP/template settings were changed.

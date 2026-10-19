@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 export default function LoginPageClient() {
   const searchParams = useSearchParams();
   const intent = searchParams.get("intent");
+  const emailConfirmationError = searchParams.get("error") === "confirmation";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<{
@@ -115,7 +116,7 @@ export default function LoginPageClient() {
       }
     >
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-        <AuthMessage variant="error" message={error} />
+        <AuthMessage variant="error" message={error || (emailConfirmationError ? "Il link email non è valido o è scaduto. Richiedi un nuovo link." : "")} />
 
         <AuthFormField
           id="email"
