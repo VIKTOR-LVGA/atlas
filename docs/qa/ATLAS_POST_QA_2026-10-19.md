@@ -35,6 +35,15 @@ Intelligence application was performed.
 - `npm run test:staging-safety`: pass; guard-only test, no fixture creation
 - `npm run verify:migrations`: pass, 36 existing files; no migration added
 
+Protected Vercel Preview was checked read-only with authenticated `vercel curl`:
+
+- `/`: 200 with CSP Report-Only, nosniff, referrer, permissions and anti-frame
+  headers present;
+- `/robots.txt`, `/sitemap.xml`, `/manifest.webmanifest`: 200;
+- `/partner/dashboard`: final 200 at `/broker-unavailable`;
+- Vercel still emits `Access-Control-Allow-Origin: *` on public HTML, confirming
+  the platform observation documented in the security decision record.
+
 The complete authenticated E2E suite was intentionally not run against the
 configured production Supabase project because it creates and deletes fixture
 accounts, documents and policies.
