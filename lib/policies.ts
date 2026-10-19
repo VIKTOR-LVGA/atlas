@@ -8,6 +8,7 @@ import {
 } from "@/lib/policy-types";
 import { DataFetchError } from "@/lib/data-fetch";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getCurrentRequestAuth } from "@/lib/supabase/server";
 import type {
   PolicyCreationMetadata,
   PolicyInput,
@@ -190,10 +191,7 @@ function normalizePolicyInput(input: PolicyInput): PolicyInput {
 }
 
 async function getPolicyUser() {
-  const supabase = await getSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getCurrentRequestAuth();
 
   return { supabase, user };
 }
