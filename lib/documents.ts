@@ -18,6 +18,7 @@ import {
   isDocumentProcessingStale,
 } from "@/lib/document-analysis-state";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getCurrentRequestAuth } from "@/lib/supabase/server";
 
 export { ANALYSIS_PROCESSING_STALE_MINUTES, isDocumentProcessingStale } from "@/lib/document-analysis-state";
 
@@ -183,10 +184,7 @@ async function findCurrentUserDocumentByHash(userId: string, fileHash: string) {
 }
 
 export const getCurrentUserDocuments = cache(async (): Promise<UserDocument[]> => {
-  const supabase = await getSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getCurrentRequestAuth();
 
   if (!user) {
     return [];
