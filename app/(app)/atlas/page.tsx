@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { after } from "next/server";
 import { CoverageMap } from "@/components/insurance-os/CoverageMap";
 import { VerificationLegend } from "@/components/insurance-os/VerificationBadge";
@@ -55,28 +56,34 @@ export default async function AtlasHubPage() {
 
   return (
     <div className="space-y-7">
-      <header>
-        <h1 className="text-[26px] font-semibold tracking-tight text-foreground sm:text-[30px]">
-          ATLAS
-        </h1>
-        <p className="mt-1 max-w-prose text-[15px] leading-relaxed text-muted-foreground">
-          Il posto dove capire le tue assicurazioni, senza dover rileggere i PDF.
-        </p>
+      <header className="relative overflow-hidden rounded-[28px] bg-[#19305a] p-6 text-white sm:p-9">
+        <div className="pointer-events-none absolute -right-12 -top-20 h-60 w-60 rounded-full bg-[#5276ef]/25 blur-2xl" aria-hidden/>
+        <div className="relative">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15"><Sparkles className="h-6 w-6" aria-hidden/></span>
+          <p className="mt-6 text-[11px] font-bold uppercase tracking-[.17em] text-white/70">Il tuo assistente assicurativo</p>
+          <h1 className="mt-2 text-[clamp(2rem,4vw,3rem)] font-bold tracking-[-.05em]">Chiedi ad ATLAS.</h1>
+          <p className="mt-3 max-w-lg text-[14px] leading-relaxed text-white/75">
+            Una domanda semplice, una risposta con le informazioni che risultano dai tuoi documenti.
+          </p>
+          <Link href="/atlas/ask" className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-[15px] bg-white px-5 text-[13px] font-bold text-[#19305a] hover:bg-white/90">
+            Fai una domanda <ArrowRight className="h-4 w-4" aria-hidden/>
+          </Link>
+        </div>
       </header>
 
-      <div className="grid gap-2 md:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-3">
         {TOOLS.map((tool) => (
           <Link
             key={tool.href}
             href={tool.href}
-            className="atlas-consumer-card atlas-consumer-press flex flex-col px-4 py-5"
+            className="atlas-consumer-card atlas-consumer-press flex flex-col px-5 py-6"
           >
             <p className="atlas-section-eyebrow">{tool.eyebrow}</p>
-            <p className="mt-1.5 text-[15px] font-semibold tracking-tight text-foreground">
+            <p className="mt-2 text-[17px] font-bold tracking-[-.025em] text-foreground">
               {tool.title}
             </p>
             <p className="mt-1.5 text-[13px] leading-relaxed text-muted">{tool.body}</p>
-            <span className="mt-4 text-[13px] font-medium text-accent">Apri</span>
+            <span className="mt-5 inline-flex items-center gap-1 text-[13px] font-bold text-accent">Apri <ArrowRight className="h-4 w-4" aria-hidden/></span>
           </Link>
         ))}
       </div>

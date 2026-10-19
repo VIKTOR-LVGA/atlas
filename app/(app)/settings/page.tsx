@@ -4,7 +4,7 @@ import { Suspense, useCallback, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Palette, Shield } from "lucide-react";
 import { HouseholdContextCards } from "@/components/consumer/HouseholdContextCards";
-import { PageHeader } from "@/components/ui/PageHeader";
+
 import { PageShell } from "@/components/ui/PageShell";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { useCurrentProfile } from "@/components/profile/ProfileProvider";
@@ -12,7 +12,7 @@ import {
   NotificationSettingsForm,
   ProfileSettingsPanels,
 } from "@/components/settings/ProfileSettingsForms";
-import { SettingsCapabilitiesStrip } from "@/components/settings/SettingsCapabilitiesStrip";
+
 import { SettingsLockedModulesGrid } from "@/components/settings/SettingsLockedModulesGrid";
 import { SettingsAccountManagement } from "@/components/settings/SettingsAccountManagement";
 import { SettingsDataControl } from "@/components/settings/SettingsDataControl";
@@ -64,17 +64,18 @@ function SettingsPageContent({
   return (
     <PageShell>
       <RevealStagger>
-        <PageHeader
-          title="Profilo"
-          description="I tuoi dati personali e il contesto assicurativo."
-        />
+        <header className="atlas-consumer-hero rounded-[27px] p-6 sm:p-8">
+          <p className="atlas-premium-eyebrow">Il tuo spazio</p>
+          <h1 className="atlas-premium-title mt-2">Profilo e impostazioni</h1>
+          <p className="mt-3 text-[14px] leading-relaxed text-muted-foreground">I tuoi dati, le notifiche e il controllo del tuo account.</p>
+        </header>
 
         <div className={`${atlasCard.support} px-4 py-3 text-[12px] leading-relaxed text-muted`}>
           Esportazione e controllo dati sono attivi in Avanzate. Billing, sessioni e
           integrazioni restano in preparazione. I dati mostrati provengono solo dal tuo account.
         </div>
 
-        <SettingsCapabilitiesStrip />
+        
 
         <SettingsTrustCenter profile={profile} />
 
@@ -82,7 +83,7 @@ function SettingsPageContent({
           <nav
             className={cn(
               atlasAsideColumn,
-              "flex flex-row gap-1 overflow-x-auto border-b border-border pb-0 lg:flex-col lg:overflow-visible lg:border-b-0 lg:pb-0"
+              "flex flex-row gap-1.5 overflow-x-auto rounded-[22px] border border-border bg-card p-2 lg:flex-col lg:overflow-visible"
             )}
             aria-label="Sezioni impostazioni"
           >
@@ -92,7 +93,7 @@ function SettingsPageContent({
                 type="button"
                 onClick={() => setActiveSection(section.id)}
                 className={cn(
-                  "shrink-0 rounded-lg px-3 py-2.5 text-left text-[13px] font-medium transition lg:w-full",
+                  "shrink-0 min-h-11 rounded-[13px] px-4 py-3 text-left text-[13px] font-semibold transition lg:w-full",
                   activeSection === section.id
                     ? "bg-accent-soft text-accent"
                     : "text-muted-foreground hover:bg-card-muted hover:text-foreground"

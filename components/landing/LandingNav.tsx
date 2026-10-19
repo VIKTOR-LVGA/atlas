@@ -13,7 +13,7 @@ const links = [
 export function LandingNav() {
   return (
     <header className="landing-nav sticky top-0 z-50 border-b backdrop-blur-xl backdrop-saturate-150">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
+      <div className="mx-auto flex h-[74px] max-w-[1200px] items-center justify-between gap-3 px-5 sm:px-8">
         <Link href="/" className="flex min-w-0 items-center">
           <AtlasBrandLogo variant="landing" />
         </Link>
@@ -48,7 +48,7 @@ export function LandingNav() {
           >
             Accedi
           </Link>
-          <Link href="/register" className="landing-btn-primary !px-4 !py-2 text-sm">
+          <Link href="/register" className="landing-btn-primary !px-5 !py-2.5 text-[13px] !font-bold">
             Inizia gratis
           </Link>
         </div>

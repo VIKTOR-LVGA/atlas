@@ -42,7 +42,7 @@ export function AskAtlasPanel({ hasPolicies }: { hasPolicies: boolean }) {
           event.preventDefault();
           submit(question);
         }}
-        className="atlas-consumer-card px-4 py-4"
+        className="atlas-consumer-card px-5 py-6 sm:px-7 sm:py-7"
       >
         <label htmlFor="ask-atlas-question" className="atlas-section-eyebrow">
           La tua domanda
@@ -55,7 +55,7 @@ export function AskAtlasPanel({ hasPolicies }: { hasPolicies: boolean }) {
           maxLength={2000}
           onChange={(event) => setQuestion(event.target.value)}
           placeholder="Es. La mia assicurazione mobilia copre un furto in cantina?"
-          className="atlas-input mt-2 resize-y text-[14px] leading-relaxed"
+          className="atlas-input mt-3 min-h-[120px] resize-y !rounded-[18px] text-[15px] leading-relaxed"
         />
 
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
@@ -65,7 +65,7 @@ export function AskAtlasPanel({ hasPolicies }: { hasPolicies: boolean }) {
           <button
             type="submit"
             disabled={pending || question.trim().length === 0}
-            className="atlas-btn-primary min-h-11 px-5 text-[13px]"
+            className="atlas-btn-primary min-h-12 w-full px-6 text-[13px] sm:w-auto"
           >
             {pending ? "Sto leggendo i documenti…" : "Chiedi ad ATLAS"}
           </button>
@@ -84,7 +84,7 @@ export function AskAtlasPanel({ hasPolicies }: { hasPolicies: boolean }) {
                   setQuestion(suggestion);
                   submit(suggestion);
                 }}
-                className="atlas-btn-secondary min-h-9 px-3 text-[12px] disabled:opacity-50"
+                className="atlas-btn-secondary min-h-11 rounded-full px-4 text-[12px] disabled:opacity-50"
               >
                 {suggestion}
               </button>
@@ -113,7 +113,7 @@ export function AskAtlasPanel({ hasPolicies }: { hasPolicies: boolean }) {
 
 export function AskAtlasAnswer({ result }: { result: AskAtlasResult }) {
   return (
-    <article className="atlas-consumer-card px-4 py-5">
+    <article className="atlas-consumer-card px-5 py-6 sm:px-7">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-[14px] font-semibold tracking-tight text-foreground">
           {result.structured.summary}
