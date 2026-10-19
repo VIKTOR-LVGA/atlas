@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BrainCircuit, MessageCircle, ScanSearch, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { after } from "next/server";
 import { CoverageMap } from "@/components/insurance-os/CoverageMap";
 import { VerificationLegend } from "@/components/insurance-os/VerificationBadge";

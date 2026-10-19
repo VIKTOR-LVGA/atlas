@@ -1,12 +1,12 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IconDashboard, IconDocuments, IconPolicies, IconSettings, IconSparkle } from "@/components/icons";
+import { IconAnalysis, IconDashboard, IconDocuments, IconPolicies, IconSettings, IconSparkle } from "@/components/icons";
 import { consumerNavItems, isConsumerNavActive, type ConsumerNavId } from "@/lib/consumer-nav";
 import { cn } from "@/lib/utils";
 const icons: Record<ConsumerNavId, typeof IconDashboard> = {
   home: IconDashboard,policies: IconPolicies,documents: IconDocuments,
-  atlas: IconSparkle,profile: IconSettings,
+  atlas: IconSparkle,activity: IconAnalysis,profile: IconSettings,
 };
 export function BottomNav() {
   const pathname=usePathname();

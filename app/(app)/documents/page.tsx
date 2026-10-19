@@ -1,5 +1,5 @@
 import { EmptyState } from "@/components/consumer/EmptyState";
-import { CheckCircle2, FileUp, ScanSearch, ShieldCheck } from "lucide-react";
+import { FileUp } from "lucide-react";
 import { DocumentWalletList } from "@/components/documents/DocumentWalletList";
 import { DocumentUploadForm } from "@/components/documents/DocumentUploadForm";
 import { getCurrentUserDocuments } from "@/lib/documents";
