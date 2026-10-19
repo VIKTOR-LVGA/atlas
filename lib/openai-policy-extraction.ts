@@ -1523,6 +1523,20 @@ export const openAIPolicyDocumentExtractor: PolicyDocumentExtractor = {
       modelUsed,
       fallbackUsed,
     });
+    if (compaction.wasTruncated) {
+      enriched.draft.extractionNotes = [
+        enriched.draft.extractionNotes,
+        "Documento lungo: alcune sezioni potrebbero non essere state analizzate. Confronta tutte le pagine prima di confermare.",
+      ].filter(Boolean).join(" ");
+      enriched.draft.extractionConfidence = Math.min(enriched.draft.extractionConfidence ?? 65, 65);
+    }
+    if (/ESEMPIO DIDATTICO|NON È UNA POLIZZA VALIDA|NON E UNA POLIZZA VALIDA|FACSIMILE\s*\/\s*DATI DI TEST/i.test(text)) {
+      enriched.draft.extractionNotes = [
+        enriched.draft.extractionNotes,
+        "Questo PDF è un facsimile o documento sintetico: non rappresenta una copertura assicurativa attiva.",
+      ].filter(Boolean).join(" ");
+      enriched.draft.extractionConfidence = Math.min(enriched.draft.extractionConfidence ?? 49, 49);
+    }
     const normalizeMs = elapsedMs(normalizeStartedAt);
 
     logAnalysisTiming({

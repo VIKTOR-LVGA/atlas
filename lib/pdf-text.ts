@@ -15,7 +15,8 @@ const MIN_USEFUL_TOKEN_COUNT = 20;
 const MIN_READABLE_CHARACTER_RATIO = 0.78;
 const MAX_SUSPICIOUS_CHARACTER_RATIO = 0.06;
 const MAX_REPEATED_SUSPICIOUS_RUN = 4;
-const MAX_EXTRACTED_TEXT_LENGTH = 18000;
+// Retain enough text for the 32k-character compaction pass to select relevant passages.
+const MAX_EXTRACTED_TEXT_LENGTH = 48000;
 const PDF2JSON_LINE_Y_TOLERANCE = 0.35;
 const suspiciousCharacters = new Set([
   "\u0000",

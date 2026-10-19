@@ -53,3 +53,8 @@ These are **release gates**, not issues solved by a successful Next.js build.
 - Verify on a genuine invited external test email before claiming account registration functional.
 - Source reference: https://supabase.com/docs/guides/getting-started/tutorials/with-nextjs
 - These route handlers are safe code preparation, **not** confirmation that external SMTP/template settings were changed.
+
+## Long and synthetic PDFs
+- The PDF text gate retains up to 48k characters before compaction to 32k.
+- If compaction drops text, the draft is marked for checking against the full PDF, with confidence capped at 65.
+- Synthetic/facsimile markers add a nonbinding-contract warning and cap confidence at 49; QA fixtures remain usable.
