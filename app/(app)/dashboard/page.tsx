@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight, FilePlus2, MessagesSquare, ShieldCheck, Sparkles } from "lucide-react";
 import { after } from "next/server";
 import { ActionCenter } from "@/components/insurance-os/ActionCenter";
 import { CoverageMap } from "@/components/insurance-os/CoverageMap";
@@ -88,13 +89,12 @@ export default async function DashboardPage() {
 
   if (policies.length === 0) {
     return (
-      <div className="space-y-7">
-        <header>
-          <h1 className="text-[26px] font-semibold tracking-tight text-foreground sm:text-[30px]">
-            {greeting}, {name}
-          </h1>
-          <p className="mt-2 max-w-xl text-[14px] leading-relaxed text-muted-foreground">
-            Tutte le tue assicurazioni, più facili da capire. Comincia con una polizza.
+      <div className="space-y-8">
+        <header className="atlas-consumer-hero px-6 py-7 sm:px-9 sm:py-10">
+          <p className="atlas-premium-eyebrow">Benvenuto nel tuo spazio</p>
+          <h1 className="atlas-premium-title mt-3">{greeting}, {name}</h1>
+          <p className="mt-3 max-w-lg text-[14px] leading-relaxed text-muted-foreground sm:text-[15px]">
+            Mettiamo ordine nelle tue assicurazioni. Basta iniziare da una polizza.
           </p>
         </header>
 
@@ -151,27 +151,20 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-7">
-      <header className="atlas-consumer-hero relative flex flex-col gap-4 overflow-hidden rounded-3xl border border-border p-5 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between sm:p-6">
+      <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-[26px] font-semibold tracking-tight text-foreground sm:text-[30px]">
-            {greeting}, {name}
-          </h1>
-          <p className="mt-1 text-[14px] text-muted-foreground">
-            Le tue assicurazioni, in parole semplici.
-          </p>
+          <p className="atlas-premium-eyebrow">Il tuo spazio personale</p>
+          <h1 className="atlas-premium-title mt-2">{greeting}, {name}</h1>
+          <p className="mt-2 text-[14px] text-muted-foreground">Ecco la tua situazione assicurativa, senza complicazioni.</p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Link href="/documents" className="atlas-btn-primary min-h-11 px-4 text-[13px]">
-            Carica un PDF
-          </Link>
-          <Link href="/atlas/ask" className="atlas-btn-secondary min-h-11 px-4 text-[13px]">
-            Fai una domanda
-          </Link>
-        </div>
+        <Link href="/documents" className="atlas-btn-primary inline-flex min-h-12 items-center gap-2 px-5 text-[13px]">
+          <FilePlus2 className="h-4 w-4" aria-hidden/> Aggiungi una polizza
+        </Link>
       </header>
 
-      <p className="rounded-xl border border-border bg-card-muted px-3 py-2.5 text-[12px] leading-relaxed text-muted-foreground">
-        ATLAS è in fase pilota: le informazioni estratte dall&apos;AI vanno sempre confrontate con i documenti originali.
+      <p className="flex items-start gap-2 rounded-2xl bg-card-muted px-4 py-3 text-[12px] leading-relaxed text-muted-foreground">
+        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden/>
+        Versione pilota: i dati analizzati dall&apos;AI richiedono sempre conferma sui documenti originali.
       </p>
 
       {activeConsultation ? (
@@ -205,6 +198,38 @@ export default async function DashboardPage() {
           nextDeadline,
         }}
       />
+      <section aria-label="Azioni veloci" className="grid gap-3 sm:grid-cols-3">
+        {[
+          {href:"/documents",Icon:FilePlus2,title:"Carica un PDF",detail:"Aggiungi una polizza al portafoglio"},
+          {href:"/policies",Icon:ShieldCheck,title:"Le tue polizze",detail:"Controlla premi e scadenze"},
+          {href:"/atlas/ask",Icon:MessagesSquare,title:"Chiedi ad ATLAS",detail:"Capisci ciò che non è chiaro"},
+        ].map(({href,Icon,title,detail})=>(
+          <Link key={href} href={href} className="atlas-premium-tile atlas-consumer-press flex items-center gap-3.5 p-4 sm:flex-col sm:items-start sm:p-5">
+            <span className="atlas-pill-icon shrink-0"><Icon className="h-5 w-5" aria-hidden/></span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[14px] font-bold text-foreground">{title}</span>
+              <span className="mt-0.5 block text-[11px] leading-snug text-muted">{detail}</span>
+            </span>
+            <ArrowRight className="h-4 w-4 shrink-0 text-accent sm:hidden" aria-hidden/>
+          </Link>
+        ))}
+      </section>
+
+      <ConsumerSection
+        title="Le tue polizze"
+        action={
+          <Link href="/policies" className="text-[13px] font-medium text-accent">
+            Vedi tutte
+          </Link>
+        }
+      >
+        <div className="grid gap-3 md:grid-cols-2">
+          {policies.slice(0, 4).map((policy) => (
+            <PolicyConsumerCard key={policy.id} policy={policy} />
+          ))}
+        </div>
+      </ConsumerSection>
+
 
       <ConsumerSection
         title="Da controllare"
@@ -246,10 +271,10 @@ export default async function DashboardPage() {
         <div className="grid gap-2 sm:grid-cols-2">
           <Link
             href="/atlas/ask"
-            className="atlas-consumer-card atlas-consumer-press px-4 py-4"
+            className="atlas-consumer-card atlas-consumer-press flex min-h-[140px] flex-col justify-center px-5 py-5"
           >
-            <p className="text-[14px] font-semibold tracking-tight text-foreground">
-              Fai una domanda
+            <p className="flex items-center gap-2 text-[15px] font-bold tracking-tight text-foreground">
+              <Sparkles className="h-4 w-4 text-accent" aria-hidden/> Fai una domanda
             </p>
             <p className="mt-1 text-[13px] leading-relaxed text-muted">
               «Quanto pago all’anno?», «Che franchigia ho sull’auto?». Risposte con le fonti
@@ -319,21 +344,6 @@ export default async function DashboardPage() {
           Apri il check-up
         </Link>
       </section>
-
-      <ConsumerSection
-        title="Le tue polizze"
-        action={
-          <Link href="/policies" className="text-[13px] font-medium text-accent">
-            Vedi tutte
-          </Link>
-        }
-      >
-        <div className="grid gap-3 md:grid-cols-2">
-          {policies.slice(0, 4).map((policy) => (
-            <PolicyConsumerCard key={policy.id} policy={policy} />
-          ))}
-        </div>
-      </ConsumerSection>
 
       {recentDocuments.length > 0 ? (
         <ConsumerSection

@@ -15,16 +15,12 @@ export default async function AskAtlasPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <Link href="/atlas" className="text-[12px] font-medium text-muted hover:text-foreground">
-          ATLAS
-        </Link>
-        <h1 className="mt-1 text-[26px] font-semibold tracking-tight text-foreground sm:text-[30px]">
-          Chiedi ad ATLAS
-        </h1>
-        <p className="mt-1 max-w-prose text-[15px] leading-relaxed text-muted-foreground">
-          Domande sulla tua situazione, non sul mercato. ATLAS risponde partendo dai
-          documenti che hai caricato e indica sempre la fonte.
+      <header className="atlas-consumer-hero p-6 sm:p-8">
+        <Link href="/atlas" className="text-[12px] font-semibold text-accent hover:underline">← ATLAS</Link>
+        <p className="atlas-premium-eyebrow mt-5">Il tuo assistente</p>
+        <h1 className="atlas-premium-title mt-2">Cosa vuoi sapere?</h1>
+        <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-muted-foreground">
+          Chiedi in parole semplici. ATLAS cerca le informazioni nel tuo portafoglio e indica le fonti disponibili.
         </p>
       </header>
 
