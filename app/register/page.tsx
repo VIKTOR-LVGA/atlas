@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { AuthFormField } from "@/components/auth/AuthFormField";
 import { AuthMessage } from "@/components/auth/AuthMessage";
@@ -17,7 +17,6 @@ import {
 import { cn } from "@/lib/utils";
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -76,8 +75,8 @@ export default function RegisterPage() {
       }
 
       if (data.session) {
-        router.push("/dashboard");
-        router.refresh();
+        // A single navigation avoids duplicate initial dashboard requests.
+        window.location.replace("/dashboard");
         return;
       }
 
@@ -166,6 +165,13 @@ export default function RegisterPage() {
           )}
         </button>
       </form>
+      <p className="mt-5 text-center text-[12px] leading-relaxed text-muted">
+        Prima di caricare documenti personali consulta la{" "}
+        <Link className="font-medium text-accent underline-offset-2 hover:underline" href="/privacy">Privacy</Link>
+        {" "}e i{" "}
+        <Link className="font-medium text-accent underline-offset-2 hover:underline" href="/terms">Termini d&apos;uso</Link>.
+        ATLAS è in fase pilota e le analisi automatiche richiedono sempre verifica.
+      </p>
 
       <div className="mt-6 rounded-xl border border-border bg-card/40 px-4 py-3 text-[12px] leading-relaxed text-muted">
         <p className="font-medium text-foreground">

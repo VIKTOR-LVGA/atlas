@@ -122,7 +122,7 @@ export function DocumentUploadForm() {
                   className="atlas-btn-primary inline-flex min-h-[44px] items-center justify-center gap-2 px-4 py-2.5 text-[13px]"
                 >
                   <FileText className="h-4 w-4 shrink-0" />
-                  Analizza il PDF
+                  Apri e analizza
                 </Link>
                 <Link
                   href="/documents"
