@@ -13,7 +13,7 @@ const links = [
 export function LandingNav() {
   return (
     <header className="landing-nav sticky top-0 z-50 border-b backdrop-blur-xl backdrop-saturate-150">
-      <div className="mx-auto flex h-[74px] max-w-[1200px] items-center justify-between gap-3 px-5 sm:px-8">
+      <div className="mx-auto flex h-[76px] max-w-[1430px] items-center justify-between gap-3 px-5 sm:px-8 lg:h-[82px] lg:px-11">
         <Link href="/" className="flex min-w-0 items-center">
           <AtlasBrandLogo variant="landing" />
         </Link>
@@ -41,14 +41,14 @@ export function LandingNav() {
         </nav>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <ThemeToggle className="!border-[var(--landing-border)] !bg-[var(--landing-surface)] !text-[var(--landing-muted)] hover:!text-[var(--landing-text)]" />
+          <ThemeToggle className="hidden !border-[var(--landing-border)] !bg-[var(--landing-surface)] !text-[var(--landing-muted)] hover:!text-[var(--landing-text)] sm:inline-flex" />
           <Link
             href="/login"
-            className="rounded-full px-3 py-2 text-sm font-medium text-[var(--landing-muted)] transition hover:text-[var(--landing-text)] sm:px-4"
+            className="hidden rounded-full px-3 py-2 text-sm font-medium text-[var(--landing-muted)] transition hover:text-[var(--landing-text)] min-[360px]:inline-flex sm:px-4"
           >
             Accedi
           </Link>
-          <Link href="/register" className="landing-btn-primary !px-5 !py-2.5 text-[13px] !font-bold">
+          <Link href="/register" className="landing-btn-primary whitespace-nowrap !px-4 !py-2.5 text-[12px] !font-bold sm:!px-5 sm:text-[13px]">
             Inizia gratis
           </Link>
         </div>

@@ -123,7 +123,6 @@ export default async function DashboardPage() {
 
   const premiums = sumPortfolioPremiums(policies);
   const deadlines = getUpcomingDeadlines(policies, new Date(), 5);
-  const nextDeadline = deadlines[0] ?? null;
   const activeCount = policies.filter(
     (policy) => getPolicyStatusLabel(policy) === "Attiva"
   ).length;
