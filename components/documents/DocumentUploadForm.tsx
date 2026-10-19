@@ -113,10 +113,8 @@ export function DocumentUploadForm() {
       }
 
       const result = await finalizeDirectDocumentUploadAction({ filePath, fileName: file.name });
-      if (result.status === "error" && !result.documentId) {
-        // Confirmed validation failure: attempt to remove an unregistered file.
-        await supabase.storage.from("policy-documents").remove([filePath]);
-      }
+      // Do not delete from the browser after an ambiguous response: a
+      // successful DB insert could have been committed before a network error.
       setState(result);
     } catch {
       // Never delete uploaded files on transport failure: the DB registration

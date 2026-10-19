@@ -3,6 +3,7 @@ import "server-only";
 import { createHash, randomUUID } from "node:crypto";
 import { cache } from "react";
 import type { DocumentStatus, UserDocument } from "@/lib/types";
+import { isOwnedDirectPdfPath, normalizeUploadedPdfName } from "@/lib/document-upload-validation";
 import {
   insuranceDocumentTypes,
   type InsuranceDocumentType,
@@ -314,17 +315,12 @@ export async function registerDirectUploadedDocument(input: {
     throw new DocumentUploadError("Sessione scaduta. Accedi nuovamente.");
   }
 
-  const ownedPrefix = user.id + "/";
-  const uniqueName = input.filePath.startsWith(ownedPrefix)
-    ? input.filePath.slice(ownedPrefix.length)
-    : "";
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.pdf$/.test(uniqueName)) {
+  if (!isOwnedDirectPdfPath(input.filePath, user.id)) {
     throw new DocumentUploadError("Percorso del documento non valido.");
   }
 
-  const fileName = input.fileName.replace(/[\\/\u0000-\u001f]/g, "-")
-    .replace(/\s+/g, " ").trim().slice(0, 180);
-  if (!fileName || !/\.pdf$/i.test(fileName)) {
+  const fileName = normalizeUploadedPdfName(input.fileName);
+  if (!fileName) {
     throw new DocumentUploadError("Seleziona un PDF valido.");
   }
 
@@ -376,6 +372,8 @@ export async function registerDirectUploadedDocument(input: {
     .single();
 
   if (insertError || !document) {
+    // A known insert failure can safely clean up this unregistered object.
+    await supabase.storage.from(POLICY_DOCUMENTS_BUCKET).remove([input.filePath]);
     throw new DocumentUploadError("PDF ricevuto, ma registrazione non riuscita. Contatta il supporto.");
   }
   return toUserDocument(document);

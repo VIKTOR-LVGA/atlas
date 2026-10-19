@@ -58,3 +58,11 @@ These are **release gates**, not issues solved by a successful Next.js build.
 - The PDF text gate retains up to 48k characters before compaction to 32k.
 - If compaction drops text, the draft is marked for checking against the full PDF, with confidence capped at 65.
 - Synthetic/facsimile markers add a nonbinding-contract warning and cap confidence at 49; QA fixtures remain usable.
+
+## Private 10 MB PDF uploads
+- Browser now uploads directly to private Supabase Storage, respecting the existing RLS owner folder prefix; Vercel only receives small JSON metadata.
+- Server re-downloads and validates owner, UUID file path, document name, exact size, PDF signature and SHA-256 before inserting the document row.
+- No fallback to accepting forged client hashes, MIME type or user ID.
+- A failed DB insert is cleaned up; uncertain transport failures are **not** cleaned up automatically, to avoid deleting an otherwise registered PDF.
+- Deterministic safety tests for private object paths and long PDF filenames.
+- **Must verify against Production Storage using a synthetic PDF in controlled E2E before public uploads.**
