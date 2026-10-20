@@ -695,7 +695,15 @@ function verifyExtractedFieldEvidence(
     }
   }
   // Ambiguous quotations and unsupported values remain suspended.
-  const found = matches.length === 1;
+  const quoted = evidence?.toLocaleLowerCase() ?? "";
+  const normalizedValue = String(value).toLocaleLowerCase();
+  const valueAppears = typeof value === "number"
+    ? (quoted.match(/[0-9][0-9'.,]*/g) ?? []).some((token) => {
+        const cleaned = token.replace(/'/g, "").replace(/,/g, ".");
+        return Number(cleaned) === value;
+      })
+    : quoted.includes(normalizedValue);
+  const found = matches.length === 1 && valueAppears;
   entries[key] = {
     ...item,
     value: found ? value : null,
