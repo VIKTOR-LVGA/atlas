@@ -466,28 +466,23 @@ function toDocumentAnalysisError(error: unknown) {
   );
 }
 
+// Production extraction must fail closed: never substitute invented policy values.
 async function extractPolicyWithFallback(document: UserDocument) {
   try {
     return await openAIPolicyDocumentExtractor.extract(document);
   } catch (error) {
     if (error instanceof PdfTextExtractionError) {
-      logPolicyAnalysisInfo("mock_extraction_fallback", {
+      logPolicyAnalysisInfo("pdf_extraction_requires_review", {
         documentId: document.id,
         fileName: document.fileName,
         reason: error.message,
         extractedTextLength: error.textLength,
-        textPreview: error.textPreview,
       });
-
-      const fallbackExtraction = await mockPolicyDocumentExtractor.extract(document);
-
-      return {
-        ...fallbackExtraction,
-        fallbackReason: error.message,
-        usedFallback: true,
-      };
+      throw new DocumentAnalysisError(
+        "Il PDF non contiene testo leggibile con sufficiente affidabilita. Nessuna polizza e stata generata: carica un PDF leggibile o inserisci i dati manualmente.",
+        { internalMessage: error.message }
+      );
     }
-
     throw error;
   }
 }
