@@ -23,7 +23,7 @@ export function LandingHero() {
             <span className="atlas-ref-gradient-title">finalmente chiare.</span>
           </h1>
           <p className="mt-7 max-w-[580px] text-[15px] leading-[1.75] text-[#5a6b8b] sm:text-[18px]">
-            ATLAS ti aiuta a capire, gestire e tenere sotto controllo tutte le tue polizze in un unico posto, con l&apos;aiuto dell&apos;intelligenza artificiale.
+            INSURA ti aiuta a capire, gestire e tenere sotto controllo tutte le tue polizze in un unico posto, con l&apos;aiuto dell&apos;intelligenza artificiale.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Link href="/register" className="atlas-ref-cta inline-flex min-h-[55px] items-center justify-center gap-2.5 rounded-[17px] px-7 text-[14px] font-bold text-white">
