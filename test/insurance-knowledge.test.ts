@@ -3,6 +3,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   buildExtractionKnowledgeContext,
+  getSwissInsuranceKnowledgeHints,
   canonicalCoverageTaxonomy,
   canPersistAsPersonalPolicy,
   classifyInsuranceDocument,
@@ -127,6 +128,29 @@ for (const catalog of officialSwissInsuranceCatalogs) {
 }
 assert.ok(VERIFIED_SWISS_INSURANCE_RULES.some((rule) => rule.id.includes("motor-final-premium")));
 assert.ok(VERIFIED_SWISS_INSURANCE_RULES.some((rule) => rule.id.includes("helsana-multiperson")));
+
+// The new knowledge must actually enter the prompt's selected hints.
+const motorPremiumHints = getSwissInsuranceKnowledgeHints({
+  policyTypeGuess: "car",
+  extractedTextSignals: [
+    "Totale premio annuo", "Ribasso", "Tasse legali", "Semestrale",
+  ],
+});
+assert.ok(
+  motorPremiumHints.ruleIds.includes("ch-verified-motor-final-premium-2026"),
+  "final annual vehicle premium interpretation must reach the extraction context"
+);
+const familyHealthHints = getSwissInsuranceKnowledgeHints({
+  policyTypeGuess: "health",
+  extractedTextSignals: [
+    "Helsana", "Panoramica dei premi", "Assicurazione integrativa",
+    "Totale premio mensile",
+  ],
+});
+assert.ok(
+  familyHealthHints.ruleIds.includes("ch-verified-helsana-multiperson-overview-2026"),
+  "family health document disambiguation must reach the extraction context"
+);
 
 assert.equal(insuranceDocumentTypes.length, 13);
 const migrationSql = readdirSync(resolve(process.cwd(), "supabase/migrations"))
