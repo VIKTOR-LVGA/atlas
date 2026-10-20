@@ -6,6 +6,8 @@ export {
 export {
   SWISS_INSURANCE_KNOWLEDGE_RULES,
 } from "@/lib/insurance-knowledge/ch";
+export { VERIFIED_SWISS_INSURANCE_RULES } from "@/lib/insurance-knowledge/verified-swiss-rules";
+export { officialSwissInsuranceCatalogs, type CgaCatalogEntry } from "@/lib/insurance-knowledge/official-cga-catalogs";
 export {
   buildExtractionKnowledgeContext,
   formatSwissInsuranceKnowledgePromptSection,
