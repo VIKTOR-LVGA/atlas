@@ -66,7 +66,35 @@ export const swissMultilingualCgaConcepts: readonly CgaMultilingualConcept[] = [
       fr: ["delai de resiliation", "obligations en cas de sinistre", "echeance"]
     },
     hint: "IT disdetta / DE Kündigung / FR résiliation, and claims duties, differ by product and edition. Distinguish coverage start/end dates, notice deadline and automatic renewal. Do not infer an individual's contractual deadline from generic public CGA or an example date."
+  }  ,
+  {
+    id: "ch-cga-travel-modules-multilingual-001", policyTypes: ["other"],
+    markers: {
+      it: ["assicurazione viaggi", "spese di annullamento", "bagaglio da viaggio"],
+      de: ["reiseversicherung", "annullierungskosten", "reisegepaeck"],
+      fr: ["assurance voyage", "frais d annulation", "bagages"]
+    },
+    hint: "Travel CGA/AB can describe cancellation, assistance, baggage, legal protection and rental-car deductible modules. Separate the product catalogue from the modules individually purchased and their geographic scope. IT spese di annullamento / DE Annullierungskosten / FR frais d'annulation are not a guaranteed reimbursement unless shown as selected in the personal policy."
+  },
+  {
+    id: "ch-cga-dental-insurance-multilingual-001", policyTypes: ["health"],
+    markers: {
+      it: ["assicurazione cure dentarie", "cure dentarie", "cure dentistiche"],
+      de: ["zahnpflegeversicherung", "zahnversicherung", "zahnbehandlung"],
+      fr: ["assurance soins dentaires", "soins dentaires", "traitements dentaires"]
+    },
+    hint: "Dental insurance is a distinct supplementary product. IT cure dentarie / DE Zahnpflege / FR soins dentaires: read the subscribed tariff, coverage share, insured annual limit, waiting period and age restrictions only from the corresponding policy plus its applicable edition of dental CGA; a dental CGA alone does not establish purchased cover."
+  },
+  {
+    id: "ch-cga-daily-sickness-multilingual-001", policyTypes: ["other"],
+    markers: {
+      it: ["indennita giornaliera", "salario assicurato", "periodo d attesa"],
+      de: ["krankentaggeld", "versicherter lohn", "wartefrist"],
+      fr: ["indemnites journalieres", "salaire assure", "delai d attente"]
+    },
+    hint: "Collective sickness daily allowance: IT indennità giornaliera / DE Krankentaggeld / FR indemnités journalières. Identify the employer/insured group, insured salary, waiting period (carenza/Wartefrist/délai d'attente), benefit percentage and duration. Never infer a worker's exact income replacement from a generic 2026 AVB/CGA without their specific employer contract."
   }
+
 ];
 
 function normalize(value: string): string {
