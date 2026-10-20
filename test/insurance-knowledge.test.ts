@@ -185,12 +185,14 @@ assert.ok(
 
 // Authoritative PDF pointers are multilingual, edition-specific, and do not
 // copy insurer clauses into the repository.
-assert.equal(swissCgaPdfSources.length, 21);
+assert.equal(swissCgaPdfSources.length, 30);
 assert.equal(new Set(swissCgaPdfSources.map((entry) => entry.url)).size, 21);
 for (const language of ["it", "de", "fr"] as const) {
-  assert.equal(swissCgaPdfSources.filter((entry) => entry.language === language).length, 7);
+  assert.equal(swissCgaPdfSources.filter((entry) => entry.language === language).length, 10);
 }
 assert.ok(swissMultilingualCgaConcepts.length >= 6);
+assert.ok(swissCgaPdfSources.some((entry) => entry.product === "business-salary-lca" && entry.editionFrom === "2026-05-01"));
+assert.ok(swissCgaPdfSources.some((entry) => entry.product === "dental-cga" && entry.editionFrom === "2027-01-01"));
 assert.deepEqual(
   findSwissCgaSourceCandidates({
     insurer: "CSS", product: "myflex-cga", language: "it",
