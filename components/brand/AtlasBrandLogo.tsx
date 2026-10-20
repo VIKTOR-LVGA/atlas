@@ -1,76 +1,13 @@
-import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { AtlasBrandMark } from "@/components/brand/AtlasBrandMark";
-
-type AtlasBrandLogoProps = {
-  /** Landing nav — vector mark + text (no raster background) */
-  variant?: "landing" | "lockup" | "stacked" | "mark";
-  className?: string;
-  href?: string;
-  /** Sidebar / app shell — slightly tighter type */
-  compact?: boolean;
-};
-
-export function AtlasBrandLogo({
-  variant = "stacked",
-  className,
-  href,
-  compact = false,
-}: AtlasBrandLogoProps) {
-  const content =
-    variant === "landing" ? (
-      <div className={cn("flex min-w-0 items-center gap-2.5", className)}>
-        <AtlasBrandMark className="h-9 w-9 shrink-0 sm:h-10 sm:w-10" />
-        <span className="text-[17px] font-extrabold tracking-[.21em] text-[var(--landing-text)] sm:text-[20px]">ATLAS</span>
-      </div>
-    ) : variant === "lockup" ? (
-      <Image
-        src="/brand/atlas-logo-lockup.png"
-        alt="Atlas AI Insurance"
-        width={200}
-        height={48}
-        className={cn(
-          "h-8 w-auto max-w-[min(100%,11rem)] object-contain object-left sm:h-9 sm:max-w-[12.5rem]",
-          className
-        )}
-        priority
-      />
-    ) : variant === "mark" ? (
-      <AtlasBrandMark className={cn("h-8 w-8", className)} />
-    ) : (
-      <div className={cn("flex min-w-0 items-center gap-2.5", className)}>
-        <AtlasBrandMark
-          className={cn(compact ? "h-7 w-7" : "h-8 w-8")}
-        />
-        <div className="min-w-0 leading-none">
-          <p
-            className={cn(
-              "font-semibold tracking-tight text-foreground",
-              compact ? "text-[13px]" : "text-[14px]"
-            )}
-          >
-            ATLAS
-          </p>
-          <p
-            className={cn(
-              "mt-0.5 font-medium uppercase tracking-[0.16em] text-muted",
-              compact ? "text-[8px]" : "text-[9px]"
-            )}
-          >
-            AI Insurance
-          </p>
-        </div>
-      </div>
-    );
-
-  if (href) {
-    return (
-      <Link href={href} className="inline-flex min-w-0 items-center">
-        {content}
-      </Link>
-    );
-  }
-
-  return content;
+type Props={variant?:"landing"|"lockup"|"stacked"|"mark";className?:string;href?:string;compact?:boolean};
+export function AtlasBrandLogo({variant="stacked",className,href,compact=false}:Props){
+ const mark=variant==="mark";
+ const logo=<svg viewBox={mark?"0 0 64 64":"0 0 330 100"} role="img" aria-label="Insura" xmlns="http://www.w3.org/2000/svg" className={cn(mark?"h-8 w-8":variant==="landing"?"h-12 w-[158px] sm:w-[185px]":"h-10 w-[145px]",className)}>
+ {mark?<g fill="#1769ff"><rect x="26" y="5" width="12" height="21" rx="6"/><rect x="10" y="27" width="12" height="24" rx="6" transform="rotate(60 16 39)"/><rect x="42" y="27" width="12" height="24" rx="6" transform="rotate(-60 48 39)"/></g>:<>
+ <g fill="#101820" fontFamily="Arial, Helvetica, sans-serif" fontWeight="600" fontSize="78" letterSpacing="-4"><text x="4" y="80">insura</text></g>
+ <rect x="111" y="14" width="9" height="17" rx="4.5" fill="#1769ff"/><rect x="128" y="14" width="9" height="17" rx="4.5" fill="#1769ff"/>
+ </>}
+ </svg>;
+ return href?<Link href={href} className="inline-flex min-w-0 items-center">{logo}</Link>:logo;
 }
