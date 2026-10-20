@@ -4,7 +4,7 @@ Reviewed: 2026-10-20 · Coverage: Swiss insurance (CH)
 ## What was added
 
 - `lib/insurance-knowledge/verified-swiss-rules.ts`: 17 original, source-linked extraction/interpretation rules for LAMal, LCA, health household packets, LAINF, vehicles, liability, household, sickness daily benefits, legal protection and pensions.
-- `lib/insurance-knowledge/official-cga-catalogs.ts`: 13 official regulator, insurer, comparison and glossary directories.
+- `lib/insurance-knowledge/official-cga-catalogs.ts`: 19 official regulator, insurer, comparison and glossary directories.
 - `lib/insurance-knowledge/select-hints.ts`: includes the reviewed rules in the **existing** rule selection that feeds the OpenAI document extractor. The AI receives contextual hints only, not fictional customer facts.
 - The existing `insurance-sources.json` contains 45 previously indexed references; it remains as-is. The new catalog supplements rather than duplicates the legacy reference collection.
 - `test/insurance-knowledge.test.ts`: regression coverage for unique rule/source IDs, source URLs and review metadata.
@@ -32,6 +32,12 @@ Reviewed: 2026-10-20 · Coverage: Swiss insurance (CH)
 | Historic and current product conditions | Sanitas | https://www.sanitas.com/it/clienti-privati/servizi/aiuto/documenti-e-download/condizioni-assicurazione.html |
 | Vehicle cover and CGA catalog | Zurich | https://www.zurich.ch/it/clientela-privata/mobilita-viaggi/assicurazione-auto |
 | Vehicle cover and CGA catalog | AXA | https://www.axa.ch/it/clienti-privati/offerte/veicoli-viaggi/assicurazione-auto.html |
+| Multiple insurance categories | Visana | https://www.visana.ch/it/clienti-privati/servizi-e-contatti/servizi/liste-di-controllo-ed-elenchi/cga |
+| French-language group CGA catalog | La Mobiliare | https://www.mobiliere.ch/aspect-juridique/conditions-generales-d-assurance |
+| Multiple editions and products | Vaudoise | https://www.vaudoise.ch/it/chi-siamo/broker/documentazione/condizioni-generali |
+| Property and private liability | Allianz Suisse | https://www.allianz.ch/it/clienti-privati/offerte/casa-tutela-diritti/downloads.html |
+| House contents and private liability documents | Helvetia | https://www.helvetia.com/ch/web/it/clienti-privati/assicurazioni/assicurazione-rc.html |
+| Group accident and salary insurance | Visana | https://www.visana.ch/it/aziende/servizi-e-contatti/liste-di-controllo-ed-elenchi/documenti-e-download |
 
 ## Contract interpretation invariants
 
