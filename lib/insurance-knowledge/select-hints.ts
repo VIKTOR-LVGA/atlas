@@ -185,7 +185,31 @@ export function buildExtractionKnowledgeContext(
   const keywords = getSwissInsuranceKeywords(extractedText, 30);
   const sections = getInferredSectionsFromText(extractedText);
 
+  // Extract domain-specific headings directly from the document text. Generic
+  // keyword normalization loses multi-word table labels; those labels distinguish
+  // household payable totals from person and product subtotals.
+  const structuralHeadings = [
+    "panoramica dei premi",
+    "totale premio mensile",
+    "assicurazione integrativa",
+    "totale premio annuo",
+    "ribasso",
+    "tasse legali",
+    "modalita di pagamento",
+    "semestrale",
+    "condizioni generali",
+    "cga",
+    "franchigia",
+  ].filter((label) =>
+    extractedText
+      .normalize("NFD")
+      .replace(/[\\u0300-\\u036f]/g, "")
+      .toLowerCase()
+      .includes(label)
+  );
+
   const extractedTextSignals = [
+    ...structuralHeadings,
     ...classification.matchedKeywords,
     ...keywords,
     ...sections,
