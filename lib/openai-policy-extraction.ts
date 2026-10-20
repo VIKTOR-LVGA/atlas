@@ -685,14 +685,25 @@ function verifyExtractedFieldEvidence(
   const item = getPayloadRecord(entries[key]);
   const evidence = normalizeNullableString(item.evidence);
   const normalize = (text: string) => text.normalize("NFC").replace(/\\s+/g, " ").trim().toLocaleLowerCase();
-  const found = Boolean(evidence && evidence.length >= 6 && normalize(pdfText).includes(normalize(evidence)));
-  // Exact text presence is necessary, but does not prove the value is semantically correct.
+  const pages = pdfText.split(/\\[\\[ATLAS_PDF_PAGE_(\\d+)\\]\\]/g);
+  const matches: number[] = [];
+  if (evidence && evidence.length >= 6) {
+    for (let index = 1; index < pages.length - 1; index += 2) {
+      if (normalize(pages[index + 1]).includes(normalize(evidence))) {
+        matches.push(Number(pages[index]));
+      }
+    }
+  }
+  // Ambiguous quotations and unsupported values remain suspended.
+  const found = matches.length === 1;
   entries[key] = {
     ...item,
     value: found ? value : null,
     confidence: found ? normalizeConfidence(item.confidence) : null,
     uncertain: true,
     evidence: found ? evidence : null,
+    source_page: found ? matches[0] : null,
+    verification_status: found ? "quote_found_needs_semantic_review" : "unverified",
   };
   details.field_confidence = entries;
   return found;
@@ -855,7 +866,7 @@ function normalizeOpenAIExtraction(
     warnings: [
       ...(Array.isArray(warnings.warnings) ? warnings.warnings : []),
       "I valori senza citazione letterale presente nel PDF sono stati sospesi. La presenza della citazione non certifica da sola il significato del valore.",
-      "La pagina della citazione non e ancora verificata: nessun campo puo essere dichiarato completamente verificato.",
+      "La pagina viene individuata solo per citazioni univoche; resta necessaria la verifica semantica e delle contraddizioni.",
     ],
   };
   const details = sanitizePolicyDetails(policyType, detailsSource) as PolicyDetails;

@@ -266,7 +266,7 @@ function joinLineText(items: PositionedPdfText[]) {
 }
 
 function getStructuredTextFromPdf2Json(data: Pdf2JsonOutput) {
-  return data.Pages.map((page) => {
+  return data.Pages.map((page, pageIndex) => {
     const textItems = page.Texts.map((text) => ({
       x: text.x,
       y: text.y,
@@ -289,7 +289,7 @@ function getStructuredTextFromPdf2Json(data: Pdf2JsonOutput) {
       lines.push([textItem]);
     }
 
-    return lines.map(joinLineText).filter(Boolean).join("\n");
+    return `[[ATLAS_PDF_PAGE_${pageIndex + 1}]]\n${lines.map(joinLineText).filter(Boolean).join("\n")}`;
   })
     .filter(Boolean)
     .join("\n\n");
@@ -384,7 +384,8 @@ export async function extractReadableTextFromPdf(pdf: Buffer) {
   let rawText = "";
 
   try {
-    rawText = choosePdf2JsonText(await extractTextWithPdf2Json(pdf));
+    // Use page-preserving extraction for auditable citations. Never discard page boundaries.
+    rawText = (await extractTextWithPdf2Json(pdf)).structuredTextContent;
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unknown PDF parser error";
