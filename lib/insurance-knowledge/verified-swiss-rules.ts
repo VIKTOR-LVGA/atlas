@@ -119,8 +119,8 @@ export const VERIFIED_SWISS_INSURANCE_RULES: SwissKnowledgeRule[] = [
   {
     id: "ch-verified-household-building-contract-scope-2026",
     category: "liability_household", policyType: "household",
-    jurisdiction: "CH", sourceType: "insurer", sourceName: "CSS: documenti contrattuali",
-    sourceUrl: "https://www.css.ch/it/clienti-privati/presto-fatto/fallo-da-solo/ordinazione/cga.html",
+    jurisdiction: "CH", sourceType: "insurer", sourceName: "Vaudoise: CGA patrimonio e proprietà",
+    sourceUrl: "https://www.vaudoise.ch/it/chi-siamo/broker/documentazione/condizioni-generali",
     lastReviewed: "2026-10-20",
     ruleSummary: "Household movable property, buildings and personal liability are separate insurable interests.",
     extractionHint: "For household and building cover, bind sums and covered risks to the proper insured location and product. Do not infer all-risk, accidental damage, glass, bicycle or valuables extensions merely from a general product description; honor exclusions, peril-specific limits, and the relevant contractual CGA edition.",
@@ -152,8 +152,8 @@ export const VERIFIED_SWISS_INSURANCE_RULES: SwissKnowledgeRule[] = [
   {
     id: "ch-verified-income-daily-benefits-2026",
     category: "accident_income", policyType: "other",
-    jurisdiction: "CH", sourceType: "official", sourceName: "UFAS: contributi alle assicurazioni sociali",
-    sourceUrl: "https://www.bsv.admin.ch/it/contributi-panoramica",
+    jurisdiction: "CH", sourceType: "insurer", sourceName: "Helsana: CGA Business Salary",
+    sourceUrl: "https://www.helsana.ch/it/aziende/servizi/documenti-e-download/condizioni-assicurazione.html",
     lastReviewed: "2026-10-20",
     ruleSummary: "Sickness daily benefits differ from LAMal medical expense cover and statutory accident compensation.",
     extractionHint: "For Krankentaggeld / indennita giornaliera malattia identify legal/contractual basis, waiting days, replacement percentage, insured salary base, duration and employer participation separately. Do not import another employer's or insurer's default benefit terms into an individual's contract.",
@@ -185,8 +185,8 @@ export const VERIFIED_SWISS_INSURANCE_RULES: SwissKnowledgeRule[] = [
   {
     id: "ch-verified-legal-travel-coverage-2026",
     category: "legal_travel_personal", policyType: "legal",
-    jurisdiction: "CH", sourceType: "insurer", sourceName: "CSS: CGA e condizioni speciali",
-    sourceUrl: "https://www.css.ch/it/clienti-privati/presto-fatto/fallo-da-solo/ordinazione/cga.html",
+    jurisdiction: "CH", sourceType: "insurer", sourceName: "AXA-ARAG: protezione giuridica",
+    sourceUrl: "https://www.axa.ch/it/clienti-privati/offerte/diritto-cyber/assicurazione-di-protezione-giuridica/protezione-giuridica-per-privati.html",
     lastReviewed: "2026-10-20",
     ruleSummary: "Legal protection may be a standalone product or a named optional rider.",
     extractionHint: "Separate explicitly purchased private, traffic, internet or patient legal cover from generic advisory service marketing. Identify waiting periods, insured dispute types, monetary ceilings, territory and version of contractual conditions. Free bundled coverage has effective payable premium zero when explicitly stated.",
