@@ -1,5 +1,6 @@
 import { SWISS_INSURANCE_KNOWLEDGE_RULES } from "@/lib/insurance-knowledge/ch";
 import { VERIFIED_SWISS_INSURANCE_RULES } from "@/lib/insurance-knowledge/verified-swiss-rules";
+import { getMultilingualCgaInterpretationHints } from "@/lib/insurance-knowledge/multilingual-cga-concepts";
 import type {
   SwissInsuranceKnowledgeHintInput,
   SwissInsuranceKnowledgeHintsResult,
@@ -240,21 +241,35 @@ export function buildExtractionKnowledgeContext(
     priorityRuleIds.push("ch-verified-motor-final-premium-2026");
   }
 
+  // Give high-value IT/DE/FR clause semantics a place in the limited prompt.
+  // These are independently authored explanations, not imported insurer terms.
+  const multilingual = getMultilingualCgaInterpretationHints(
+    extractedText,
+    classification.policyType,
+    2
+  );
+  const multilingualHintMap = new Map(
+    multilingual.ruleIds.map((id, index) => [id, multilingual.hints[index]] as const)
+  );
+
   const ruleIndex = new Map(
     [...SWISS_INSURANCE_KNOWLEDGE_RULES, ...VERIFIED_SWISS_INSURANCE_RULES]
       .map((rule) => [rule.id, rule] as const)
   );
   const orderedIds = [
-    ...new Set([...priorityRuleIds, ...result.ruleIds]),
+    ...new Set([...priorityRuleIds, ...multilingual.ruleIds, ...result.ruleIds]),
   ].slice(0, Math.max(0, maxHints));
-  const selectedRules = orderedIds
-    .map((id) => ruleIndex.get(id))
-    .filter((rule): rule is SwissKnowledgeRule => rule !== undefined);
+  const selectedHints = orderedIds.flatMap((id) => {
+    const rule = ruleIndex.get(id);
+    if (rule) return [formatHintLine(rule)];
+    const hint = multilingualHintMap.get(id);
+    return hint ? [hint] : [];
+  });
 
   return {
     ...result,
-    hints: selectedRules.map(formatHintLine),
-    ruleIds: selectedRules.map((rule) => rule.id),
+    hints: selectedHints,
+    ruleIds: orderedIds,
     policyTypeGuess: classification.policyType,
     subtypeGuess: classification.subtype,
   };
