@@ -190,6 +190,15 @@ export function buildExtractionKnowledgeContext(
   // keyword normalization loses multi-word table labels; those labels distinguish
   // household payable totals from person and product subtotals.
   const normalizedDocumentText = normalizeSignal(extractedText);
+  // Classification guesses from a short, potentially multilingual snippet
+  // can miss motor/health labels. This hint-only category is NOT the stored
+  // document classification and cannot establish individual coverage.
+  const hintPolicyTypeGuess =
+    /motorfahrzeug|fahrzeugversicherung|autoversicherung|assurance des vehicules|assurance automobile|assicurazione veicoli|assicurazione auto/.test(normalizedDocumentText)
+      ? ("car" as const)
+      : /assurance maladie|assurance de base|krankenzusatz|grundversicherung|krankenversicherung|lamal|kvg/.test(normalizedDocumentText)
+        ? ("health" as const)
+        : classification.policyType;
   const structuralHeadings = [
     "panoramica dei premi",
     "totale premio mensile",
@@ -213,7 +222,7 @@ export function buildExtractionKnowledgeContext(
   ];
 
   const result = getSwissInsuranceKnowledgeHints({
-    policyTypeGuess: classification.policyType,
+    policyTypeGuess: hintPolicyTypeGuess,
     subtypeGuess: classification.subtype === "other" ? null : classification.subtype,
     provider: providerMatch.provider,
     extractedTextSignals,
@@ -225,7 +234,7 @@ export function buildExtractionKnowledgeContext(
   // This is knowledge-selection metadata, never an extracted contract fact.
   const priorityRuleIds: string[] = [];
   if (
-    classification.policyType === "health" &&
+    hintPolicyTypeGuess === "health" &&
     providerMatch.provider?.toLowerCase().includes("helsana") &&
     normalizedDocumentText.includes("panoramica dei premi") &&
     normalizedDocumentText.includes("totale premio mensile")
@@ -233,7 +242,7 @@ export function buildExtractionKnowledgeContext(
     priorityRuleIds.push("ch-verified-helsana-multiperson-overview-2026");
   }
   if (
-    classification.policyType === "car" &&
+    hintPolicyTypeGuess === "car" &&
     normalizedDocumentText.includes("totale premio annuo") &&
     (normalizedDocumentText.includes("ribasso") ||
       normalizedDocumentText.includes("tasse legali"))
@@ -245,7 +254,7 @@ export function buildExtractionKnowledgeContext(
   // These are independently authored explanations, not imported insurer terms.
   const multilingual = getMultilingualCgaInterpretationHints(
     extractedText,
-    classification.policyType,
+    hintPolicyTypeGuess,
     2
   );
   const multilingualHintMap = new Map(
@@ -270,7 +279,7 @@ export function buildExtractionKnowledgeContext(
     ...result,
     hints: selectedHints,
     ruleIds: orderedIds,
-    policyTypeGuess: classification.policyType,
+    policyTypeGuess: hintPolicyTypeGuess,
     subtypeGuess: classification.subtype,
   };
 }
