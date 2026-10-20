@@ -117,12 +117,12 @@ for (const rule of VERIFIED_SWISS_INSURANCE_RULES) {
   assert.match(rule.id, /^ch-[a-z][a-z0-9-]*$/);
   assert.equal(rule.jurisdiction, "CH");
   assert.match(rule.sourceUrl ?? "", /^https:\/\//);
-  assert.match(rule.lastReviewed, /^20\\d{2}-\\d{2}-\\d{2}$/);
+  assert.match(rule.lastReviewed, /^20\d{2}-\d{2}-\d{2}$/);
   assert.ok(rule.extractionHint.includes(" ") && rule.riskIfMisread.length > 20);
 }
 for (const catalog of officialSwissInsuranceCatalogs) {
   assert.match(catalog.officialUrl, /^https:\/\//);
-  assert.match(catalog.checkedAt, /^20\\d{2}-\\d{2}-\\d{2}$/);
+  assert.match(catalog.checkedAt, /^20\d{2}-\d{2}-\d{2}$/);
   assert.ok(catalog.limitation.length > 40);
 }
 assert.ok(VERIFIED_SWISS_INSURANCE_RULES.some((rule) => rule.id.includes("motor-final-premium")));
