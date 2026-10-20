@@ -140,7 +140,7 @@ export const officialSwissInsuranceCatalogs: readonly CgaCatalogEntry[] = [
     productExamples: ["glossario assicurativo multilingue AFA"],
     checkedAt: "2026-10-20",
     limitation: "External glossary reference only: text is not reproduced or assumed to be licensed for model training."
-  }
+  },
   {
     id: "visana-conditions",
     provider: "Visana",
