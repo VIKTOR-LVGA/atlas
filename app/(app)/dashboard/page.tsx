@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { ClipboardCheck, Sparkles } from "lucide-react";
-import {
-  PageHeader,
-  PrimaryButton,
-} from "@/components/ui/PageHeader";
+import { PrimaryButton } from "@/components/ui/PageHeader";
+import { AtlasAlpineHero } from "@/components/visual/AtlasAlpineHero";
 import { MetricCard } from "@/components/ui/MetricCard";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { LinkAction } from "@/components/ui/LinkAction";
@@ -78,14 +76,10 @@ export default async function DashboardPage() {
 
   return (
     <PageShell>
-      <PageHeader
-        title={`Ciao ${getProfileShortName(profile)}`}
-        description="Panoramica del tuo archivio assicurativo e delle prossime azioni."
-        action={
-          <PrimaryButton href="/documents" icon={<IconUpload className="h-4 w-4" />}>
-            Carica PDF
-          </PrimaryButton>
-        }
+      <AtlasAlpineHero
+        greeting="Ciao"
+        name={getProfileShortName(profile)}
+        empty={policies.length === 0}
       />
 
       {nextAction ? (

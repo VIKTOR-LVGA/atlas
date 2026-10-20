@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { IconLogo } from "@/components/icons";
+import { AtlasBrandLogo } from "@/components/brand/AtlasBrandLogo";
 
 export function LandingFooter() {
   return (
@@ -7,9 +7,8 @@ export function LandingFooter() {
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <div className="flex flex-col gap-10 md:flex-row md:justify-between">
           <div>
-            <Link href="/" className="flex items-center gap-2">
-              <IconLogo className="h-7 w-7" />
-              <span className="font-semibold text-[var(--landing-text)]">Atlas</span>
+            <Link href="/" className="inline-flex">
+              <AtlasBrandLogo variant="stacked" />
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-[var(--landing-muted)]">
               L&apos;AI che capisce le polizze assicurative svizzere. Indipendente,
@@ -17,7 +16,7 @@ export function LandingFooter() {
             </p>
             <p className="mt-4 inline-flex items-center gap-2 text-xs text-[var(--landing-muted)]">
               <span aria-hidden>🇨🇭</span>
-              Ospitato in Svizzera · nLPD
+              Prodotto per il mercato svizzero
             </p>
           </div>
           <div className="grid grid-cols-2 gap-10 text-sm sm:grid-cols-3">
@@ -27,25 +26,30 @@ export function LandingFooter() {
               </p>
               <ul className="mt-4 space-y-2.5 text-[var(--landing-muted)]">
                 <li>
-                  <Link
-                    href="/register"
-                    className="transition hover:text-[var(--landing-text)]"
-                  >
+                  <Link href="/register" className="transition hover:text-[var(--landing-text)]">
                     Inizia gratis
                   </Link>
                 </li>
                 <li>
-                  <a href="#product" className="transition hover:text-[var(--landing-text)]">
-                    Funzionalità
-                  </a>
+                  <Link
+                    href="/analysis"
+                    className="transition hover:text-[var(--landing-text)]"
+                  >
+                    Intelligence
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#how-it-works"
+                  <Link href="/#product" className="transition hover:text-[var(--landing-text)]">
+                    Funzionalità
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/#how-it-works"
                     className="transition hover:text-[var(--landing-text)]"
                   >
                     Come funziona
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -60,24 +64,32 @@ export function LandingFooter() {
                   </Link>
                 </li>
                 <li>
-                  <a href="#security" className="transition hover:text-[var(--landing-text)]">
+                  <Link href="/#security" className="transition hover:text-[var(--landing-text)]">
                     Sicurezza
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#faq" className="transition hover:text-[var(--landing-text)]">
+                  <Link href="/#faq" className="transition hover:text-[var(--landing-text)]">
                     FAQ
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
             <div>
               <p className="text-xs font-medium uppercase tracking-wider text-[var(--landing-muted)]">
-                Legale
+                Informazioni
               </p>
               <ul className="mt-4 space-y-2.5 text-[var(--landing-muted)]">
-                <li>Privacy</li>
-                <li>Termini</li>
+                <li>
+                  <Link href="/#security" className="transition hover:text-[var(--landing-text)]">
+                    Dati e trasparenza
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/#faq" className="transition hover:text-[var(--landing-text)]">
+                    Domande frequenti
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
@@ -86,8 +98,8 @@ export function LandingFooter() {
           <p className="text-xs text-[var(--landing-muted)]">
             © {new Date().getFullYear()} Atlas · Svizzera
           </p>
-          <p className="text-xs text-[var(--landing-muted)] opacity-80">
-            Dati trattati in conformità con la nLPD
+          <p className="text-xs text-[var(--landing-muted)]">
+            Documentazione legale in revisione
           </p>
         </div>
       </div>

@@ -2,158 +2,49 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { ArrowUpRight, ChartNoAxesColumnIncreasing, FileText, HelpCircle, Home, ShieldCheck, Scale, Sparkles, Plus } from "lucide-react";
+import { AtlasBrandLogo } from "@/components/brand/AtlasBrandLogo";
 import { useCurrentProfile } from "@/components/profile/ProfileProvider";
 import { getProfileDisplayName, getProfileInitials } from "@/lib/profile-display";
-import {
-  IconLogo,
-  IconMenu,
-  IconDashboard,
-  IconPolicies,
-  IconAnalysis,
-  IconMarket,
-  IconRecommendations,
-  IconDocuments,
-  IconConsulting,
-  IconSettings,
-  IconShield,
-} from "@/components/icons";
+import { cn } from "@/lib/utils";
 
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: IconDashboard },
-  { href: "/policies", label: "Le mie polizze", icon: IconPolicies },
-  { href: "/analysis", label: "Analisi", icon: IconAnalysis },
-  { href: "/market", label: "Confronto mercato", icon: IconMarket },
-  { href: "/recommendations", label: "Raccomandazioni", icon: IconRecommendations },
-  { href: "/documents", label: "Documenti", icon: IconDocuments },
-  { href: "/consulting", label: "Consulenza", icon: IconConsulting },
-  { href: "/settings", label: "Impostazioni", icon: IconSettings },
+const entries=[
+  {href:"/dashboard",label:"Home",Icon:Home},
+  {href:"/policies",label:"Le mie polizze",Icon:ShieldCheck},
+  {href:"/documents",label:"Documenti",Icon:FileText},
+  {href:"/analysis",label:"Premi e costi",Icon:ChartNoAxesColumnIncreasing},
+  {href:"/market",label:"Confronto mercato",Icon:Scale},
+  {href:"/recommendations",label:"Raccomandazioni",Icon:Sparkles},
+  {href:"/consulting",label:"Consulenza",Icon:HelpCircle},
 ];
 
-function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
-  const pathname = usePathname();
-  const profile = useCurrentProfile();
-
-  const isActive = (href: string) => {
-    if (href === "/dashboard") return pathname === "/dashboard";
-    return pathname.startsWith(href);
-  };
-
-  return (
-    <>
-      <div className="flex h-[60px] items-center gap-2.5 px-5">
-        <Link href="/dashboard" className="flex items-center gap-2.5" onClick={onNavigate}>
-          <IconLogo className="h-9 w-9 shrink-0" />
-          <div className="min-w-0">
-            <p className="text-[15px] font-semibold leading-tight text-foreground">Atlas</p>
-            <p className="text-[11px] leading-tight text-muted">Analisi indipendente</p>
-          </div>
-        </Link>
-      </div>
-
-      <nav className="flex-1 space-y-0.5 px-3 py-2">
-        {navItems.map((item) => {
-          const active = isActive(item.href);
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onNavigate}
-              className={cn(
-                "relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors",
-                active
-                  ? "bg-[var(--nav-active-bg)] text-[var(--nav-active-text)]"
-                  : "text-muted hover:bg-card-muted hover:text-foreground"
-              )}
-            >
-              {active && (
-                <span className="absolute -left-3 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-r-full bg-accent" />
-              )}
-              <Icon
-                className={cn(
-                  "h-[18px] w-[18px] shrink-0",
-                  active ? "text-[var(--nav-active-icon)]" : "text-muted"
-                )}
-              />
-              {item.label}
-            </Link>
-          );
+export function Sidebar(){
+  const pathname=usePathname();
+  const profile=useCurrentProfile();
+  return <aside className="atlas-sidebar-panel hidden h-screen w-[240px] shrink-0 flex-col overflow-y-auto border-r border-sidebar-border lg:flex">
+    <Link href="/dashboard" className="flex h-[80px] shrink-0 items-center px-6" aria-label="ATLAS, vai alla home"><AtlasBrandLogo variant="stacked" compact/></Link>
+    <div className="flex-1 px-3 pt-3">
+      <nav aria-label="Navigazione principale" className="space-y-1.5">
+        {entries.map(({href,label,Icon})=>{
+          const active=pathname===href||pathname.startsWith(href+"/")||(href==="/dashboard"&&pathname==="/");
+          return <Link key={href} href={href} aria-current={active?"page":undefined} className={cn(
+            "atlas-sidebar-link flex min-h-[49px] items-center gap-3.5 rounded-[14px] px-4 text-[13px] font-semibold",
+            active?"bg-[var(--nav-active-bg)] text-[var(--nav-active-text)]":"text-muted-foreground hover:bg-card-muted hover:text-foreground"
+          )}><Icon className={cn("h-5 w-5 shrink-0",active?"text-accent":"text-muted")} aria-hidden/>{label}</Link>;
         })}
       </nav>
-
-      <div className="p-4">
-        <div className="mb-3 flex min-w-0 items-center gap-2.5 rounded-xl border border-border bg-card px-3 py-2 shadow-[var(--shadow-card)]">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-[11px] font-semibold text-accent-foreground">
-            {getProfileInitials(profile)}
-          </span>
-          <div className="min-w-0">
-            <p className="truncate text-[12px] font-medium text-foreground">
-              {getProfileDisplayName(profile)}
-            </p>
-            <p className="truncate text-[10px] text-muted">
-              {profile?.email ?? "Profilo Atlas"}
-            </p>
-          </div>
-        </div>
-        <div className="rounded-2xl border border-border bg-accent-soft p-4">
-          <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-card shadow-[var(--shadow-card)]">
-            <IconShield className="h-[18px] w-[18px] text-accent" />
-          </div>
-          <p className="text-[12px] font-semibold leading-snug text-foreground">
-            Le tue polizze. La tua sicurezza. La nostra indipendenza.
-          </p>
-          <Link
-            href="/"
-            onClick={onNavigate}
-            className="atlas-btn-secondary mt-3 w-full"
-          >
-            Scopri come funziona
-          </Link>
-        </div>
-      </div>
-    </>
-  );
-}
-
-export function Sidebar() {
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  return (
-    <>
-      <div className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-sidebar-border bg-card px-4 lg:hidden">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <IconLogo className="h-8 w-8" />
-          <span className="text-sm font-semibold text-foreground">Atlas</span>
-        </Link>
-        <button
-          type="button"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="rounded-lg p-2 text-muted hover:bg-card-muted hover:text-foreground"
-          aria-label="Menu"
-          aria-expanded={mobileOpen}
-        >
-          <IconMenu />
-        </button>
-      </div>
-
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-overlay lg:hidden"
-          onClick={() => setMobileOpen(false)}
-          aria-hidden
-        />
-      )}
-
-      <aside
-        className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[min(100vw-3rem,250px)] flex-col border-r border-sidebar-border bg-sidebar transition-transform lg:static lg:w-[250px] lg:translate-x-0",
-          mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        )}
-      >
-        <SidebarContent onNavigate={() => setMobileOpen(false)} />
-      </aside>
-    </>
-  );
+      <Link href="/documents" className="atlas-btn-primary mt-6 flex min-h-11 w-full items-center justify-center gap-2 text-[12px]">
+        <Plus className="h-4 w-4" aria-hidden/> Aggiungi polizza
+      </Link>
+      <Link href="/consulting" className="atlas-ref-sidebar-promo mt-6 block overflow-hidden rounded-[20px] border border-[#d9e5ff]">
+        <div className="px-4 pt-5"><p className="text-[18px] font-extrabold leading-[1.18] tracking-[-.04em] text-[#122b62]">Protezione<br/>per ogni tuo<br/>domani.</p></div>
+        <div className="flex h-[125px] items-end justify-between bg-[url('/brand/atlas-alpine-lake-hero.webp')] bg-cover bg-[72%_center] px-4 pb-3"><span className="rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-bold text-[#26447a]">Apri Consulenza</span><ArrowUpRight className="h-4 w-4 text-[#2147a1]"/></div>
+      </Link>
+    </div>
+    <Link href="/settings" className="mx-3 mb-4 mt-5 flex items-center gap-3 rounded-[15px] border border-border bg-card px-3 py-3 hover:bg-card-muted">
+      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[13px] bg-accent-soft text-[12px] font-bold text-accent">{getProfileInitials(profile)}</span>
+      <span className="min-w-0 flex-1"><span className="block truncate text-[12px] font-bold text-foreground">{getProfileDisplayName(profile)}</span><span className="block text-[11px] text-muted">Il mio profilo</span></span>
+      <ArrowUpRight className="h-4 w-4 text-muted" aria-hidden/>
+    </Link>
+  </aside>;
 }

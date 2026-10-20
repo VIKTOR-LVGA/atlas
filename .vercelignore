@@ -1,0 +1,11 @@
+# Deploy source, never local build artifacts or test/session output.
+.git/
+.next/
+.vercel/
+node_modules/
+.env*
+*.tsbuildinfo
+test-results/
+playwright-report/
+coverage/
+supabase/.temp/
