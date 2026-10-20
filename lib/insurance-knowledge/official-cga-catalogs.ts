@@ -141,4 +141,58 @@ export const officialSwissInsuranceCatalogs: readonly CgaCatalogEntry[] = [
     checkedAt: "2026-10-20",
     limitation: "External glossary reference only: text is not reproduced or assumed to be licensed for model training."
   }
+  {
+    id: "visana-conditions",
+    provider: "Visana",
+    officialUrl: "https://www.visana.ch/it/clienti-privati/servizi-e-contatti/servizi/liste-di-controllo-ed-elenchi/cga",
+    documentFamily: "cga_catalog",
+    coverageFamilies: ["LAMal", "LCA", "household", "liability", "building", "vehicle", "travel", "legal", "pension"],
+    productExamples: ["Med Direct", "Tel Care", "Basic", "Ambulatoriale", "Home"],
+    checkedAt: "2026-10-20", limitation: contractualEditionRule
+  },
+  {
+    id: "mobiliere-conditions",
+    provider: "La Mobiliare",
+    officialUrl: "https://www.mobiliere.ch/aspect-juridique/conditions-generales-d-assurance",
+    documentFamily: "cga_catalog",
+    coverageFamilies: ["vehicle", "household", "building", "liability", "legal", "life", "business"],
+    productExamples: ["Assurance voiture", "Assurance ménage", "Responsabilité civile"],
+    checkedAt: "2026-10-20", limitation: contractualEditionRule
+  },
+  {
+    id: "vaudoise-conditions",
+    provider: "Vaudoise",
+    officialUrl: "https://www.vaudoise.ch/it/chi-siamo/broker/documentazione/condizioni-generali",
+    documentFamily: "cga_catalog",
+    coverageFamilies: ["vehicle", "legal", "household", "liability", "building", "LAINF", "daily_sickness", "life", "business"],
+    productExamples: ["Home In One", "Assicurazione autoveicoli", "Business One"],
+    checkedAt: "2026-10-20", limitation: contractualEditionRule
+  },
+  {
+    id: "allianz-home-conditions",
+    provider: "Allianz Suisse",
+    officialUrl: "https://www.allianz.ch/it/clienti-privati/offerte/casa-tutela-diritti/downloads.html",
+    documentFamily: "cga_catalog",
+    coverageFamilies: ["household", "building", "liability", "legal", "valuables"],
+    productExamples: ["Economia domestica", "Responsabilità civile privata", "Assicurazione stabili"],
+    checkedAt: "2026-10-20", limitation: contractualEditionRule
+  },
+  {
+    id: "helvetia-household-conditions",
+    provider: "Helvetia",
+    officialUrl: "https://www.helvetia.com/ch/web/it/clienti-privati/assicurazioni/assicurazione-rc.html",
+    documentFamily: "product_terms",
+    coverageFamilies: ["household", "liability"],
+    productExamples: ["RC privata", "Mobilia domestica"],
+    checkedAt: "2026-10-20", limitation: contractualEditionRule
+  },
+  {
+    id: "visana-business-conditions",
+    provider: "Visana",
+    officialUrl: "https://www.visana.ch/it/aziende/servizi-e-contatti/liste-di-controllo-ed-elenchi/documenti-e-download",
+    documentFamily: "cga_catalog",
+    coverageFamilies: ["LAINF", "daily_sickness", "business"],
+    productExamples: ["CGA LAINF", "Indennità giornaliera LCA"],
+    checkedAt: "2026-10-20", limitation: contractualEditionRule
+  },
 ];
