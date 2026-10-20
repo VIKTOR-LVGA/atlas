@@ -68,3 +68,5 @@ export {
 } from "@/lib/insurance-knowledge/normalization";
 
 export { swissCgaPdfSources, findSwissCgaSourceCandidates, type SwissCgaSource, type SwissCgaLanguage } from "@/lib/insurance-knowledge/cga-pdf-sources";
+
+export { searchSwissCgaClauses, formatSwissCgaClauseCitations, type CgaClause, type CgaSearchResult } from "@/lib/insurance-knowledge/cga-clause-search";
