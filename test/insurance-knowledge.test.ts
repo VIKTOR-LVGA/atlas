@@ -287,7 +287,7 @@ for (const product of indexedTrilingualProducts) {
   const variants = swissCgaPdfSources.filter((item) => item.product === product);
   assert.deepEqual([...new Set(variants.map((item) => item.language))].sort(), ["de", "fr", "it"]);
 }
-assert.equal(swissCgaPdfSources.length, 21);
+assert.equal(swissCgaPdfSources.length, 30);
 assert.ok(swissCgaPdfSources.every((item) => item.url.startsWith("https://")));
 assert.ok(!findSwissCgaSourceCandidates({ insurer: "css", product: "myflex-cga", contractEffectiveOn: "2026-06-01" }).some((item) => item.editionFrom === "2027-01-01"));
 assert.ok(findSwissCgaSourceCandidates({ insurer: "css", product: "myflex-cga", language: "fr", contractEffectiveOn: "2027-02-01" }).some((item) => item.editionFrom === "2027-01-01"));
