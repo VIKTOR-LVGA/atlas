@@ -13,6 +13,7 @@ export function formatCHF(amount: number): string {
 
 export function formatDate(date: string): string {
   return new Intl.DateTimeFormat("it-CH", {
+    timeZone: "Europe/Zurich",
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -21,6 +22,7 @@ export function formatDate(date: string): string {
 
 export function formatDateTime(date: string): string {
   return new Intl.DateTimeFormat("it-CH", {
+    timeZone: "Europe/Zurich",
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(date));

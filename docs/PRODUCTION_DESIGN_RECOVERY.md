@@ -43,13 +43,20 @@ Production exposes `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, while the old source
 accepted only `NEXT_PUBLIC_SUPABASE_ANON_KEY`. The shared config now supports
 both names, including browser build-time inlining. Six tests cover this boundary.
 
+The first public verification also exposed an existing timezone hydration bug:
+the Vercel server formatted uploads/profile timestamps in UTC, while Swiss
+browsers formatted them in Europe/Zurich. For example, `2026-10-19T22:10:00Z`
+became 19 October on the server and 20 October in the browser. Shared date
+formatters now explicitly use Europe/Zurich. Four regression tests cover
+different host zones, summer/winter time and date-only contract values.
+
 `.vercelignore` excludes local caches, environment files and test output from
 future source deployments.
 
 ## Checks
 
 - `npm ci`
-- `npm test`: six Supabase configuration tests
+- `npm test`: six Supabase configuration tests and four timezone regression tests
 - `npm run lint`: no errors; existing unused helper warning in `lib/pdf-text.ts`
 - `npm run typecheck`
 - `npm run build`: all existing routes compile
