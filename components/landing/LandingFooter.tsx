@@ -32,20 +32,20 @@ export function LandingFooter() {
                 </li>
                 <li>
                   <Link
-                    href="/analysis"
+                    href="/info/intelligence"
                     className="transition hover:text-[var(--landing-text)]"
                   >
                     Intelligence
                   </Link>
                 </li>
                 <li>
-                  <Link href="/#product" className="transition hover:text-[var(--landing-text)]">
+                  <Link href="/info/funzionalita" className="transition hover:text-[var(--landing-text)]">
                     Funzionalità
                   </Link>
                 </li>
                 <li>
                   <Link
-                    href="/#how-it-works"
+                    href="/info/come-funziona"
                     className="transition hover:text-[var(--landing-text)]"
                   >
                     Come funziona
@@ -64,12 +64,12 @@ export function LandingFooter() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/#security" className="transition hover:text-[var(--landing-text)]">
+                  <Link href="/info/sicurezza" className="transition hover:text-[var(--landing-text)]">
                     Sicurezza
                   </Link>
                 </li>
                 <li>
-                  <Link href="/#faq" className="transition hover:text-[var(--landing-text)]">
+                  <Link href="/info/faq" className="transition hover:text-[var(--landing-text)]">
                     FAQ
                   </Link>
                 </li>
@@ -81,12 +81,12 @@ export function LandingFooter() {
               </p>
               <ul className="mt-4 space-y-2.5 text-[var(--landing-muted)]">
                 <li>
-                  <Link href="/#security" className="transition hover:text-[var(--landing-text)]">
+                  <Link href="/info/trasparenza" className="transition hover:text-[var(--landing-text)]">
                     Dati e trasparenza
                   </Link>
                 </li>
                 <li>
-                  <Link href="/#faq" className="transition hover:text-[var(--landing-text)]">
+                  <Link href="/info/faq" className="transition hover:text-[var(--landing-text)]">
                     Domande frequenti
                   </Link>
                 </li>
