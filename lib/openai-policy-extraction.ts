@@ -673,6 +673,31 @@ const policyExtractionSchema = {
   ],
 };
 
+// Evidence is a verbatim excerpt, never a confidence score or an AI explanation.
+function verifyExtractedFieldEvidence(
+  details: Record<string, unknown>,
+  key: string,
+  value: string | number | null,
+  pdfText: string
+): boolean {
+  if (value === null) return false;
+  const entries = getPayloadRecord(details.field_confidence);
+  const item = getPayloadRecord(entries[key]);
+  const evidence = normalizeNullableString(item.evidence);
+  const normalize = (text: string) => text.normalize("NFC").replace(/\\s+/g, " ").trim().toLocaleLowerCase();
+  const found = Boolean(evidence && evidence.length >= 6 && normalize(pdfText).includes(normalize(evidence)));
+  // Exact text presence is necessary, but does not prove the value is semantically correct.
+  entries[key] = {
+    ...item,
+    value: found ? value : null,
+    confidence: found ? normalizeConfidence(item.confidence) : null,
+    uncertain: true,
+    evidence: found ? evidence : null,
+  };
+  details.field_confidence = entries;
+  return found;
+}
+
 function normalizeOpenAIExtraction(
   payload: OpenAIPolicyExtractionPayload,
   document: UserDocument,
@@ -808,6 +833,31 @@ function normalizeOpenAIExtraction(
     normalizeDate(payload.renewal_date) ?? "missing"
   );
 
+  // Do not promote AI assertions to verified policy values without literal PDF evidence.
+  const verifiedPolicyNumber = verifyExtractedFieldEvidence(
+    detailsSource, "policy_number", normalizeNullableString(payload.policy_number), extractedText
+  );
+  const verifiedPremium = verifyExtractedFieldEvidence(
+    detailsSource, "premium_amount", normalizeNullableNumber(payload.premium_amount), extractedText
+  );
+  const verifiedDeductible = verifyExtractedFieldEvidence(
+    detailsSource, "deductible", normalizeNullableNumber(payload.deductible), extractedText
+  );
+  const verifiedRenewal = verifyExtractedFieldEvidence(
+    detailsSource, "renewal_date", normalizeDate(payload.renewal_date), extractedText
+  );
+  const verifiedCoverageAmount = verifyExtractedFieldEvidence(
+    detailsSource, "coverage_amount", normalizeNullableNumber(payload.coverage_amount), extractedText
+  );
+  const warnings = getPayloadRecord(detailsSource.extraction_metadata);
+  detailsSource.extraction_metadata = {
+    ...warnings,
+    warnings: [
+      ...(Array.isArray(warnings.warnings) ? warnings.warnings : []),
+      "I valori senza citazione letterale presente nel PDF sono stati sospesi. La presenza della citazione non certifica da sola il significato del valore.",
+      "La pagina della citazione non e ancora verificata: nessun campo puo essere dichiarato completamente verificato.",
+    ],
+  };
   const details = sanitizePolicyDetails(policyType, detailsSource) as PolicyDetails;
   const extractionNotes =
     normalizeNullableString(payload.extraction_notes) ??
@@ -822,15 +872,15 @@ function normalizeOpenAIExtraction(
       policyCategoryLabel:
         normalizeNullableString(payload.policy_category_label) ??
         (classification.subtype === "other" ? null : classification.categoryLabel),
-      policyNumber: normalizeNullableString(payload.policy_number),
-      premiumAmount: normalizeNullableNumber(payload.premium_amount),
+      policyNumber: verifiedPolicyNumber ? normalizeNullableString(payload.policy_number) : null,
+      premiumAmount: verifiedPremium ? normalizeNullableNumber(payload.premium_amount) : null,
       premiumFrequency: normalizePremiumFrequency(payload.premium_frequency),
-      deductible: normalizeNullableNumber(payload.deductible),
+      deductible: verifiedDeductible ? normalizeNullableNumber(payload.deductible) : null,
       startDate: normalizeDate(payload.start_date),
       endDate: normalizeDate(payload.end_date),
-      renewalDate: normalizeDate(payload.renewal_date),
+      renewalDate: verifiedRenewal ? normalizeDate(payload.renewal_date) : null,
       currency: normalizeNullableString(payload.currency)?.toUpperCase() ?? "CHF",
-      coverageAmount: normalizeNullableNumber(payload.coverage_amount),
+      coverageAmount: verifiedCoverageAmount ? normalizeNullableNumber(payload.coverage_amount) : null,
       details,
       notes: null,
       extractionConfidence: normalizeConfidence(payload.extraction_confidence),
