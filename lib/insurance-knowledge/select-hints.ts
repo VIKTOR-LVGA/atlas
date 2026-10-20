@@ -219,8 +219,42 @@ export function buildExtractionKnowledgeContext(
     maxHints,
   });
 
+  // A family-premium overview is decisive structural evidence and must not be
+  // crowded out by generic health rules under the six-hint prompt budget.
+  // This is knowledge-selection metadata, never an extracted contract fact.
+  const priorityRuleIds: string[] = [];
+  if (
+    classification.policyType === "health" &&
+    providerMatch.provider?.toLowerCase().includes("helsana") &&
+    normalizedDocumentText.includes("panoramica dei premi") &&
+    normalizedDocumentText.includes("totale premio mensile")
+  ) {
+    priorityRuleIds.push("ch-verified-helsana-multiperson-overview-2026");
+  }
+  if (
+    classification.policyType === "car" &&
+    normalizedDocumentText.includes("totale premio annuo") &&
+    (normalizedDocumentText.includes("ribasso") ||
+      normalizedDocumentText.includes("tasse legali"))
+  ) {
+    priorityRuleIds.push("ch-verified-motor-final-premium-2026");
+  }
+
+  const ruleIndex = new Map(
+    [...SWISS_INSURANCE_KNOWLEDGE_RULES, ...VERIFIED_SWISS_INSURANCE_RULES]
+      .map((rule) => [rule.id, rule] as const)
+  );
+  const orderedIds = [
+    ...new Set([...priorityRuleIds, ...result.ruleIds]),
+  ].slice(0, Math.max(0, maxHints));
+  const selectedRules = orderedIds
+    .map((id) => ruleIndex.get(id))
+    .filter((rule): rule is SwissKnowledgeRule => rule !== undefined);
+
   return {
     ...result,
+    hints: selectedRules.map(formatHintLine),
+    ruleIds: selectedRules.map((rule) => rule.id),
     policyTypeGuess: classification.policyType,
     subtypeGuess: classification.subtype,
   };
