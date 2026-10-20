@@ -5,9 +5,9 @@ import { AtlasBrandLogo } from "@/components/brand/AtlasBrandLogo";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 const links = [
-  { href: "/#how-it-works", label: "Come funziona" },
-  { href: "/#security", label: "Sicurezza" },
-  { href: "/#faq", label: "FAQ" },
+  { href: "/info/come-funziona", label: "Come funziona" },
+  { href: "/info/sicurezza", label: "Sicurezza" },
+  { href: "/info/faq", label: "FAQ" },
 ];
 
 export function LandingNav() {
