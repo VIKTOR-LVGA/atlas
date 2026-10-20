@@ -11,7 +11,7 @@ const categories: Array<{id:VisualPolicyCategoryId;title:string;caption:string}>
   {id:"travel",title:"Altre coperture",caption:"Viaggi, vita e molto altro"},
 ];
 
-/** Category illustrations are examples, not ATLAS-issued insurance products. */
+/** Category illustrations are examples, not INSURA-issued insurance products. */
 export function LandingProductShowcase() {
   return (
     <LandingSection id="product" tone="base" className="py-16 md:py-24">
@@ -19,7 +19,7 @@ export function LandingProductShowcase() {
         <LandingSectionHeader
           eyebrow="Tutto, in un unico posto"
           title="Un posto per ogni assicurazione."
-          description="Dall'auto alla casa, fino alla salute. ATLAS ti aiuta a organizzare i documenti che hai già, senza perderti tra PDF e condizioni."
+          description="Dall'auto alla casa, fino alla salute. INSURA ti aiuta a organizzare i documenti che hai già, senza perderti tra PDF e condizioni."
         />
         <div className="mt-9 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {categories.map(category=>(
@@ -35,7 +35,7 @@ export function LandingProductShowcase() {
             </Link>
           ))}
         </div>
-        <p className="mt-5 text-[11px] leading-relaxed text-muted-foreground">Illustrazioni delle categorie. ATLAS non emette polizze assicurative: aiuta a comprendere e organizzare quelle esistenti.</p>
+        <p className="mt-5 text-[11px] leading-relaxed text-muted-foreground">Illustrazioni delle categorie. INSURA non emette polizze assicurative: aiuta a comprendere e organizzare quelle esistenti.</p>
       </div>
     </LandingSection>
   );
