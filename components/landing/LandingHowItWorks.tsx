@@ -4,7 +4,7 @@ import { LandingSection } from "@/components/landing/LandingSection";
 
 const stages=[
   {number:"01",title:"Carica le tue polizze",description:"Scegli un PDF dal tuo telefono o dal computer."},
-  {number:"02",title:"ATLAS le analizza",description:"Prepara una bozza con i dati disponibili e segnala quelli incerti."},
+  {number:"02",title:"INSURA le analizza",description:"Prepara una bozza con i dati disponibili e segnala quelli incerti."},
   {number:"03",title:"Conferma e organizza",description:"Verifica con il documento originale prima di salvare."},
 ];
 
@@ -15,7 +15,7 @@ export function LandingHowItWorks(){
         <div>
           <span className="inline-flex rounded-full bg-accent-soft px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.13em] text-accent">Come funziona</span>
           <h2 className="mt-5 text-[clamp(2.2rem,4.1vw,3.7rem)] font-extrabold leading-[1.1] tracking-[-.055em] text-foreground">Da documento a chiarezza, in pochi passi.</h2>
-          <p className="mt-5 max-w-lg text-[15px] leading-[1.75] text-muted-foreground">ATLAS legge il PDF e organizza le informazioni per te. Sei sempre tu a confermare ciò che viene salvato.</p>
+          <p className="mt-5 max-w-lg text-[15px] leading-[1.75] text-muted-foreground">INSURA legge il PDF e organizza le informazioni per te. Sei sempre tu a confermare ciò che viene salvato.</p>
           <ol className="mt-8 space-y-4">
             {stages.map(({number,title,description})=>(
               <li key={number} className="flex items-start gap-4">
@@ -28,13 +28,13 @@ export function LandingHowItWorks(){
             Inizia con un PDF <ArrowRight className="h-4 w-4" aria-hidden/>
           </Link>
         </div>
-        <div className="atlas-ref-upload-showcase relative isolate flex min-h-[520px] items-end justify-center gap-4 overflow-hidden rounded-[34px] border border-[#e0e9ff] px-4 pt-8 sm:gap-6 sm:px-9" aria-label="Anteprima illustrativa delle schermate mobile di ATLAS" role="img">
+        <div className="atlas-ref-upload-showcase relative isolate flex min-h-[520px] items-end justify-center gap-4 overflow-hidden rounded-[34px] border border-[#e0e9ff] px-4 pt-8 sm:gap-6 sm:px-9" aria-label="Anteprima illustrativa delle schermate mobile di INSURA" role="img">
           <div className="atlas-ref-upload-glow absolute inset-0" aria-hidden/>
           <div className="atlas-ref-upload-device relative z-10 mb-[-22px] hidden rotate-[-5deg] sm:block">
             <div className="atlas-ref-upload-device-inner">
               <div className="atlas-ref-upload-island"/>
               <div className="pt-4 text-[10px] font-semibold text-[#25365d]">9:41</div>
-              <div className="mt-6 flex items-center justify-between text-[12px] font-extrabold tracking-[.18em] text-[#263f91]">ATLAS <Bell className="h-4 w-4"/></div>
+              <div className="mt-6 flex items-center justify-between text-[12px] font-extrabold tracking-[.18em] text-[#263f91]">INSURA <Bell className="h-4 w-4"/></div>
               <h3 className="mt-8 text-[23px] font-extrabold tracking-[-.05em] text-[#162348]">Ciao Martina 👋</h3>
               <p className="mt-1 text-[11px] text-[#7b89a5]">Le tue polizze, tutte insieme.</p>
               <div className="mt-5 grid grid-cols-3 gap-1.5">
@@ -54,7 +54,7 @@ export function LandingHowItWorks(){
               <div className="mt-7 flex items-center justify-center text-[12px] font-bold text-[#1c2f55]">Carica una polizza</div>
               <div className="mt-5 flex items-center justify-center gap-3">{[1,2,3].map(i=><span key={i} className={`h-2 w-2 rounded-full ${i===1?"bg-[#5065f5]":"bg-[#e1e7f7]"}`}/>)}</div>
               <h3 className="mt-8 text-center text-[21px] font-extrabold tracking-[-.045em] text-[#152548]">Carica il tuo PDF</h3>
-              <p className="mt-2 text-center text-[11px] leading-relaxed text-[#7a88a7]">ATLAS prepara una bozza<br/>da verificare.</p>
+              <p className="mt-2 text-center text-[11px] leading-relaxed text-[#7a88a7]">INSURA prepara una bozza<br/>da verificare.</p>
               <div className="mt-6 flex h-[185px] flex-col items-center justify-center rounded-[21px] border-2 border-dashed border-[#cbd9ff] bg-[#f8faff]">
                 <span className="grid h-[60px] w-[60px] place-items-center rounded-[22px] bg-[#e7edff] text-[#4968f6]"><UploadCloud className="h-8 w-8"/></span>
                 <strong className="mt-4 text-[12px] text-[#27385e]">Seleziona un documento</strong>
