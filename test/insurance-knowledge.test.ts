@@ -16,8 +16,6 @@ import {
   officialSwissInsuranceCatalogs,
   swissCgaPdfSources,
   findSwissCgaSourceCandidates,
-  swissCgaPdfSources,
-  findSwissCgaSourceCandidates,
   getMultilingualCgaInterpretationHints,
   swissMultilingualCgaConcepts,
 } from "../lib/insurance-knowledge/index";
