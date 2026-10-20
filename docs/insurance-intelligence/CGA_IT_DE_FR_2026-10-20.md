@@ -15,9 +15,12 @@ publishers: this repository does **not** mirror entire licensed/legal texts.
 | AXA | OPTIMA/FLEX motor CGA/AVB | IT DE FR | 10.2025 | Edition printed on all three PDF first pages |
 | Allianz Suisse | Vehicle insurance CG/AB | IT DE FR | 06.2024 | Edition printed on all three PDF first pages |
 | CSS | myFlex supplementary CGA/AVB | IT DE FR | 01.2027 (also 01.2026) | Editions printed on PDF first pages |
+| CSS | Dental CGA/AVB | IT DE FR | 01.2027 | Official PDF first pages and insurer catalogs |
+| Allianz Suisse | Travel insurance CG/AB | IT DE FR | 09.2021 | Editions printed on official PDF first pages |
+| Helsana | Business Salary (collective daily sickness, LCA/VVG) | IT DE FR | 05.2026 | Editions printed on all three official PDF first pages |
 
 The PDF URLs, edition dates and document kinds are in the TypeScript registry,
-with 21 records (seven per language). A candidate-match helper can exclude
+with 30 records (ten per language). A candidate-match helper can exclude
 future editions given a known contract effective date. A true applicability
 decision still needs the **specific signed policy**, product, contract terms,
 amendments and historical source version; merely having an earlier effective
@@ -49,7 +52,7 @@ Examples of deliberately distinct concepts:
 ## Testing
 
 `test/insurance-knowledge.test.ts` covers:
-1. 21 records and an equal IT/DE/FR distribution;
+1. 30 records and an equal IT/DE/FR distribution;
 2. edition filtering (e.g. 2027 CGA cannot be automatically selected for a
    2026 personal contract);
 3. canonical insurer topic detection from synthetic IT/DE/FR sentences;
