@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { AtlasBrandLogo } from "@/components/brand/AtlasBrandLogo";
-import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 const links = [
   { href: "/info/come-funziona", label: "Come funziona" },
@@ -31,7 +30,6 @@ export function LandingNav() {
         </nav>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <ThemeToggle className="hidden !border-[var(--landing-border)] !bg-[var(--landing-surface)] !text-[var(--landing-muted)] hover:!text-[var(--landing-text)] sm:inline-flex" />
           <Link
             href="/login"
             className="hidden rounded-full px-3 py-2 text-sm font-medium text-[var(--landing-muted)] transition hover:text-[var(--landing-text)] min-[360px]:inline-flex sm:px-4"
