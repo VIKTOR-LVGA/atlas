@@ -1,4 +1,5 @@
 import { SWISS_INSURANCE_KNOWLEDGE_RULES } from "@/lib/insurance-knowledge/ch";
+import { VERIFIED_SWISS_INSURANCE_RULES } from "@/lib/insurance-knowledge/verified-swiss-rules";
 import type {
   SwissInsuranceKnowledgeHintInput,
   SwissInsuranceKnowledgeHintsResult,
@@ -113,7 +114,7 @@ export function getSwissInsuranceKnowledgeHints(
     ...input.extractedTextSignals.map(normalizeSignal),
   ].filter(Boolean);
 
-  const ranked = SWISS_INSURANCE_KNOWLEDGE_RULES.map((rule) => ({
+  const ranked = [...SWISS_INSURANCE_KNOWLEDGE_RULES, ...VERIFIED_SWISS_INSURANCE_RULES].map((rule) => ({
     rule,
     score: scoreRule(rule, input, signals),
   }))
