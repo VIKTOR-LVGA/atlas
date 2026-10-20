@@ -66,3 +66,5 @@ export {
   normalizeCoverageLabel,
   normalizeInsurerLabel,
 } from "@/lib/insurance-knowledge/normalization";
+
+export { swissCgaPdfSources, findSwissCgaSourceCandidates, type SwissCgaSource, type SwissCgaLanguage } from "@/lib/insurance-knowledge/cga-pdf-sources";
