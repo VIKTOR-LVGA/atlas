@@ -188,6 +188,7 @@ export function buildExtractionKnowledgeContext(
   // Extract domain-specific headings directly from the document text. Generic
   // keyword normalization loses multi-word table labels; those labels distinguish
   // household payable totals from person and product subtotals.
+  const normalizedDocumentText = normalizeSignal(extractedText);
   const structuralHeadings = [
     "panoramica dei premi",
     "totale premio mensile",
@@ -200,13 +201,7 @@ export function buildExtractionKnowledgeContext(
     "condizioni generali",
     "cga",
     "franchigia",
-  ].filter((label) =>
-    extractedText
-      .normalize("NFD")
-      .replace(/[\\u0300-\\u036f]/g, "")
-      .toLowerCase()
-      .includes(label)
-  );
+  ].filter((label) => normalizedDocumentText.includes(normalizeSignal(label)));
 
   const extractedTextSignals = [
     ...structuralHeadings,
