@@ -227,6 +227,22 @@ const multiItalian = getMultilingualCgaInterpretationHints(
 );
 assert.ok(multiItalian.ruleIds.includes("ch-cga-health-franchise-multilingual-001"));
 
+const travelGerman = getMultilingualCgaInterpretationHints(
+  "Reiseversicherung: Annullierungskosten und Reisegepäck, optionale Module.",
+  "other", 9
+);
+assert.ok(travelGerman.ruleIds.includes("ch-cga-travel-modules-multilingual-001"));
+const dentalFrench = getMultilingualCgaInterpretationHints(
+  "Assurance soins dentaires. Participation aux coûts et limite annuelle.",
+  "health", 9
+);
+assert.ok(dentalFrench.ruleIds.includes("ch-cga-dental-insurance-multilingual-001"));
+const salaryItalian = getMultilingualCgaInterpretationHints(
+  "Assicurazione collettiva indennità giornaliera LCA con salario assicurato e periodo d'attesa.",
+  "other", 9
+);
+assert.ok(salaryItalian.ruleIds.includes("ch-cga-daily-sickness-multilingual-001"));
+
 const multilingualMotorContext = buildExtractionKnowledgeContext(
   "motor-versicherungsbedingungen-test.pdf",
   "Versicherung Motorfahrzeug Haftpflicht. Jahresprämie CHF 1815. Zahlungsmode halbjährlich. Nicht versichert: Pannenhilfe."
