@@ -84,6 +84,28 @@ assert.equal(
 );
 assert.notEqual(privateMotorContext.subtypeGuess, "hospital");
 
+// End-to-end hint selection on synthetic samples modeled on Swiss insurance
+// document structures. Never commit a customer's actual policy as a fixture.
+const motorRealisticContext = buildExtractionKnowledgeContext(
+  "vehicle-policy-synthetic.pdf",
+  fixture("vehicle-final-net-synthetic-it.txt")
+);
+assert.equal(motorRealisticContext.policyTypeGuess, "car");
+assert.ok(
+  motorRealisticContext.ruleIds.includes("ch-verified-motor-final-premium-2026"),
+  "motor final payable amount must receive the specific Swiss annual-vs-installment guidance"
+);
+
+const healthRealisticContext = buildExtractionKnowledgeContext(
+  "family-health-synthetic.pdf",
+  fixture("health-family-overview-synthetic-it.txt")
+);
+assert.equal(healthRealisticContext.policyTypeGuess, "health");
+assert.ok(
+  healthRealisticContext.ruleIds.includes("ch-verified-helsana-multiperson-overview-2026"),
+  "Helsana multiperson monthly overview must receive the family-premium guidance"
+);
+
 const requiredCategories = [
   "vehicle",
   "health_basic",
