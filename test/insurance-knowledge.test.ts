@@ -10,6 +10,9 @@ import {
   insuranceDocumentTypes,
   normalizeCoverageLabel,
   recognizeSwissInsurer,
+  SWISS_INSURANCE_KNOWLEDGE_RULES,
+  VERIFIED_SWISS_INSURANCE_RULES,
+  officialSwissInsuranceCatalogs,
 } from "../lib/insurance-knowledge/index";
 
 const fixtureRoot = resolve(process.cwd(), "test/fixtures/insurance-knowledge");
@@ -102,6 +105,28 @@ for (const category of requiredCategories) {
     `missing canonical coverages for ${category}`
   );
 }
+
+// Knowledge expansion: all links refer to external official publications.
+// Catalog entries are never used as proof that a customer purchased a benefit.
+const allSwissRules = [...SWISS_INSURANCE_KNOWLEDGE_RULES, ...VERIFIED_SWISS_INSURANCE_RULES];
+assert.ok(VERIFIED_SWISS_INSURANCE_RULES.length >= 15, "expected broad Swiss insurance rule coverage");
+assert.equal(new Set(allSwissRules.map((rule) => rule.id)).size, allSwissRules.length);
+assert.ok(officialSwissInsuranceCatalogs.length >= 10, "expected insurer and regulator directories");
+assert.equal(new Set(officialSwissInsuranceCatalogs.map((entry) => entry.id)).size, officialSwissInsuranceCatalogs.length);
+for (const rule of VERIFIED_SWISS_INSURANCE_RULES) {
+  assert.match(rule.id, /^ch-[a-z][a-z0-9-]*$/);
+  assert.equal(rule.jurisdiction, "CH");
+  assert.match(rule.sourceUrl ?? "", /^https:\/\//);
+  assert.match(rule.lastReviewed, /^20\\d{2}-\\d{2}-\\d{2}$/);
+  assert.ok(rule.extractionHint.includes(" ") && rule.riskIfMisread.length > 20);
+}
+for (const catalog of officialSwissInsuranceCatalogs) {
+  assert.match(catalog.officialUrl, /^https:\/\//);
+  assert.match(catalog.checkedAt, /^20\\d{2}-\\d{2}-\\d{2}$/);
+  assert.ok(catalog.limitation.length > 40);
+}
+assert.ok(VERIFIED_SWISS_INSURANCE_RULES.some((rule) => rule.id.includes("motor-final-premium")));
+assert.ok(VERIFIED_SWISS_INSURANCE_RULES.some((rule) => rule.id.includes("helsana-multiperson")));
 
 assert.equal(insuranceDocumentTypes.length, 13);
 const migrationSql = readdirSync(resolve(process.cwd(), "supabase/migrations"))
