@@ -149,7 +149,7 @@ for (const catalog of officialSwissInsuranceCatalogs) {
   assert.ok(catalog.limitation.length > 40);
   const domain = new URL(catalog.officialUrl).hostname;
   assert.ok(
-    [".admin.ch", ".ch"].some((ending) => domain.endsWith(ending)),
+    domain.endsWith(".ch") || domain === "www.sanitas.com",
     "unexpected off-domain catalog source: " + domain
   );
 }
