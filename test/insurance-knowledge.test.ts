@@ -112,7 +112,7 @@ for (const category of requiredCategories) {
 const allSwissRules = [...SWISS_INSURANCE_KNOWLEDGE_RULES, ...VERIFIED_SWISS_INSURANCE_RULES];
 assert.ok(VERIFIED_SWISS_INSURANCE_RULES.length >= 15, "expected broad Swiss insurance rule coverage");
 assert.equal(new Set(allSwissRules.map((rule) => rule.id)).size, allSwissRules.length);
-assert.ok(officialSwissInsuranceCatalogs.length >= 10, "expected insurer and regulator directories");
+assert.ok(officialSwissInsuranceCatalogs.length >= 19, "expected insurer and regulator directories");
 assert.equal(new Set(officialSwissInsuranceCatalogs.map((entry) => entry.id)).size, officialSwissInsuranceCatalogs.length);
 for (const rule of VERIFIED_SWISS_INSURANCE_RULES) {
   assert.match(rule.id, /^ch-[a-z][a-z0-9-]*$/);
@@ -125,6 +125,11 @@ for (const catalog of officialSwissInsuranceCatalogs) {
   assert.match(catalog.officialUrl, /^https:\/\//);
   assert.match(catalog.checkedAt, /^20\d{2}-\d{2}-\d{2}$/);
   assert.ok(catalog.limitation.length > 40);
+  const domain = new URL(catalog.officialUrl).hostname;
+  assert.ok(
+    [".admin.ch", ".ch"].some((ending) => domain.endsWith(ending)),
+    "unexpected off-domain catalog source: " + domain
+  );
 }
 assert.ok(VERIFIED_SWISS_INSURANCE_RULES.some((rule) => rule.id.includes("motor-final-premium")));
 assert.ok(VERIFIED_SWISS_INSURANCE_RULES.some((rule) => rule.id.includes("helsana-multiperson")));
