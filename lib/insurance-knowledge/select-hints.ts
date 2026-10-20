@@ -103,7 +103,7 @@ function scoreRule(
 }
 
 function formatHintLine(rule: SwissKnowledgeRule) {
-  return `- [${rule.id}] ${rule.extractionHint}`;
+  return `- [${rule.id}] ${rule.extractionHint}${rule.sourceUrl ? ` (interpretive source: ${rule.sourceName}; no proof of policy coverage)` : ""}`;
 }
 
 export function getSwissInsuranceKnowledgeHints(
