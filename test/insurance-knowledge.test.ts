@@ -186,7 +186,7 @@ assert.ok(
 // Authoritative PDF pointers are multilingual, edition-specific, and do not
 // copy insurer clauses into the repository.
 assert.equal(swissCgaPdfSources.length, 30);
-assert.equal(new Set(swissCgaPdfSources.map((entry) => entry.url)).size, 21);
+assert.equal(new Set(swissCgaPdfSources.map((entry) => entry.url)).size, 30);
 for (const language of ["it", "de", "fr"] as const) {
   assert.equal(swissCgaPdfSources.filter((entry) => entry.language === language).length, 10);
 }
