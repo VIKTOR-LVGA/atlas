@@ -1,0 +1,25 @@
+DOCUMENTO FACSIMILE - DATI SINTETICI SENZA VALIDITA
+Helsana - Polizza assicurazione 2025
+Panoramica dei premi
+Persona Test Uno, 01.01.1980, n. d'assicurato TEST-UNO
+Assicurazione di base LAMal 470.00
+Assicurazione integrativa LCA 20.00
+Totale a suo carico 490.00
+Persona Test Due, 01.01.2020, n. d'assicurato TEST-DUE
+Assicurazione di base LAMal 110.00
+Assicurazione integrativa LCA 35.00
+Totale a suo carico 145.00
+Totale premio mensile CHF 635.00
+Periodicità d'incasso: mensile
+Polizza assicurazione di base PREMED-24
+Persona Test Uno
+Franchigia annua CHF 300, aliquota percentuale 10%.
+Senza infortunio.
+Polizza assicurazione integrativa WORLD
+Con infortunio.
+Persona Test Due
+HOSPITAL Privato Assicurazione integrativa ospedaliera
+Helsana Advocare EXTRA, sconto bambini 100%, totale 0.00
+CGA 2022 CSA 2021 CPA 12 CPA 57
+Allegato informativo: tabella per la modifica della franchigia.
+Esempio franchigia 2500 premio teorico 420.00 (non sottoscritta).
