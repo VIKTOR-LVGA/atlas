@@ -14,7 +14,7 @@ export function LandingFinalCta() {
                 Tutte le tue polizze.<br/><span className="atlas-gradient-heading">Finalmente insieme.</span>
               </h2>
               <p className="mt-5 max-w-[460px] text-[14px] leading-[1.75] text-[#61708d] sm:text-[16px]">
-                Inizia con un documento. ATLAS ti aiuta a metterlo in ordine e a capire quali informazioni sono da verificare.
+                Inizia con un documento. INSURA ti aiuta a metterlo in ordine e a capire quali informazioni sono da verificare.
               </p>
               <div className="mt-7 flex flex-wrap items-center gap-4">
                 <Link href="/register" className="atlas-v2-primary-cta inline-flex min-h-12 items-center gap-2 rounded-[14px] px-6 text-[13px] font-bold text-white">Inizia gratis <ArrowRight className="h-4 w-4"/></Link>
@@ -29,7 +29,7 @@ export function LandingFinalCta() {
               </div>
               <div className="absolute bottom-4 left-0 -rotate-6 rounded-[25px] border border-[#d7e1ff] bg-white px-6 py-5 shadow-[0_20px_60px_rgba(46,74,130,.14)]">
                 <span className="flex h-12 w-12 items-center justify-center rounded-[16px] bg-[#e7edff] text-[#4c60ea]"><Sparkles className="h-6 w-6"/></span>
-                <p className="mt-3 text-[13px] font-bold text-[#172544]">ATLAS AI</p>
+                <p className="mt-3 text-[13px] font-bold text-[#172544]">INSURA AI</p>
                 <p className="mt-1 text-[11px] text-[#5f6f8c]">Una bozza da controllare</p>
               </div>
               <div className="absolute bottom-0 right-5 flex h-12 w-12 items-center justify-center rounded-[18px] bg-[#e0f7ee] text-[#29a37b] shadow-sm"><CheckCircle2 className="h-6 w-6"/></div>
