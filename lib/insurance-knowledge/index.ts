@@ -6,6 +6,10 @@ export {
 export {
   SWISS_INSURANCE_KNOWLEDGE_RULES,
 } from "@/lib/insurance-knowledge/ch";
+export { VERIFIED_SWISS_INSURANCE_RULES } from "@/lib/insurance-knowledge/verified-swiss-rules";
+export { officialSwissInsuranceCatalogs, type CgaCatalogEntry } from "@/lib/insurance-knowledge/official-cga-catalogs";
+export { swissCgaPdfSources, findSwissCgaSourceCandidates, type SwissCgaLanguage, type SwissCgaSource } from "@/lib/insurance-knowledge/cga-pdf-sources";
+export { swissMultilingualCgaConcepts, getMultilingualCgaInterpretationHints } from "@/lib/insurance-knowledge/multilingual-cga-concepts";
 export {
   buildExtractionKnowledgeContext,
   formatSwissInsuranceKnowledgePromptSection,
@@ -62,3 +66,6 @@ export {
   normalizeCoverageLabel,
   normalizeInsurerLabel,
 } from "@/lib/insurance-knowledge/normalization";
+
+
+export { searchSwissCgaClauses, formatSwissCgaClauseCitations, type CgaClause, type CgaSearchResult } from "@/lib/insurance-knowledge/cga-clause-search";

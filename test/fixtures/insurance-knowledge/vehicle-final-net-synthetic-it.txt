@@ -1,0 +1,24 @@
+DOCUMENTO FACSIMILE - DATI SINTETICI SENZA VALIDITA
+Polizza assicurazione auto TEST-MOTOR-2025
+Assicuratore Zurich
+Contraente Persona di Prova
+Inizio 01.01.2025  Scadenza 31.12.2031
+Veicolo ESEMPIO Coupe 200d
+Modalità di pagamento Semestrale
+Panoramica premi
+Responsabilità civile incl. protezione bonus 500.00
+Collisione (Casco totale) 600.00
+Casco parziale 700.00
+Premio annuo 1'800.00
+Sconto commerciale -100.00
+Tasse in caso di pagamento rateale 25.00
+Tasse legali 90.00
+Totale premio annuo (incl. tasse e imposte) 1'815.00
+Panoramica delle prestazioni
+RC assicurato Sì franchigia conducente giovane CHF 2'000
+Collisione assicurato Sì franchigia CHF 1'000
+Casco parziale assicurato Sì franchigia furto CHF 0
+Soccorso stradale No
+Infortunio passeggeri No
+Protezione giuridica No
+Alla base dell'assicurazione vi sono le CGA veicoli a motore, edizione 11.2021.

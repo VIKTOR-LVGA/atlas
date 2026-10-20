@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "usage": "Public insurer-issued sample/facsimile documents; regression ground truth, not personal real-world policies or current price quotes.",
+  "documents": [
+    {
+      "id": "helsana-sample-2024-it",
+      "insurer": "helsana",
+      "language": "it",
+      "kind": "official_sample",
+      "url": "https://www.helsana.ch/dam/it/pdf/private/broschueren/versicherungspolice-beispiel.pdf",
+      "pages": 4,
+      "effectiveOn": "2024-01-01",
+      "monthlyTotalChf": 863.55,
+      "insuredMonthlyChf": [
+        340.7,
+        353.8,
+        169.05
+      ],
+      "firstInsured": {
+        "lamalNetChf": 287.85,
+        "lcaNetChf": 52.85,
+        "lamalBeforeEnvironmentalRefundChf": 293.2,
+        "environmentalRefundChf": 5.35,
+        "deductibleChf": 2500,
+        "accidentIncludedInLamal": false
+      },
+      "contractConditionEditions": [
+        "COMPLETA CGA 2022 CSA 2021 CPA 12",
+        "HOSPITAL ECO CGA 2022 CSA 2016 CPA 12",
+        "Advocare PLUS CGA 2024 CPA 18"
+      ]
+    },
+    {
+      "id": "helsana-sample-2024-fr",
+      "insurer": "helsana",
+      "language": "fr",
+      "kind": "official_sample",
+      "url": "https://www.helsana.ch/dam/fr/pdf/prives/brochures/police-dassurance-exemple.pdf",
+      "pages": 4,
+      "effectiveOn": "2024-01-01",
+      "monthlyTotalChf": 863.55,
+      "insuredMonthlyChf": [
+        340.7,
+        353.8,
+        169.05
+      ],
+      "firstInsured": {
+        "lamalNetChf": 287.85,
+        "lcaNetChf": 52.85,
+        "lamalBeforeEnvironmentalRefundChf": 293.2,
+        "environmentalRefundChf": 5.35,
+        "deductibleChf": 2500,
+        "accidentIncludedInLamal": false
+      },
+      "sameScenarioAs": "helsana-sample-2024-it"
+    },
+    {
+      "id": "kpt-facsimile-2026-it",
+      "insurer": "kpt",
+      "language": "it",
+      "kind": "official_facsimile",
+      "url": "https://www.kpt.ch/documents/71d2e810-bfd6-484f-ad5b-0ae519fc4376/police_f%C3%BCr_psd_250822_i.pdf",
+      "pages": 2,
+      "effectiveOn": "2026-01-01",
+      "monthlyTotalChf": 567.35,
+      "lamalMonthlyChf": 535.1,
+      "lcaMonthlyChf": 32.25,
+      "lamalBaseBeforeAdjustmentsChf": 512.95,
+      "accidentSupplementChf": 27.3,
+      "environmentalRefundChf": 5.15,
+      "deductibleChf": 2500,
+      "accidentIncludedInLamal": true,
+      "contractConditionEditions": [
+        "Comfort CGA 01.2004 CS 01.2017",
+        "hospitalization CGA 01.2004 CS 01.2018",
+        "internet legal CGA 03.2016"
+      ]
+    }
+  ]
+}

@@ -1,4 +1,6 @@
 import { SWISS_INSURANCE_KNOWLEDGE_RULES } from "@/lib/insurance-knowledge/ch";
+import { VERIFIED_SWISS_INSURANCE_RULES } from "@/lib/insurance-knowledge/verified-swiss-rules";
+import { getMultilingualCgaInterpretationHints } from "@/lib/insurance-knowledge/multilingual-cga-concepts";
 import type {
   SwissInsuranceKnowledgeHintInput,
   SwissInsuranceKnowledgeHintsResult,
@@ -102,7 +104,7 @@ function scoreRule(
 }
 
 function formatHintLine(rule: SwissKnowledgeRule) {
-  return `- [${rule.id}] ${rule.extractionHint}`;
+  return `- [${rule.id}] ${rule.extractionHint}${rule.sourceUrl ? ` (interpretive source: ${rule.sourceName}; no proof of policy coverage)` : ""}`;
 }
 
 export function getSwissInsuranceKnowledgeHints(
@@ -113,7 +115,7 @@ export function getSwissInsuranceKnowledgeHints(
     ...input.extractedTextSignals.map(normalizeSignal),
   ].filter(Boolean);
 
-  const ranked = SWISS_INSURANCE_KNOWLEDGE_RULES.map((rule) => ({
+  const ranked = [...SWISS_INSURANCE_KNOWLEDGE_RULES, ...VERIFIED_SWISS_INSURANCE_RULES].map((rule) => ({
     rule,
     score: scoreRule(rule, input, signals),
   }))
@@ -184,7 +186,35 @@ export function buildExtractionKnowledgeContext(
   const keywords = getSwissInsuranceKeywords(extractedText, 30);
   const sections = getInferredSectionsFromText(extractedText);
 
+  // Extract domain-specific headings directly from the document text. Generic
+  // keyword normalization loses multi-word table labels; those labels distinguish
+  // household payable totals from person and product subtotals.
+  const normalizedDocumentText = normalizeSignal(extractedText);
+  // Classification guesses from a short, potentially multilingual snippet
+  // can miss motor/health labels. This hint-only category is NOT the stored
+  // document classification and cannot establish individual coverage.
+  const hintPolicyTypeGuess =
+    /motorfahrzeug|fahrzeugversicherung|autoversicherung|assurance des vehicules|assurance automobile|assicurazione veicoli|assicurazione auto/.test(normalizedDocumentText)
+      ? ("car" as const)
+      : /assurance maladie|assurance de base|krankenzusatz|grundversicherung|krankenversicherung|lamal|kvg/.test(normalizedDocumentText)
+        ? ("health" as const)
+        : classification.policyType;
+  const structuralHeadings = [
+    "panoramica dei premi",
+    "totale premio mensile",
+    "assicurazione integrativa",
+    "totale premio annuo",
+    "ribasso",
+    "tasse legali",
+    "modalita di pagamento",
+    "semestrale",
+    "condizioni generali",
+    "cga",
+    "franchigia",
+  ].filter((label) => normalizedDocumentText.includes(normalizeSignal(label)));
+
   const extractedTextSignals = [
+    ...structuralHeadings,
     ...classification.matchedKeywords,
     ...keywords,
     ...sections,
@@ -192,16 +222,64 @@ export function buildExtractionKnowledgeContext(
   ];
 
   const result = getSwissInsuranceKnowledgeHints({
-    policyTypeGuess: classification.policyType,
+    policyTypeGuess: hintPolicyTypeGuess,
     subtypeGuess: classification.subtype === "other" ? null : classification.subtype,
     provider: providerMatch.provider,
     extractedTextSignals,
     maxHints,
   });
 
+  // A family-premium overview is decisive structural evidence and must not be
+  // crowded out by generic health rules under the six-hint prompt budget.
+  // This is knowledge-selection metadata, never an extracted contract fact.
+  const priorityRuleIds: string[] = [];
+  if (
+    hintPolicyTypeGuess === "health" &&
+    providerMatch.provider?.toLowerCase().includes("helsana") &&
+    normalizedDocumentText.includes("panoramica dei premi") &&
+    normalizedDocumentText.includes("totale premio mensile")
+  ) {
+    priorityRuleIds.push("ch-verified-helsana-multiperson-overview-2026");
+  }
+  if (
+    hintPolicyTypeGuess === "car" &&
+    normalizedDocumentText.includes("totale premio annuo") &&
+    (normalizedDocumentText.includes("ribasso") ||
+      normalizedDocumentText.includes("tasse legali"))
+  ) {
+    priorityRuleIds.push("ch-verified-motor-final-premium-2026");
+  }
+
+  // Give high-value IT/DE/FR clause semantics a place in the limited prompt.
+  // These are independently authored explanations, not imported insurer terms.
+  const multilingual = getMultilingualCgaInterpretationHints(
+    extractedText,
+    hintPolicyTypeGuess,
+    2
+  );
+  const multilingualHintMap = new Map(
+    multilingual.ruleIds.map((id, index) => [id, multilingual.hints[index]] as const)
+  );
+
+  const ruleIndex = new Map(
+    [...SWISS_INSURANCE_KNOWLEDGE_RULES, ...VERIFIED_SWISS_INSURANCE_RULES]
+      .map((rule) => [rule.id, rule] as const)
+  );
+  const orderedIds = [
+    ...new Set([...priorityRuleIds, ...multilingual.ruleIds, ...result.ruleIds]),
+  ].slice(0, Math.max(0, maxHints));
+  const selectedHints = orderedIds.flatMap((id) => {
+    const rule = ruleIndex.get(id);
+    if (rule) return [formatHintLine(rule)];
+    const hint = multilingualHintMap.get(id);
+    return hint ? [hint] : [];
+  });
+
   return {
     ...result,
-    policyTypeGuess: classification.policyType,
+    hints: selectedHints,
+    ruleIds: orderedIds,
+    policyTypeGuess: hintPolicyTypeGuess,
     subtypeGuess: classification.subtype,
   };
 }
