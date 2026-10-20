@@ -14,6 +14,10 @@ import {
   SWISS_INSURANCE_KNOWLEDGE_RULES,
   VERIFIED_SWISS_INSURANCE_RULES,
   officialSwissInsuranceCatalogs,
+  swissCgaPdfSources,
+  findSwissCgaSourceCandidates,
+  getMultilingualCgaInterpretationHints,
+  swissMultilingualCgaConcepts,
 } from "../lib/insurance-knowledge/index";
 
 const fixtureRoot = resolve(process.cwd(), "test/fixtures/insurance-knowledge");
@@ -177,6 +181,63 @@ const familyHealthHints = getSwissInsuranceKnowledgeHints({
 assert.ok(
   familyHealthHints.ruleIds.includes("ch-verified-helsana-multiperson-overview-2026"),
   "family health document disambiguation must reach the extraction context"
+);
+
+// Authoritative PDF pointers are multilingual, edition-specific, and do not
+// copy insurer clauses into the repository.
+assert.equal(swissCgaPdfSources.length, 21);
+assert.equal(new Set(swissCgaPdfSources.map((entry) => entry.url)).size, 21);
+for (const language of ["it", "de", "fr"] as const) {
+  assert.equal(swissCgaPdfSources.filter((entry) => entry.language === language).length, 7);
+}
+assert.ok(swissMultilingualCgaConcepts.length >= 6);
+assert.deepEqual(
+  findSwissCgaSourceCandidates({
+    insurer: "CSS", product: "myflex-cga", language: "it",
+    contractEffectiveOn: "2026-08-01"
+  }).map((entry) => entry.editionFrom),
+  ["2026-01-01"],
+  "future 2027 general conditions must NOT be preferred for a 2026 contract"
+);
+assert.deepEqual(
+  findSwissCgaSourceCandidates({
+    insurer: "AXA", product: "motor-optima-flex", language: "fr",
+    contractEffectiveOn: "2025-01-01"
+  }),
+  [],
+  "a 2025-10 AXA CGA is not valid evidence for a January 2025 personal policy"
+);
+
+const multiGerman = getMultilingualCgaInterpretationHints(
+  "Motorfahrzeugversicherung Jahresprämie CHF 1'815.00 Zahlungsweise halbjährlich. Nicht versichert: Pannenhilfe.",
+  "car", 6
+);
+assert.ok(multiGerman.ruleIds.includes("ch-cga-motor-premium-multilingual-001"));
+assert.ok(multiGerman.ruleIds.includes("ch-cga-motor-exclusions-multilingual-001"));
+const multiFrench = getMultilingualCgaInterpretationHints(
+  "Aperçu des primes. Total des primes mensuelles CHF 635.00. Personne assurée A: assurance de base et complémentaire.",
+  "health", 6
+);
+assert.ok(multiFrench.ruleIds.includes("ch-cga-health-family-premium-multilingual-001"));
+const multiItalian = getMultilingualCgaInterpretationHints(
+  "Polizza LAMal: franchigia annua CHF 300 e aliquota percentuale 10%.",
+  "health", 6
+);
+assert.ok(multiItalian.ruleIds.includes("ch-cga-health-franchise-multilingual-001"));
+
+const multilingualMotorContext = buildExtractionKnowledgeContext(
+  "motor-versicherungsbedingungen-test.pdf",
+  "Versicherung Motorfahrzeug Haftpflicht. Jahresprämie CHF 1815. Zahlungsmode halbjährlich. Nicht versichert: Pannenhilfe."
+);
+assert.ok(multilingualMotorContext.ruleIds.some((id) => id.startsWith("ch-cga-")),
+  "translated policy must pass multilingual knowledge to the real extraction prompt"
+);
+const multilingualHealthContext = buildExtractionKnowledgeContext(
+  "assurance-maladie-test.pdf",
+  "Assurance de base LAMal et complémentaire LCA. Franchise annuelle CHF 300. Aperçu des primes. Total des primes mensuelles CHF 635."
+);
+assert.ok(multilingualHealthContext.ruleIds.some((id) => id.startsWith("ch-cga-")),
+  "French language input must pass multilingual knowledge to the model"
 );
 
 assert.equal(insuranceDocumentTypes.length, 13);
