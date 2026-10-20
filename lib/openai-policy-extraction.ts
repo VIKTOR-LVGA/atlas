@@ -679,6 +679,16 @@ function normalizeOpenAIExtraction(
   extractedText: string
 ): PolicyDocumentExtractionResult {
   const payloadDetails = getPayloadRecord(payload.details);
+  // Never assign a monthly billing cycle to an unknown premium frequency.
+  if (
+    normalizeNullableNumber(payload.premium_amount) !== null &&
+    !premiumFrequencies.includes(payload.premium_frequency as PolicyPremiumFrequency)
+  ) {
+    throw new OpenAIPolicyExtractionError(
+      "Premium frequency missing or unsupported for a non-null premium",
+      "Periodicita del premio non verificabile nel documento. Nessuna polizza e stata creata: controlla il PDF o inserisci i dati manualmente."
+    );
+  }
   const classificationContext = [
     payload.policy_type,
     payload.policy_subtype,
@@ -701,9 +711,13 @@ function normalizeOpenAIExtraction(
     payload.provider,
     `${document.fileName}\n${extractedText.slice(0, 5000)}`
   );
-  const provider =
-    providerNormalization.provider ??
-    document.fileName.replace(/\.pdf$/i, "").slice(0, 80);
+  const provider = providerNormalization.provider;
+  if (!provider) {
+    throw new OpenAIPolicyExtractionError(
+      "Insurance provider could not be verified from PDF content",
+      "Compagnia assicurativa non identificabile con affidabilita. Nessuna polizza e stata creata."
+    );
+  }
   const coverageKind =
     isSwissPolicySubtype(payload.policy_subtype ?? "")
       ? payload.policy_subtype
