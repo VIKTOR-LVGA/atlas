@@ -7,7 +7,7 @@ export function AtlasAlpineHero({greeting,name,empty=false}:{
   return <header className="atlas-ref-alpine-hero relative isolate min-h-[245px] overflow-hidden rounded-[23px] px-6 py-8 sm:px-9 sm:py-9 lg:min-h-[286px] lg:px-10 lg:py-11">
     <div className="atlas-ref-alpine-shade absolute inset-0" aria-hidden/>
     <div className="relative z-10 max-w-[500px]">
-      <p className="text-[11px] font-bold uppercase tracking-[.17em] text-[#3e61d6]">Benvenuto in ATLAS</p>
+      <p className="text-[11px] font-bold uppercase tracking-[.17em] text-[#3e61d6]">Benvenuto in INSURA</p>
       <h1 className="mt-4 text-[clamp(2rem,3.3vw,3rem)] font-extrabold leading-[1.11] tracking-[-.06em] text-[#0c1d49]">
         {empty?"Le tue assicurazioni,":"Le tue sicurezze,"}<br/> {empty?"più semplici.":"sempre con te."}
       </h1>
