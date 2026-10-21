@@ -30,7 +30,7 @@ export function PolicyListCard({ policy }: { policy: UserPolicy }) {
   const coverageCount = policy.details.coverages?.length ?? 0;
 
   return (
-    <article className="group rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:border-border hover:shadow-md">
+    <article className="group rounded-[20px] border border-[#e5eaf3] bg-white p-4 shadow-[0_5px_20px_rgba(18,26,41,0.035)] transition hover:border-[#b8c8f7] hover:shadow-[0_10px_30px_rgba(18,26,41,0.075)]">
       <div className="flex items-start gap-3">
         <span
           className={cn(
@@ -43,7 +43,7 @@ export function PolicyListCard({ policy }: { policy: UserPolicy }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <Link href={`/policies/${policy.id}`} className="min-w-0">
-              <p className="truncate text-[15px] font-semibold text-foreground group-hover:text-accent">
+              <p className="truncate text-[16px] font-bold text-foreground group-hover:text-accent">
                 {policy.provider}
               </p>
               <p className="mt-0.5 truncate text-[12px] text-muted">
@@ -60,7 +60,7 @@ export function PolicyListCard({ policy }: { policy: UserPolicy }) {
             </div>
           </div>
 
-          <dl className="mt-4 grid grid-cols-2 gap-3 text-[12px]">
+          <dl className="mt-4 grid grid-cols-2 gap-3 rounded-[14px] bg-[#f5f7fc] p-3 text-[12px]">
             <div>
               <dt className="text-[10px] uppercase tracking-wide text-muted">
                 Premio
@@ -82,7 +82,7 @@ export function PolicyListCard({ policy }: { policy: UserPolicy }) {
           </dl>
 
           {(insuredCount > 0 || coverageCount > 0 || detailSummary) && (
-            <p className="mt-3 rounded-lg bg-card-muted px-2.5 py-2 text-[11px] text-muted">
+            <p className="mt-3 rounded-xl bg-[#f5f7fc] px-3 py-2 text-[11px] text-muted">
               {[
                 insuredCount > 0 ? `${insuredCount} persone` : null,
                 coverageCount > 0 ? `${coverageCount} coperture` : null,

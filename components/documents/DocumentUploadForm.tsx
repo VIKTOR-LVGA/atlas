@@ -29,7 +29,7 @@ export function DocumentUploadForm() {
   }, [state.status]);
 
   return (
-    <form action={formAction} className="space-y-3" aria-busy={pending}>
+    <form action={formAction} className="space-y-4" aria-busy={pending}>
       <input
         ref={inputRef}
         id="policy-document-file"
@@ -44,7 +44,7 @@ export function DocumentUploadForm() {
       />
       <div
         className={cn(
-          "flex flex-col items-center rounded-2xl border-2 border-dashed bg-card-muted px-4 py-10 text-center transition",
+          "flex flex-col items-center rounded-[22px] border-2 border-dashed bg-[#f5f7fc] px-4 py-10 text-center transition",
           dragging
             ? "border-accent bg-accent-soft shadow-sm ring-4 ring-accent/20"
             : "border-border hover:border-border hover:bg-card-muted"
@@ -75,14 +75,14 @@ export function DocumentUploadForm() {
           <CloudUpload className="h-6 w-6" />
         </div>
         <p className="mt-3 text-[13px] font-semibold text-foreground">
-          Trascina il PDF qui
+          Carica la tua polizza
         </p>
-        <p className="mt-1 text-[11px] text-muted">Solo PDF, max 10 MB</p>
+        <p className="mt-1 text-[11px] text-muted">PDF fino a 10 MB · poi potrai controllare i dati estratti</p>
         <label
           htmlFor="policy-document-file"
           className="atlas-btn-primary mt-4 cursor-pointer px-5 py-2 text-[13px]"
         >
-          Seleziona PDF
+          Scegli un PDF
         </label>
         {selectedFileName && state.status !== "success" && (
           <p className="mt-3 max-w-full truncate text-[11px] font-medium text-muted">
@@ -107,7 +107,7 @@ export function DocumentUploadForm() {
       {pending && (
         <div className="space-y-1.5" role="progressbar" aria-label="Upload in corso">
           <div className="h-1.5 overflow-hidden rounded-full bg-accent-soft">
-            <span className="block h-full w-2/3 animate-pulse rounded-full bg-accent-soft0" />
+            <span className="block h-full w-2/3 animate-pulse rounded-full bg-accent" />
           </div>
           <p className="text-[11px] text-muted">Salvataggio nel tuo archivio privato.</p>
         </div>

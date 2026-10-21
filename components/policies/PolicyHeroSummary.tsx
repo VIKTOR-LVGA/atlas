@@ -28,7 +28,7 @@ export function PolicyHeroSummary({ policy }: PolicyHeroSummaryProps) {
   const reviewStatus = getPolicyReviewStatusBadge(policy);
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+    <div className="rounded-[24px] border border-[#e5eaf3] bg-white p-5 shadow-[0_8px_28px_rgba(18,26,41,0.045)] sm:p-6">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex min-w-0 items-start gap-4">
           <span
@@ -46,7 +46,7 @@ export function PolicyHeroSummary({ policy }: PolicyHeroSummaryProps) {
                 <StatusBadge variant="processing" label="Bozza AI" />
               ) : null}
             </div>
-            <h1 className="mt-2 truncate text-[22px] font-semibold tracking-tight text-foreground">
+            <h1 className="mt-2 truncate text-[24px] font-extrabold tracking-tight text-foreground">
               {policy.provider}
             </h1>
             <p className="mt-0.5 text-[13px] text-muted">{policyTypeLabel}</p>
@@ -63,7 +63,7 @@ export function PolicyHeroSummary({ policy }: PolicyHeroSummaryProps) {
             <p className="text-[10px] font-medium uppercase tracking-wide text-muted">
               Premio
             </p>
-            <p className="mt-0.5 text-[20px] font-semibold text-foreground">
+            <p className="mt-0.5 text-[23px] font-extrabold text-foreground">
               {policy.premiumAmount === null
                 ? "Da completare"
                 : formatCHF(policy.premiumAmount)}

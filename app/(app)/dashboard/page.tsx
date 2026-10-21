@@ -83,7 +83,7 @@ export default async function DashboardPage() {
       />
 
       {nextAction ? (
-        <div className="flex flex-col gap-3 rounded-2xl border border-border bg-accent-soft p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-[22px] border border-[#dce6ff] bg-[#eef2ff] p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-[11px] font-medium uppercase tracking-wide text-accent">
               Prossima azione
@@ -136,7 +136,7 @@ export default async function DashboardPage() {
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           <SectionCard
-            title="Upload recenti"
+            title="Documenti recenti"
             description="I tuoi PDF nell'archivio privato."
             action={<LinkAction href="/documents">Tutti i documenti</LinkAction>}
             padding="none"
@@ -235,7 +235,7 @@ export default async function DashboardPage() {
             </SectionCard>
           ) : null}
 
-          <SectionCard title="Moduli Insura" padding="sm">
+          <SectionCard title="Strumenti" padding="sm">
             <div className="space-y-3">
               <InsightCard
                 icon={<Sparkles className="h-4 w-4" />}

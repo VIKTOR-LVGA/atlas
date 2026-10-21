@@ -66,8 +66,8 @@ export default async function AnalysisPage() {
   return (
     <PageShell>
       <PageHeader
-        title="Analisi"
-        description="Intelligence assicurativa su coperture, rischi e opportunita — in espansione."
+        title="Analisi e costi"
+        description="I dati verificati delle tue polizze, in un unico posto. Analisi avanzate in preparazione."
         action={
           <PrimaryButton href="/documents" icon={<IconPlus className="h-4 w-4" />}>
             Carica PDF
@@ -84,7 +84,7 @@ export default async function AnalysisPage() {
           icon={<IconDocuments className="h-[18px] w-[18px]" />}
         />
         <MetricCard
-          label="Polizze estratte"
+          label="Polizze registrate"
           value={String(policies.length)}
           subtext={`${verifiedPolicies.length} verificate`}
           variant="green"
@@ -188,7 +188,7 @@ export default async function AnalysisPage() {
         )}
       </SectionCard>
 
-      <SectionCard title="Output futuri" padding="sm">
+      <SectionCard title="Funzionalità in preparazione" padding="sm">
         <div className="grid gap-2 sm:grid-cols-3">
           {[
             "Punteggio copertura",
