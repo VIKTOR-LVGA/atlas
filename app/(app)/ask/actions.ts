@@ -38,7 +38,7 @@ export async function askInsura(question:string, history: Array<{role:"user"|"as
  if(!user)return {ok:false,error:"Accedi per consultare le tue polizze."};
  const policies=await getCurrentUserPolicies();
  const docs=await getCurrentUserDocuments();
- const prior=history.slice(-6).filter(m=>(m.role==="user"||m.role==="assistant")&&typeof m.content==="string").map(m=>({role:m.role,content:m.content.slice(0,1200)}));
+ const prior=(Array.isArray(history)?history:[]).slice(-6).filter(m=>(m.role==="user"||m.role==="assistant")&&typeof m.content==="string").map(m=>({role:m.role,content:m.content.slice(0,1200)}));
  const contextQuestion=[...prior.filter(m=>m.role==="user").slice(-2).map(m=>m.content),q].join(" ");
  const keys=words(contextQuestion);
  const snippets:{name:string;href:string;excerpt:string;score:number}[]=[];
@@ -65,10 +65,10 @@ export async function askInsura(question:string, history: Array<{role:"user"|"as
   const hits=await officialCgaExtract(item.url,keys);
   for(const hit of hits)snippets.push({name:item.name,href:item.url,excerpt:hit.part,score:hit.score+1});
  }
- const officialHealth=/malatt|lamal|cure|ospedal|medic|sanitar|estero|viagg|italia|germania/i.test(contextQuestion)?[{name:"UFSP · Cure all’estero, regole LAMal (fonte ufficiale)",href:"https://www.bag.admin.ch/it/cure-allestero-per-gli-assicurati-che-vivono-in-svizzera",excerpt:"In UE/AELS e Regno Unito, durante soggiorni temporanei la tessera europea dà diritto alle cure necessarie dal punto di vista medico, secondo le regole del Paese visitato. Fuori UE/AELS/UK, le cure di emergenza sono coperte entro limiti specifici, diversi per cure ambulatoriali e ospedaliere. Cure programmate richiedono condizioni speciali e di regola autorizzazione.",score:8}]:[];
+ const officialHealth=/malatt|lamal|cure|ospedal|medic|sanitar|estero|viagg/i.test(contextQuestion)?[{name:"UFSP · Cure all’estero, regole LAMal (fonte ufficiale)",href:"https://www.bag.admin.ch/it/cure-allestero-per-gli-assicurati-che-vivono-in-svizzera",excerpt:"In UE/AELS e Regno Unito, durante soggiorni temporanei la tessera europea dà diritto alle cure necessarie dal punto di vista medico, secondo le regole del Paese visitato. Fuori UE/AELS/UK, le cure di emergenza sono coperte entro limiti specifici, diversi per cure ambulatoriali e ospedaliere. Cure programmate richiedono condizioni speciali e di regola autorizzazione.",score:8}]:[];
  snippets.push(...officialHealth);
  const selected=snippets.sort((a,b)=>b.score-a.score).slice(0,12);
- if(!selected.length)return {ok:true,data:{answer:"Non trovo informazioni sufficienti nelle polizze e nei PDF caricati per rispondere. Carica la polizza e le CGA applicabili (versione e anno corretti), poi riprova.",sources:[],notice:"Nessuna copertura verificata."}};
+ if(!selected.length)return {ok:true,data:{answer:"Non ho trovato prove sufficienti nei tuoi documenti per confermare questa copertura. Puoi caricare la polizza e le CGA applicabili; senza quei documenti non posso attribuirti garanzie specifiche.",sources:[],notice:"Nessuna copertura personale verificata."}};
  const key=process.env.OPENAI_API_KEY;
  if(!key)return {ok:false,error:"Il servizio di risposta AI non è configurato."};
  const inventory=policies.map(p=>({tipo:p.policyType,categoria:p.policyCategoryLabel,compagnia:p.provider,garanzie:p.details?.coverages,da_verificare:p.requiresReview}));
