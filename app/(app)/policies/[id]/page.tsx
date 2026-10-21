@@ -182,7 +182,7 @@ export default async function PolicyDetailPage({ params, searchParams }: PagePro
       {policy.requiresReview ? (
         <ReviewBanner
           title="Bozza AI da confermare"
-          description="Atlas ha estratto i dati dal PDF. Verifica premio, persone e coperture prima di considerarli affidabili."
+          description="Insura ha estratto i dati dal PDF. Verifica premio, persone e coperture prima di considerarli affidabili."
           editHref={`/policies/${policy.id}/edit`}
           uncertainCount={uncertainFields.length}
         />
