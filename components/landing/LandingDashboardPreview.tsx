@@ -2,7 +2,7 @@ import { ArrowRight, CarFront, Check, ChevronRight, FileText, HeartPulse, Plus, 
 /* Illustrative mock UI only; no real customer, product or calculated insurance data. */
 export function LandingDashboardPreview() {
   return (
-    <div className="relative mx-auto w-full max-w-[570px]" aria-label="Anteprima illustrativa della dashboard ATLAS">
+    <div className="relative mx-auto w-full max-w-[570px]" aria-label="Anteprima illustrativa della dashboard INSURA">
       <div className="pointer-events-none absolute -inset-4 rounded-[38px] bg-[color-mix(in_srgb,var(--accent)_5%,transparent)] blur-3xl" aria-hidden/>
       <div className="atlas-demo-window relative overflow-hidden p-4 sm:p-6">
         <div className="flex items-center justify-between border-b border-border pb-5">
