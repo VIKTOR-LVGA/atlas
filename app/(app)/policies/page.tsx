@@ -12,7 +12,7 @@ export const metadata = { title: "Polizze" };
 
 export default async function PoliciesPage() {
   const policies = await getCurrentUserPolicies();
-  const pendingReview = policies.filter((policy) => policy.requiresReview);
+  const pendingReview = policies.filter((policy) => policy.requiresReview);\n  const verifiedCount=policies.length-pendingReview.length;
 
   return (
     <PageShell>
@@ -26,7 +26,7 @@ export default async function PoliciesPage() {
         }
       />
 
-      <div className="flex items-center justify-between gap-3 rounded-[16px] border border-[#e5eaf3] bg-white px-4 py-3"><p className="text-[13px] text-[#53647e]">{policies.length} polizze in archivio{pendingReview.length ? ` · ${pendingReview.length} da verificare` : ""}</p><a href="/market" className="text-[12px] font-bold text-[#3157eb]">Confronta →</a></div>
+      <div className="grid grid-cols-3 gap-2"><div className="rounded-2xl border border-[#e5eaf3] bg-white p-4"><p className="text-[11px] text-[#687a99]">Totale</p><p className="mt-1 text-2xl font-extrabold text-[#101e3c]">{policies.length}</p></div><div className="rounded-2xl border border-[#e5eaf3] bg-white p-4"><p className="text-[11px] text-[#687a99]">Verificate</p><p className="mt-1 text-2xl font-extrabold text-[#101e3c]">{verifiedCount}</p></div><div className="rounded-2xl border border-[#e5eaf3] bg-white p-4"><p className="text-[11px] text-[#687a99]">Da rivedere</p><p className="mt-1 text-2xl font-extrabold text-[#101e3c]">{pendingReview.length}</p></div></div><div className="flex justify-end"><a href="/market" className="text-[12px] font-bold text-[#3157eb]">Confronta il mercato →</a></div>
       {pendingReview.length > 0 ? (
         <ReviewBanner
           title={`${pendingReview.length} bozza${pendingReview.length === 1 ? "" : "e"} da confermare`}
