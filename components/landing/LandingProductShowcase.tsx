@@ -23,12 +23,12 @@ export function LandingProductShowcase() {
         />
         <div className="mt-7 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {categories.map(category=>(
-            <Link key={category.id} href="/register" aria-label={`Inizia a organizzare le polizze: ${category.title}`} className="atlas-v2-feature-tile flex min-w-0 flex-col overflow-hidden p-4 sm:p-5">
+            <Link key={category.id} href="/register" aria-label={`Inizia a organizzare le polizze: ${category.title}`} className="atlas-v2-feature-tile flex min-w-0 flex-col overflow-hidden rounded-[20px] border border-[#e5eaf3] bg-white p-4 shadow-[0_5px_22px_rgba(18,26,41,0.035)] sm:p-5">
               <div className="flex min-h-[105px] items-center justify-center rounded-[18px] bg-[var(--card-muted)]">
                 <div className="scale-[1.13] sm:scale-[1.33]"><AtlasPolicyArtwork category={category.id}/></div>
               </div>
-              <h3 className="mt-5 text-[17px] font-bold tracking-[-.04em] text-foreground sm:text-[19px]">{category.title}</h3>
-              <p className="mt-1.5 min-h-[40px] text-[11px] leading-snug text-muted-foreground sm:text-[12px]">{category.caption}</p>
+              <h3 className="mt-4 text-[17px] font-bold tracking-[-.04em] text-foreground sm:text-[19px]">{category.title}</h3>
+              <p className="mt-1.5 min-h-[32px] text-[11px] leading-snug text-muted-foreground sm:text-[12px]">{category.caption}</p>
               <span className="mt-3 inline-flex items-center gap-2 text-[11px] font-bold text-accent">
                 <ShieldCheck className="h-4 w-4" aria-hidden /> Organizza le tue polizze <ArrowUpRight className="h-3.5 w-3.5" aria-hidden/>
               </span>

@@ -1,108 +1,22 @@
 import Link from "next/link";
 import { AtlasBrandLogo } from "@/components/brand/AtlasBrandLogo";
 
+const links = [
+  {href:"/info/come-funziona",label:"Come funziona"},
+  {href:"/info/sicurezza",label:"Sicurezza"},
+  {href:"/info/trasparenza",label:"Trasparenza"},
+  {href:"/info/faq",label:"FAQ"},
+  {href:"/login",label:"Accedi"},
+];
+
 export function LandingFooter() {
-  return (
-    <footer className="border-t border-[var(--landing-border)] bg-[var(--landing-bg)]">
-      <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-        <div className="flex flex-col gap-10 md:flex-row md:justify-between">
-          <div>
-            <Link href="/" className="inline-flex">
-              <AtlasBrandLogo variant="stacked" />
-            </Link>
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-[var(--landing-muted)]">
-              L&apos;AI che capisce le polizze assicurative svizzere. Indipendente,
-              trasparente, orientata alla chiarezza.
-            </p>
-            <p className="mt-4 inline-flex items-center gap-2 text-xs text-[var(--landing-muted)]">
-              <span aria-hidden>🇨🇭</span>
-              Prodotto per il mercato svizzero
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-10 text-sm sm:grid-cols-3">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wider text-[var(--landing-muted)]">
-                Prodotto
-              </p>
-              <ul className="mt-4 space-y-2.5 text-[var(--landing-muted)]">
-                <li>
-                  <Link href="/register" className="transition hover:text-[var(--landing-text)]">
-                    Inizia gratis
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/info/intelligence"
-                    className="transition hover:text-[var(--landing-text)]"
-                  >
-                    Intelligence
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/info/funzionalita" className="transition hover:text-[var(--landing-text)]">
-                    Funzionalità
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/info/come-funziona"
-                    className="transition hover:text-[var(--landing-text)]"
-                  >
-                    Come funziona
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wider text-[var(--landing-muted)]">
-                Account
-              </p>
-              <ul className="mt-4 space-y-2.5 text-[var(--landing-muted)]">
-                <li>
-                  <Link href="/login" className="transition hover:text-[var(--landing-text)]">
-                    Accedi
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/info/sicurezza" className="transition hover:text-[var(--landing-text)]">
-                    Sicurezza
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/info/faq" className="transition hover:text-[var(--landing-text)]">
-                    FAQ
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wider text-[var(--landing-muted)]">
-                Informazioni
-              </p>
-              <ul className="mt-4 space-y-2.5 text-[var(--landing-muted)]">
-                <li>
-                  <Link href="/info/trasparenza" className="transition hover:text-[var(--landing-text)]">
-                    Dati e trasparenza
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/info/faq" className="transition hover:text-[var(--landing-text)]">
-                    Domande frequenti
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-[var(--landing-border)] pt-8 sm:flex-row">
-          <p className="text-xs text-[var(--landing-muted)]">
-            © {new Date().getFullYear()} Insura · Svizzera
-          </p>
-          <p className="text-xs text-[var(--landing-muted)]">
-            Documentazione legale in revisione
-          </p>
-        </div>
+  return <footer className="border-t border-[#e5eaf3] bg-[#f5f7fc]">
+    <div className="mx-auto max-w-[1200px] px-5 py-9 sm:px-8">
+      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div><Link href="/" className="inline-flex" aria-label="INSURA homepage"><AtlasBrandLogo variant="stacked"/></Link><p className="mt-2 text-[12px] text-[#56647b]">Le tue assicurazioni, finalmente chiare.</p></div>
+        <nav aria-label="Collegamenti footer" className="flex flex-wrap gap-x-5 gap-y-3">{links.map(({href,label})=><Link key={href} href={href} className="text-[12px] font-semibold text-[#40516c] hover:text-[#3157eb]">{label}</Link>)}</nav>
       </div>
-    </footer>
-  );
+      <div className="mt-7 flex flex-col gap-2 border-t border-[#e0e6f0] pt-5 text-[11px] text-[#647189] sm:flex-row sm:justify-between"><span>© {new Date().getFullYear()} INSURA · Svizzera</span><span>Versione pilota · Documentazione legale in revisione</span></div>
+    </div>
+  </footer>;
 }
