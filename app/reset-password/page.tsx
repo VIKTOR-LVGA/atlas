@@ -162,7 +162,7 @@ export default function ResetPasswordPage() {
   return (
     <AuthLayout
       title="Nuova password"
-      subtitle="Scegli una nuova password per il tuo account Atlas."
+      subtitle="Scegli una nuova password per il tuo account Insura."
     >
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         <AuthMessage variant="error" message={error} />
