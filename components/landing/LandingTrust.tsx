@@ -6,7 +6,7 @@ const pillars=[
  {Icon:Eye,title:"Solo quello che sappiamo",body:"Quando un valore manca o è ambiguo, viene segnalato. Non inventiamo premi o coperture."},
 ];
 export function LandingTrust(){
- return <LandingSection id="security" tone="base" className="py-16 md:py-24">
+ return <LandingSection id="security" tone="base" className="py-12 md:py-16">
   <div className="mx-auto max-w-6xl px-5 sm:px-8">
    <LandingSectionHeader eyebrow="Trasparenza" title="La fiducia nasce dalla chiarezza." description="Le polizze sono documenti importanti. INSURA ti aiuta a comprenderli, senza sostituirli."/>
    <div className="mt-10 grid gap-4 md:grid-cols-3">

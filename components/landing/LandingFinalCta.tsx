@@ -6,7 +6,7 @@ export function LandingFinalCta() {
   return (
     <LandingSection tone="base" className="border-t-0 py-12 md:py-20">
       <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
-        <div className="atlas-v2-final-cta relative isolate overflow-hidden rounded-[32px] px-6 py-11 sm:px-10 sm:py-14 lg:px-16">
+        <div className="atlas-v2-final-cta relative isolate overflow-hidden rounded-[32px] px-6 py-9 sm:px-10 sm:py-12 lg:px-16">
           <div className="relative z-10 grid items-center gap-8 lg:grid-cols-[1fr_.65fr]">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-[.17em] text-[#5367d5]">Il tuo spazio, da oggi</p>

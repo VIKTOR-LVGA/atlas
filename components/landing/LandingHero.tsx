@@ -1,13 +1,6 @@
 import Link from "next/link";
-import { ArrowRight, CalendarCheck2, FileText, LockKeyhole, Play, ShieldCheck, Sparkles, UploadCloud, ChartNoAxesColumnIncreasing } from "lucide-react";
+import { FileText, LockKeyhole, Play, ShieldCheck, Sparkles, UploadCloud } from "lucide-react";
 import { AtlasHeroVisual } from "@/components/visual/AtlasHeroVisual";
-
-const advantages=[
-  {Icon:FileText,title:"Tutte le polizze in un unico posto",description:"Carica i documenti, ritrovali quando vuoi.",href:"/register",tone:"blue"},
-  {Icon:Sparkles,title:"Spiegazioni finalmente semplici",description:"I termini complicati diventano comprensibili.",href:"#how-it-works",tone:"purple"},
-  {Icon:CalendarCheck2,title:"Promemoria e scadenze",description:"Tieni d'occhio i rinnovi delle tue polizze.",href:"/register",tone:"mint"},
-  {Icon:ChartNoAxesColumnIncreasing,title:"Una visione più chiara",description:"Premi e coperture, senza perdere il filo.",href:"#product",tone:"orange"},
-] as const;
 
 export function LandingHero() {
   return (
@@ -23,7 +16,7 @@ export function LandingHero() {
             <span className="atlas-ref-gradient-title">finalmente chiare.</span>
           </h1>
           <p className="mt-7 max-w-[580px] text-[15px] leading-[1.75] text-[#5a6b8b] sm:text-[18px]">
-            INSURA ti aiuta a capire, gestire e tenere sotto controllo tutte le tue polizze in un unico posto, con l&apos;aiuto dell&apos;intelligenza artificiale.
+            Carica le tue polizze, ritrovale quando vuoi e comprendi meglio le coperture. Tutto in un unico spazio gratuito.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Link href="/register" className="atlas-ref-cta inline-flex min-h-[55px] items-center justify-center gap-2.5 rounded-[17px] px-7 text-[14px] font-bold text-white">
@@ -49,23 +42,7 @@ export function LandingHero() {
         </div>
         <AtlasHeroVisual/>
       </div>
-      <div className="relative mx-auto w-full max-w-[1430px] px-5 pb-12 sm:px-8 lg:px-11">
-        <div className="atlas-ref-feature-tray grid gap-3 p-3 sm:grid-cols-2 sm:gap-4 sm:p-5 lg:grid-cols-4">
-          {advantages.map(({Icon,title,description,href,tone})=>(
-            <Link key={title} href={href} className="atlas-ref-feature-card group flex min-h-[168px] flex-col justify-between rounded-[23px] p-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4567f6]">
-              <span className={`atlas-ref-feature-icon atlas-ref-feature-icon-${tone}`}><Icon className="h-6 w-6" aria-hidden/></span>
-              <div className="mt-5 flex items-end gap-3">
-                <div className="min-w-0 flex-1">
-                  <h2 className="text-[15px] font-bold leading-snug tracking-[-.025em] text-[#182648]">{title}</h2>
-                  <p className="mt-2 text-[12px] leading-relaxed text-[#596981]">{description}</p>
-                </div>
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#eff3fb] text-[#243b74] group-hover:bg-[#4265f3] group-hover:text-white"><ArrowRight className="h-4 w-4" aria-hidden/></span>
-              </div>
-            </Link>
-          ))}
-        </div>
-        <p className="mt-4 text-center text-[11px] leading-relaxed text-[#8590a8]"><LockKeyhole className="mr-1 inline h-3.5 w-3.5" aria-hidden/> Versione pilota: le analisi AI sono indicative e vanno confrontate con il documento originale.</p>
-      </div>
+      <p className="mx-auto max-w-[1000px] px-5 pb-8 text-center text-[11px] text-[#687792]"><LockKeyhole className="mr-1 inline h-3.5 w-3.5" aria-hidden /> Le analisi AI sono di supporto: verifica sempre i dati con il documento originale.</p>
     </section>
   );
 }

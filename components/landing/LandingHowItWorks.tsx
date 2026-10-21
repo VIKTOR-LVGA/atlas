@@ -9,9 +9,9 @@ const stages=[
 ];
 
 export function LandingHowItWorks(){
-  return <LandingSection id="how-it-works" tone="lift" className="py-14 md:py-24">
+  return <LandingSection id="how-it-works" tone="lift" className="py-12 md:py-16">
     <div className="mx-auto max-w-[1330px] px-5 sm:px-8">
-      <div className="grid items-center gap-12 lg:grid-cols-[.75fr_1.25fr] lg:gap-9">
+      <div className="grid items-center gap-8 lg:grid-cols-[.75fr_1.25fr] lg:gap-9">
         <div>
           <span className="inline-flex rounded-full bg-accent-soft px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.13em] text-accent">Come funziona</span>
           <h2 className="mt-5 text-[clamp(2.2rem,4.1vw,3.7rem)] font-extrabold leading-[1.1] tracking-[-.055em] text-foreground">Da documento a chiarezza, in pochi passi.</h2>
@@ -28,7 +28,7 @@ export function LandingHowItWorks(){
             Inizia con un PDF <ArrowRight className="h-4 w-4" aria-hidden/>
           </Link>
         </div>
-        <div className="atlas-ref-upload-showcase relative isolate flex min-h-[520px] items-end justify-center gap-4 overflow-hidden rounded-[34px] border border-[#e0e9ff] px-4 pt-8 sm:gap-6 sm:px-9" aria-label="Anteprima illustrativa delle schermate mobile di INSURA" role="img">
+        <div className="atlas-ref-upload-showcase relative isolate flex min-h-[450px] items-end justify-center gap-4 overflow-hidden rounded-[34px] border border-[#e0e9ff] px-4 pt-8 sm:gap-6 sm:px-9" aria-label="Anteprima illustrativa delle schermate mobile di INSURA" role="img">
           <div className="atlas-ref-upload-glow absolute inset-0" aria-hidden/>
           <div className="atlas-ref-upload-device relative z-10 mb-[-22px] hidden rotate-[-5deg] sm:block">
             <div className="atlas-ref-upload-device-inner">
