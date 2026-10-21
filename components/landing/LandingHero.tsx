@@ -35,9 +35,16 @@ export function LandingHero() {
             </a>
           </div>
           <div className="mt-9 grid grid-cols-3 gap-2 sm:mt-11 sm:gap-5">
-            <div className="flex items-start gap-2"><span className="atlas-ref-benefit-icon"><FileText className="h-5 w-5"/></span><span><strong className="block text-[11px] text-[#1b2c57] sm:text-[12px]">Carica le polizze</strong><small className="mt-1 block text-[10px] leading-snug text-[#5f6f8c]">Documenti PDF</small></span></div>
-            <div className="flex items-start gap-2"><span className="atlas-ref-benefit-icon"><Sparkles className="h-5 w-5"/></span><span><strong className="block text-[11px] text-[#1b2c57] sm:text-[12px]">Analisi con AI</strong><small className="mt-1 block text-[10px] leading-snug text-[#5f6f8c]">Dati da verificare</small></span></div>
-            <div className="flex items-start gap-2"><span className="atlas-ref-benefit-icon"><ShieldCheck className="h-5 w-5"/></span><span><strong className="block text-[11px] text-[#1b2c57] sm:text-[12px]">Sempre con te</strong><small className="mt-1 block text-[10px] leading-snug text-[#5f6f8c]">Archivio privato</small></span></div>
+            {[
+              { Icon: FileText, title: "Carica le polizze" },
+              { Icon: Sparkles, title: "Analisi con AI" },
+              { Icon: ShieldCheck, title: "Sempre con te" },
+            ].map(({ Icon, title }) => (
+              <div key={title} className="flex min-w-0 flex-col items-center justify-start gap-2 text-center sm:gap-3">
+                <span className="atlas-ref-benefit-icon"><Icon className="h-5 w-5" aria-hidden /></span>
+                <strong className="text-[11px] font-bold leading-tight text-[#1b2c57] sm:text-[13px]">{title}</strong>
+              </div>
+            ))}
           </div>
         </div>
         <AtlasHeroVisual/>
