@@ -17,13 +17,13 @@ export function BottomNav(){
       {consumerNavItems.map(item=>{
         const Icon=icons[item.id],active=isConsumerNavActive(pathname,item.href),add=item.id==="documents";
         return <li key={item.id}>
-          <Link href={add?"/ask":item.href} aria-current={active?"page":undefined}
-            aria-label={add?"Chiedi a INSURA":item.mobileLabel}
+          <Link href={add?"/documents":item.href} aria-current={active?"page":undefined}
+            aria-label={add?"Aggiungi una polizza":item.mobileLabel}
             className={cn("atlas-mobile-tab flex min-h-[65px] flex-col items-center justify-center gap-1 rounded-[15px] text-[10px] font-semibold focus-visible:outline-2 focus-visible:outline-accent",
               active&&!add?"text-accent":"text-muted-foreground")}>
             {add?<span className="grid h-12 w-12 -translate-y-2 place-items-center rounded-full bg-[#1766f7] text-white shadow-[0_6px_18px_rgba(54,90,222,.26)]"><Plus className="h-[23px] w-[23px]" aria-hidden/></span>:
               <Icon className={cn("h-5 w-5",active?"text-accent":"text-muted")} aria-hidden/>}
-            <span className={cn(add?"-mt-2 text-[#1766f7]":"")}>{add?"Chiedi":item.mobileLabel}</span>
+            <span className={cn(add?"-mt-2 text-[#1766f7]":"")}>{add?"Aggiungi":item.mobileLabel}</span>
           </Link>
         </li>;
       })}
