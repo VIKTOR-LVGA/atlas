@@ -416,7 +416,7 @@ function getExtractionNotes(
   }
 
   return [
-    "Bozza generata dall'analisi Atlas del PDF.",
+    "Bozza generata dall'analisi Insura del PDF.",
     `Documento sorgente: ${document.fileName}.`,
     "Tipo, dettagli e confidenze richiedono revisione prima di essere considerati affidabili.",
   ].join("\n");
