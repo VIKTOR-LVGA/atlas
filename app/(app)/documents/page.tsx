@@ -61,8 +61,6 @@ export default async function DocumentsPage() {
           variant={failedCount > 0 ? "red" : "indigo"}
           icon={<IconDocuments className="h-[18px] w-[18px]" />}
         />
-      </div>
-
       </div></details>
       <div className="grid gap-5 lg:grid-cols-3">
         <div className="order-2 lg:order-2 lg:col-span-2">

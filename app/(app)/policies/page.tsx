@@ -68,8 +68,6 @@ export default async function PoliciesPage() {
           variant="green"
           icon={<IconPolicies className="h-[18px] w-[18px]" />}
         />
-      </div>
-
       </div></details>
       {pendingReview.length > 0 ? (
         <ReviewBanner
