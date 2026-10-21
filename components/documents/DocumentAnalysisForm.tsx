@@ -106,7 +106,7 @@ export function DocumentAnalysisForm({
       </button>
       {variant !== "icon" && busy && (
         <p className="animate-pulse text-[11px] text-accent">
-          Atlas prepara una bozza strutturata da rivedere.
+          Insura prepara una bozza strutturata da rivedere.
         </p>
       )}
       {variant !== "icon" &&
