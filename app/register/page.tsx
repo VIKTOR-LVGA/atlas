@@ -89,7 +89,7 @@ export default function RegisterPage() {
   return (
     <AuthLayout
       title="Crea account"
-      subtitle="Inizia ad analizzare le tue assicurazioni con Atlas."
+      subtitle="Inizia ad analizzare le tue assicurazioni con Insura."
     >
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         <AuthMessage variant="error" message={error} />
