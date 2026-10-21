@@ -1,7 +1,7 @@
 import { Bell, CalendarDays, CarFront, Check, ChevronRight, FileText, Heart, Home, Plus, ShieldCheck, Sparkles } from "lucide-react";
 
 /**
- * Reference-faithful composition for the ATLAS marketing hero.
+ * Reference-faithful composition for the INSURA marketing hero.
  * This is a decorative, fictitious preview — never an actual user wallet.
  * Constructed from HTML/CSS so it scales gracefully to mobile and tablet.
  */
@@ -13,7 +13,7 @@ const mockPolicies = [
 
 export function AtlasHeroVisual() {
   return (
-    <div className="atlas-ref-visual relative isolate w-full select-none" aria-label="Illustrazione di ATLAS su smartphone, con polizze e analisi AI" role="img">
+    <div className="atlas-ref-visual relative isolate w-full select-none" aria-label="Illustrazione di INSURA su smartphone, con polizze e analisi AI" role="img">
       <div className="atlas-ref-ribbon atlas-ref-ribbon-one" aria-hidden />
       <div className="atlas-ref-ribbon atlas-ref-ribbon-two" aria-hidden />
       <div className="atlas-ref-pedestal" aria-hidden />
@@ -34,7 +34,7 @@ export function AtlasHeroVisual() {
             <span>9:41</span><span className="flex items-center gap-1"><span>●●●</span><span className="inline-block h-2 w-4 rounded-sm border border-[#1d2b50]"><span className="block h-full w-3 bg-[#1d2b50]"/></span></span>
           </div>
           <div className="mt-5 flex items-center justify-between">
-            <span className="flex items-center gap-1.5"><span className="text-[17px] font-black italic text-[#3b5cef]">A</span><span className="text-[10px] font-extrabold tracking-[.21em] text-[#0e2050]">ATLAS</span></span>
+            <span className="flex items-center gap-1.5"><span className="text-[17px] font-black italic text-[#3b5cef]">I</span><span className="text-[10px] font-extrabold tracking-[.21em] text-[#0e2050]">INSURA</span></span>
             <span className="flex items-center gap-2"><Bell className="h-3.5 w-3.5 text-[#1a3568]"/><span className="grid h-6 w-6 place-items-center rounded-full bg-[#e9eeff] text-[9px] font-bold text-[#2944a3]">MR</span></span>
           </div>
           <h3 className="mt-7 text-[22px] font-extrabold tracking-[-.055em] text-[#122046]">Ciao Marco <span aria-hidden>👋</span></h3>
