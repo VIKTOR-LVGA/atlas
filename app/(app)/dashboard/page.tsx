@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CalendarDays, Wallet } from "lucide-react";
 import { ClipboardCheck, Sparkles } from "lucide-react";
 import { PrimaryButton } from "@/components/ui/PageHeader";
-import { AtlasAlpineHero } from "@/components/visual/AtlasAlpineHero";
+
 import { MetricCard } from "@/components/ui/MetricCard";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { LinkAction } from "@/components/ui/LinkAction";
@@ -83,11 +83,7 @@ export default async function DashboardPage() {
 
   return (
     <PageShell>
-      <AtlasAlpineHero
-        greeting="Ciao"
-        name={getProfileShortName(profile)}
-        empty={policies.length === 0}
-      />
+      <header className="space-y-1 pb-2"><p className="text-[12px] font-bold uppercase tracking-[.12em] text-[#7c8ba5]">Il tuo spazio assicurativo</p><h1 className="text-[32px] font-extrabold tracking-tight text-[#101e3c]">Ciao {getProfileShortName(profile)} 👋</h1><p className="text-[13px] text-[#74829c]">Le tue assicurazioni, più semplici.</p></header>
 
       {nextAction ? (
         <div className="flex flex-col gap-3 rounded-[22px] border border-[#dce6ff] bg-[#eef2ff] p-5 sm:flex-row sm:items-center sm:justify-between">
@@ -109,10 +105,11 @@ export default async function DashboardPage() {
         </div>
       ) : null}
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Link href="/analysis" className="rounded-[22px] border border-[#e5eaf3] bg-white p-5 shadow-sm transition hover:border-[#b8c8f7]"><Wallet className="h-5 w-5 text-[#3157eb]"/><p className="mt-3 text-[12px] text-muted">Premi annuali confermati</p><p className="mt-1 text-[23px] font-extrabold text-foreground">{priced.length ? money(annualTotal) : "—"}</p><p className="mt-1 text-[11px] text-muted">Solo importi CHF verificati · Apri analisi</p></Link>
-        <Link href="/analysis" className="rounded-[22px] border border-[#e5eaf3] bg-white p-5 shadow-sm transition hover:border-[#b8c8f7]"><CalendarDays className="h-5 w-5 text-[#3157eb]"/><p className="mt-3 text-[12px] text-muted">Prossimo rinnovo registrato</p><p className="mt-1 text-[18px] font-extrabold text-foreground">{nextRenewal?.renewalDate ?? "Nessuna data"}</p><p className="mt-1 truncate text-[11px] text-muted">{nextRenewal ? nextRenewal.provider : "Verifica le date nelle tue polizze"}</p></Link>
-      </div>
+      <Link href="/analysis" className="block overflow-hidden rounded-[26px] bg-gradient-to-br from-[#1045d2] via-[#1766f7] to-[#268dff] p-6 text-white shadow-[0_15px_35px_rgba(23,100,241,.2)] sm:p-8"><p className="text-[12px] font-bold uppercase tracking-wider text-white/80">Spesa annuale confermata</p><p className="mt-5 text-[38px] font-extrabold tracking-tight">{priced.length ? money(annualTotal) : "—"}</p><p className="mt-1 text-[13px] text-white/85">{priced.length ? money(annualTotal/12)+" / mese equivalente" : "Conferma un premio per vedere il totale"}</p><p className="mt-6 text-[11px] text-white/75">Solo premi CHF confermati · Apri analisi →</p></Link>
+      <div className="flex items-center justify-between"><h2 className="text-[19px] font-extrabold text-[#101e3c]">Le tue polizze</h2><Link href="/policies" className="text-[12px] font-bold text-[#1766f7]">Vedi tutte →</Link></div>
+      {policies.length ? <div className="grid gap-3 md:grid-cols-2">{policies.slice(0,4).map(policy=><PolicyListCard key={policy.id} policy={policy}/>)}</div> : <div className="rounded-[22px] border border-[#e5eaf3] bg-white p-8 text-center"><p className="font-bold text-[#101e3c]">Il tuo archivio inizia qui</p><p className="mt-2 text-[13px] text-[#74829c]">Carica un PDF per creare la prima polizza.</p><Link href="/documents" className="atlas-btn-primary mt-4 inline-flex px-5 py-3">Aggiungi polizza</Link></div>}
+      <Link href="/analysis" className="flex items-center gap-3 rounded-[20px] border border-[#e5eaf3] bg-white p-5"><CalendarDays className="h-6 w-6 text-[#1766f7]"/><span className="flex-1"><span className="block text-[13px] font-bold">Prossimo rinnovo</span><span className="text-[12px] text-muted">{nextRenewal ? nextRenewal.renewalDate+" · "+nextRenewal.provider : "Nessuna data confermata"}</span></span><span className="text-[#1766f7]">→</span></Link>
+      <details className="rounded-[20px] border border-[#e5eaf3] bg-white p-4"><summary className="cursor-pointer text-[13px] font-bold text-[#101e3c]">Archivio e attività · {documentStats.totalDocuments} documenti</summary><div className="mt-4 space-y-4">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <MetricCard
           label="Documenti"
@@ -275,6 +272,7 @@ export default async function DashboardPage() {
           </div>
         </div>
       </div>
+      </div></details>
     </PageShell>
   );
 }
