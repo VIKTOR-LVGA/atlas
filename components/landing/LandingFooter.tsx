@@ -5,6 +5,8 @@ const links = [
   {href:"/info/come-funziona",label:"Come funziona"},
   {href:"/info/sicurezza",label:"Sicurezza"},
   {href:"/info/trasparenza",label:"Trasparenza"},
+  {href:"/info/privacy",label:"Privacy (pilota)"},
+  {href:"/info/termini",label:"Termini (pilota)"},
   {href:"/info/faq",label:"FAQ"},
   {href:"/login",label:"Accedi"},
 ];

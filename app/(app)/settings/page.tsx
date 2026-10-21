@@ -124,7 +124,7 @@ export default function SettingsPage() {
         <div className="flex items-center gap-3">
           <IconShield className="h-5 w-5 text-accent" />
           <p className="text-[12px] text-muted-foreground">
-            I tuoi dati sono protetti con crittografia e hosting in Svizzera.
+            I documenti sono archiviati in uno spazio privato con controllo di accesso. Per i dettagli sul trattamento consulta le informazioni sulla privacy; la verifica di sicurezza è ancora in corso.
           </p>
         </div>
         <StatusBadge variant="neutral" label="Dettagli in preparazione" />

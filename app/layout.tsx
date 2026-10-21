@@ -14,7 +14,8 @@ export const metadata: Metadata = {
     template: "%s | Insura",
   },
   description:
-    "Piattaforma svizzera di intelligence assicurativa. Capisci le tue polizze, i rischi e le opportunità.",
+    "Piattaforma svizzera in versione pilota per organizzare e comprendere le polizze assicurative.",
+  robots: { index: false, follow: false },
 };
 
 export default function RootLayout({

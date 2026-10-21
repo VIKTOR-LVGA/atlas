@@ -5,6 +5,25 @@ import { LandingNav } from "@/components/landing/LandingNav";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 
 const pages = {
+  "privacy": {
+    title: "Privacy · Informazioni preliminari",
+    intro: "INSURA è in versione pilota. Questa pagina descrive alcune operazioni tecniche, ma NON costituisce ancora l’informativa privacy definitiva.",
+    sections: [
+      ["Dati trattati", "Account, informazioni di profilo, documenti assicurativi caricati, dati estratti e conversazioni con INSURA AI possono contenere dati personali, anche particolarmente delicati."],
+      ["Fornitori e analisi", "L’app utilizza servizi di autenticazione e archiviazione Supabase, infrastruttura Vercel e servizi AI per analizzare i documenti. Le sedi effettive di trattamento, i trasferimenti e i tempi di conservazione devono essere verificati e pubblicati prima del lancio."],
+      ["Accesso e protezione", "Le funzioni personali richiedono autenticazione. Sono previsti controlli di accesso e archiviazione privata, ma non si dichiara concluso un audit indipendente."],
+      ["Diritti e contatti", "Il titolare del trattamento, il recapito privacy, le basi giuridiche, i tempi di conservazione e la procedura completa per accesso/cancellazione sono ancora da formalizzare. Non caricare documenti reali prima di aver ricevuto l’informativa definitiva."],
+    ]
+  },
+  "termini": {
+    title: "Termini · Avvertenze della versione pilota",
+    intro: "Queste informazioni non sostituiscono termini contrattuali definitivi. Il servizio non è ancora approvato per un lancio pubblico.",
+    sections: [
+      ["Funzionalità sperimentali", "L’estrazione automatica può omettere o interpretare erroneamente informazioni. L’utente deve confrontare ogni campo con il documento originale."],
+      ["Nessuna consulenza vincolante", "INSURA non garantisce coperture, disdette, prezzi di mercato o risparmi. Per decisioni assicurative fa fede la documentazione contrattuale verificata e, se necessario, una consulenza qualificata."],
+      ["Disponibilità e assistenza", "Le funzioni della versione pilota possono cambiare. Condizioni d’uso, assistenza, responsabilità e contatti del gestore devono essere formalizzati prima dell’apertura al pubblico."],
+    ]
+  },
   "come-funziona": {
     title: "Come funziona INSURA",
     intro: "Un percorso semplice per organizzare le polizze, comprendere i dati estratti e verificare le informazioni prima di salvarle.",
