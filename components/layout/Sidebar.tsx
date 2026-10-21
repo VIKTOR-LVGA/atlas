@@ -22,7 +22,7 @@ export function Sidebar(){
   const pathname=usePathname();
   const profile=useCurrentProfile();
   return <aside className="atlas-sidebar-panel hidden h-screen w-[240px] shrink-0 flex-col overflow-y-auto border-r border-sidebar-border lg:flex">
-    <Link href="/dashboard" className="flex h-[80px] shrink-0 items-center px-6" aria-label="ATLAS, vai alla home"><AtlasBrandLogo variant="stacked" compact/></Link>
+    <Link href="/dashboard" className="flex h-[80px] shrink-0 items-center px-6" aria-label="INSURA, vai alla home"><AtlasBrandLogo variant="stacked" compact/></Link>
     <div className="flex-1 px-3 pt-3">
       <nav aria-label="Navigazione principale" className="space-y-1.5">
         {entries.map(({href,label,Icon})=>{
