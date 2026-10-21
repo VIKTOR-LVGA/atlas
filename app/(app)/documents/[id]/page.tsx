@@ -47,7 +47,7 @@ export default async function DocumentDetailPage({ params }: PageProps) {
         meta={<DocumentStatusBadge status={document.status} />}
       />
 
-      <div className="rounded-[18px] border border-[#dce6ff] bg-[#f5f7fc] p-4"><p className="text-[12px] font-bold text-[#243656]">Percorso documento</p><p className="mt-1 text-[12px] text-[#56647b]">PDF caricato → Analisi AI → Revisione dei dati → Conferma della polizza. L'analisi non conferma automaticamente i dati.</p></div>
+      <div className="rounded-[18px] border border-[#dce6ff] bg-[#f5f7fc] p-4"><p className="text-[12px] font-bold text-[#243656]">Percorso documento</p><p className="mt-1 text-[12px] text-[#56647b]">Passaggio 2 di 3 · Avvia l’analisi AI del PDF. Dopo l’analisi aprirai la bozza per controllare i dati prima della conferma.</p></div>
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
         <SectionCard title="Informazioni file">
           <InfoGrid
@@ -82,7 +82,7 @@ export default async function DocumentDetailPage({ params }: PageProps) {
         </SectionCard>
 
         <aside className="space-y-4 lg:sticky lg:top-6 lg:self-start">
-          <SectionCard title="Azioni" padding="sm">
+          <SectionCard title="Passaggio 2 · Analizza il PDF" padding="sm">
             <ActionBar>
               <DocumentAnalysisForm
                 documentId={document.id}
