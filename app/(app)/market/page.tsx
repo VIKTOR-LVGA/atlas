@@ -71,7 +71,7 @@ export default async function MarketPage() {
             <PlaceholderModule
               icon={<IconMarket className="h-6 w-6" />}
               title="Confronto mercato in preparazione"
-              description="Quando avrai piu polizze verificate, Atlas confrontera premi e coperture con medie di mercato svizzere."
+              description="Quando avrai piu polizze verificate, Insura confrontera premi e coperture con medie di mercato svizzere."
               statusLabel="In arrivo"
               actionLabel="Vai alle polizze"
               actionHref="/policies"
