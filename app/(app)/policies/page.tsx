@@ -12,7 +12,8 @@ export const metadata = { title: "Polizze" };
 
 export default async function PoliciesPage() {
   const policies = await getCurrentUserPolicies();
-  const pendingReview = policies.filter((policy) => policy.requiresReview);\n  const verifiedCount=policies.length-pendingReview.length;
+  const pendingReview = policies.filter((policy) => policy.requiresReview);
+  const verifiedCount=policies.length-pendingReview.length;
 
   return (
     <PageShell>
