@@ -10,8 +10,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Atlas — Insurance Intelligence",
-    template: "%s | Atlas",
+    default: "Insura — Insurance Intelligence",
+    template: "%s | Insura",
   },
   description:
     "Piattaforma svizzera di intelligence assicurativa. Capisci le tue polizze, i rischi e le opportunità.",
