@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Plus } from "lucide-react";
 import { AtlasBrandLogo } from "@/components/brand/AtlasBrandLogo";
 import {
   TopBarHelpMenu,
@@ -20,9 +19,6 @@ export function TopBar() {
 
       <Link href="/policies" className="hidden text-[13px] font-semibold text-muted-foreground hover:text-foreground lg:block">Il tuo portafoglio assicurativo</Link>
       <div className="flex min-w-0 items-center justify-end gap-1 sm:gap-1.5">
-        <Link href="/documents" className="atlas-btn-primary mr-2 hidden items-center gap-2 px-3.5 text-[12px] sm:inline-flex">
-          <Plus className="h-3.5 w-3.5" aria-hidden /> Carica PDF
-        </Link>
         <ThemeToggle />
         <TopBarHelpMenuMobile />
         <TopBarNotificationsMenu />
