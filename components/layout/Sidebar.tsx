@@ -12,7 +12,7 @@ const entries=[
   {href:"/dashboard",label:"Home",Icon:Home},
   {href:"/policies",label:"Le mie polizze",Icon:ShieldCheck},
   {href:"/documents",label:"Documenti",Icon:FileText},
-  {href:"/analysis",label:"Premi e costi",Icon:ChartNoAxesColumnIncreasing},
+  {href:"/analysis",label:"Premi e costi",Icon:ChartNoAxesColumnIncreasing},\n  {href:"/ask",label:"Chiedi a INSURA",Icon:Sparkles},
   {href:"/market",label:"Confronto mercato",Icon:Scale},
   {href:"/recommendations",label:"Raccomandazioni",Icon:Sparkles},
   {href:"/consulting",label:"Consulenza",Icon:HelpCircle},

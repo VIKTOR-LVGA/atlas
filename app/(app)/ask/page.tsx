@@ -1,0 +1,5 @@
+import Link from "next/link";
+import { PageShell } from "@/components/ui/PageShell";
+import { InsuraChat } from "./InsuraChat";
+export const metadata={title:"Chiedi a INSURA"};
+export default function AskPage(){return <PageShell><header className="space-y-2"><p className="text-[11px] font-bold uppercase tracking-widest text-[#3157eb]">Il tuo assistente assicurativo</p><h1 className="text-[30px] font-extrabold text-[#101e3c]">Chiedi a INSURA</h1><p className="text-[13px] leading-6 text-[#687a99]">Fai domande, simula situazioni e consulta le tue coperture. Per le condizioni contrattuali INSURA cerca anche nei PDF delle CGA che hai caricato.</p><Link href="/documents" className="inline-block text-[12px] font-bold text-[#3157eb]">+ Carica polizze o CGA →</Link></header><InsuraChat/></PageShell>}
