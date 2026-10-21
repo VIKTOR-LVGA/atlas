@@ -82,3 +82,21 @@ export async function askInsura(question:string, history: Array<{role:"user"|"as
   return {ok:true,data:{answer,sources:selected.map(({name,href,excerpt})=>({name,href,excerpt:excerpt.slice(0,210)})),notice:"Risposta informativa, non conferma contrattuale. Verifica sempre polizza e CGA applicabili."}};
  }catch{return {ok:false,error:"Errore durante la consultazione. Riprova."};}
 }
+
+export type ChatMessage = {role:"user"|"assistant";content:string};
+export async function loadInsuraConversation():Promise<ChatMessage[]>{
+ const supabase=await getSupabaseServerClient();
+ const {data:{user}}=await supabase.auth.getUser();
+ if(!user)return [];
+ const {data,error}=await supabase.from("insura_chat_history").select("messages").eq("user_id",user.id).maybeSingle();
+ if(error||!Array.isArray(data?.messages))return [];
+ return (data.messages as ChatMessage[]).filter(m=>["user","assistant"].includes(m.role)&&typeof m.content==="string").slice(-20);
+}
+export async function saveInsuraConversation(messages:ChatMessage[]):Promise<boolean>{
+ const supabase=await getSupabaseServerClient();
+ const {data:{user}}=await supabase.auth.getUser();
+ if(!user||!Array.isArray(messages))return false;
+ const safe=messages.filter(m=>["user","assistant"].includes(m.role)&&typeof m.content==="string").slice(-20).map(m=>({role:m.role,content:m.content.slice(0,1800)}));
+ const {error}=await supabase.from("insura_chat_history").upsert({user_id:user.id,messages:safe,updated_at:new Date().toISOString()},{onConflict:"user_id"});
+ return !error;
+}
