@@ -68,7 +68,7 @@ export default async function RecommendationsPage() {
           }
           description={
             policies.length > 0
-              ? "Atlas analizzera gap, sovrapposizioni e opportunita quando il motore raccomandazioni sara collegato alle tue schede."
+              ? "Insura analizzera gap, sovrapposizioni e opportunita quando il motore raccomandazioni sara collegato alle tue schede."
               : "Carica e analizza un PDF per costruire la base delle raccomandazioni."
           }
           statusLabel={policies.length > 0 ? `${policies.length} polizze` : "In attesa"}
