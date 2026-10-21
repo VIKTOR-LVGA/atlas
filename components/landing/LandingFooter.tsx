@@ -96,7 +96,7 @@ export function LandingFooter() {
         </div>
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-[var(--landing-border)] pt-8 sm:flex-row">
           <p className="text-xs text-[var(--landing-muted)]">
-            © {new Date().getFullYear()} Atlas · Svizzera
+            © {new Date().getFullYear()} Insura · Svizzera
           </p>
           <p className="text-xs text-[var(--landing-muted)]">
             Documentazione legale in revisione
