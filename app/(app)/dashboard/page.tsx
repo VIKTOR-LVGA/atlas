@@ -235,7 +235,7 @@ export default async function DashboardPage() {
             </SectionCard>
           ) : null}
 
-          <SectionCard title="Moduli Atlas" padding="sm">
+          <SectionCard title="Moduli Insura" padding="sm">
             <div className="space-y-3">
               <InsightCard
                 icon={<Sparkles className="h-4 w-4" />}
@@ -259,7 +259,7 @@ export default async function DashboardPage() {
           </SectionCard>
 
           <div className="rounded-2xl border border-border bg-accent-soft px-4 py-3 text-[12px] leading-relaxed text-muted">
-            Atlas e indipendente: non vendiamo polizze ne riceviamo commissioni da
+            Insura e indipendente: non vendiamo polizze ne riceviamo commissioni da
             assicuratori.
           </div>
         </div>
