@@ -4,7 +4,7 @@ export const consumerNavItems: Array<{id: ConsumerNavId; href: string; mobileLab
   { id: "home", href: "/dashboard", mobileLabel: "Home" },
   { id: "policies", href: "/policies", mobileLabel: "Polizze" },
   { id: "documents", href: "/documents", mobileLabel: "Documenti" },
-  { id: "atlas", href: "/analysis", mobileLabel: "Analisi" },
+  { id: "atlas", href: "/ask", mobileLabel: "INSURA AI" },
   { id: "profile", href: "/settings", mobileLabel: "Profilo" },
 ];
 
