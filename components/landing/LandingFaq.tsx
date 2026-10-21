@@ -2,8 +2,8 @@ import { LandingSection, LandingSectionHeader } from "@/components/landing/Landi
 
 const faqs = [
   {
-    q: "Atlas vende polizze assicurative?",
-    a: "No. Atlas è una piattaforma indipendente di analisi. Estrae e organizza i dati dai tuoi PDF — non riceve commissioni da assicuratori.",
+    q: "Insura vende polizze assicurative?",
+    a: "No. Insura è una piattaforma indipendente di analisi. Estrae e organizza i dati dai tuoi PDF — non riceve commissioni da assicuratori.",
   },
   {
     q: "Cosa fa l'estrazione AI in pratica?",
@@ -15,7 +15,7 @@ const faqs = [
   },
   {
     q: "I miei dati sono al sicuro?",
-    a: "Atlas tratta i documenti con attenzione e controllo. I PDF restano nel tuo account e le bozze AI vanno confermate prima dell'uso.",
+    a: "Insura tratta i documenti con attenzione e controllo. I PDF restano nel tuo account e le bozze AI vanno confermate prima dell'uso.",
   },
 ];
 
