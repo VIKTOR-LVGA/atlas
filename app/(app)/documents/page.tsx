@@ -31,6 +31,7 @@ export default async function DocumentsPage() {
         description="Carica PDF assicurativi, analizzali con AI e collega le polizze estratte."
       />
 
+      <div className="grid gap-2 rounded-[20px] border border-[#e1e8f8] bg-[#f5f7fc] p-4 sm:grid-cols-3">{["1 · Carica il PDF","2 · Avvia l’analisi","3 · Rivedi e conferma"].map(step=><div key={step} className="rounded-[14px] bg-white px-4 py-3 text-[12px] font-bold text-[#243656]">{step}</div>)}</div>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <MetricCard
           label="Archivio"

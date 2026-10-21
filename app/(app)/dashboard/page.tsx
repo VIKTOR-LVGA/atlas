@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CalendarDays, Wallet } from "lucide-react";
 import { ClipboardCheck, Sparkles } from "lucide-react";
 import { PrimaryButton } from "@/components/ui/PageHeader";
 import { AtlasAlpineHero } from "@/components/visual/AtlasAlpineHero";
@@ -49,6 +50,12 @@ export default async function DashboardPage() {
     getCurrentUserPolicies(),
   ]);
   const pendingReviewPolicies = policies.filter((policy) => policy.requiresReview);
+  const confirmed = policies.filter((p) => !p.requiresReview);
+  const frequencyFactor = {monthly:12,quarterly:4,semiannual:2,annual:1} as const;
+  const priced = confirmed.filter((p) => p.currency === "CHF" && p.premiumAmount !== null && Number.isFinite(p.premiumAmount) && p.premiumAmount >= 0);
+  const annualTotal = priced.reduce((sum,p) => sum + (p.premiumAmount ?? 0) * frequencyFactor[p.premiumFrequency],0);
+  const nextRenewal = confirmed.filter((p) => p.renewalDate && p.renewalDate >= new Date().toISOString().slice(0,10)).sort((a,b)=>(a.renewalDate ?? "").localeCompare(b.renewalDate ?? ""))[0];
+  const money = (n:number) => new Intl.NumberFormat("de-CH",{style:"currency",currency:"CHF",maximumFractionDigits:2}).format(n);
   const nextAction =
     pendingReviewPolicies.length > 0
       ? {
@@ -102,6 +109,10 @@ export default async function DashboardPage() {
         </div>
       ) : null}
 
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Link href="/analysis" className="rounded-[22px] border border-[#e5eaf3] bg-white p-5 shadow-sm transition hover:border-[#b8c8f7]"><Wallet className="h-5 w-5 text-[#3157eb]"/><p className="mt-3 text-[12px] text-muted">Premi annuali confermati</p><p className="mt-1 text-[23px] font-extrabold text-foreground">{priced.length ? money(annualTotal) : "—"}</p><p className="mt-1 text-[11px] text-muted">Solo importi CHF verificati · Apri analisi</p></Link>
+        <Link href="/analysis" className="rounded-[22px] border border-[#e5eaf3] bg-white p-5 shadow-sm transition hover:border-[#b8c8f7]"><CalendarDays className="h-5 w-5 text-[#3157eb]"/><p className="mt-3 text-[12px] text-muted">Prossimo rinnovo registrato</p><p className="mt-1 text-[18px] font-extrabold text-foreground">{nextRenewal?.renewalDate ?? "Nessuna data"}</p><p className="mt-1 truncate text-[11px] text-muted">{nextRenewal ? nextRenewal.provider : "Verifica le date nelle tue polizze"}</p></Link>
+      </div>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <MetricCard
           label="Documenti"

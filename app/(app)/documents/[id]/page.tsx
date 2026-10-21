@@ -47,6 +47,7 @@ export default async function DocumentDetailPage({ params }: PageProps) {
         meta={<DocumentStatusBadge status={document.status} />}
       />
 
+      <div className="rounded-[18px] border border-[#dce6ff] bg-[#f5f7fc] p-4"><p className="text-[12px] font-bold text-[#243656]">Percorso documento</p><p className="mt-1 text-[12px] text-[#56647b]">PDF caricato → Analisi AI → Revisione dei dati → Conferma della polizza. L'analisi non conferma automaticamente i dati.</p></div>
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
         <SectionCard title="Informazioni file">
           <InfoGrid

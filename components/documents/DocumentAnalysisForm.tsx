@@ -35,7 +35,7 @@ function getAnalysisLabel(status: DocumentStatus, pending: boolean) {
     return "Riprova analisi";
   }
 
-  return "Analizza documento";
+  return "Avvia analisi AI";
 }
 
 function AnalysisIcon({
