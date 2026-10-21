@@ -65,7 +65,7 @@ export default function LoginPage() {
   return (
     <AuthLayout
       title="Accedi"
-      subtitle="Bentornato su Atlas. Inserisci le tue credenziali."
+      subtitle="Bentornato su Insura. Inserisci le tue credenziali."
     >
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         <AuthMessage variant="error" message={error} />
