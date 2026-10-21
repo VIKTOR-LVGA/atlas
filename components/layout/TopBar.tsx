@@ -13,7 +13,7 @@ import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 export function TopBar() {
   return (
-    <header className="relative z-40 flex h-[68px] w-full min-w-0 shrink-0 items-center justify-between gap-2 border-b border-border bg-card/95 px-4 backdrop-blur-xl sm:px-7 lg:h-[80px] lg:px-10">
+    <header className="relative z-40 flex h-[68px] w-full min-w-0 shrink-0 items-center justify-between gap-2 border-b border-[#e9eef7] bg-white/95 px-4 backdrop-blur-xl sm:px-7 lg:h-[74px] lg:px-10">
       <Link href="/dashboard" className="flex min-w-0 items-center lg:hidden">
         <AtlasBrandLogo variant="stacked" compact />
       </Link>

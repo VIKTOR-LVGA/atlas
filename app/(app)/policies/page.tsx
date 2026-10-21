@@ -21,8 +21,8 @@ export default async function PoliciesPage() {
   return (
     <PageShell>
       <PageHeader
-        title="Le mie polizze"
-        description="Schede strutturate dai tuoi PDF e creazione manuale."
+        title="Le tue polizze"
+        description="Tutte le tue assicurazioni, in un unico posto."
         action={
           <PrimaryButton href="/policies/new" icon={<Plus className="h-4 w-4" />}>
             Nuova polizza
@@ -30,7 +30,7 @@ export default async function PoliciesPage() {
         }
       />
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <details className="rounded-[20px] border border-[#e5eaf3] bg-white p-4"><summary className="cursor-pointer text-[13px] font-bold text-[#101e3c]">Statistiche archivio</summary><div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <MetricCard
           label="Totale polizze"
           value={String(policies.length)}
@@ -70,6 +70,7 @@ export default async function PoliciesPage() {
         />
       </div>
 
+      </div></details>
       {pendingReview.length > 0 ? (
         <ReviewBanner
           title={`${pendingReview.length} bozza${pendingReview.length === 1 ? "" : "e"} da confermare`}
@@ -81,8 +82,8 @@ export default async function PoliciesPage() {
 
       {policies.length > 0 ? (
         <SectionCard
-          title="Archivio"
-          description="Tutte le polizze collegate ai tuoi documenti."
+          title="Le tue assicurazioni"
+          description="Apri una scheda per vedere coperture, premio, documenti e stato di verifica."
           padding="none"
         >
           <div className="grid gap-3 p-4 md:grid-cols-2">

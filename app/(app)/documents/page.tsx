@@ -27,12 +27,12 @@ export default async function DocumentsPage() {
   return (
     <PageShell>
       <PageHeader
-        title="Documenti"
-        description="Carica PDF assicurativi, analizzali con AI e collega le polizze estratte."
+        title="Aggiungi una polizza"
+        description="Carica un PDF, lascia che INSURA estragga i dati e confermali prima di salvarli."
       />
 
-      <div className="grid gap-2 rounded-[20px] border border-[#e1e8f8] bg-[#f5f7fc] p-4 sm:grid-cols-3">{["1 · Carica il PDF","2 · Avvia l’analisi","3 · Rivedi e conferma"].map(step=><div key={step} className="rounded-[14px] bg-white px-4 py-3 text-[12px] font-bold text-[#243656]">{step}</div>)}</div>
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid gap-2 rounded-[24px] border border-[#dce6ff] bg-[#f1f6ff] p-5 sm:grid-cols-3">{["1 · Carica il PDF","2 · Avvia l’analisi","3 · Rivedi e conferma"].map(step=><div key={step} className="rounded-[16px] bg-white px-4 py-4 text-[13px] font-bold text-[#174ac5]">{step}</div>)}</div>
+      <details className="rounded-[20px] border border-[#e5eaf3] bg-white p-4"><summary className="cursor-pointer text-[13px] font-bold text-[#101e3c]">Statistiche documenti</summary><div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <MetricCard
           label="Archivio"
           value={String(documents.length)}
@@ -63,8 +63,9 @@ export default async function DocumentsPage() {
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+      </div></details>
+      <div className="grid gap-5 lg:grid-cols-3">
+        <div className="order-2 lg:order-2 lg:col-span-2">
           <SectionCard
             title="I tuoi documenti"
             description="Clicca una riga per aprire dettagli, analisi e download."
@@ -74,8 +75,8 @@ export default async function DocumentsPage() {
           </SectionCard>
         </div>
 
-        <div className="space-y-4">
-          <SectionCard title="Carica PDF" padding="md">
+        <div className="order-1 space-y-4 lg:order-1">
+          <SectionCard title="Carica il tuo PDF" padding="md">
             <DocumentUploadForm />
           </SectionCard>
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { FileText, PencilLine } from "lucide-react";
+import { FileText, PencilLine, ShieldCheck } from "lucide-react";
 import { PolicyDeleteForm } from "@/components/policies/PolicyDeleteForm";
 import { PolicyExtractionMetadataPanel } from "@/components/policies/PolicyExtractionMetadataPanel";
 import { PolicyFieldConfidenceTable } from "@/components/policies/PolicyFieldConfidenceTable";

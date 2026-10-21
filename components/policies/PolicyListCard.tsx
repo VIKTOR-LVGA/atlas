@@ -30,7 +30,7 @@ export function PolicyListCard({ policy }: { policy: UserPolicy }) {
   const coverageCount = policy.details.coverages?.length ?? 0;
 
   return (
-    <article className="group rounded-[20px] border border-[#e5eaf3] bg-white p-4 shadow-[0_5px_20px_rgba(18,26,41,0.035)] transition hover:border-[#b8c8f7] hover:shadow-[0_10px_30px_rgba(18,26,41,0.075)]">
+    <article className="group rounded-[22px] border border-[#e5eaf3] bg-white p-5 shadow-[0_8px_25px_rgba(18,26,41,0.045)] transition hover:border-[#b8c8f7] hover:shadow-[0_10px_30px_rgba(18,26,41,0.075)]">
       <div className="flex items-start gap-3">
         <span
           className={cn(
@@ -43,7 +43,7 @@ export function PolicyListCard({ policy }: { policy: UserPolicy }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <Link href={`/policies/${policy.id}`} className="min-w-0">
-              <p className="truncate text-[16px] font-bold text-foreground group-hover:text-accent">
+              <p className="truncate text-[17px] font-extrabold text-foreground group-hover:text-accent">
                 {policy.provider}
               </p>
               <p className="mt-0.5 truncate text-[12px] text-muted">
@@ -60,7 +60,7 @@ export function PolicyListCard({ policy }: { policy: UserPolicy }) {
             </div>
           </div>
 
-          <dl className="mt-4 grid grid-cols-2 gap-3 rounded-[14px] bg-[#f5f7fc] p-3 text-[12px]">
+          <dl className="mt-4 grid grid-cols-2 gap-3 rounded-[16px] bg-[#f1f6ff] p-4 text-[12px]">
             <div>
               <dt className="text-[10px] uppercase tracking-wide text-muted">
                 Premio

@@ -73,8 +73,8 @@ export default async function AnalysisPage() {
   return (
     <PageShell>
       <PageHeader
-        title="Analisi e costi"
-        description="I dati verificati delle tue polizze, in un unico posto. Analisi avanzate in preparazione."
+        title="Analisi dei costi"
+        description="Quanto spendi per le tue assicurazioni, con importi confermati."
         action={
           <PrimaryButton href="/documents" icon={<IconPlus className="h-4 w-4" />}>
             Carica PDF
@@ -83,15 +83,15 @@ export default async function AnalysisPage() {
       />
 
       <section aria-label="Riepilogo premi confermati" className="grid gap-3 sm:grid-cols-2">
-        <div className="rounded-[22px] border border-[#e5eaf3] bg-white p-5 shadow-sm"><Wallet className="h-5 w-5 text-[#3157eb]"/><p className="mt-3 text-[12px] text-muted">Premi annuali confermati</p><p className="mt-1 text-[25px] font-extrabold text-foreground">{priced.length ? formatMoney(annualTotal) : "—"}</p><p className="mt-2 text-[11px] text-muted">{priced.length} polizze CHF con premio confermato</p></div>
+        <div className="rounded-[24px] border border-[#e5eaf3] bg-white p-6 shadow-[0_8px_28px_rgba(18,26,41,.04)]"><Wallet className="h-5 w-5 text-[#3157eb]"/><p className="mt-3 text-[12px] text-muted">Premi annuali confermati</p><p className="mt-1 text-[25px] font-extrabold text-foreground">{priced.length ? formatMoney(annualTotal) : "—"}</p><p className="mt-2 text-[11px] text-muted">{priced.length} polizze CHF con premio confermato</p></div>
         <div className="rounded-[22px] border border-[#e5eaf3] bg-white p-5 shadow-sm"><Wallet className="h-5 w-5 text-[#3157eb]"/><p className="mt-3 text-[12px] text-muted">Equivalente mensile</p><p className="mt-1 text-[25px] font-extrabold text-foreground">{priced.length ? formatMoney(annualTotal / 12) : "—"}</p><p className="mt-2 text-[11px] text-muted">Calcolo indicativo: premio annualizzato / 12</p></div>
       </section>
       <p className="text-[12px] text-muted">Sono esclusi i premi non confermati, mancanti o in valuta diversa da CHF. I valori non costituiscono una previsione dei pagamenti.</p>
       {Object.keys(categoryTotals).length > 0 ? <SectionCard title="Costi per categoria" padding="sm"><div className="space-y-3">{Object.entries(categoryTotals).sort((a,b)=>b[1]-a[1]).map(([category,amount])=><div key={category}><div className="flex items-center justify-between gap-3 text-[12px]"><span className="font-semibold capitalize text-foreground">{category}</span><span className="font-bold text-foreground">{formatMoney(amount)} / anno</span></div><div className="mt-1.5 h-2 overflow-hidden rounded-full bg-[#eef2ff]"><div className="h-full rounded-full bg-[#3157eb]" style={{width: `${annualTotal > 0 ? amount / annualTotal * 100 : 0}%`}} /></div></div>)}</div></SectionCard> : null}
-      <SectionCard title="Scadenze delle polizze confermate" padding="sm">
+      <SectionCard title="Prossime scadenze · rinnovi confermati" padding="sm">
         {renewalItems.length ? <div className="space-y-2">{renewalItems.map(policy=><Link key={policy.id} href={`/policies/${policy.id}`} className="flex items-center gap-3 rounded-[16px] border border-border bg-white p-3"><CalendarDays className="h-5 w-5 shrink-0 text-[#3157eb]"/><span className="min-w-0 flex-1"><span className="block truncate text-[13px] font-bold">{policy.provider}</span><span className="text-[11px] text-muted">Data di rinnovo registrata · non equivale al termine di disdetta</span></span><time dateTime={policy.renewalDate ?? undefined} className="shrink-0 text-[12px] font-semibold">{policy.renewalDate}</time></Link>)}</div> : <p className="text-[12px] text-muted">Nessuna data di rinnovo confermata disponibile. Apri una polizza per verificarla.</p>}
       </SectionCard>
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <details className="rounded-[20px] border border-[#e5eaf3] bg-white p-4"><summary className="cursor-pointer text-[13px] font-bold text-[#101e3c]">Approfondimenti e statistiche</summary><div className="mt-4 space-y-4"><div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <MetricCard
           label="Documenti"
           value={String(documentStats.totalDocuments)}
@@ -221,6 +221,7 @@ export default async function AnalysisPage() {
           ))}
         </div>
       </SectionCard>
+      </div></details>
     </PageShell>
   );
 }
