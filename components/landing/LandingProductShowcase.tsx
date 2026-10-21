@@ -14,17 +14,17 @@ const categories: Array<{id:VisualPolicyCategoryId;title:string;caption:string}>
 /** Category illustrations are examples, not INSURA-issued insurance products. */
 export function LandingProductShowcase() {
   return (
-    <LandingSection id="product" tone="base" className="py-16 md:py-24">
+    <LandingSection id="product" tone="base" className="py-12 md:py-16">
       <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
         <LandingSectionHeader
           eyebrow="Tutto, in un unico posto"
           title="Un posto per ogni assicurazione."
           description="Dall'auto alla casa, fino alla salute. INSURA ti aiuta a organizzare i documenti che hai già, senza perderti tra PDF e condizioni."
         />
-        <div className="mt-9 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <div className="mt-7 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {categories.map(category=>(
             <Link key={category.id} href="/register" aria-label={`Inizia a organizzare le polizze: ${category.title}`} className="atlas-v2-feature-tile flex min-w-0 flex-col overflow-hidden p-4 sm:p-5">
-              <div className="flex min-h-[122px] items-center justify-center rounded-[18px] bg-[var(--card-muted)]">
+              <div className="flex min-h-[105px] items-center justify-center rounded-[18px] bg-[var(--card-muted)]">
                 <div className="scale-[1.13] sm:scale-[1.33]"><AtlasPolicyArtwork category={category.id}/></div>
               </div>
               <h3 className="mt-5 text-[17px] font-bold tracking-[-.04em] text-foreground sm:text-[19px]">{category.title}</h3>
