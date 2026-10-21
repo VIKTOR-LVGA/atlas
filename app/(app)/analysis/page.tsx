@@ -119,7 +119,7 @@ export default async function AnalysisPage() {
               description={
                 policies.length > 0
                   ? "Hai gia polizze estratte. Score, duplicati e gap compariranno qui quando il motore di analisi sara attivo."
-                  : "Dopo l'estrazione AI da un PDF, Atlas potra confrontare coperture e segnalare criticita."
+                  : "Dopo l'estrazione AI da un PDF, Insura potra confrontare coperture e segnalare criticita."
               }
               statusLabel={policies.length > 0 ? "Polizze disponibili" : "Serve PDF"}
               actionLabel="Vai alle polizze"
