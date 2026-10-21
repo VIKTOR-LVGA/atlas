@@ -35,7 +35,7 @@ export function LandingMarketComparison() {
             <LandingSectionHeader
               eyebrow="Analisi e mercato"
               title="Individua sprechi, duplicati e aree da verificare"
-              description="Atlas organizza premi e coperture dai tuoi PDF e prepara il portfolio per futuri confronti. I benchmark di mercato sono in preparazione."
+              description="Insura organizza premi e coperture dai tuoi PDF e prepara il portfolio per futuri confronti. I benchmark di mercato sono in preparazione."
             />
             <ul className="mt-8 space-y-3.5 text-sm text-muted">
               {[
