@@ -1,11 +1,12 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import { CheckCircle2, CloudUpload, LoaderCircle } from "lucide-react";
+import { CheckCircle2, CloudUpload, LoaderCircle, ArrowRight, FileCheck2 } from "lucide-react";
 import {
   uploadDocumentAction,
   type UploadDocumentActionState,
 } from "@/app/(app)/documents/actions";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 const initialState: UploadDocumentActionState = {
@@ -119,6 +120,13 @@ export function DocumentUploadForm() {
         >
           {state.message}
         </p>
+      )}
+      {state.status === "success" && state.documentId && (
+        <div role="status" className="rounded-2xl border border-[#b9d5f5] bg-[#f1f6ff] p-4">
+          <p className="flex items-center gap-2 text-[13px] font-bold text-[#174ac5]"><FileCheck2 className="h-4 w-4" /> Passaggio 1 completato</p>
+          <p className="mt-2 text-[12px] text-[#53647e]">Il PDF è salvato. Prosegui per avviare l’analisi, poi controlla i dati prima di confermare.</p>
+          <Link href={`/documents/${state.documentId}`} className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#3157eb] px-4 py-3 text-[13px] font-bold text-white">Continua con l’analisi <ArrowRight className="h-4 w-4" /></Link>
+        </div>
       )}
       {state.status === "success" && (
         <div

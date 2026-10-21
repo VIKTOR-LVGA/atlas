@@ -66,7 +66,7 @@ export default async function DocumentsPage() {
         <div className="order-2 lg:order-2 lg:col-span-2">
           <SectionCard
             title="Documenti caricati"
-            description="Clicca una riga per aprire dettagli, analisi e download."
+            description="Se hai già caricato un PDF, aprilo per continuare l’analisi e la verifica."
             padding="none"
           >
             <DocumentList documents={documents} />

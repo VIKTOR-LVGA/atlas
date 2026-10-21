@@ -13,7 +13,8 @@ export const metadata = { title: "Polizze" };
 export default async function PoliciesPage() {
   const policies = await getCurrentUserPolicies();
   const pendingReview = policies.filter((policy) => policy.requiresReview);
-  const verifiedCount=policies.length-pendingReview.length;
+  const verifiedCount = policies.filter((policy) => !policy.requiresReview && policy.source === "ai_draft").length;
+  const manualCount = policies.filter((policy) => policy.source === "manual").length;
 
   return (
     <PageShell>
@@ -27,7 +28,7 @@ export default async function PoliciesPage() {
         }
       />
 
-      <div className="grid grid-cols-3 gap-2"><div className="rounded-2xl border border-[#e5eaf3] bg-white p-4"><p className="text-[11px] text-[#687a99]">Totale</p><p className="mt-1 text-2xl font-extrabold text-[#101e3c]">{policies.length}</p></div><div className="rounded-2xl border border-[#e5eaf3] bg-white p-4"><p className="text-[11px] text-[#687a99]">Verificate</p><p className="mt-1 text-2xl font-extrabold text-[#101e3c]">{verifiedCount}</p></div><div className="rounded-2xl border border-[#e5eaf3] bg-white p-4"><p className="text-[11px] text-[#687a99]">Da rivedere</p><p className="mt-1 text-2xl font-extrabold text-[#101e3c]">{pendingReview.length}</p></div></div><div className="flex justify-end"><a href="/market" className="text-[12px] font-bold text-[#3157eb]">Confronta il mercato →</a></div>
+      <div className="grid grid-cols-3 gap-2"><div className="rounded-2xl border border-[#e5eaf3] bg-white p-4"><p className="text-[11px] text-[#687a99]">Totale</p><p className="mt-1 text-2xl font-extrabold text-[#101e3c]">{policies.length}</p></div><div className="rounded-2xl border border-[#e5eaf3] bg-white p-4"><p className="text-[11px] text-[#687a99]">Confermate da PDF</p><p className="mt-1 text-2xl font-extrabold text-[#101e3c]">{verifiedCount}</p></div><div className="rounded-2xl border border-[#e5eaf3] bg-white p-4"><p className="text-[11px] text-[#687a99]">Da rivedere</p><p className="mt-1 text-2xl font-extrabold text-[#101e3c]">{pendingReview.length}</p></div></div><p className="text-[12px] text-[#687a99]">{manualCount} polizze inserite manualmente: i dati non sono verificati automaticamente da INSURA.</p><div className="flex justify-end"><a href="/market" className="text-[12px] font-bold text-[#3157eb]">Confronta il mercato →</a></div>
       {pendingReview.length > 0 ? (
         <ReviewBanner
           title={`${pendingReview.length} bozza${pendingReview.length === 1 ? "" : "e"} da confermare`}

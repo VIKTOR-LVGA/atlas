@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FileText, ChevronRight } from "lucide-react";
+import { FileText, ChevronRight, CalendarClock, ShieldCheck } from "lucide-react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { ConfidenceBadge } from "@/components/ui/ConfidenceBadge";
 import { TypedPolicyIcon, typedPolicyIconStyles } from "@/lib/policy-display";
@@ -30,7 +30,8 @@ export function PolicyListCard({ policy }: { policy: UserPolicy }) {
   const coverageCount = policy.details.coverages?.length ?? 0;
 
   return (
-    <article className="group rounded-[22px] border border-[#e5eaf3] bg-white p-5 shadow-[0_8px_25px_rgba(18,26,41,0.045)] transition hover:border-[#b8c8f7] hover:shadow-[0_10px_30px_rgba(18,26,41,0.075)]">
+    <article className="group relative overflow-hidden rounded-[26px] border border-[#e5eaf3] bg-white p-5 shadow-[0_12px_34px_rgba(18,26,41,0.055)] transition hover:border-[#b8c8f7] hover:shadow-[0_15px_38px_rgba(18,26,41,0.09)]">
+      <div aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#3157eb] via-[#72a5ff] to-[#c7d8ff]" />
       <div className="flex items-start gap-3">
         <span
           className={cn(
@@ -60,7 +61,8 @@ export function PolicyListCard({ policy }: { policy: UserPolicy }) {
             </div>
           </div>
 
-          <dl className="mt-4 grid grid-cols-2 gap-3 rounded-[16px] bg-[#f1f6ff] p-4 text-[12px]">
+          <div className="mt-4 flex flex-wrap items-center gap-2 text-[11px] text-[#64748b]"><ShieldCheck className="h-3.5 w-3.5" /><span>{policy.requiresReview ? "Dati da verificare sul PDF" : policy.source === "manual" ? "Inserita manualmente" : "Dati confermati dall’utente"}</span></div>
+          <dl className="mt-3 grid grid-cols-2 gap-3 rounded-[16px] bg-[#f1f6ff] p-4 text-[12px]">
             <div>
               <dt className="text-[10px] uppercase tracking-wide text-muted">
                 Premio
@@ -73,7 +75,7 @@ export function PolicyListCard({ policy }: { policy: UserPolicy }) {
             </div>
             <div>
               <dt className="text-[10px] uppercase tracking-wide text-muted">
-                Rinnovo
+                <span className="inline-flex items-center gap-1"><CalendarClock className="h-3 w-3" /> Rinnovo</span>
               </dt>
               <dd className="mt-0.5 font-medium text-foreground">
                 {policy.renewalDate ? formatDate(policy.renewalDate) : "—"}
@@ -109,7 +111,7 @@ export function PolicyListCard({ policy }: { policy: UserPolicy }) {
               href={`/policies/${policy.id}`}
               className="inline-flex items-center gap-0.5 text-[12px] font-medium text-muted-foreground hover:text-accent"
             >
-              Dettaglio
+              Apri scheda
               <ChevronRight className="h-3.5 w-3.5" />
             </Link>
           </div>

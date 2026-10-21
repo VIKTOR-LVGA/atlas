@@ -11,6 +11,7 @@ const productRoutes = [
   "/documents",
   "/consulting",
   "/settings",
+  "/ask",
 ];
 
 function isRoute(pathname: string, route: string) {
@@ -83,6 +84,7 @@ export const config = {
     "/documents/:path*",
     "/consulting/:path*",
     "/settings/:path*",
+    "/ask/:path*",
     "/login",
     "/register",
   ],
