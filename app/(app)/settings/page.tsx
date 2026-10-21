@@ -66,7 +66,7 @@ export default function SettingsPage() {
               Stato sicurezza non ancora esposto
             </p>
             <p className="mt-1 max-w-xl text-[12px] leading-relaxed text-muted">
-              Atlas non mostra 2FA, sessioni o cronologia password finche quei dati non sono
+              Insura non mostra 2FA, sessioni o cronologia password finche quei dati non sono
               collegati all&apos;account reale.
             </p>
           </div>
