@@ -65,7 +65,7 @@ export default async function ConsultingPage() {
             <PlaceholderModule
               icon={<IconChat className="h-6 w-6" />}
               title="Consulenza in preparazione"
-              description="Potrai prenotare un confronto con un consulente che avra accesso alle tue polizze verificate su Atlas."
+              description="Potrai prenotare un confronto con un consulente che avra accesso alle tue polizze verificate su Insura."
               statusLabel="Prossimamente"
               actionLabel="Prepara archivio"
               actionHref="/documents"
