@@ -21,7 +21,7 @@ const faqs = [
 
 export function LandingFaq() {
   return (
-    <LandingSection id="faq" tone="deep" className="py-20 md:py-24">
+    <LandingSection id="faq" tone="deep" className="py-12 md:py-16">
       <div className="mx-auto max-w-2xl px-6">
         <LandingSectionHeader
           eyebrow="FAQ"
@@ -29,11 +29,11 @@ export function LandingFaq() {
           align="center"
         />
 
-        <div className="mt-12 space-y-2">
+        <div className="mt-7 space-y-2">
           {faqs.map((faq) => (
             <details
               key={faq.q}
-              className="group landing-glass rounded-xl px-5 py-4 transition open:border-indigo-500/20 open:bg-indigo-500/[0.06]"
+              name="insura-faq" className="group landing-glass rounded-xl px-4 py-3.5 transition open:border-indigo-500/20 open:bg-indigo-500/[0.06]"
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-[var(--landing-text)] marker:content-none [&::-webkit-details-marker]:hidden">
                 {faq.q}
