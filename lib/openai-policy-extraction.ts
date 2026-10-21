@@ -940,7 +940,7 @@ async function callOpenAIForPolicyExtraction(
           [
             "Extract Swiss insurance policy data from readable PDF text. Return JSON only using the schema.",
             "You are Swiss-insurance-aware: recognize LAMal/KVG base insurance, LCA/VVG complementary insurance, hospital coverage, dental, accident, household, private liability, car, casco partial/full, legal protection, travel, life, income protection, business insurance, and other.",
-            "Use policy_type only as the broad Atlas category: health, liability, household, car, legal, other. Use policy_subtype for the specific Swiss category.",
+            "Use policy_type only as the broad Insura category: health, liability, household, car, legal, other. Use policy_subtype for the specific Swiss category.",
             "Normalize provider names when obvious, but keep uncertain fields null. Do not invent policy numbers, dates, premiums, franchises, persons, or coverages.",
             "Swiss insurance PDFs often repeat blocks per insured person. Treat headings with person name, birth date, insured number (n. d'assicurato / Versichertennummer), customer number, contract or policy number as section anchors. Preserve PDF source order using source_order (increasing integers in reading order) and source_page when visible.",
             "For each insured person create details.insured_people[] with section_id, source_order, coverages[] nested under that person, per-person totals (total_monthly_premium, base_premium, complementary_premium), franchise, model. Also mirror lines in details.coverages[] with ownership fields when clear.",
