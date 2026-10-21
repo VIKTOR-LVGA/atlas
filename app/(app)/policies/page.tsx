@@ -2,12 +2,10 @@ import { Plus } from "lucide-react";
 import { PolicyListCard } from "@/components/policies/PolicyListCard";
 import { IconPolicies } from "@/components/icons";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { MetricCard } from "@/components/ui/MetricCard";
 import { PageHeader, PrimaryButton } from "@/components/ui/PageHeader";
 import { PageShell } from "@/components/ui/PageShell";
 import { ReviewBanner } from "@/components/ui/ReviewBanner";
 import { SectionCard } from "@/components/ui/SectionCard";
-import { StatusBadge } from "@/components/ui/StatusBadge";
 import { getCurrentUserPolicies } from "@/lib/policies";
 
 export const metadata = { title: "Polizze" };
@@ -15,8 +13,6 @@ export const metadata = { title: "Polizze" };
 export default async function PoliciesPage() {
   const policies = await getCurrentUserPolicies();
   const pendingReview = policies.filter((policy) => policy.requiresReview);
-  const aiDrafts = policies.filter((policy) => policy.source === "ai_draft");
-  const confirmedAiDrafts = aiDrafts.filter((policy) => !policy.requiresReview);
 
   return (
     <PageShell>
@@ -30,45 +26,7 @@ export default async function PoliciesPage() {
         }
       />
 
-      <details className="rounded-[20px] border border-[#e5eaf3] bg-white p-4"><summary className="cursor-pointer text-[13px] font-bold text-[#101e3c]">Statistiche archivio</summary><div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <MetricCard
-          label="Totale polizze"
-          value={String(policies.length)}
-          subtext="Nel tuo archivio"
-          variant="blue"
-          icon={<IconPolicies className="h-[18px] w-[18px]" />}
-        />
-        <MetricCard
-          label="Da rivedere"
-          value={String(pendingReview.length)}
-          subtext="Bozze AI"
-          variant="yellow"
-          icon={<IconPolicies className="h-[18px] w-[18px]" />}
-          badge={
-            pendingReview.length > 0 ? (
-              <StatusBadge variant="attention" label="Azione" />
-            ) : undefined
-          }
-        />
-        <MetricCard
-          label="Bozze AI"
-          value={String(aiDrafts.length)}
-          subtext={
-            confirmedAiDrafts.length > 0
-              ? `${confirmedAiDrafts.length} confermate`
-              : "Estratte da PDF"
-          }
-          variant="indigo"
-          icon={<IconPolicies className="h-[18px] w-[18px]" />}
-        />
-        <MetricCard
-          label="Manuali"
-          value={String(policies.length - aiDrafts.length)}
-          subtext="Create a mano"
-          variant="green"
-          icon={<IconPolicies className="h-[18px] w-[18px]" />}
-        />
-      </div></details>
+      <div className="flex items-center justify-between gap-3 rounded-[16px] border border-[#e5eaf3] bg-white px-4 py-3"><p className="text-[13px] text-[#53647e]">{policies.length} polizze in archivio{pendingReview.length ? ` · ${pendingReview.length} da verificare` : ""}</p><a href="/market" className="text-[12px] font-bold text-[#3157eb]">Confronta →</a></div>
       {pendingReview.length > 0 ? (
         <ReviewBanner
           title={`${pendingReview.length} bozza${pendingReview.length === 1 ? "" : "e"} da confermare`}
