@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthLayout } from "@/components/auth/AuthLayout";
+import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 import { AuthFormField } from "@/components/auth/AuthFormField";
 import { AuthMessage } from "@/components/auth/AuthMessage";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
@@ -91,6 +92,8 @@ export default function RegisterPage() {
       title="Crea account"
       subtitle="Inizia ad analizzare le tue assicurazioni con Insura."
     >
+      <GoogleAuthButton mode="register" />
+      <div className="my-5 flex items-center gap-3" aria-hidden="true"><span className="h-px flex-1 bg-border"/><span className="text-[11px] font-medium text-muted">oppure con email</span><span className="h-px flex-1 bg-border"/></div>
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         <AuthMessage variant="error" message={error} />
         <AuthMessage variant="success" message={success} />

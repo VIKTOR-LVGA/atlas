@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthLayout } from "@/components/auth/AuthLayout";
+import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 import { AuthFormField } from "@/components/auth/AuthFormField";
 import { AuthMessage } from "@/components/auth/AuthMessage";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
@@ -12,6 +13,7 @@ import { cn } from "@/lib/utils";
 
 export default function LoginPage() {
   const router = useRouter();
+  useEffect(() => { if (new URLSearchParams(window.location.search).has("oauth_error")) setError("Accesso con Google non completato. Riprova o usa email e password."); }, []);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<{
@@ -67,6 +69,8 @@ export default function LoginPage() {
       title="Accedi"
       subtitle="Bentornato su Insura. Inserisci le tue credenziali."
     >
+      <GoogleAuthButton mode="login" />
+      <div className="my-5 flex items-center gap-3" aria-hidden="true"><span className="h-px flex-1 bg-border"/><span className="text-[11px] font-medium text-muted">oppure con email</span><span className="h-px flex-1 bg-border"/></div>
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         <AuthMessage variant="error" message={error} />
 
