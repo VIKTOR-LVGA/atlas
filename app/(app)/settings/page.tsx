@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { requestAccountDeletionAction } from "./deletion-actions";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -28,6 +28,11 @@ const tabs = [
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("profilo");
   const profile = useCurrentProfile();
+  const [deletionFeedback, setDeletionFeedback] = useState<"requested" | "error" | null>(null);
+  useEffect(() => {
+    const value = new URLSearchParams(window.location.search).get("deletion");
+    if (value === "requested" || value === "error") setDeletionFeedback(value);
+  }, []);
 
   return (
     <PageShell>
@@ -136,6 +141,7 @@ export default function SettingsPage() {
         <div className="flex flex-wrap gap-3"><Link href="/reminders" className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-accent">Vedi scadenze</Link><Link href="/activity" className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-accent">Errori e attività</Link></div>
       </SectionCard>
 
+      {deletionFeedback && <p role="status" className="rounded-xl border border-border bg-card p-4 text-sm">{deletionFeedback === "requested" ? "Richiesta di cancellazione registrata. L’account rimane attivo fino al completamento della procedura." : "Non è stato possibile registrare la richiesta. Riprova."}</p>}
       <SectionCard title="Dati e account">
         <div className="space-y-3">
           <div className="flex flex-col gap-3 rounded-xl border border-border p-4 sm:flex-row sm:items-center sm:justify-between">
