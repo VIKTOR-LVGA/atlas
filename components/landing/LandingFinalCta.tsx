@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AtlasBrandMark } from "@/components/brand/AtlasBrandMark";
 import { ArrowRight, CheckCircle2, FileText, Sparkles } from "lucide-react";
 import { LandingSection } from "@/components/landing/LandingSection";
 
@@ -22,7 +23,7 @@ export function LandingFinalCta() {
               </div>
               <p className="mt-5 text-[11px] text-[#8391a9]">Progetto pilota gratuito · Nessuna carta di credito</p>
             </div>
-            <div className="atlas-v2-cta-art relative mx-auto w-full max-w-[330px]" aria-hidden="true">
+            <div className="atlas-v2-cta-art relative mx-auto w-full max-w-[330px]" aria-hidden="true"><AtlasBrandMark className="relative z-20 mx-auto h-44 w-44 drop-shadow-xl" />
               <div className="absolute -right-1 top-0 rotate-12 rounded-[22px] border border-[#dce5fb] bg-white/85 p-5 shadow-[0_15px_40px_rgba(46,74,130,.10)]">
                 <span className="flex items-center gap-2 text-[11px] font-bold text-[#24355e]"><FileText className="h-4 w-4 text-[#4d64ee]"/> Documento PDF</span>
                 <div className="mt-4 h-2 w-32 rounded-full bg-[#e9eef9]"/><div className="mt-2 h-2 w-24 rounded-full bg-[#e9eef9]"/>
