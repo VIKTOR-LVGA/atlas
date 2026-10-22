@@ -32,7 +32,7 @@ export default async function DocumentsPage() {
         description="Carica un PDF, lascia che INSURA estragga i dati e confermali prima di salvarli."
       />
 
-      <div className="flex items-center gap-3"><AtlasBrandMark pose="document" className="h-12 w-12 shrink-0" /><p className="text-[12px] leading-5 text-muted">Carica il PDF, poi aprilo per analizzare e confermare i dati.</p></div>
+      
       <div className="grid gap-5 lg:grid-cols-3">
         <div className="order-2 lg:order-2 lg:col-span-2">
           <SectionCard
@@ -44,8 +44,8 @@ export default async function DocumentsPage() {
           </SectionCard>
         </div>
 
-        <div className="order-1 space-y-4 lg:order-1">
-          <SectionCard title="Carica il tuo PDF" padding="md">
+        <div id="upload-policy" className="order-1 scroll-mt-24 space-y-4 lg:order-1">
+          <div className="mb-2 flex items-center gap-3 rounded-[20px] bg-[#eef5ff] p-3"><AtlasBrandMark pose="document" className="h-16 w-16 shrink-0" /><p className="text-[12px] leading-relaxed text-[#405b85]">Aggiungi la tua polizza. Ti aiuterò a leggere le informazioni importanti.</p></div><SectionCard title="Carica il tuo PDF" padding="md">
             <DocumentUploadForm />
           </SectionCard>
 
