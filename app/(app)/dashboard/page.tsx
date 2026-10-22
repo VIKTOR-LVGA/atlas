@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AtlasBrandMark } from "@/components/brand/AtlasBrandMark";
 import { CalendarDays, Wallet } from "lucide-react";
 import { ClipboardCheck, Sparkles } from "lucide-react";
 import { PrimaryButton } from "@/components/ui/PageHeader";
@@ -88,7 +89,7 @@ export default async function DashboardPage() {
 
   return (
     <PageShell>
-      <header className="space-y-1 pb-2"><p className="text-[12px] font-bold uppercase tracking-[.12em] text-[#7c8ba5]">Il tuo spazio assicurativo</p><h1 className="text-[32px] font-extrabold tracking-tight text-[#101e3c]">Ciao {getProfileShortName(profile)} 👋</h1><p className="text-[13px] text-[#74829c]">Le tue assicurazioni, più semplici.</p></header>
+      <header className="flex items-center justify-between gap-3 pb-2"><div className="space-y-1"><p className="text-[12px] font-bold uppercase tracking-[.12em] text-[#7c8ba5]">Il tuo spazio assicurativo</p><h1 className="text-[32px] font-extrabold tracking-tight text-[#101e3c]">Ciao {getProfileShortName(profile)} 👋</h1><p className="text-[13px] text-[#74829c]">Le tue assicurazioni, più semplici.</p></div><AtlasBrandMark className="h-16 w-16 shrink-0 sm:h-20 sm:w-20" /></header>
 
       {nextAction ? (
         <div className="flex flex-col gap-3 rounded-[22px] border border-[#dce6ff] bg-[#eef2ff] p-5 sm:flex-row sm:items-center sm:justify-between">
