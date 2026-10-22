@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, FileText, LockKeyhole, Sparkles } from "lucide-react";
 import { AtlasBrandLogo } from "@/components/brand/AtlasBrandLogo";
+import { AtlasBrandMark } from "@/components/brand/AtlasBrandMark";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 interface AuthShellProps {children: React.ReactNode; title: string; subtitle: string;}
 export function AuthShell({children,title,subtitle}:AuthShellProps){
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-[#f6f9ff] text-[#101a33]">
       <header className="border-b border-border bg-card/90 backdrop-blur-md">
         <div className="mx-auto flex h-[72px] max-w-6xl items-center justify-between px-5 sm:px-8">
           <Link href="/" aria-label="Torna alla home INSURA"><AtlasBrandLogo variant="stacked" compact/></Link>
@@ -37,7 +38,7 @@ export function AuthShell({children,title,subtitle}:AuthShellProps){
             ))}
           </div>
         </section>
-        <section className="w-full max-w-[480px] justify-self-center rounded-[30px] border border-border bg-card p-6 shadow-[var(--shadow-card)] sm:p-9 lg:p-10">
+        <section className="w-full max-w-[480px] justify-self-center rounded-[26px] border border-[#e3eaf6] bg-white p-6 text-[#101a33] shadow-[0_16px_60px_rgba(23,58,121,.09)] sm:p-9 lg:p-10"><AtlasBrandMark pose="wave" className="mx-auto mb-2 h-24 w-24 lg:hidden"/>
           <div className="mb-7">
             <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1.5 text-[11px] font-bold text-accent"><CheckCircle2 className="h-3.5 w-3.5"/> Il tuo spazio INSURA</span>
             <h1 className="text-[27px] font-bold tracking-[-.04em] sm:text-[32px]">{title}</h1>
