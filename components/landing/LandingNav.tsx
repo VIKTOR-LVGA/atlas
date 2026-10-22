@@ -12,8 +12,8 @@ const links = [
 export function LandingNav() {
   return (
     <header className="landing-nav sticky top-0 z-50 border-b backdrop-blur-xl backdrop-saturate-150">
-      <div className="mx-auto flex h-[76px] max-w-[1430px] items-center justify-between gap-3 px-5 sm:px-8 lg:h-[82px] lg:px-11">
-        <Link href="/" className="flex min-w-0 items-center">
+      <div className="mx-auto flex h-[62px] sm:h-[76px] max-w-[1430px] items-center justify-between gap-3 px-5 sm:px-8 lg:h-[82px] lg:px-11">
+        <Link href="/" className="flex min-w-0 max-w-[38%] items-center sm:max-w-none">
           <AtlasBrandLogo variant="landing" />
         </Link>
 
@@ -29,7 +29,7 @@ export function LandingNav() {
           ))}
         </nav>
 
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-3">
           <Link
             href="/login"
             className="hidden rounded-full px-3 py-2 text-sm font-medium text-[var(--landing-muted)] transition hover:text-[var(--landing-text)] min-[360px]:inline-flex sm:px-4"
