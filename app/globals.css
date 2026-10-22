@@ -1706,3 +1706,13 @@ body { -webkit-font-smoothing: antialiased; }
 .insura-showcase-art .atlas-ref-ribbon{opacity:.4}
 @media(max-width:1023px){.insura-showcase-art{height:430px}.insura-showcase-art .atlas-ref-visual{height:460px;width:420px;max-width:none;flex-shrink:0;transform:scale(.85);transform-origin:center center}}
 @media(max-width:639px){.insura-showcase-hero{border-radius:0 0 24px 24px}.insura-showcase-landscape{background-position:64% center;opacity:.65}.insura-showcase-art{height:285px;overflow:hidden}.insura-showcase-art .atlas-ref-visual{position:relative;left:auto;top:auto;width:390px;max-width:none;height:460px;transform:scale(.61);transform-origin:center center}.insura-showcase-art .atlas-ref-phone{left:32%}.insura-showcase-art .atlas-ref-glass-shield{right:0}}
+
+/* Mockup-matched hero composition: phone + character, without unrelated floating badges. */
+.insura-showcase-art .atlas-ref-visual{overflow:visible}
+.insura-showcase-art .atlas-ref-phone{left:34%;top:4%;transform:rotate(7deg);box-shadow:0 28px 60px rgba(4,15,35,.3)}
+.insura-showcase-art .atlas-ref-art-note{display:none}
+.insura-handwritten-note{position:absolute;z-index:22;left:3%;top:3%;font-family:cursive;font-size:18px;line-height:1.18;font-weight:700;letter-spacing:-.02em;color:#152a55;transform:rotate(-10deg);text-align:center}
+.insura-handwritten-note span{display:inline-block;font-size:32px;color:#1674f9;transform:rotate(-15deg)}
+.insura-showcase-art .atlas-ref-visual>div[aria-hidden="true"]:has(>.atlas-ref-phone-inner){isolation:isolate}
+@media(max-width:1023px){.insura-handwritten-note{left:0;top:0;font-size:15px}.insura-showcase-art .atlas-ref-phone{left:31%;top:5%}}
+@media(max-width:639px){.insura-showcase-art .atlas-ref-visual{overflow:visible}.insura-showcase-art .atlas-ref-phone{left:33%;top:3%}.insura-handwritten-note{left:0;top:1%;font-size:15px}}
