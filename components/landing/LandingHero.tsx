@@ -11,8 +11,8 @@ export function LandingHero() {
           <span className="inline-flex items-center rounded-full bg-[#e8eeff] px-3 py-1.5 text-[11px] sm:px-4 sm:py-2 sm:text-[12px] font-semibold text-[#3658ec]">
             La tua vita, più protetta
           </span>
-          <h1 className="mt-3 text-[clamp(2rem,8vw,2.55rem)] sm:mt-7 sm:text-[clamp(2.95rem,5.2vw,5.25rem)] font-extrabold leading-[1.035] tracking-[-.067em] text-[#101a36]">
-            Le tue assicurazioni,<br />
+          <h1 className="mt-3 min-w-0 break-words text-[clamp(1.95rem,7.4vw,2.55rem)] sm:mt-7 sm:text-[clamp(2.95rem,5.2vw,5.25rem)] font-extrabold leading-[1.035] tracking-[-.067em] text-[#101a36]">
+            Le tue assicurazioni,<br className="hidden sm:block" />
             <span className="atlas-ref-gradient-title">finalmente chiare.</span>
           </h1>
           <p className="mt-3 max-w-[580px] text-[13px] leading-[1.45] sm:mt-7 sm:text-[15px] sm:leading-[1.75] text-[#5a6b8b] sm:text-[18px]">
