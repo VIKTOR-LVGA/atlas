@@ -18,7 +18,7 @@ export function LandingProductShowcase() {
       <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
         <LandingSectionHeader
           eyebrow="Tutto, in un unico posto"
-          title="Un posto per ogni assicurazione."
+          title="Tutte le polizze, organizzate."
           description="Dall'auto alla casa, fino alla salute. INSURA ti aiuta a organizzare i documenti che hai già, senza perderti tra PDF e condizioni."
         />
         <div className="mt-7 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
