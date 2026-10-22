@@ -1682,3 +1682,13 @@ body { -webkit-font-smoothing: antialiased; }
   .atlas-ref-policy-row{gap:.55rem;}
   .atlas-ref-policy-row > :last-child{display:none;}
 }
+
+/* Compact mobile landing: the product preview belongs in the first viewport. */
+@media (max-width: 639px) {
+ .atlas-ref-hero-art-wrap {position:relative;height:310px;overflow:visible;width:100%;}
+ .atlas-ref-hero-art-wrap .atlas-ref-visual {position:absolute;top:0;left:50%;width:390px;max-width:none;transform:translateX(-50%) scale(.68);transform-origin:top center;height:460px;}
+}
+@media (max-width: 390px) {
+ .atlas-ref-hero-art-wrap {height:280px;}
+ .atlas-ref-hero-art-wrap .atlas-ref-visual {transform:translateX(-50%) scale(.64);height:430px;}
+}
