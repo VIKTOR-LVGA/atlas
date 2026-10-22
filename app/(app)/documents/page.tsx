@@ -32,7 +32,7 @@ export default async function DocumentsPage() {
         description="Carica un PDF, lascia che INSURA estragga i dati e confermali prima di salvarli."
       />
 
-      <div className="flex items-center gap-3"><AtlasBrandMark className="h-12 w-12 shrink-0" /><p className="text-[12px] leading-5 text-muted">Carica il PDF, poi aprilo per analizzare e confermare i dati.</p></div>
+      <div className="flex items-center gap-3"><AtlasBrandMark pose="document" className="h-12 w-12 shrink-0" /><p className="text-[12px] leading-5 text-muted">Carica il PDF, poi aprilo per analizzare e confermare i dati.</p></div>
       <div className="grid gap-5 lg:grid-cols-3">
         <div className="order-2 lg:order-2 lg:col-span-2">
           <SectionCard
