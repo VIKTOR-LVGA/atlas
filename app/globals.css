@@ -1759,3 +1759,16 @@ body { -webkit-font-smoothing: antialiased; }
 .insura-showcase-art{height:425px}
 .insura-showcase-art .atlas-ref-visual{transform:scale(.65)!important}
 }
+
+/* INSURA hero mobile layout: no scaled, clipped pseudo-desktop viewport. */
+@media(max-width:639px){
+.insura-showcase-hero .insura-showcase-art{height:435px!important;overflow:hidden!important;display:block!important;position:relative!important}
+.insura-showcase-art .atlas-ref-visual{position:absolute!important;left:50%!important;top:0!important;width:400px!important;min-width:400px!important;height:600px!important;max-width:none!important;margin:0!important;transform:translateX(-50%) scale(.7)!important;transform-origin:top center!important}
+.insura-showcase-art .atlas-ref-phone{top:47px!important;left:35%!important;height:535px!important;width:275px!important}
+.insura-showcase-art .atlas-ref-visual>div:first-child{left:1%!important;top:32%!important}
+.insura-showcase-art .atlas-ref-visual>div:first-child svg{width:215px!important;height:220px!important}
+.insura-showcase-hero h1{overflow-wrap:normal!important;word-break:normal!important;font-size:clamp(2rem,7.8vw,2.85rem)!important}
+.insura-showcase-hero .insura-hero-benefits{position:relative;z-index:2}
+.insura-handwritten-note{top:4px!important;left:4%!important;font-size:16px!important}
+}
+@media(max-width:375px){.insura-showcase-hero .insura-showcase-art{height:385px!important}.insura-showcase-art .atlas-ref-visual{transform:translateX(-50%) scale(.62)!important}}
