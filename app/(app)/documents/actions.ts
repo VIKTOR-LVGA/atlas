@@ -4,6 +4,7 @@ import "server-only";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { recordOperationalEvent } from "@/lib/operational-events";
 import {
   analyzeCurrentUserDocument,
   DocumentAnalysisError,
@@ -37,8 +38,10 @@ export async function uploadDocumentAction(
     };
   }
 
+  const startedAt = Date.now();
   try {
     const document = await uploadUserDocument(file);
+    await recordOperationalEvent("upload_ok", Date.now() - startedAt);
     revalidatePath("/documents");
     revalidatePath("/dashboard");
 
@@ -48,6 +51,7 @@ export async function uploadDocumentAction(
       documentId: document.id,
     };
   } catch (error) {
+    await recordOperationalEvent("upload_failed", Date.now() - startedAt);
     return {
       status: "error",
       message:
@@ -108,11 +112,14 @@ export async function analyzeDocumentAction(
   void formData;
 
   let policyId: string;
+  const startedAt = Date.now();
 
   try {
     const policy = await analyzeCurrentUserDocument(id);
     policyId = policy.id;
+    await recordOperationalEvent("analysis_ok", Date.now() - startedAt);
   } catch (error) {
+    await recordOperationalEvent("analysis_failed", Date.now() - startedAt);
     revalidatePath("/documents");
     revalidatePath("/dashboard");
     revalidatePath(`/documents/${id}`);
