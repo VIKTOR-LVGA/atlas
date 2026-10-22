@@ -1,19 +1,41 @@
 import { cn } from "@/lib/utils";
 type Pose = "happy" | "wave" | "document" | "shield";
 export function AtlasBrandMark({className,pose="happy"}:{className?:string;pose?:Pose}){
-return <svg className={cn("shrink-0",className)} viewBox="0 0 200 215" xmlns="http://www.w3.org/2000/svg" role="img" aria-label={pose==="document"?"Mascotte INSURA con documento":pose==="shield"?"Mascotte INSURA con scudo":"Mascotte INSURA"}>
-<defs><linearGradient id="insuraBotShell" x1="0" x2="1" y1="0" y2="1"><stop stopColor="#ffffff"/><stop offset=".6" stopColor="#e7f0ff"/><stop offset="1" stopColor="#a6c5fa"/></linearGradient></defs>
-{pose==="wave"&&<g transform="rotate(-28 160 117)"><path d="M149 117l21-42" stroke="#8daff0" strokeWidth="20" strokeLinecap="round"/><ellipse cx="173" cy="70" rx="15" ry="19" fill="#f2f7ff" stroke="#86a8e6" strokeWidth="5"/></g>}
-<ellipse cx="100" cy="162" rx="57" ry="45" fill="url(#insuraBotShell)" stroke="#b6cafa" strokeWidth="5"/>
-<ellipse cx="100" cy="85" rx="78" ry="75" fill="url(#insuraBotShell)" stroke="#a5bdec" strokeWidth="6"/>
-<rect x="38" y="43" width="124" height="85" rx="40" fill="#0b1831" stroke="#688cdd" strokeWidth="6"/>
-<path d="M61 87q13-19 26 0M113 87q13-19 26 0" fill="none" stroke="#208bff" strokeWidth="9" strokeLinecap="round"/>
-<rect x="73" y="14" width="11" height="20" rx="5" fill="#1676ff"/><rect x="98" y="14" width="11" height="20" rx="5" fill="#1676ff"/>
-<ellipse cx="25" cy="98" rx="14" ry="20" fill="#e8f1ff" stroke="#8aa9e4" strokeWidth="5"/><ellipse cx="175" cy="98" rx="14" ry="20" fill="#e8f1ff" stroke="#8aa9e4" strokeWidth="5"/>
-<circle cx="100" cy="153" r="6" fill="#1268ff"/><path d="M86 166q14 16 28 0" fill="none" stroke="#1268ff" strokeWidth="5" strokeLinecap="round"/>
-{pose==="document"&&<g transform="translate(120 119) rotate(12)"><rect width="54" height="70" rx="8" fill="#fff" stroke="#1268ff" strokeWidth="5"/><path d="M12 21h30M12 33h24M12 45h29" stroke="#9ab7f4" strokeWidth="4" strokeLinecap="round"/></g>}
-{pose==="shield"&&<g transform="translate(122 125)"><path d="M25 0 50 11v21q0 23-25 35Q0 55 0 32V11Z" fill="#1268ff" stroke="#d9e7ff" strokeWidth="5"/><path d="m12 31 9 9 18-20" fill="none" stroke="#fff" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/></g>}
-{pose==="happy"&&<g><path d="M159 17l8-14M175 31l15-12" stroke="#1676ff" strokeWidth="6" strokeLinecap="round"/></g>}
-{pose==="wave"&&<path d="M14 153q-8 12 5 20" fill="none" stroke="#8daff0" strokeWidth="12" strokeLinecap="round"/>}
+const wave=pose==="wave",doc=pose==="document",shield=pose==="shield";
+return <svg className={cn("shrink-0",className)} viewBox="0 0 300 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label={doc?"Mascotte INSURA con documento":shield?"Mascotte INSURA con scudo":"Mascotte INSURA tridimensionale"}>
+<defs>
+<radialGradient id="insura3dShell" cx=".26" cy=".14" r=".95"><stop stopColor="#fff"/><stop offset=".43" stopColor="#f7faff"/><stop offset=".78" stopColor="#c4d9fc"/><stop offset="1" stopColor="#719bdf"/></radialGradient>
+<linearGradient id="insura3dFace" x1=".15" x2=".87" y1=".1" y2="1"><stop stopColor="#182b52"/><stop offset=".42" stopColor="#061022"/><stop offset="1" stopColor="#010611"/></linearGradient>
+<linearGradient id="insura3dMetal" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#fff"/><stop offset=".48" stopColor="#dceaff"/><stop offset="1" stopColor="#6797e7"/></linearGradient>
+<filter id="insura3dShadow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="9"/></filter>
+<filter id="insura3dGlow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="4"/></filter>
+</defs>
+<ellipse cx="149" cy="291" rx="94" ry="12" fill="#2b65b9" opacity=".15" filter="url(#insura3dShadow)"/>
+<g>
+<path d="M96 226 80 276q-3 12 11 17h29q11-4 10-17l-2-34" fill="url(#insura3dMetal)" stroke="#9bb9ec" strokeWidth="5"/>
+<path d="m177 241 1 37q1 12 15 15h27q14-6 8-19l-18-47" fill="url(#insura3dMetal)" stroke="#9bb9ec" strokeWidth="5"/>
+<ellipse cx="151" cy="221" rx="79" ry="67" fill="url(#insura3dShell)" stroke="#9eb9e9" strokeWidth="5"/>
+<path d="M97 192q53-22 110 4" fill="none" stroke="#fff" strokeWidth="8" opacity=".78"/>
+<rect x="137" y="202" width="12" height="19" rx="5" fill="#1476ff"/><rect x="153" y="202" width="12" height="19" rx="5" fill="#1476ff"/>
+<path d="M139 233q12 18 26 0" stroke="#0b1b39" strokeWidth="8" fill="none" strokeLinecap="round"/>
+<path d="M76 192q-24-3-34 24" stroke="#0b1a38" strokeWidth="19" strokeLinecap="round"/><ellipse cx="40" cy="220" rx="19" ry="23" fill="url(#insura3dMetal)" stroke="#83a9ea" strokeWidth="5"/>
+{wave?<g><path d="M215 198q32-26 41-61" stroke="#091c41" strokeWidth="20" strokeLinecap="round"/><path d="M256 136q10-12 19-5l5 10q2 10-9 16l-10 6q-18 3-19-13" fill="url(#insura3dMetal)" stroke="#88a9df" strokeWidth="5"/><path d="M263 132l8-18" stroke="#fff" strokeWidth="9" strokeLinecap="round"/></g>:<g><path d="M220 194q23 12 32 36" stroke="#0a1c3d" strokeWidth="20" strokeLinecap="round"/><ellipse cx="252" cy="232" rx="18" ry="22" fill="url(#insura3dMetal)" stroke="#8aace6" strokeWidth="5"/></g>}
+</g>
+<g transform="rotate(-8 151 111)">
+<ellipse cx="150" cy="110" rx="122" ry="99" fill="#96b8ee" opacity=".24" filter="url(#insura3dGlow)"/>
+<rect x="40" y="17" width="221" height="193" rx="91" fill="url(#insura3dShell)" stroke="#aac4ef" strokeWidth="7"/>
+<path d="M65 60q75-63 167-12" stroke="#fff" strokeWidth="12" fill="none" opacity=".9" strokeLinecap="round"/>
+<rect x="58" y="62" width="184" height="119" rx="59" fill="url(#insura3dFace)" stroke="#4d80d4" strokeWidth="8"/>
+<path d="M82 81q44-25 90-15" stroke="#7fb4ff" strokeWidth="6" opacity=".22" fill="none" strokeLinecap="round"/>
+<path d="M88 127q21-31 42 0M167 127q21-31 42 0" fill="none" stroke="#1885ff" strokeWidth="18" strokeLinecap="round" filter="url(#insura3dGlow)" opacity=".7"/>
+<path d="M88 127q21-31 42 0M167 127q21-31 42 0" fill="none" stroke="#2d9dff" strokeWidth="12" strokeLinecap="round"/>
+<rect x="118" y="23" width="15" height="29" rx="7" fill="#0868ff"/><rect x="146" y="23" width="15" height="29" rx="7" fill="#0868ff"/>
+<ellipse cx="36" cy="134" rx="21" ry="29" fill="url(#insura3dMetal)" stroke="#81a7e7" strokeWidth="6"/>
+<ellipse cx="264" cy="134" rx="21" ry="29" fill="url(#insura3dMetal)" stroke="#81a7e7" strokeWidth="6"/>
+<circle cx="150" cy="192" r="7" fill="#146dfc"/><path d="M133 203q17 19 34 0" stroke="#1b78fa" strokeWidth="7" fill="none" strokeLinecap="round"/>
+</g>
+{doc&&<g transform="translate(190 185) rotate(12)"><rect width="80" height="102" rx="12" fill="#fff" stroke="#1775ff" strokeWidth="6"/><path d="M16 29h45M16 45h39M16 61h45" stroke="#9bbcf5" strokeWidth="6" strokeLinecap="round"/><circle cx="40" cy="82" r="8" fill="#1775ff"/></g>}
+{shield&&<g transform="translate(190 190)"><path d="M36 0 72 17v31q0 34-36 50Q0 82 0 48V17Z" fill="#116aff" stroke="#dceaff" strokeWidth="7"/><path d="m17 45 13 13 26-29" stroke="#fff" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" fill="none"/></g>}
+{wave&&<path d="M265 95l15-15M276 111l18-5" stroke="#1775ff" strokeWidth="7" strokeLinecap="round"/>}
 </svg>;
 }
