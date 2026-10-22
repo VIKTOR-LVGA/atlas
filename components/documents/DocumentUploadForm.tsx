@@ -45,7 +45,7 @@ export function DocumentUploadForm() {
       />
       <div
         className={cn(
-          "flex flex-col items-center rounded-[22px] border-2 border-dashed bg-[#f5f7fc] px-4 py-10 text-center transition",
+          "flex flex-col items-center rounded-[22px] border-2 border-dashed bg-[#f5f7fc] px-4 py-6 sm:py-8 text-center transition",
           dragging
             ? "border-accent bg-accent-soft shadow-sm ring-4 ring-accent/20"
             : "border-border hover:border-border hover:bg-card-muted"
@@ -132,7 +132,7 @@ export function DocumentUploadForm() {
         <div
           role="status"
           aria-live="polite"
-          className="fixed bottom-5 right-5 z-50 flex max-w-[calc(100vw-2.5rem)] items-center gap-2.5 rounded-xl border border-[var(--success-border)] bg-card px-4 py-3 text-[12px] font-medium text-foreground shadow-xl shadow-[var(--shadow-card)]"
+          className="fixed bottom-[calc(6.5rem+env(safe-area-inset-bottom))] right-5 z-50 lg:bottom-5 flex max-w-[calc(100vw-2.5rem)] items-center gap-2.5 rounded-xl border border-[var(--success-border)] bg-card px-4 py-3 text-[12px] font-medium text-foreground shadow-xl shadow-[var(--shadow-card)]"
         >
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--success-bg)] text-[var(--success-text)]">
             <CheckCircle2 className="h-4 w-4" />
