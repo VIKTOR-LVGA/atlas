@@ -136,19 +136,19 @@ export default function SettingsPage() {
             <div>
               <p className="text-[13px] font-medium text-foreground">Esporta i tuoi dati</p>
               <p className="text-[11px] text-muted">
-                Esportazione non ancora disponibile.
+                Scarica un archivio JSON con profilo, polizze, metadati documenti, conversazioni AI e correzioni. I PDF originali si scaricano dalla sezione Documenti.
               </p>
             </div>
-            <StatusBadge variant="neutral" label="In preparazione" />
+            <a href="/api/account/export" download="insura-dati.json" className="rounded-lg bg-accent px-4 py-2 text-xs font-semibold text-white">Esporta JSON</a>
           </div>
           <div className="flex flex-col gap-3 rounded-xl border atlas-alert-danger p-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-[13px] font-medium">Elimina account</p>
               <p className="text-[11px] opacity-90">
-                Flusso eliminazione non ancora disponibile.
+                Per richiedere la cancellazione scrivi a privacy@insura.ch quando la casella sarà attiva. La cancellazione automatica completa non è ancora disponibile.
               </p>
             </div>
-            <StatusBadge variant="neutral" label="In preparazione" />
+            <StatusBadge variant="neutral" label="Richiesta manuale" />
           </div>
         </div>
       </SectionCard>
