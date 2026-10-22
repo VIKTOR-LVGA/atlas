@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PageShell } from "@/components/ui/PageShell";
 import { SectionCard } from "@/components/ui/SectionCard";
@@ -129,6 +130,10 @@ export default function SettingsPage() {
         </div>
         <StatusBadge variant="neutral" label="Dettagli in preparazione" />
       </div>
+
+      <SectionCard title="Scadenze e attività">
+        <div className="flex flex-wrap gap-3"><Link href="/reminders" className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-accent">Vedi scadenze</Link><Link href="/activity" className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-accent">Errori e attività</Link></div>
+      </SectionCard>
 
       <SectionCard title="Dati e account">
         <div className="space-y-3">
