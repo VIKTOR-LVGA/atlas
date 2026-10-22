@@ -17,14 +17,14 @@ export function PageHeader({
   className,
 }: PageHeaderProps) {
   return (
-    <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between", className)}>
+    <div className={cn("flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between", className)}>
       <div>
-        <h1 className="text-[22px] font-semibold tracking-tight text-foreground">{title}</h1>
+        <h1 className="text-[21px] font-bold tracking-[-0.035em] text-foreground sm:text-[24px]">{title}</h1>
         {description && (
-          <p className="mt-1 text-[13px] text-muted">{description}</p>
+          <p className="mt-1 max-w-[60ch] text-[13px] leading-relaxed text-muted">{description}</p>
         )}
       </div>
-      <div className="flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:items-center">
+      <div className="flex flex-wrap items-center gap-2 sm:shrink-0 sm:justify-end">
         {meta}
         {action}
       </div>
