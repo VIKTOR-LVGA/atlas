@@ -31,38 +31,8 @@ export default async function DocumentsPage() {
         description="Carica un PDF, lascia che INSURA estragga i dati e confermali prima di salvarli."
       />
 
-      <div className="grid gap-2 rounded-[24px] border border-[#dce6ff] bg-[#f1f6ff] p-5 sm:grid-cols-3">{["1 · Carica il PDF","2 · Apri il documento e analizzalo","3 · Verifica i dati e salva"].map(step=><div key={step} className="rounded-[16px] bg-white px-4 py-4 text-[13px] font-bold text-[#174ac5]">{step}</div>)}</div>
-      <details className="rounded-[20px] border border-[#e5eaf3] bg-white p-4"><summary className="cursor-pointer text-[13px] font-bold text-[#101e3c]">Statistiche documenti</summary><div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <MetricCard
-          label="Archivio"
-          value={String(documents.length)}
-          subtext="PDF totali"
-          variant="blue"
-          icon={<IconFolder className="h-[18px] w-[18px]" />}
-        />
-        <MetricCard
-          label="Da analizzare"
-          value={String(uploadedCount)}
-          subtext="Pronti"
-          variant="yellow"
-          icon={<IconUpload className="h-[18px] w-[18px]" />}
-        />
-        <MetricCard
-          label="Analizzati"
-          value={String(analyzedCount)}
-          subtext="Estrazione completata"
-          variant="green"
-          icon={<IconDocuments className="h-[18px] w-[18px]" />}
-        />
-        <MetricCard
-          label="Errori"
-          value={String(failedCount)}
-          subtext={failedCount > 0 ? "Riprova analisi" : "Nessun errore"}
-          variant={failedCount > 0 ? "red" : "indigo"}
-          icon={<IconDocuments className="h-[18px] w-[18px]" />}
-        />
-      </div></details>
-      <p className="rounded-[16px] border border-[#e5eaf3] bg-white px-4 py-3 text-[12px] leading-5 text-[#53647e]">INSURA non considera automaticamente confermati i dati estratti. Dopo il caricamento, apri il documento per avviare l’analisi e controllare i risultati prima di salvare la polizza.</p>\n      <div className="grid gap-5 lg:grid-cols-3">
+      <p className="text-[12px] leading-5 text-muted">Carica il PDF, poi aprilo per analizzare e confermare i dati.</p>
+      <div className="grid gap-5 lg:grid-cols-3">
         <div className="order-2 lg:order-2 lg:col-span-2">
           <SectionCard
             title="Documenti caricati"
@@ -105,6 +75,36 @@ export default async function DocumentsPage() {
         </div>
       </div>
 
+      <details className="rounded-[20px] border border-[#e5eaf3] bg-white p-4"><summary className="cursor-pointer text-[13px] font-bold text-[#101e3c]">Statistiche documenti</summary><div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <MetricCard
+          label="Archivio"
+          value={String(documents.length)}
+          subtext="PDF totali"
+          variant="blue"
+          icon={<IconFolder className="h-[18px] w-[18px]" />}
+        />
+        <MetricCard
+          label="Da analizzare"
+          value={String(uploadedCount)}
+          subtext="Pronti"
+          variant="yellow"
+          icon={<IconUpload className="h-[18px] w-[18px]" />}
+        />
+        <MetricCard
+          label="Analizzati"
+          value={String(analyzedCount)}
+          subtext="Estrazione completata"
+          variant="green"
+          icon={<IconDocuments className="h-[18px] w-[18px]" />}
+        />
+        <MetricCard
+          label="Errori"
+          value={String(failedCount)}
+          subtext={failedCount > 0 ? "Riprova analisi" : "Nessun errore"}
+          variant={failedCount > 0 ? "red" : "indigo"}
+          icon={<IconDocuments className="h-[18px] w-[18px]" />}
+        />
+      </div></details>
       <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
           <Shield className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
