@@ -20,7 +20,7 @@ export function SectionCard({
   padding = "md",
 }: SectionCardProps) {
   const paddingClass =
-    padding === "none" ? "" : padding === "sm" ? "p-4" : "p-5";
+    padding === "none" ? "" : padding === "sm" ? "p-3 sm:p-4" : "p-4 sm:p-5";
 
   return (
     <section
@@ -30,13 +30,13 @@ export function SectionCard({
       )}
     >
       {(title || action) && (
-        <div className="flex items-center justify-between gap-3 border-b border-border-subtle px-5 py-3.5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle px-4 py-3.5 sm:px-5">
           <div>
             {title && (
-              <h2 className="text-[13px] font-semibold text-foreground">{title}</h2>
+              <h2 className="text-[14px] font-bold text-foreground">{title}</h2>
             )}
             {description && (
-              <p className="mt-0.5 text-[11px] text-muted">{description}</p>
+              <p className="mt-1 text-[12px] leading-relaxed text-muted">{description}</p>
             )}
           </div>
           {action}
