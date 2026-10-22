@@ -1696,3 +1696,13 @@ body { -webkit-font-smoothing: antialiased; }
 /* Avoid accidental horizontal scroll on small landing viewports. */
 .landing{max-width:100%;overflow-x:clip}
 @media(max-width:639px){.atlas-ref-landing h1{overflow-wrap:anywhere;letter-spacing:-.055em}.atlas-ref-hero-art-wrap{overflow:hidden}.atlas-ref-hero-art-wrap .atlas-ref-visual{max-width:none}}
+
+/* INSURA approved reference: alpine editorial hero, restrained cards and floating product. */
+.insura-showcase-hero{background:linear-gradient(115deg,#f9fbff 0%,#f1f7ff 48%,#e6f2ff 100%);color:#101a33}
+.insura-showcase-landscape{background-image:linear-gradient(90deg,rgba(248,251,255,.98) 0%,rgba(247,250,255,.94) 36%,rgba(235,245,255,.68) 62%,rgba(232,244,255,.22) 100%),url('/brand/atlas-alpine-lake-hero.webp');background-size:cover;background-position:center 60%;opacity:.98}
+.insura-showcase-art{height:530px;display:flex;align-items:center;justify-content:center}
+.insura-showcase-art .atlas-ref-visual{height:530px;max-width:590px}
+.insura-showcase-art .atlas-ref-pedestal{display:none}
+.insura-showcase-art .atlas-ref-ribbon{opacity:.4}
+@media(max-width:1023px){.insura-showcase-art{height:430px}.insura-showcase-art .atlas-ref-visual{height:460px;width:420px;max-width:none;flex-shrink:0;transform:scale(.85);transform-origin:center center}}
+@media(max-width:639px){.insura-showcase-hero{border-radius:0 0 24px 24px}.insura-showcase-landscape{background-position:64% center;opacity:.65}.insura-showcase-art{height:285px;overflow:hidden}.insura-showcase-art .atlas-ref-visual{position:relative;left:auto;top:auto;width:390px;max-width:none;height:460px;transform:scale(.61);transform-origin:center center}.insura-showcase-art .atlas-ref-phone{left:32%}.insura-showcase-art .atlas-ref-glass-shield{right:0}}
