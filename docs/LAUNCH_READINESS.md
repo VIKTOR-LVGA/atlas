@@ -24,3 +24,9 @@ Stato: **PILOTA / NON APPROVATO PER LANCIO PUBBLICO**. La compilazione riuscita 
 ## Gate di rilascio
 - **GO PILOTA** solo dopo test funzionali e isolamento dati riusciti.
 - **GO PUBBLICO** solo dopo tutte le verifiche, approvazione legale e consenso esplicito del proprietario.
+
+## Recapiti configurati (caselle da attivare)
+- Informazioni generali: `info@insura.ch`.
+- Privacy e richieste sui dati: `privacy@insura.ch`.
+- Le caselle non sono ancora state create sul dominio: non presentarle come operative né promettere risposta finché non sono attive.
+- Prima del lancio verificare DNS MX/SPF/DKIM/DMARC, invio/ricezione, recapito delle richieste privacy e indicazione del titolare effettivo nell'informativa definitiva.

@@ -12,7 +12,7 @@ const pages = {
       ["Dati trattati", "Account, informazioni di profilo, documenti assicurativi caricati, dati estratti e conversazioni con INSURA AI possono contenere dati personali, anche particolarmente delicati."],
       ["Fornitori e analisi", "L’app utilizza servizi di autenticazione e archiviazione Supabase, infrastruttura Vercel e servizi AI per analizzare i documenti. Le sedi effettive di trattamento, i trasferimenti e i tempi di conservazione devono essere verificati e pubblicati prima del lancio."],
       ["Accesso e protezione", "Le funzioni personali richiedono autenticazione. Sono previsti controlli di accesso e archiviazione privata, ma non si dichiara concluso un audit indipendente."],
-      ["Diritti e contatti", "Il titolare del trattamento, il recapito privacy, le basi giuridiche, i tempi di conservazione e la procedura completa per accesso/cancellazione sono ancora da formalizzare. Non caricare documenti reali prima di aver ricevuto l’informativa definitiva."],
+      ["Diritti e contatti", "Per richieste relative ai dati personali: privacy@insura.ch (indirizzo previsto, non ancora attivo). L’identità del titolare, le basi giuridiche, i tempi di conservazione e la procedura completa per accesso/cancellazione sono ancora da formalizzare. Non caricare documenti reali prima di aver ricevuto l’informativa definitiva."],
     ]
   },
   "termini": {
@@ -21,7 +21,7 @@ const pages = {
     sections: [
       ["Funzionalità sperimentali", "L’estrazione automatica può omettere o interpretare erroneamente informazioni. L’utente deve confrontare ogni campo con il documento originale."],
       ["Nessuna consulenza vincolante", "INSURA non garantisce coperture, disdette, prezzi di mercato o risparmi. Per decisioni assicurative fa fede la documentazione contrattuale verificata e, se necessario, una consulenza qualificata."],
-      ["Disponibilità e assistenza", "Le funzioni della versione pilota possono cambiare. Condizioni d’uso, assistenza, responsabilità e contatti del gestore devono essere formalizzati prima dell’apertura al pubblico."],
+      ["Disponibilità e assistenza", "Le funzioni della versione pilota possono cambiare. Per informazioni generali: info@insura.ch (indirizzo previsto, non ancora attivo). Condizioni d’uso, assistenza e responsabilità devono essere formalizzati prima dell’apertura al pubblico."],
     ]
   },
   "come-funziona": {

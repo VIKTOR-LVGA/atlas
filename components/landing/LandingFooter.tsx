@@ -18,6 +18,7 @@ export function LandingFooter() {
         <div><Link href="/" className="inline-flex" aria-label="INSURA homepage"><AtlasBrandLogo variant="stacked"/></Link><p className="mt-2 text-[12px] text-[#56647b]">Le tue assicurazioni, finalmente chiare.</p></div>
         <nav aria-label="Collegamenti footer" className="flex flex-wrap gap-x-5 gap-y-3">{links.map(({href,label})=><Link key={href} href={href} className="text-[12px] font-semibold text-[#40516c] hover:text-[#3157eb]">{label}</Link>)}</nav>
       </div>
+      <div className="flex flex-wrap gap-x-5 gap-y-2 text-[12px] text-[#40516c]"><span>Informazioni: info@insura.ch</span><span>Privacy: privacy@insura.ch</span><span className="text-[#647189]">Caselle email in attivazione</span></div>
       <div className="mt-7 flex flex-col gap-2 border-t border-[#e0e6f0] pt-5 text-[11px] text-[#647189] sm:flex-row sm:justify-between"><span>© {new Date().getFullYear()} INSURA · Svizzera</span><span>Versione pilota · Documentazione legale in revisione</span></div>
     </div>
   </footer>;
