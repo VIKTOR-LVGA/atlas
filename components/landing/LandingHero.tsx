@@ -18,7 +18,7 @@ export function LandingHero() {
           <p className="mt-3 max-w-[580px] text-[13px] leading-[1.45] sm:mt-7 sm:text-[15px] sm:leading-[1.75] text-[#5a6b8b] sm:text-[18px]">
             Carica le tue polizze, ritrovale quando vuoi e comprendi meglio le coperture. Tutto in un unico spazio gratuito.
           </p>
-          <div className="mt-4 flex flex-row items-center gap-3 sm:mt-9 sm:flex-row sm:flex-row sm:items-center">
+          <div className="mt-4 flex flex-row items-center gap-3 sm:mt-9 sm:items-center">
             <Link href="/register" className="atlas-ref-cta inline-flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-[13px] px-4 text-[13px] sm:min-h-[55px] sm:flex-none sm:rounded-[17px] sm:px-7 sm:text-[14px] font-bold text-white">
               <UploadCloud className="h-5 w-5" aria-hidden/> Inizia gratis
             </Link>
@@ -27,7 +27,7 @@ export function LandingHero() {
               Scopri come funziona
             </a>
           </div>
-          <div className="mt-4 hidden grid-cols-3 gap-2 sm:mt-9 sm:grid sm:mt-11 sm:gap-5">
+          <div className="mt-4 hidden grid-cols-3 gap-2 sm:mt-11 sm:grid sm:gap-5">
             {[
               { Icon: FileText, title: "Carica le polizze" },
               { Icon: Sparkles, title: "Analisi con AI" },
