@@ -3,7 +3,7 @@ import { LandingSection, LandingSectionHeader } from "@/components/landing/Landi
 const faqs = [
   {
     q: "Insura vende polizze assicurative?",
-    a: "No. Insura è una piattaforma indipendente di analisi. Estrae e organizza i dati dai tuoi PDF — non riceve commissioni da assicuratori.",
+    a: "INSURA non emette né vende direttamente polizze. Ti aiuta a organizzare e comprendere quelle che possiedi. Eventuali servizi di consulenza e partnership commerciali saranno indicati chiaramente prima della richiesta.",
   },
   {
     q: "Cosa fa l'estrazione AI in pratica?",
@@ -33,7 +33,7 @@ export function LandingFaq() {
           {faqs.map((faq) => (
             <details
               key={faq.q}
-              name="insura-faq" className="group landing-glass rounded-xl px-4 py-3.5 transition open:border-indigo-500/20 open:bg-indigo-500/[0.06]"
+              name="insura-faq" className="group rounded-xl border border-[#e4eaf5] bg-white px-4 py-3.5 transition open:border-[#cbd8ff] open:bg-[#f7f9ff]"
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-[var(--landing-text)] marker:content-none [&::-webkit-details-marker]:hidden">
                 {faq.q}
@@ -41,7 +41,7 @@ export function LandingFaq() {
                   +
                 </span>
               </summary>
-              <p className="mt-3 border-t border-white/[0.06] pt-3 text-sm leading-relaxed text-muted">
+              <p className="mt-3 border-t border-[#e4eaf5] pt-3 text-sm leading-relaxed text-[#53647e]">
                 {faq.a}
               </p>
             </details>
