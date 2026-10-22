@@ -13,7 +13,7 @@ const steps = [
 export function LandingHowItWorks() {
   return <LandingSection id="how-it-works" tone="base" className="py-14 md:py-20">
     <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
-      <div className="mx-auto max-w-[650px] text-center"><AtlasBrandMark className="mx-auto mb-2 h-16 w-16" />
+      <div className="mx-auto max-w-[650px] text-center"><AtlasBrandMark pose="document" className="mx-auto mb-2 h-16 w-16" />
         <p className="text-[11px] font-bold uppercase tracking-[.16em] text-[#3157eb]">Come funziona</p>
         <h2 className="mt-3 text-[clamp(2rem,4vw,3.25rem)] font-extrabold tracking-[-.055em] text-[#121a29]">Tre passi. Tutto più chiaro.</h2>
         <p className="mt-3 text-[14px] leading-relaxed text-[#56647b]">Dal PDF a un archivio ordinato, sempre con la tua conferma.</p>
