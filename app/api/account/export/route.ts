@@ -15,7 +15,7 @@ export async function GET() {
     const rows: unknown[] = [];
     for (let start = 0; start < 10000; start += 500) {
       const { data, error } = await supabase.from(table).select("*").eq(filter, user.id).range(start, start + 499);
-      if (error) return new Response("Esportazione non disponibile. Riprova.", { status: 503, headers: { "Cache-Control": "no-store" } });
+      if (error) { if (["profiles","policies","documents","extraction_corrections","insura_chat_history"].includes(table)) return new Response("Esportazione non disponibile. Riprova.", { status: 503, headers: { "Cache-Control": "no-store" } }); records[table] = { unavailable: true }; break; }
       rows.push(...(data ?? []));
       if (!data || data.length < 500) break;
       if (start === 9500) return new Response("Archivio troppo grande per l'esportazione diretta. Contatta il supporto.", { status: 413, headers: { "Cache-Control": "no-store" } });
