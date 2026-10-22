@@ -1745,3 +1745,17 @@ body { -webkit-font-smoothing: antialiased; }
 .insura-handwritten-note{left:0;top:5%;font-size:16px}
 }
 @media(max-width:375px){.insura-showcase-art .atlas-ref-visual{transform:scale(.69)}.insura-showcase-art{height:410px}}
+
+/* Mobile hero: keep the ENTIRE device inside the illustration, no clipped top. */
+@media(max-width:639px){
+.insura-showcase-art{height:480px;overflow:visible!important;align-items:flex-start;justify-content:center}
+.insura-showcase-art .atlas-ref-visual{position:relative!important;top:auto!important;left:auto!important;flex:0 0 400px;width:400px!important;min-width:400px!important;height:600px!important;margin:0!important;transform:scale(.73)!important;transform-origin:top center!important;overflow:visible!important}
+.insura-showcase-art .atlas-ref-phone{top:64px!important;left:34%!important;width:275px!important;height:535px!important}
+.insura-showcase-art .atlas-ref-visual>div:first-child{top:33%!important;left:0!important}
+.insura-handwritten-note{top:8px!important;left:0!important}
+.insura-showcase-hero{overflow:hidden!important}
+}
+@media(max-width:375px){
+.insura-showcase-art{height:425px}
+.insura-showcase-art .atlas-ref-visual{transform:scale(.65)!important}
+}
