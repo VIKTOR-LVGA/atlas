@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowUpRight, ChartNoAxesColumnIncreasing, FileText, HelpCircle, CalendarClock, Home, ShieldCheck, Scale, Sparkles, Plus } from "lucide-react";
+import { ArrowUpRight, ChartNoAxesColumnIncreasing, FileText, HelpCircle, CalendarClock, Activity, Home, ShieldCheck, Scale, Sparkles, Plus } from "lucide-react";
 import { AtlasBrandLogo } from "@/components/brand/AtlasBrandLogo";
 import { useCurrentProfile } from "@/components/profile/ProfileProvider";
 import { getProfileDisplayName, getProfileInitials } from "@/lib/profile-display";
@@ -13,6 +13,7 @@ const entries=[
   {href:"/policies",label:"Le mie polizze",Icon:ShieldCheck},
   {href:"/documents",label:"Documenti",Icon:FileText},
   {href:"/reminders",label:"Scadenze",Icon:CalendarClock},
+  {href:"/activity",label:"Attività tecnica",Icon:Activity},
   {href:"/analysis",label:"Premi e costi",Icon:ChartNoAxesColumnIncreasing},
   {href:"/ask",label:"Chiedi a INSURA",Icon:Sparkles},
   {href:"/market",label:"Confronto mercato",Icon:Scale},
