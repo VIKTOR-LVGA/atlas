@@ -28,7 +28,7 @@ export function AtlasHeroVisual() {
         <div className="mt-3 h-2 w-5/6 rounded-full bg-[#e1e9fa]" />
         <div className="mt-7 inline-flex items-center gap-1 rounded-lg bg-[#ebf0ff] px-2 py-1 text-[10px] text-[#4665d5]"><FileText className="h-3 w-3"/> PDF</div>
       </div>
-      <div className="pointer-events-none absolute right-[2%] top-[2%] z-20 hidden sm:block" aria-hidden="true"><AtlasBrandMark className="h-24 w-24 drop-shadow-lg" /></div>
+      <div className="pointer-events-none absolute right-[2%] top-[2%] z-20 hidden sm:block" aria-hidden="true"><AtlasBrandMark pose="shield" className="h-24 w-24 drop-shadow-lg" /></div>
       <div className="atlas-ref-phone" aria-hidden>
         <div className="atlas-ref-phone-inner">
           <div className="atlas-ref-island"/>
