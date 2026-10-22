@@ -55,6 +55,11 @@ export default async function DashboardPage() {
   const priced = confirmed.filter((p) => p.currency === "CHF" && p.premiumAmount !== null && Number.isFinite(p.premiumAmount) && p.premiumAmount >= 0);
   const annualTotal = priced.reduce((sum,p) => sum + (p.premiumAmount ?? 0) * frequencyFactor[p.premiumFrequency],0);
   const nextRenewal = confirmed.filter((p) => p.renewalDate && p.renewalDate >= new Date().toISOString().slice(0,10)).sort((a,b)=>(a.renewalDate ?? "").localeCompare(b.renewalDate ?? ""))[0];
+  const inThirtyDays = new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+  const upcomingDeadlines = confirmed.flatMap((policy) => [
+    { id: policy.id, provider: policy.provider, label: "Rinnovo", date: policy.renewalDate },
+    { id: policy.id, provider: policy.provider, label: "Fine contratto", date: policy.endDate },
+  ]).filter((entry): entry is {id:string; provider:string; label:string; date:string} => Boolean(entry.date) && entry.date! >= new Date().toISOString().slice(0,10) && entry.date! <= inThirtyDays);
   const money = (n:number) => new Intl.NumberFormat("de-CH",{style:"currency",currency:"CHF",maximumFractionDigits:2}).format(n);
   const nextAction =
     pendingReviewPolicies.length > 0
@@ -105,6 +110,10 @@ export default async function DashboardPage() {
         </div>
       ) : null}
 
+      {upcomingDeadlines.length > 0 && <Link href="/reminders" className="flex items-center gap-3 rounded-[20px] border border-amber-200 bg-amber-50 p-4 text-amber-950">
+        <CalendarDays className="h-6 w-6 shrink-0" />
+        <span className="flex-1 text-sm"><strong className="block">{upcomingDeadlines.length} scadenza{upcomingDeadlines.length === 1 ? "" : "e"} entro 30 giorni</strong><span className="text-xs">Controlla i contratti e i termini di disdetta.</span></span><span>→</span>
+      </Link>}
       <Link href="/ask" className="flex items-center justify-between gap-3 rounded-[20px] border border-[#dce6ff] bg-white p-5"><span><strong className="block text-[15px] text-[#101e3c]">Chiedi a INSURA ✨</strong><span className="mt-1 block text-[12px] text-[#687a99]">Simula situazioni e verifica le tue coperture, anche nelle CGA.</span></span><span className="text-[#3157eb]">→</span></Link>
       <div className="grid grid-cols-2 gap-3"><div className="rounded-[18px] border border-[#e5eaf3] bg-white p-4"><p className="text-[11px] font-semibold text-[#72819a]">Polizze verificate</p><p className="mt-2 text-[26px] font-extrabold text-[#101e3c]">{confirmed.length}</p></div><div className="rounded-[18px] border border-[#e5eaf3] bg-white p-4"><p className="text-[11px] font-semibold text-[#72819a]">Da confermare</p><p className="mt-2 text-[26px] font-extrabold text-[#101e3c]">{pendingReviewPolicies.length}</p></div></div>
       <Link href="/analysis" className="block overflow-hidden rounded-[26px] bg-gradient-to-br from-[#1045d2] via-[#1766f7] to-[#268dff] p-6 text-white shadow-[0_15px_35px_rgba(23,100,241,.2)] sm:p-8"><p className="text-[12px] font-bold uppercase tracking-wider text-white/80">Spesa annuale confermata</p><p className="mt-5 text-[38px] font-extrabold tracking-tight">{priced.length ? money(annualTotal) : "—"}</p><p className="mt-1 text-[13px] text-white/85">{priced.length ? money(annualTotal/12)+" / mese equivalente" : "Conferma un premio per vedere il totale"}</p><p className="mt-6 text-[11px] text-white/75">Solo premi CHF confermati · Apri analisi →</p></Link>
