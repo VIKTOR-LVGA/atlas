@@ -12,12 +12,12 @@ return <svg className={cn("shrink-0",className)} viewBox="0 0 300 310" xmlns="ht
 </defs>
 <ellipse cx="149" cy="291" rx="94" ry="12" fill="#2b65b9" opacity=".15" filter="url(#insura3dShadow)"/>
 <g>
-<path d="M96 226 80 276q-3 12 11 17h29q11-4 10-17l-2-34" fill="url(#insura3dMetal)" stroke="#9bb9ec" strokeWidth="5"/>
-<path d="m177 241 1 37q1 12 15 15h27q14-6 8-19l-18-47" fill="url(#insura3dMetal)" stroke="#9bb9ec" strokeWidth="5"/>
-<ellipse cx="151" cy="221" rx="79" ry="67" fill="url(#insura3dShell)" stroke="#9eb9e9" strokeWidth="5"/>
-<path d="M97 192q53-22 110 4" fill="none" stroke="#fff" strokeWidth="8" opacity=".78"/>
-<rect x="137" y="202" width="12" height="19" rx="5" fill="#1476ff"/><rect x="153" y="202" width="12" height="19" rx="5" fill="#1476ff"/>
-<path d="M139 233q12 18 26 0" stroke="#0b1b39" strokeWidth="8" fill="none" strokeLinecap="round"/>
+<path d="M104 246 98 274q-2 11 10 13h20q10-2 9-13l-2-28" fill="url(#insura3dMetal)" stroke="#9bb9ec" strokeWidth="5"/>
+<path d="m171 247 2 27q1 12 12 13h20q12-4 8-16l-9-25" fill="url(#insura3dMetal)" stroke="#9bb9ec" strokeWidth="5"/>
+<ellipse cx="151" cy="225" rx="69" ry="59" fill="url(#insura3dShell)" stroke="#9eb9e9" strokeWidth="5"/>
+<path d="M104 192q48-20 96 4" fill="none" stroke="#fff" strokeWidth="8" opacity=".78"/>
+<rect x="139" y="203" width="10" height="13" rx="5" fill="#1476ff"/><rect x="153" y="203" width="10" height="13" rx="5" fill="#1476ff"/>
+<path d="M139 236q12 13 26 0" stroke="#1268ff" strokeWidth="6" fill="none" strokeLinecap="round"/>
 <path d="M76 192q-24-3-34 24" stroke="#0b1a38" strokeWidth="19" strokeLinecap="round"/><ellipse cx="40" cy="220" rx="19" ry="23" fill="url(#insura3dMetal)" stroke="#83a9ea" strokeWidth="5"/>
 {wave?<g><path d="M215 198q32-26 41-61" stroke="#091c41" strokeWidth="20" strokeLinecap="round"/><path d="M256 136q10-12 19-5l5 10q2 10-9 16l-10 6q-18 3-19-13" fill="url(#insura3dMetal)" stroke="#88a9df" strokeWidth="5"/><path d="M263 132l8-18" stroke="#fff" strokeWidth="9" strokeLinecap="round"/></g>:<g><path d="M220 194q23 12 32 36" stroke="#0a1c3d" strokeWidth="20" strokeLinecap="round"/><ellipse cx="252" cy="232" rx="18" ry="22" fill="url(#insura3dMetal)" stroke="#8aace6" strokeWidth="5"/></g>}
 </g>
@@ -32,7 +32,7 @@ return <svg className={cn("shrink-0",className)} viewBox="0 0 300 310" xmlns="ht
 <rect x="118" y="23" width="15" height="29" rx="7" fill="#0868ff"/><rect x="146" y="23" width="15" height="29" rx="7" fill="#0868ff"/>
 <ellipse cx="36" cy="134" rx="21" ry="29" fill="url(#insura3dMetal)" stroke="#81a7e7" strokeWidth="6"/>
 <ellipse cx="264" cy="134" rx="21" ry="29" fill="url(#insura3dMetal)" stroke="#81a7e7" strokeWidth="6"/>
-<circle cx="150" cy="192" r="7" fill="#146dfc"/><path d="M133 203q17 19 34 0" stroke="#1b78fa" strokeWidth="7" fill="none" strokeLinecap="round"/>
+<circle cx="150" cy="193" r="6" fill="#146dfc"/>
 </g>
 {doc&&<g transform="translate(190 185) rotate(12)"><rect width="80" height="102" rx="12" fill="#fff" stroke="#1775ff" strokeWidth="6"/><path d="M16 29h45M16 45h39M16 61h45" stroke="#9bbcf5" strokeWidth="6" strokeLinecap="round"/><circle cx="40" cy="82" r="8" fill="#1775ff"/></g>}
 {shield&&<g transform="translate(190 190)"><path d="M36 0 72 17v31q0 34-36 50Q0 82 0 48V17Z" fill="#116aff" stroke="#dceaff" strokeWidth="7"/><path d="m17 45 13 13 26-29" stroke="#fff" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" fill="none"/></g>}
